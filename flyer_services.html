@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Nozar Construction — Services Flyer</title>
+  <style>
+    @page { size: 8.5in 11in; margin: 0; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #152340;
+      --orange: #D9620A;
+      --light:  #F7F8FA;
+      --mid:    #E2E6EB;
+      --text:   #1E2535;
+      --muted:  #5A6478;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      width: 8.5in; height: 11in;
+      background: white;
+      color: var(--text);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      background: var(--navy);
+      padding: .45in .5in .35in;
+      display: flex; justify-content: space-between; align-items: flex-end;
+    }
+    .top-bar-left {}
+    .biz-name {
+      font-size: 26pt; font-weight: 800; color: white; letter-spacing: .02em;
+      line-height: 1;
+    }
+    .biz-name span { color: var(--orange); }
+    .tagline { color: rgba(255,255,255,.7); font-size: 9.5pt; margin-top: 4px; letter-spacing: .04em; }
+    .license-pill {
+      background: var(--orange); color: white;
+      padding: 5px 14px; border-radius: 20px;
+      font-size: 8.5pt; font-weight: 700; letter-spacing: .04em;
+    }
+
+    /* ── ORANGE STRIPE ── */
+    .stripe { background: var(--orange); height: 5px; }
+
+    /* ── HERO BAND ── */
+    .hero-band {
+      background: var(--light);
+      padding: .22in .5in;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .hero-band h1 {
+      font-size: 21pt; font-weight: 800; color: var(--navy); line-height: 1.2;
+    }
+    .hero-band h1 em { color: var(--orange); font-style: normal; }
+    .stats-row { display: flex; gap: 1.4rem; }
+    .stat-item { text-align: center; }
+    .stat-num { font-size: 18pt; font-weight: 800; color: var(--orange); display: block; line-height: 1; }
+    .stat-lbl { font-size: 7pt; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+
+    /* ── BODY ── */
+    .body { padding: .25in .5in; flex: 1; display: flex; flex-direction: column; gap: .18in; }
+
+    /* ── SERVICES GRID ── */
+    .services-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: .15in;
+    }
+    .svc {
+      background: var(--light); border-radius: 6px;
+      padding: .14in .16in; border-left: 3px solid var(--orange);
+    }
+    .svc-title { font-size: 9pt; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+    .svc-desc { font-size: 7.8pt; color: var(--muted); line-height: 1.45; }
+
+    /* ── ABOUT ROW ── */
+    .about-row {
+      display: flex; gap: .25in; align-items: stretch;
+    }
+    .about-box {
+      flex: 1; background: var(--navy); border-radius: 8px;
+      padding: .2in; color: white;
+    }
+    .about-box h3 { font-size: 9.5pt; font-weight: 700; color: var(--orange); margin-bottom: .1in; }
+    .about-box p { font-size: 8pt; line-height: 1.6; color: rgba(255,255,255,.85); }
+
+    .why-box {
+      flex: 1; background: var(--light); border-radius: 8px;
+      padding: .2in;
+    }
+    .why-box h3 { font-size: 9.5pt; font-weight: 700; color: var(--navy); margin-bottom: .08in; }
+    .why-list { list-style: none; }
+    .why-list li {
+      font-size: 8pt; color: var(--muted); line-height: 1.45;
+      padding: 3px 0; display: flex; gap: 6px;
+    }
+    .why-list li::before { content: '✓'; color: var(--orange); font-weight: 800; flex-shrink: 0; }
+
+    /* ── CALL TO ACTION ── */
+    .cta-band {
+      background: var(--orange); border-radius: 8px;
+      padding: .18in .25in;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .cta-left h3 { font-size: 13pt; font-weight: 800; color: white; line-height: 1.2; }
+    .cta-left p { font-size: 8pt; color: rgba(255,255,255,.85); margin-top: 3px; }
+    .cta-right { text-align: right; }
+    .cta-phone { font-size: 18pt; font-weight: 800; color: white; line-height: 1; }
+    .cta-email { font-size: 9pt; color: rgba(255,255,255,.85); margin-top: 2px; }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: var(--navy); padding: .12in .5in;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-left { color: rgba(255,255,255,.6); font-size: 7.5pt; }
+    .footer-right { color: rgba(255,255,255,.6); font-size: 7.5pt; text-align: right; }
+    .footer strong { color: var(--orange); }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-left">
+    <div class="biz-name"><span>NOZAR</span> CONSTRUCTION</div>
+    <div class="tagline">Southern California General Contractor &nbsp;·&nbsp; Los Angeles Area</div>
+  </div>
+  <div class="license-pill">CA GC License Class B &nbsp;|&nbsp; #1107974</div>
+</div>
+<div class="stripe"></div>
+
+<div class="hero-band">
+  <h1>Built Right.<br><em>From the Ground Up.</em></h1>
+  <div class="stats-row">
+    <div class="stat-item">
+      <span class="stat-num">20+</span>
+      <span class="stat-lbl">Years Experience</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">100k+</span>
+      <span class="stat-lbl">Sq. Ft. Built Out</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">Class B</span>
+      <span class="stat-lbl">GC Licensed</span>
+    </div>
+  </div>
+</div>
+
+<div class="body">
+
+  <div class="services-grid">
+    <div class="svc">
+      <div class="svc-title">Tenant Improvements & Build-Outs</div>
+      <div class="svc-desc">Full commercial TIs — permits, trades coordination, inspections. Office, retail, and industrial.</div>
+    </div>
+    <div class="svc">
+      <div class="svc-title">General Remodels & Renovations</div>
+      <div class="svc-desc">Interior and exterior remodels for commercial and residential properties, soup to nuts.</div>
+    </div>
+    <div class="svc">
+      <div class="svc-title">ADA Compliance & Upgrades</div>
+      <div class="svc-desc">Path-of-travel improvements, restrooms, ramps, parking — bring any property into full compliance.</div>
+    </div>
+    <div class="svc">
+      <div class="svc-title">Roofing & Weatherproofing</div>
+      <div class="svc-desc">Commercial and residential roofing — repairs, full replacements, and maintenance programs.</div>
+    </div>
+    <div class="svc">
+      <div class="svc-title">Concrete & Structural Work</div>
+      <div class="svc-desc">Slabs, flatwork, footings, curbs. Structural engineers coordinated when required.</div>
+    </div>
+    <div class="svc">
+      <div class="svc-title">Electrical & Plumbing</div>
+      <div class="svc-desc">Coordination of licensed subs for panel upgrades, rough-in, finish work — commercial and residential.</div>
+    </div>
+    <div class="svc">
+      <div class="svc-title">Façade & Exterior Upgrades</div>
+      <div class="svc-desc">Storefront renovations, painting, signage — improvements that add real value to your asset.</div>
+    </div>
+    <div class="svc">
+      <div class="svc-title">Property Maintenance Programs</div>
+      <div class="svc-desc">Ongoing upkeep for property owners — capital repairs, preventative maintenance, vendor coordination.</div>
+    </div>
+    <div class="svc">
+      <div class="svc-title">Site Work & Grading</div>
+      <div class="svc-desc">Grading, drainage, and site preparation for new construction and major renovations.</div>
+    </div>
+  </div>
+
+  <div class="about-row">
+    <div class="about-box">
+      <h3>About Frank Nozar</h3>
+      <p>
+        Frank is a California Licensed General Contractor (Class B, #1107974) and the founder of Nozar Construction. Over more than two decades, he personally managed every build-out across 10 commercial retail locations in Los Angeles and has owned and operated 100,000+ sq. ft. of commercial real estate — using his contractor license to execute tenant improvements, capital repairs, roofing, concrete, ADA upgrades, and full remodels.
+      </p>
+      <p style="margin-top:8px;">
+        When you hire Nozar Construction, you work directly with Frank from first call to project closeout.
+      </p>
+    </div>
+    <div class="why-box">
+      <h3>Why Owners Choose Nozar Construction</h3>
+      <ul class="why-list">
+        <li>Owner-operated — Frank is on every job personally</li>
+        <li>Licensed and fully permitted — no shortcuts</li>
+        <li>Real estate perspective: every scope is evaluated for ROI</li>
+        <li>Straight estimates — no lowball bids, no surprise change orders</li>
+        <li>Manages architects, engineers, subs, and inspections</li>
+        <li>Deep knowledge of LA building departments and local codes</li>
+        <li>On-schedule delivery with clear milestone communication</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cta-band">
+    <div class="cta-left">
+      <h3>Ready to get started? Call for a free estimate.</h3>
+      <p>We respond within one business day. No obligation.</p>
+    </div>
+    <div class="cta-right">
+      <div class="cta-phone">(818) 371-0334</div>
+      <div class="cta-email">fnozar@gmail.com</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <div class="footer-left">
+    <strong>Nozar Construction</strong> &nbsp;·&nbsp; Los Angeles, CA &nbsp;·&nbsp; Serving Southern California
+  </div>
+  <div class="footer-right">
+    <strong>CA GC License Class B — #1107974</strong>
+  </div>
+</div>
+
+</body>
+</html>

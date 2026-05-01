@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nozar Construction | Licensed General Contractor — Southern California</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #152340;
+      --orange: #D9620A;
+      --light:  #F7F8FA;
+      --mid:    #E2E6EB;
+      --text:   #1E2535;
+      --muted:  #5A6478;
+      --white:  #FFFFFF;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: var(--text);
+      background: var(--white);
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--navy);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5%;
+      height: 64px;
+    }
+    .nav-logo {
+      color: var(--white);
+      font-size: 1.2rem; font-weight: 700; letter-spacing: .02em;
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--orange); }
+    nav ul { list-style: none; display: flex; gap: 2rem; }
+    nav ul a {
+      color: rgba(255,255,255,.8); text-decoration: none;
+      font-size: .9rem; letter-spacing: .04em; text-transform: uppercase;
+      transition: color .2s;
+    }
+    nav ul a:hover { color: var(--orange); }
+    .nav-cta {
+      background: var(--orange); color: var(--white) !important;
+      padding: .45rem 1.1rem; border-radius: 4px;
+      font-weight: 600;
+    }
+    .nav-cta:hover { background: #bf530a !important; color: var(--white) !important; }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #1e3560 100%);
+      color: var(--white);
+      padding: 100px 5% 80px;
+      display: flex; flex-direction: column; align-items: flex-start;
+      position: relative; overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute; right: -60px; top: -80px;
+      width: 520px; height: 520px;
+      background: var(--orange); opacity: .06; border-radius: 50%;
+    }
+    .hero-tag {
+      background: var(--orange); color: var(--white);
+      font-size: .75rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; padding: .3rem .8rem; border-radius: 3px;
+      margin-bottom: 1.4rem;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 4.5vw, 3.4rem);
+      font-weight: 800; line-height: 1.15;
+      max-width: 700px; margin-bottom: 1.2rem;
+    }
+    .hero h1 em { color: var(--orange); font-style: normal; }
+    .hero p {
+      font-size: 1.1rem; line-height: 1.7;
+      max-width: 580px; color: rgba(255,255,255,.8);
+      margin-bottom: 2rem;
+    }
+    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--orange); color: var(--white);
+      padding: .85rem 2rem; border-radius: 5px;
+      font-size: 1rem; font-weight: 700; text-decoration: none;
+      transition: background .2s;
+    }
+    .btn-primary:hover { background: #bf530a; }
+    .btn-ghost {
+      border: 2px solid rgba(255,255,255,.4); color: var(--white);
+      padding: .85rem 2rem; border-radius: 5px;
+      font-size: 1rem; font-weight: 600; text-decoration: none;
+      transition: border-color .2s;
+    }
+    .btn-ghost:hover { border-color: var(--white); }
+
+    /* ── STATS BAR ── */
+    .stats {
+      background: var(--orange);
+      display: flex; flex-wrap: wrap;
+      justify-content: space-around;
+    }
+    .stat {
+      padding: 1.4rem 2rem; text-align: center; color: var(--white);
+    }
+    .stat-num { font-size: 2rem; font-weight: 800; display: block; }
+    .stat-label { font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; opacity: .9; }
+
+    /* ── SECTION WRAPPER ── */
+    section { padding: 80px 5%; }
+    .section-tag {
+      color: var(--orange); font-size: .75rem; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      margin-bottom: .5rem;
+    }
+    h2 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 800;
+      color: var(--navy); margin-bottom: 1rem; line-height: 1.2;
+    }
+    .section-sub {
+      color: var(--muted); font-size: 1.05rem; line-height: 1.7;
+      max-width: 580px; margin-bottom: 3rem;
+    }
+
+    /* ── SERVICES ── */
+    .services-bg { background: var(--light); }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .service-card {
+      background: var(--white); border-radius: 8px;
+      padding: 1.8rem; border: 1px solid var(--mid);
+      transition: box-shadow .2s, transform .2s;
+    }
+    .service-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.08); transform: translateY(-2px); }
+    .service-icon {
+      width: 48px; height: 48px; border-radius: 8px;
+      background: #FEF0E6; display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1rem; font-size: 1.5rem;
+    }
+    .service-card h3 { font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: .5rem; }
+    .service-card p { font-size: .92rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── ABOUT ── */
+    .about-inner {
+      display: flex; gap: 5%; flex-wrap: wrap; align-items: flex-start;
+    }
+    .about-text { flex: 1 1 400px; }
+    .about-card {
+      flex: 0 0 300px;
+      background: var(--navy); color: var(--white);
+      border-radius: 10px; padding: 2rem;
+    }
+    .about-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.2rem; color: var(--orange); }
+    .cred-item {
+      display: flex; align-items: flex-start; gap: .8rem;
+      margin-bottom: 1rem; font-size: .92rem; line-height: 1.5;
+    }
+    .cred-item::before {
+      content: '✓'; color: var(--orange); font-weight: 800;
+      flex-shrink: 0; margin-top: .05rem;
+    }
+    .license-badge {
+      margin-top: 1.5rem; padding: 1rem; border-radius: 6px;
+      background: rgba(255,255,255,.08); text-align: center;
+    }
+    .license-badge .lic-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; opacity: .7; }
+    .license-badge .lic-num { font-size: 1.1rem; font-weight: 800; letter-spacing: .04em; color: var(--orange); }
+
+    .about-text p { color: var(--muted); line-height: 1.8; margin-bottom: 1rem; font-size: 1rem; }
+    .about-text strong { color: var(--navy); }
+
+    /* ── WHY US ── */
+    .why-bg { background: var(--light); }
+    .why-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 2rem;
+    }
+    .why-item { padding: 1.5rem; }
+    .why-num {
+      font-size: 2.4rem; font-weight: 800; color: var(--orange);
+      opacity: .3; line-height: 1; margin-bottom: .3rem;
+    }
+    .why-item h3 { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: .4rem; }
+    .why-item p { font-size: .9rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── CONTACT ── */
+    .contact-inner {
+      display: flex; gap: 5%; flex-wrap: wrap;
+    }
+    .contact-info { flex: 0 0 300px; }
+    .contact-info h3 { font-size: 1.2rem; font-weight: 700; color: var(--navy); margin-bottom: 1.5rem; }
+    .contact-line {
+      display: flex; align-items: center; gap: .8rem;
+      margin-bottom: 1.2rem; font-size: 1rem; color: var(--text);
+    }
+    .contact-line a { color: var(--navy); text-decoration: none; font-weight: 600; }
+    .contact-line a:hover { color: var(--orange); }
+    .contact-icon {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: #FEF0E6; display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .contact-form { flex: 1 1 380px; }
+    .form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .form-group { flex: 1 1 200px; margin-bottom: 1rem; }
+    label { display: block; font-size: .82rem; font-weight: 600; color: var(--navy); margin-bottom: .3rem; }
+    input, textarea, select {
+      width: 100%; padding: .7rem .9rem;
+      border: 1.5px solid var(--mid); border-radius: 5px;
+      font-size: .95rem; color: var(--text);
+      font-family: inherit; background: var(--white);
+      transition: border-color .2s;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none; border-color: var(--orange);
+    }
+    textarea { resize: vertical; min-height: 120px; }
+    .form-submit {
+      background: var(--orange); color: var(--white);
+      padding: .85rem 2rem; border: none; border-radius: 5px;
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      width: 100%; transition: background .2s;
+    }
+    .form-submit:hover { background: #bf530a; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--navy); color: rgba(255,255,255,.6);
+      padding: 2.5rem 5%;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1rem;
+      font-size: .88rem;
+    }
+    footer strong { color: var(--white); }
+    .footer-lic { color: var(--orange); font-weight: 600; }
+
+    @media (max-width: 640px) {
+      nav ul { display: none; }
+      .hero { padding: 60px 5% 50px; }
+      .about-card { flex: 1 1 100%; }
+      .contact-info { flex: 1 1 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#"><span>NOZAR</span> CONSTRUCTION</a>
+  <ul>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#why">Why Us</a></li>
+    <li><a href="#contact" class="nav-cta">Get a Quote</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">Southern California &nbsp;·&nbsp; Class B Licensed &nbsp;·&nbsp; #1107974</div>
+  <h1>Built Right.<br>From the Ground Up.</h1>
+  <p>
+    Nozar Construction brings 20+ years of hands-on construction management to every project — from tenant improvements and commercial build-outs to roofing, concrete, and full remodels across the greater Los Angeles area.
+  </p>
+  <div class="hero-btns">
+    <a href="#contact" class="btn-primary">Get a Free Estimate</a>
+    <a href="#services" class="btn-ghost">Our Services</a>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats">
+  <div class="stat"><span class="stat-num">20+</span><span class="stat-label">Years Experience</span></div>
+  <div class="stat"><span class="stat-num">Class B</span><span class="stat-label">CA GC License</span></div>
+  <div class="stat"><span class="stat-num">100k+</span><span class="stat-label">Sq. Ft. Managed</span></div>
+  <div class="stat"><span class="stat-num">LA</span><span class="stat-label">Southern California</span></div>
+</div>
+
+<!-- SERVICES -->
+<section id="services" class="services-bg">
+  <div class="section-tag">What We Do</div>
+  <h2>Our Services</h2>
+  <p class="section-sub">From commercial build-outs to residential remodels, we handle every phase of the project — permitting, subcontractors, inspections, and delivery.</p>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-icon">🏗️</div>
+      <h3>Tenant Improvements</h3>
+      <p>Full build-outs for commercial spaces — office, retail, industrial. We manage design, permits, and all trades from demo to final inspection.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🔧</div>
+      <h3>General Construction & Remodels</h3>
+      <p>Interior and exterior remodels, space reconfigurations, and complete gut renovations for commercial and residential properties.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">♿</div>
+      <h3>ADA Compliance & Upgrades</h3>
+      <p>Bring your property into full ADA compliance — ramps, restrooms, parking, signage, and accessible path-of-travel improvements.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🏠</div>
+      <h3>Roofing & Weatherproofing</h3>
+      <p>Commercial and residential roofing — repairs, replacements, and preventative maintenance to protect your investment long term.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🧱</div>
+      <h3>Concrete & Structural Work</h3>
+      <p>Slabs, flatwork, footings, curbs, and site concrete. We coordinate structural engineers when needed and pull all required permits.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">⚡</div>
+      <h3>Electrical & Plumbing</h3>
+      <p>Coordination of licensed electrical and plumbing subs for commercial and residential projects — panel upgrades, rough-in, finish work.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🏢</div>
+      <h3>Commercial Property Maintenance</h3>
+      <p>Ongoing upkeep programs for property owners — preventative maintenance, capital repairs, and vendor coordination to protect asset value.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">📐</div>
+      <h3>Façade & Exterior Upgrades</h3>
+      <p>Curb appeal and asset repositioning — storefront renovations, painting, signage, and exterior improvements that move the needle on value.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-tag">Who We Are</div>
+  <h2>Experience You Can See in the Work</h2>
+  <div class="about-inner">
+    <div class="about-text">
+      <p>
+        <strong>Frank Nozar</strong> is the founder of Nozar Construction and a California Licensed General Contractor (Class B, #1107974) with more than two decades of hands-on experience building and managing commercial real estate across Los Angeles.
+      </p>
+      <p>
+        Over the course of his career, Frank built and operated 10 retail locations across the LA area — overseeing every store build-out, remodel, and site improvement personally. He knows what it costs to cut corners, so he doesn't.
+      </p>
+      <p>
+        For the past decade, Frank has owned and managed over 100,000 square feet of commercial real estate in Los Angeles, leveraging his contractor license to scope, bid, and execute tenant improvements, capital repairs, ADA upgrades, roofing, concrete work, and full build-outs — handling architects, engineers, permits, subcontractors, and inspections from start to finish.
+      </p>
+      <p>
+        When you work with Nozar Construction, you work directly with Frank. No handoffs to project managers you've never met. Just a licensed, experienced operator who treats your project like it's his own property.
+      </p>
+    </div>
+    <div class="about-card">
+      <h3>Frank Nozar &mdash; Principal</h3>
+      <div class="cred-item">20+ years construction management & commercial real estate</div>
+      <div class="cred-item">10 retail build-outs & remodels across Los Angeles</div>
+      <div class="cred-item">100,000+ sq. ft. of managed commercial property</div>
+      <div class="cred-item">Full project management: permits, subs, inspections, closeout</div>
+      <div class="cred-item">Tenant improvements, ADA, roofing, concrete, electrical & plumbing</div>
+      <div class="cred-item">Hands-on from day one to project delivery</div>
+      <div class="license-badge">
+        <div class="lic-label">CA General Contractor License</div>
+        <div class="lic-num">Class B &nbsp;·&nbsp; #1107974</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section id="why" class="why-bg">
+  <div class="section-tag">Why Nozar Construction</div>
+  <h2>How We're Different</h2>
+  <p class="section-sub">We've been on the owner's side of the table. We know how a bad contractor can cost you more than the job was worth.</p>
+  <div class="why-grid">
+    <div class="why-item">
+      <div class="why-num">01</div>
+      <h3>Owner-Operated</h3>
+      <p>Frank is on every job personally. You're not hiring a company that subs everything out — you're hiring a licensed operator who knows the work.</p>
+    </div>
+    <div class="why-item">
+      <div class="why-num">02</div>
+      <h3>Licensed & Permitted</h3>
+      <p>Class B GC License #1107974. We pull proper permits, coordinate inspections, and deliver jobs that close cleanly — no surprises at resale or refinance.</p>
+    </div>
+    <div class="why-item">
+      <div class="why-num">03</div>
+      <h3>Real Estate Perspective</h3>
+      <p>Frank owns and manages 100k+ sq. ft. of commercial property. He evaluates every improvement through an owner's lens: ROI, cap rate impact, and long-term durability.</p>
+    </div>
+    <div class="why-item">
+      <div class="why-num">04</div>
+      <h3>Straight Estimates</h3>
+      <p>We scope thoroughly before we price. No lowball bids to win the job followed by change order surprises. What we quote is what we expect to deliver.</p>
+    </div>
+    <div class="why-item">
+      <div class="why-num">05</div>
+      <h3>On Schedule</h3>
+      <p>Decades of managing multi-site operations means we understand scheduling, accountability, and what it costs when a job runs over. We track milestones and communicate proactively.</p>
+    </div>
+    <div class="why-item">
+      <div class="why-num">06</div>
+      <h3>Southern California Roots</h3>
+      <p>Based in Los Angeles, serving the greater Southern California area. We know local codes, local subs, and local building departments — that saves time and money on every project.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-tag">Get in Touch</div>
+  <h2>Request a Free Estimate</h2>
+  <p class="section-sub">Tell us about your project and we'll get back to you within one business day.</p>
+  <div class="contact-inner">
+    <div class="contact-info">
+      <h3>Contact Frank directly</h3>
+      <div class="contact-line">
+        <div class="contact-icon">📞</div>
+        <div><a href="tel:8183710334">(818) 371-0334</a></div>
+      </div>
+      <div class="contact-line">
+        <div class="contact-icon">✉️</div>
+        <div><a href="mailto:fnozar@gmail.com">fnozar@gmail.com</a></div>
+      </div>
+      <div class="contact-line">
+        <div class="contact-icon">📍</div>
+        <div>Los Angeles, CA<br>Serving Southern California</div>
+      </div>
+      <div class="contact-line">
+        <div class="contact-icon">🪪</div>
+        <div>CA GC License<br><strong>Class B &mdash; #1107974</strong></div>
+      </div>
+    </div>
+    <form class="contact-form" onsubmit="return false;">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fname">First Name</label>
+          <input type="text" id="fname" placeholder="John" />
+        </div>
+        <div class="form-group">
+          <label for="lname">Last Name</label>
+          <input type="text" id="lname" placeholder="Smith" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="phone">Phone</label>
+          <input type="tel" id="phone" placeholder="(___) ___-____" />
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="you@example.com" />
+        </div>
+      </div>
+      <div class="form-group" style="flex: 1 1 100%;">
+        <label for="service">Service Needed</label>
+        <select id="service">
+          <option value="">Select a service...</option>
+          <option>Tenant Improvement / Build-Out</option>
+          <option>General Remodel</option>
+          <option>ADA Compliance</option>
+          <option>Roofing</option>
+          <option>Concrete Work</option>
+          <option>Electrical / Plumbing</option>
+          <option>Property Maintenance</option>
+          <option>Other / Not Sure Yet</option>
+        </select>
+      </div>
+      <div class="form-group" style="flex: 1 1 100%;">
+        <label for="message">Project Description</label>
+        <textarea id="message" placeholder="Tell us about your project — location, scope, timeline, any details that help us give you an accurate estimate."></textarea>
+      </div>
+      <button type="submit" class="form-submit">Send Request</button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <strong>Nozar Construction</strong> &nbsp;·&nbsp; Los Angeles, CA<br>
+    <span class="footer-lic">CA General Contractor License Class B — #1107974</span>
+  </div>
+  <div style="text-align:right;">
+    <a href="tel:8183710334" style="color:rgba(255,255,255,.8); text-decoration:none;">(818) 371-0334</a><br>
+    <a href="mailto:fnozar@gmail.com" style="color:rgba(255,255,255,.8); text-decoration:none;">fnozar@gmail.com</a>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Nozar Construction — Commercial Property Owners Flyer</title>
+  <style>
+    @page { size: 8.5in 11in; margin: 0; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #152340;
+      --orange: #D9620A;
+      --light:  #F7F8FA;
+      --mid:    #E2E6EB;
+      --text:   #1E2535;
+      --muted:  #5A6478;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      width: 8.5in; height: 11in;
+      background: white;
+      color: var(--text);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, #1e3560 100%);
+      padding: .4in .5in .35in;
+      position: relative; overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute; right: -80px; top: -80px;
+      width: 400px; height: 400px;
+      background: var(--orange); opacity: .07; border-radius: 50%;
+    }
+    .hero-top {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: .2in;
+    }
+    .biz-name { font-size: 18pt; font-weight: 800; color: white; }
+    .biz-name span { color: var(--orange); }
+    .license-pill {
+      background: var(--orange); color: white;
+      padding: 5px 14px; border-radius: 20px;
+      font-size: 8pt; font-weight: 700; letter-spacing: .04em;
+    }
+    .hero-tag {
+      display: inline-block;
+      background: rgba(255,255,255,.1); color: rgba(255,255,255,.8);
+      font-size: 8pt; letter-spacing: .08em; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 3px; margin-bottom: .12in;
+    }
+    .hero h1 {
+      font-size: 26pt; font-weight: 800; color: white; line-height: 1.15;
+      max-width: 5.5in;
+    }
+    .hero h1 em { color: var(--orange); font-style: normal; }
+    .hero-sub {
+      font-size: 10pt; color: rgba(255,255,255,.75); line-height: 1.6;
+      max-width: 5.2in; margin-top: .1in;
+    }
+
+    /* ── ORANGE STRIPE ── */
+    .stripe { background: var(--orange); height: 5px; }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      background: var(--light);
+      display: flex; justify-content: space-around;
+      padding: .15in .5in; border-bottom: 1px solid var(--mid);
+    }
+    .stat { text-align: center; }
+    .stat-num { font-size: 17pt; font-weight: 800; color: var(--orange); display: block; line-height: 1; }
+    .stat-lbl { font-size: 7pt; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+
+    /* ── BODY ── */
+    .body { padding: .22in .5in; flex: 1; display: flex; flex-direction: column; gap: .18in; }
+
+    /* ── PROBLEM / SOLUTION ── */
+    .ps-row { display: flex; gap: .2in; }
+    .ps-box {
+      flex: 1; border-radius: 8px; padding: .18in;
+    }
+    .ps-box.problem { background: #FEF0E6; border: 1.5px solid #f4c5a4; }
+    .ps-box.solution { background: var(--navy); }
+    .ps-box h3 { font-size: 9.5pt; font-weight: 700; margin-bottom: .1in; }
+    .ps-box.problem h3 { color: var(--orange); }
+    .ps-box.solution h3 { color: var(--orange); }
+    .ps-list { list-style: none; }
+    .ps-list li { font-size: 8pt; line-height: 1.5; padding: 3px 0; display: flex; gap: 7px; }
+    .ps-box.problem .ps-list li { color: #7a3a10; }
+    .ps-box.problem .ps-list li::before { content: '✗'; color: var(--orange); font-weight: 800; flex-shrink: 0; }
+    .ps-box.solution .ps-list li { color: rgba(255,255,255,.85); }
+    .ps-box.solution .ps-list li::before { content: '✓'; color: var(--orange); font-weight: 800; flex-shrink: 0; }
+
+    /* ── SERVICES ── */
+    .section-head { font-size: 8pt; font-weight: 700; color: var(--orange); text-transform: uppercase; letter-spacing: .1em; margin-bottom: .1in; }
+    .services-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: .1in;
+    }
+    .svc {
+      background: var(--light); border-radius: 5px;
+      padding: .1in .14in; border-left: 3px solid var(--orange);
+      display: flex; gap: 8px; align-items: flex-start;
+    }
+    .svc-icon { font-size: 11pt; flex-shrink: 0; margin-top: 1px; }
+    .svc-title { font-size: 8.5pt; font-weight: 700; color: var(--navy); }
+    .svc-desc { font-size: 7.5pt; color: var(--muted); line-height: 1.4; }
+
+    /* ── ABOUT ── */
+    .about-band {
+      background: var(--light); border-radius: 8px;
+      padding: .18in .22in; border: 1px solid var(--mid);
+      display: flex; gap: .2in; align-items: flex-start;
+    }
+    .about-accent {
+      width: 4px; background: var(--orange); border-radius: 4px; flex-shrink: 0; align-self: stretch;
+    }
+    .about-content {}
+    .about-content h3 { font-size: 9.5pt; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+    .about-content p { font-size: 8pt; color: var(--muted); line-height: 1.6; }
+
+    /* ── CTA ── */
+    .cta-band {
+      background: var(--orange); border-radius: 8px;
+      padding: .18in .25in;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .cta-left h3 { font-size: 14pt; font-weight: 800; color: white; line-height: 1.2; }
+    .cta-left p { font-size: 8.5pt; color: rgba(255,255,255,.85); margin-top: 3px; }
+    .cta-right { text-align: right; }
+    .cta-phone { font-size: 20pt; font-weight: 800; color: white; line-height: 1; }
+    .cta-email { font-size: 9pt; color: rgba(255,255,255,.85); margin-top: 3px; }
+
+    /* ── FOOTER ── */
+    .footer {
+      background: var(--navy); padding: .1in .5in;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-left { color: rgba(255,255,255,.6); font-size: 7pt; }
+    .footer-right { color: rgba(255,255,255,.6); font-size: 7pt; text-align: right; }
+    .footer strong { color: var(--orange); }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-top">
+    <div class="biz-name"><span>NOZAR</span> CONSTRUCTION</div>
+    <div class="license-pill">CA GC License Class B &nbsp;|&nbsp; #1107974</div>
+  </div>
+  <div class="hero-tag">For Commercial Property Owners &amp; Investors &nbsp;·&nbsp; Los Angeles</div>
+  <h1>Your Contractor Knows<br>How to <em>Run a Building.</em></h1>
+  <div class="hero-sub">
+    Frank Nozar owns and manages 100,000+ sq. ft. of LA commercial real estate — and uses his Class B GC license to keep every property running, profitable, and compliant. Now he's taking on outside projects.
+  </div>
+</div>
+<div class="stripe"></div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat"><span class="stat-num">20+</span><span class="stat-lbl">Years in CRE & Construction</span></div>
+  <div class="stat"><span class="stat-num">100k+</span><span class="stat-lbl">Sq. Ft. Personally Managed</span></div>
+  <div class="stat"><span class="stat-num">Class B</span><span class="stat-lbl">CA Licensed GC</span></div>
+  <div class="stat"><span class="stat-num">LA</span><span class="stat-lbl">Southern California</span></div>
+</div>
+
+<div class="body">
+
+  <!-- PROBLEM / SOLUTION -->
+  <div class="ps-row">
+    <div class="ps-box problem">
+      <h3>Sound familiar?</h3>
+      <ul class="ps-list">
+        <li>Contractor bids low, then hits you with change orders</li>
+        <li>Work done without permits — problems at refinance or sale</li>
+        <li>PM who's never set foot in a building making scope decisions</li>
+        <li>Tenant improvement drags months past move-in date</li>
+        <li>Deferred maintenance quietly killing your NOI</li>
+      </ul>
+    </div>
+    <div class="ps-box solution">
+      <h3>How we work differently</h3>
+      <ul class="ps-list">
+        <li>Straight estimates — scope thoroughly, price honestly</li>
+        <li>All work fully permitted and inspected, every time</li>
+        <li>Frank owns commercial property himself — he evaluates scope like an owner</li>
+        <li>Milestone-based scheduling with proactive communication</li>
+        <li>Preventative maintenance programs to protect your asset long-term</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SERVICES -->
+  <div>
+    <div class="section-head">What We Handle for Property Owners</div>
+    <div class="services-grid">
+      <div class="svc">
+        <div class="svc-icon">🏗️</div>
+        <div>
+          <div class="svc-title">Tenant Improvements & Build-Outs</div>
+          <div class="svc-desc">Full TI management — permits, trades, inspections, and closeout. Get tenants in on time.</div>
+        </div>
+      </div>
+      <div class="svc">
+        <div class="svc-icon">♿</div>
+        <div>
+          <div class="svc-title">ADA Compliance</div>
+          <div class="svc-desc">Path-of-travel upgrades, restrooms, ramps, and parking — limit liability, stay compliant.</div>
+        </div>
+      </div>
+      <div class="svc">
+        <div class="svc-icon">🏠</div>
+        <div>
+          <div class="svc-title">Roofing & Capital Repairs</div>
+          <div class="svc-desc">Roof repairs and replacements, HVAC coordination, and major capital projects done right.</div>
+        </div>
+      </div>
+      <div class="svc">
+        <div class="svc-icon">🧱</div>
+        <div>
+          <div class="svc-title">Concrete, Paving & Site Work</div>
+          <div class="svc-desc">Parking lots, slabs, curbs, and flatwork — the unglamorous work that protects your asset.</div>
+        </div>
+      </div>
+      <div class="svc">
+        <div class="svc-icon">🏢</div>
+        <div>
+          <div class="svc-title">Façade & Exterior Upgrades</div>
+          <div class="svc-desc">Storefronts, paint, signage, and exterior renovations that move the needle on rent and value.</div>
+        </div>
+      </div>
+      <div class="svc">
+        <div class="svc-icon">🔧</div>
+        <div>
+          <div class="svc-title">Ongoing Maintenance Programs</div>
+          <div class="svc-desc">Preventative maintenance, vendor coordination, and capital planning — stay ahead of problems.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <div class="about-band">
+    <div class="about-accent"></div>
+    <div class="about-content">
+      <h3>You're hiring an owner, not just a contractor.</h3>
+      <p>
+        Frank Nozar spent 20+ years building and operating businesses in Los Angeles — 10 commercial retail locations, a wholesale distribution company, and a 100,000+ sq. ft. commercial real estate portfolio he still owns and manages today. Every tenant improvement, capital repair, roofing job, and build-out on his own properties was managed personally using his California Class B GC license. He has negotiated with architects, engineers, and subs. He has managed permits, change orders, and inspections. He knows what deferred maintenance actually costs in lost NOI and what a bad contractor can do to a sale process. When you hire Nozar Construction, that's the perspective you get on your project.
+      </p>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-band">
+    <div class="cta-left">
+      <h3>Let's talk about your property.</h3>
+      <p>Free estimates. We respond within one business day.</p>
+    </div>
+    <div class="cta-right">
+      <div class="cta-phone">(818) 371-0334</div>
+      <div class="cta-email">fnozar@gmail.com</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <div class="footer-left">
+    <strong>Nozar Construction</strong> &nbsp;·&nbsp; Los Angeles, CA &nbsp;·&nbsp; Serving Southern California
+  </div>
+  <div class="footer-right">
+    <strong>CA General Contractor License Class B — #1107974</strong>
+  </div>
+</div>
+
+</body>
+</html>
