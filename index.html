@@ -3,551 +3,921 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Joon Development Group | Licensed General Contractor — California</title>
+  <meta name="description" content="Joon Development Group is an owner-operated Southern California general contractor for remodels, ADUs, additions, tenant improvements, and commercial build-outs." />
+  <title>Joon Development Group | Southern California General Contractor</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --navy:   #152340;
-      --orange: #D9620A;
-      --light:  #F7F8FA;
-      --mid:    #E2E6EB;
-      --text:   #1E2535;
-      --muted:  #5A6478;
-      --white:  #FFFFFF;
+      --ink: #172033;
+      --steel: #334155;
+      --mist: #f4f6f8;
+      --paper: #fffaf2;
+      --clay: #b85c38;
+      --copper: #d78b54;
+      --sage: #6f7d68;
+      --line: #dde3ea;
+      --white: #ffffff;
+      --shadow: 0 24px 60px rgba(23, 32, 51, 0.14);
     }
 
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
       background: var(--white);
+      line-height: 1.6;
     }
 
-    /* ── NAV ── */
+    img { display: block; max-width: 100%; }
+    a { color: inherit; }
+
+    .topbar {
+      background: #111827;
+      color: rgba(255, 255, 255, 0.82);
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.55rem 5vw;
+      font-size: 0.82rem;
+    }
+
+    .topbar a { text-decoration: none; }
+    .topbar strong { color: var(--white); font-weight: 700; }
+
     nav {
-      position: sticky; top: 0; z-index: 100;
-      background: var(--navy);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 5%;
-      height: 64px;
-    }
-    .nav-logo {
-      color: var(--white);
-      font-size: 1.2rem; font-weight: 700; letter-spacing: .02em;
-      text-decoration: none;
-    }
-    .nav-logo span { color: var(--orange); }
-    nav ul { list-style: none; display: flex; gap: 2rem; }
-    nav ul a {
-      color: rgba(255,255,255,.8); text-decoration: none;
-      font-size: .9rem; letter-spacing: .04em; text-transform: uppercase;
-      transition: color .2s;
-    }
-    nav ul a:hover { color: var(--orange); }
-    .nav-cta {
-      background: var(--orange); color: var(--white) !important;
-      padding: .45rem 1.1rem; border-radius: 4px;
-      font-weight: 600;
-    }
-    .nav-cta:hover { background: #bf530a !important; color: var(--white) !important; }
-
-    /* ── HERO ── */
-    .hero {
-      background: linear-gradient(135deg, var(--navy) 0%, #1e3560 100%);
-      color: var(--white);
-      padding: 100px 5% 80px;
-      display: flex; flex-direction: column; align-items: flex-start;
-      position: relative; overflow: hidden;
-    }
-    .hero::after {
-      content: '';
-      position: absolute; right: -60px; top: -80px;
-      width: 520px; height: 520px;
-      background: var(--orange); opacity: .06; border-radius: 50%;
-    }
-    .hero-tag {
-      background: var(--orange); color: var(--white);
-      font-size: .75rem; font-weight: 700; letter-spacing: .1em;
-      text-transform: uppercase; padding: .3rem .8rem; border-radius: 3px;
-      margin-bottom: 1.4rem;
-    }
-    .hero h1 {
-      font-size: clamp(2rem, 4.5vw, 3.4rem);
-      font-weight: 800; line-height: 1.15;
-      max-width: 700px; margin-bottom: 1.2rem;
-    }
-    .hero h1 em { color: var(--orange); font-style: normal; }
-    .hero p {
-      font-size: 1.1rem; line-height: 1.7;
-      max-width: 580px; color: rgba(255,255,255,.8);
-      margin-bottom: 2rem;
-    }
-    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
-    .btn-primary {
-      background: var(--orange); color: var(--white);
-      padding: .85rem 2rem; border-radius: 5px;
-      font-size: 1rem; font-weight: 700; text-decoration: none;
-      transition: background .2s;
-    }
-    .btn-primary:hover { background: #bf530a; }
-    .btn-ghost {
-      border: 2px solid rgba(255,255,255,.4); color: var(--white);
-      padding: .85rem 2rem; border-radius: 5px;
-      font-size: 1rem; font-weight: 600; text-decoration: none;
-      transition: border-color .2s;
-    }
-    .btn-ghost:hover { border-color: var(--white); }
-
-    /* ── STATS BAR ── */
-    .stats {
-      background: var(--orange);
-      display: flex; flex-wrap: wrap;
-      justify-content: space-around;
-    }
-    .stat {
-      padding: 1.4rem 2rem; text-align: center; color: var(--white);
-    }
-    .stat-num { font-size: 2rem; font-weight: 800; display: block; }
-    .stat-label { font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; opacity: .9; }
-
-    /* ── SECTION WRAPPER ── */
-    section { padding: 80px 5%; }
-    .section-tag {
-      color: var(--orange); font-size: .75rem; font-weight: 700;
-      letter-spacing: .12em; text-transform: uppercase;
-      margin-bottom: .5rem;
-    }
-    h2 {
-      font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 800;
-      color: var(--navy); margin-bottom: 1rem; line-height: 1.2;
-    }
-    .section-sub {
-      color: var(--muted); font-size: 1.05rem; line-height: 1.7;
-      max-width: 580px; margin-bottom: 3rem;
-    }
-
-    /* ── SERVICES ── */
-    .services-bg { background: var(--light); }
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      min-height: 72px;
+      padding: 0 5vw;
+      background: rgba(255, 255, 255, 0.94);
+      border-bottom: 1px solid rgba(221, 227, 234, 0.86);
+      backdrop-filter: blur(18px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 1.5rem;
     }
+
+    .brand {
+      text-decoration: none;
+      display: grid;
+      gap: 0.05rem;
+      line-height: 1.1;
+    }
+
+    .brand span:first-child {
+      font-size: 1rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .brand span:last-child {
+      color: var(--clay);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 1.55rem;
+      color: var(--steel);
+      font-size: 0.86rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    nav a { text-decoration: none; }
+    nav li a:hover { color: var(--clay); }
+
+    .nav-cta,
+    .btn-primary,
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 850;
+      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+    }
+
+    .nav-cta {
+      background: var(--ink);
+      color: var(--white);
+      padding: 0 1rem;
+    }
+
+    .nav-cta:hover { background: var(--clay); color: var(--white); }
+
+    .hero {
+      min-height: calc(100vh - 108px);
+      padding: 7rem 5vw 4rem;
+      color: var(--white);
+      position: relative;
+      isolation: isolate;
+      display: grid;
+      align-items: end;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background:
+        linear-gradient(90deg, rgba(13, 20, 34, 0.92) 0%, rgba(13, 20, 34, 0.70) 45%, rgba(13, 20, 34, 0.26) 100%),
+        url("https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=2200&q=82") center / cover;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto 5vw 0;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.24);
+    }
+
+    .eyebrow {
+      color: var(--copper);
+      font-size: 0.78rem;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .hero-copy {
+      width: min(760px, 100%);
+      display: grid;
+      gap: 1.35rem;
+    }
+
+    h1 {
+      font-size: clamp(2.65rem, 7vw, 6.6rem);
+      line-height: 0.96;
+      letter-spacing: 0;
+      max-width: 860px;
+    }
+
+    .hero p {
+      max-width: 690px;
+      color: rgba(255, 255, 255, 0.84);
+      font-size: clamp(1rem, 1.8vw, 1.25rem);
+    }
+
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+
+    .btn-primary {
+      background: var(--clay);
+      color: var(--white);
+      padding: 0 1.35rem;
+    }
+
+    .btn-primary:hover { background: #a44d2e; transform: translateY(-1px); }
+
+    .btn-secondary {
+      border: 1px solid rgba(255, 255, 255, 0.42);
+      color: var(--white);
+      padding: 0 1.25rem;
+    }
+
+    .btn-secondary:hover { border-color: var(--white); transform: translateY(-1px); }
+
+    .hero-proof {
+      margin-top: 4rem;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(17, 24, 39, 0.48);
+      backdrop-filter: blur(14px);
+    }
+
+    .proof-item {
+      padding: 1rem;
+      border-right: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .proof-item:last-child { border-right: 0; }
+
+    .proof-item strong {
+      display: block;
+      color: var(--white);
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      line-height: 1;
+    }
+
+    .proof-item span {
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    section { padding: 5.8rem 5vw; }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(280px, 0.7fr);
+      gap: 2rem;
+      align-items: end;
+      margin-bottom: 2.5rem;
+    }
+
+    h2 {
+      margin-top: 0.4rem;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    .section-head p,
+    .lead {
+      color: var(--steel);
+      font-size: 1.02rem;
+    }
+
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
     .service-card {
-      background: var(--white); border-radius: 8px;
-      padding: 1.8rem; border: 1px solid var(--mid);
-      transition: box-shadow .2s, transform .2s;
+      min-height: 255px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--white);
+      box-shadow: 0 8px 26px rgba(23, 32, 51, 0.05);
     }
-    .service-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.08); transform: translateY(-2px); }
-    .service-icon {
-      width: 48px; height: 48px; border-radius: 8px;
-      background: #FEF0E6; display: flex; align-items: center; justify-content: center;
-      margin-bottom: 1rem; font-size: 1.5rem;
-    }
-    .service-card h3 { font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: .5rem; }
-    .service-card p { font-size: .92rem; color: var(--muted); line-height: 1.6; }
 
-    /* ── ABOUT ── */
-    .about-inner {
-      display: flex; gap: 5%; flex-wrap: wrap; align-items: flex-start;
+    .service-card img {
+      width: 100%;
+      aspect-ratio: 4 / 2.45;
+      object-fit: cover;
     }
-    .about-text { flex: 1 1 400px; }
-    .about-card {
-      flex: 0 0 300px;
-      background: var(--navy); color: var(--white);
-      border-radius: 10px; padding: 2rem;
-    }
-    .about-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.2rem; color: var(--orange); }
-    .cred-item {
-      display: flex; align-items: flex-start; gap: .8rem;
-      margin-bottom: 1rem; font-size: .92rem; line-height: 1.5;
-    }
-    .cred-item::before {
-      content: '✓'; color: var(--orange); font-weight: 800;
-      flex-shrink: 0; margin-top: .05rem;
-    }
-    .license-badge {
-      margin-top: 1.5rem; padding: 1rem; border-radius: 6px;
-      background: rgba(255,255,255,.08); text-align: center;
-    }
-    .license-badge .lic-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; opacity: .7; }
-    .license-badge .lic-num { font-size: 1.1rem; font-weight: 800; letter-spacing: .04em; color: var(--orange); }
 
-    .about-text p { color: var(--muted); line-height: 1.8; margin-bottom: 1rem; font-size: 1rem; }
-    .about-text strong { color: var(--navy); }
+    .service-card div { padding: 1.2rem; }
 
-    /* ── WHY US ── */
-    .why-bg { background: var(--light); }
-    .why-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 2rem;
+    .service-card h3 {
+      font-size: 1.06rem;
+      line-height: 1.25;
+      margin-bottom: 0.45rem;
     }
-    .why-item { padding: 1.5rem; }
-    .why-num {
-      font-size: 2.4rem; font-weight: 800; color: var(--orange);
-      opacity: .3; line-height: 1; margin-bottom: .3rem;
-    }
-    .why-item h3 { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: .4rem; }
-    .why-item p { font-size: .9rem; color: var(--muted); line-height: 1.6; }
 
-    /* ── CONTACT ── */
-    .contact-inner {
-      display: flex; gap: 5%; flex-wrap: wrap;
+    .service-card p {
+      color: var(--steel);
+      font-size: 0.93rem;
     }
-    .contact-info { flex: 0 0 300px; }
-    .contact-info h3 { font-size: 1.2rem; font-weight: 700; color: var(--navy); margin-bottom: 1.5rem; }
+
+    .band {
+      background: var(--mist);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(300px, 0.68fr);
+      gap: 4vw;
+      align-items: center;
+    }
+
+    .image-stack {
+      position: relative;
+      min-height: 520px;
+    }
+
+    .image-stack img {
+      position: absolute;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .image-stack img:first-child {
+      inset: 0 auto auto 0;
+      width: 76%;
+      height: 73%;
+    }
+
+    .image-stack img:last-child {
+      right: 0;
+      bottom: 0;
+      width: 54%;
+      height: 48%;
+      border: 10px solid var(--mist);
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1.5rem;
+    }
+
+    .pill-list span {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0.45rem 0.85rem;
+      background: var(--white);
+      color: var(--steel);
+      font-size: 0.86rem;
+      font-weight: 750;
+    }
+
+    .about-copy {
+      display: grid;
+      gap: 1rem;
+      color: var(--steel);
+    }
+
+    .about-copy strong { color: var(--ink); }
+
+    .credentials {
+      margin-top: 2rem;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.8rem;
+    }
+
+    .credential {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .credential strong {
+      display: block;
+      color: var(--clay);
+      font-size: 1.6rem;
+      line-height: 1.1;
+    }
+
+    .credential span {
+      color: var(--steel);
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .project-types {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .project-card {
+      min-height: 330px;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      isolation: isolate;
+      display: flex;
+      align-items: end;
+      color: var(--white);
+      background: var(--ink);
+    }
+
+    .project-card img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+      transition: transform 0.28s ease;
+    }
+
+    .project-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(180deg, rgba(17, 24, 39, 0.10), rgba(17, 24, 39, 0.78));
+    }
+
+    .project-card:hover img { transform: scale(1.04); }
+
+    .project-card div { padding: 1.15rem; }
+
+    .project-card h3 {
+      font-size: 1.15rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .project-card p {
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 0.9rem;
+    }
+
+    .process-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+    }
+
+    .process-step {
+      background: var(--white);
+      padding: 1.35rem;
+      min-height: 220px;
+    }
+
+    .process-step span {
+      color: var(--clay);
+      font-size: 0.82rem;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .process-step h3 {
+      margin: 0.8rem 0 0.45rem;
+      font-size: 1.02rem;
+    }
+
+    .process-step p {
+      color: var(--steel);
+      font-size: 0.92rem;
+    }
+
+    .contact {
+      background:
+        linear-gradient(90deg, rgba(23, 32, 51, 0.95), rgba(23, 32, 51, 0.78)),
+        url("https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=2200&q=82") center / cover;
+      color: var(--white);
+    }
+
+    .contact .section-head p,
+    .contact .eyebrow { color: rgba(255, 255, 255, 0.76); }
+
+    .contact .eyebrow { color: var(--copper); }
+
+    .contact-panel {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.48fr) minmax(0, 0.72fr);
+      gap: 1rem;
+    }
+
+    .contact-card,
+    form {
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      padding: 1.35rem;
+    }
+
+    .contact-card {
+      display: grid;
+      gap: 1rem;
+      align-content: start;
+    }
+
     .contact-line {
-      display: flex; align-items: center; gap: .8rem;
-      margin-bottom: 1.2rem; font-size: 1rem; color: var(--text);
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16);
     }
-    .contact-line a { color: var(--navy); text-decoration: none; font-weight: 600; }
-    .contact-line a:hover { color: var(--orange); }
-    .contact-icon {
-      width: 38px; height: 38px; border-radius: 50%;
-      background: #FEF0E6; display: flex; align-items: center; justify-content: center;
-      font-size: 1rem; flex-shrink: 0;
+
+    .contact-line:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
     }
-    .contact-form { flex: 1 1 380px; }
-    .form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
-    .form-group { flex: 1 1 200px; margin-bottom: 1rem; }
-    label { display: block; font-size: .82rem; font-weight: 600; color: var(--navy); margin-bottom: .3rem; }
-    input, textarea, select {
-      width: 100%; padding: .7rem .9rem;
-      border: 1.5px solid var(--mid); border-radius: 5px;
-      font-size: .95rem; color: var(--text);
-      font-family: inherit; background: var(--white);
-      transition: border-color .2s;
+
+    .contact-line span {
+      display: block;
+      color: rgba(255, 255, 255, 0.62);
+      font-size: 0.75rem;
+      font-weight: 850;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
     }
-    input:focus, textarea:focus, select:focus {
-      outline: none; border-color: var(--orange);
+
+    .contact-line a,
+    .contact-line strong {
+      color: var(--white);
+      text-decoration: none;
+      font-size: 1.02rem;
     }
-    textarea { resize: vertical; min-height: 120px; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+
+    label {
+      display: block;
+      color: rgba(255, 255, 255, 0.76);
+      font-size: 0.78rem;
+      font-weight: 800;
+      margin-bottom: 0.32rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 6px;
+      min-height: 46px;
+      padding: 0.75rem 0.85rem;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--ink);
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 138px;
+      resize: vertical;
+    }
+
+    .full { grid-column: 1 / -1; }
+
     .form-submit {
-      background: var(--orange); color: var(--white);
-      padding: .85rem 2rem; border: none; border-radius: 5px;
-      font-size: 1rem; font-weight: 700; cursor: pointer;
-      width: 100%; transition: background .2s;
+      min-height: 48px;
+      width: 100%;
+      border: 0;
+      border-radius: 6px;
+      background: var(--clay);
+      color: var(--white);
+      font: inherit;
+      font-weight: 900;
+      cursor: pointer;
     }
-    .form-submit:hover { background: #bf530a; }
 
-    /* ── FOOTER ── */
+    .form-submit:hover { background: #a44d2e; }
+
     footer {
-      background: var(--navy); color: rgba(255,255,255,.6);
-      padding: 2.5rem 5%;
-      display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 1rem;
-      font-size: .88rem;
+      background: #0f172a;
+      color: rgba(255, 255, 255, 0.64);
+      padding: 2rem 5vw;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      font-size: 0.88rem;
     }
-    footer strong { color: var(--white); }
-    .footer-lic { color: var(--orange); font-weight: 600; }
 
-    @media (max-width: 640px) {
+    footer strong { color: var(--white); }
+
+    @media (max-width: 980px) {
+      .section-head,
+      .split,
+      .contact-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .service-grid,
+      .project-types,
+      .process-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .image-stack { min-height: 430px; }
+    }
+
+    @media (max-width: 720px) {
+      .topbar { display: none; }
+      nav { min-height: 64px; }
       nav ul { display: none; }
-      .hero { padding: 60px 5% 50px; }
-      .about-card { flex: 1 1 100%; }
-      .contact-info { flex: 1 1 100%; }
+      .hero { min-height: calc(100vh - 64px); padding-top: 4rem; }
+      .hero-proof,
+      .service-grid,
+      .project-types,
+      .process-grid,
+      .credentials,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .proof-item { border-right: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.18); }
+      .proof-item:last-child { border-bottom: 0; }
+      section { padding: 4rem 5vw; }
+      .image-stack {
+        min-height: 0;
+        display: grid;
+        gap: 1rem;
+      }
+      .image-stack img,
+      .image-stack img:first-child,
+      .image-stack img:last-child {
+        position: static;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 4 / 3;
+        border: 0;
+      }
     }
   </style>
 </head>
 <body>
-
-<!-- NAV -->
-<nav>
-  <a class="nav-logo" href="#"><span>JOON</span> DEVELOPMENT GROUP</a>
-  <ul>
-    <li><a href="#services">Services</a></li>
-    <li><a href="#about">About</a></li>
-    <li><a href="#why">Why Us</a></li>
-    <li><a href="#contact" class="nav-cta">Get a Quote</a></li>
-  </ul>
-</nav>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-tag">California &nbsp;·&nbsp; Class B Licensed &nbsp;·&nbsp; #1107974</div>
-  <h1>Built Right.<br>From the Ground Up.</h1>
-  <p>
-    Joon Development Group specializes in residential and commercial renovation across greater Los Angeles — kitchens, bathrooms, ADUs, outdoor living, and whole-home remodels. Hands-on, licensed, and done right.
-  </p>
-  <div class="hero-btns">
-    <a href="#contact" class="btn-primary">Get a Free Estimate</a>
-    <a href="#services" class="btn-ghost">Our Services</a>
+  <div class="topbar">
+    <div><strong>CA General Contractor License Class B #1107974</strong></div>
+    <div><a href="tel:8183710334">(818) 371-0334</a> &nbsp; | &nbsp; <a href="mailto:ori.nozar@joonmgmt.com">ori.nozar@joonmgmt.com</a></div>
   </div>
-</section>
 
-<!-- STATS BAR -->
-<div class="stats">
-  <div class="stat"><span class="stat-num">20+</span><span class="stat-label">Years Experience</span></div>
-  <div class="stat"><span class="stat-num">Class B</span><span class="stat-label">CA GC License</span></div>
-  <div class="stat"><span class="stat-num">100k+</span><span class="stat-label">Sq. Ft. Managed</span></div>
-  <div class="stat"><span class="stat-num">LA</span><span class="stat-label">California</span></div>
-</div>
+  <nav>
+    <a class="brand" href="#">
+      <span>Joon Development Group</span>
+      <span>Southern California General Contractor</span>
+    </a>
+    <ul>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a class="nav-cta" href="#contact">Request Estimate</a></li>
+    </ul>
+  </nav>
 
-<!-- SERVICES -->
-<section id="services" class="services-bg">
-  <div class="section-tag">What We Do</div>
-  <h2>Our Services</h2>
-  <p class="section-sub">From commercial build-outs to residential remodels, we handle every phase of the project — permitting, subcontractors, inspections, and delivery.</p>
-  <div class="services-grid">
-    <div class="service-card">
-      <div class="service-icon">🍳</div>
-      <h3>Kitchen Remodeling</h3>
-      <p>Full kitchen renovations — layout changes, custom cabinetry, countertops, tile, lighting, and appliance integration. Budget to luxury, done right.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🛁</div>
-      <h3>Bathroom Remodeling</h3>
-      <p>Primary bath, guest bath, or powder room — tile work, vanities, walk-in showers, soaking tubs, and full plumbing and fixture upgrades.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🔨</div>
-      <h3>Full Home Renovations</h3>
-      <p>Whole-home gut renovations — open floor plans, flooring, painting, doors, trim, and complete room-by-room refreshes under one license.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🏗️</div>
-      <h3>New Construction</h3>
-      <p>Ground-up residential and commercial builds. We manage architects, engineers, permits, and every subcontractor from breaking ground to final sign-off.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">➕</div>
-      <h3>Room Additions</h3>
-      <p>Bedroom additions, bump-outs, and sunrooms that add permitted square footage and real resale value — on schedule and on budget.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🏡</div>
-      <h3>Garage Conversions & ADUs</h3>
-      <p>Garage conversions, attached ADUs, and detached backyard units — fully permitted and delivered on a clear timeline with a known cost.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">☀️</div>
-      <h3>Solar Installation</h3>
-      <p>Residential and commercial solar panel systems and battery storage. Permitted, utility-coordinated, and backed by a licensed general contractor.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">⚡</div>
-      <h3>Energy Efficiency Upgrades</h3>
-      <p>HVAC replacement, window and insulation upgrades, exterior paint, and Title 24 compliance work to lower energy costs and qualify for rebates.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🌊</div>
-      <h3>Pool Construction & Renovation</h3>
-      <p>New pool builds, remodels, replastering, decking, and equipment upgrades for residential and commercial properties.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🌿</div>
-      <h3>Landscaping & Hardscaping</h3>
-      <p>Outdoor living design and installation — patios, retaining walls, pavers, drainage, irrigation, and drought-tolerant landscaping.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🪵</div>
-      <h3>Deck & Patio Construction</h3>
-      <p>Custom wood and composite decks, pergolas, covered patios, and outdoor structures — permitted and built to California code.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🏠</div>
-      <h3>Roofing</h3>
-      <p>Commercial and residential roofing — repairs, full replacements, and preventative maintenance to protect your investment long term.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🎨</div>
-      <h3>Interior & Exterior Painting</h3>
-      <p>Professional painting for residential and commercial properties — surface prep, primer, and finish coats done right the first time.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🔥</div>
-      <h3>Fire & Water Damage Restoration</h3>
-      <p>Structural repairs, mold remediation, and full restoration after fire or water damage. Insurance coordination available.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🧱</div>
-      <h3>Concrete & Flatwork</h3>
-      <p>Driveways, walkways, slabs, curbs, and site concrete. Structural engineers coordinated when required, all permits pulled.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🚪</div>
-      <h3>Fence & Gate Installation</h3>
-      <p>Wood, vinyl, wrought iron, and aluminum fencing and custom gates for residential and commercial properties statewide.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🪟</div>
-      <h3>Flooring Installation</h3>
-      <p>Hardwood, tile, LVP, and carpet installation for full homes and commercial spaces — demo, prep, and finish included.</p>
-    </div>
-    <div class="service-card">
-      <div class="service-icon">🏢</div>
-      <h3>Commercial Build-Outs & TIs</h3>
-      <p>Full tenant improvement management — permits, all trades, inspections, and closeout for office, retail, and industrial spaces.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ABOUT -->
-<section id="about">
-  <div class="section-tag">Who We Are</div>
-  <h2>Experience You Can See in the Work</h2>
-  <div class="about-inner">
-    <div class="about-text">
-      <p>
-        <strong>Frank Nozar</strong> is the founder of Joon Development Group and a California Licensed General Contractor (Class B, #1107974) with more than two decades of hands-on experience building and managing commercial real estate across Los Angeles.
-      </p>
-      <p>
-        Over the course of his career, Frank built and operated 10 retail locations across the LA area — overseeing every store build-out, remodel, and site improvement personally. He knows what it costs to cut corners, so he doesn't.
-      </p>
-      <p>
-        For the past decade, Frank has owned and managed over 100,000 square feet of commercial real estate in Los Angeles, leveraging his contractor license to scope, bid, and execute tenant improvements, capital repairs, ADA upgrades, roofing, concrete work, and full build-outs — handling architects, engineers, permits, subcontractors, and inspections from start to finish.
-      </p>
-      <p>
-        When you work with Joon Development Group, you work directly with Frank. No handoffs to project managers you've never met. Just a licensed, experienced operator who treats your project like it's his own property.
-      </p>
-    </div>
-    <div class="about-card">
-      <h3>Frank Nozar &mdash; Principal</h3>
-      <div class="cred-item">20+ years construction management & commercial real estate</div>
-      <div class="cred-item">10 retail build-outs & remodels across Los Angeles</div>
-      <div class="cred-item">100,000+ sq. ft. of managed commercial property</div>
-      <div class="cred-item">Full project management: permits, subs, inspections, closeout</div>
-      <div class="cred-item">Tenant improvements, ADA, roofing, concrete, electrical & plumbing</div>
-      <div class="cred-item">Hands-on from day one to project delivery</div>
-      <div class="license-badge">
-        <div class="lic-label">CA General Contractor License</div>
-        <div class="lic-num">Class B &nbsp;·&nbsp; #1107974</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- WHY US -->
-<section id="why" class="why-bg">
-  <div class="section-tag">Why Joon Development Group</div>
-  <h2>How We're Different</h2>
-  <p class="section-sub">We've been on the owner's side of the table. We know how a bad contractor can cost you more than the job was worth.</p>
-  <div class="why-grid">
-    <div class="why-item">
-      <div class="why-num">01</div>
-      <h3>Owner-Operated</h3>
-      <p>Frank is on every job personally. You're not hiring a company that subs everything out — you're hiring a licensed operator who knows the work.</p>
-    </div>
-    <div class="why-item">
-      <div class="why-num">02</div>
-      <h3>Licensed & Permitted</h3>
-      <p>Class B GC License #1107974. We pull proper permits, coordinate inspections, and deliver jobs that close cleanly — no surprises at resale or refinance.</p>
-    </div>
-    <div class="why-item">
-      <div class="why-num">03</div>
-      <h3>Real Estate Perspective</h3>
-      <p>Frank owns and manages 100k+ sq. ft. of commercial property. He evaluates every improvement through an owner's lens: ROI, cap rate impact, and long-term durability.</p>
-    </div>
-    <div class="why-item">
-      <div class="why-num">04</div>
-      <h3>Straight Estimates</h3>
-      <p>We scope thoroughly before we price. No lowball bids to win the job followed by change order surprises. What we quote is what we expect to deliver.</p>
-    </div>
-    <div class="why-item">
-      <div class="why-num">05</div>
-      <h3>On Schedule</h3>
-      <p>Decades of managing multi-site operations means we understand scheduling, accountability, and what it costs when a job runs over. We track milestones and communicate proactively.</p>
-    </div>
-    <div class="why-item">
-      <div class="why-num">06</div>
-      <h3>California Roots</h3>
-      <p>Based in Los Angeles, serving the greater California area. We know local codes, local subs, and local building departments — that saves time and money on every project.</p>
-    </div>
-  </div>
-</section>
-
-<!-- CONTACT -->
-<section id="contact">
-  <div class="section-tag">Get in Touch</div>
-  <h2>Request a Free Estimate</h2>
-  <p class="section-sub">Tell us about your project and we'll get back to you within one business day.</p>
-  <div class="contact-inner">
-    <div class="contact-info">
-      <h3>Contact Frank directly</h3>
-      <div class="contact-line">
-        <div class="contact-icon">📞</div>
-        <div><a href="tel:8183710334">(818) 371-0334</a></div>
-      </div>
-      <div class="contact-line">
-        <div class="contact-icon">✉️</div>
-        <div><a href="mailto:ori.nozar@joonmgmt.com">ori.nozar@joonmgmt.com</a></div>
-      </div>
-      <div class="contact-line">
-        <div class="contact-icon">📍</div>
-        <div>Los Angeles, CA<br>Serving California</div>
-      </div>
-      <div class="contact-line">
-        <div class="contact-icon">🪪</div>
-        <div>CA GC License<br><strong>Class B &mdash; #1107974</strong></div>
-      </div>
-    </div>
-    <form class="contact-form" onsubmit="return false;">
-      <div class="form-row">
-        <div class="form-group">
-          <label for="fname">First Name</label>
-          <input type="text" id="fname" placeholder="John" />
+  <main>
+    <section class="hero">
+      <div>
+        <div class="hero-copy">
+          <div class="eyebrow">Owner-operated design-build and general contracting</div>
+          <h1>Built for the way Southern California lives and works.</h1>
+          <p>Joon Development Group helps homeowners, property owners, and business operators move from idea to finished space with disciplined estimating, hands-on project management, and a builder's respect for long-term value.</p>
+          <div class="hero-actions">
+            <a class="btn-primary" href="#contact">Start a Project</a>
+            <a class="btn-secondary" href="#services">Explore Services</a>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="lname">Last Name</label>
-          <input type="text" id="lname" placeholder="Smith" />
+        <div class="hero-proof" aria-label="Company experience highlights">
+          <div class="proof-item"><strong>20+</strong><span>Years operating</span></div>
+          <div class="proof-item"><strong>100k+</strong><span>Sq. ft. managed</span></div>
+          <div class="proof-item"><strong>10</strong><span>Retail build-outs</span></div>
+          <div class="proof-item"><strong>Class B</strong><span>CA GC license</span></div>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="phone">Phone</label>
-          <input type="tel" id="phone" placeholder="(___) ___-____" />
-        </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="you@example.com" />
-        </div>
-      </div>
-      <div class="form-group" style="flex: 1 1 100%;">
-        <label for="service">Service Needed</label>
-        <select id="service">
-          <option value="">Select a service...</option>
-          <option>Kitchen Remodeling</option>
-          <option>Bathroom Remodeling</option>
-          <option>Full Home Renovation</option>
-          <option>New Construction</option>
-          <option>Room Addition</option>
-          <option>Garage Conversion / ADU</option>
-          <option>Solar Installation</option>
-          <option>Energy Efficiency Upgrades</option>
-          <option>Pool Construction / Renovation</option>
-          <option>Landscaping / Hardscaping</option>
-          <option>Deck / Patio Construction</option>
-          <option>Roofing</option>
-          <option>Interior / Exterior Painting</option>
-          <option>Fire / Water Damage Restoration</option>
-          <option>Concrete / Flatwork</option>
-          <option>Fence / Gate Installation</option>
-          <option>Flooring Installation</option>
-          <option>Commercial Build-Out / TI</option>
-          <option>Other / Not Sure Yet</option>
-        </select>
-      </div>
-      <div class="form-group" style="flex: 1 1 100%;">
-        <label for="message">Project Description</label>
-        <textarea id="message" placeholder="Tell us about your project — location, scope, timeline, any details that help us give you an accurate estimate."></textarea>
-      </div>
-      <button type="submit" class="form-submit">Send Request</button>
-    </form>
-  </div>
-</section>
+    </section>
 
-<!-- FOOTER -->
-<footer>
-  <div>
-    <strong>Joon Development Group</strong> &nbsp;·&nbsp; Los Angeles, CA<br>
-    <span class="footer-lic">CA General Contractor License Class B — #1107974</span>
-  </div>
-  <div style="text-align:right;">
-    <a href="tel:8183710334" style="color:rgba(255,255,255,.8); text-decoration:none;">(818) 371-0334</a><br>
-    <a href="mailto:ori.nozar@joonmgmt.com" style="color:rgba(255,255,255,.8); text-decoration:none;">ori.nozar@joonmgmt.com</a>
-  </div>
-</footer>
+    <section id="services">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Services</div>
+          <h2>Renovation, construction, and owner-minded execution.</h2>
+        </div>
+        <p>Our work spans residential remodels and additions, ADUs, new construction support, tenant improvements, capital repairs, and exterior upgrades across Southern California.</p>
+      </div>
 
+      <div class="service-grid">
+        <article class="service-card">
+          <img src="https://images.unsplash.com/photo-1556912173-3bb406ef7e77?auto=format&fit=crop&w=900&q=80" alt="Modern kitchen remodel with wood cabinetry and stone countertops" />
+          <div>
+            <h3>Kitchen and Bathroom Remodels</h3>
+            <p>Layout planning, finish coordination, tile, cabinetry, fixtures, lighting, and trade scheduling for high-use rooms that need to work beautifully every day.</p>
+          </div>
+        </article>
+
+        <article class="service-card">
+          <img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=900&q=80" alt="Contemporary Southern California home exterior after renovation" />
+          <div>
+            <h3>Full Home Renovations</h3>
+            <p>Whole-home remodels, open floor plans, flooring, doors, paint, trim, exterior refreshes, and coordinated project delivery from demo through final walk-through.</p>
+          </div>
+        </article>
+
+        <article class="service-card">
+          <img src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=900&q=80" alt="Detached guest house and backyard living area" />
+          <div>
+            <h3>ADUs and Room Additions</h3>
+            <p>Garage conversions, detached units, bedroom additions, and permitted square footage expansions managed through planning, trades, inspections, and closeout.</p>
+          </div>
+        </article>
+
+        <article class="service-card">
+          <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=80" alt="Commercial construction team reviewing plans on site" />
+          <div>
+            <h3>Tenant Improvements</h3>
+            <p>Commercial build-outs, reconfigurations, restrooms, ADA work, storefront improvements, electrical and plumbing coordination, and inspection-ready closeout.</p>
+          </div>
+        </article>
+
+        <article class="service-card">
+          <img src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80" alt="Finished bedroom remodel with warm natural light" />
+          <div>
+            <h3>Interior Finish Work</h3>
+            <p>Flooring, paint, drywall, millwork, doors, hardware, lighting, and final punch-list management for residential and commercial spaces.</p>
+          </div>
+        </article>
+
+        <article class="service-card">
+          <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=900&q=80" alt="Outdoor patio and hardscape renovation with seating area" />
+          <div>
+            <h3>Exterior and Site Upgrades</h3>
+            <p>Facade improvements, roofing coordination, concrete, patios, drainage, hardscape, exterior paint, and practical upgrades that protect property value.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="about" class="band">
+      <div class="split">
+        <div class="image-stack" aria-label="Construction and finished renovation photography">
+          <img src="https://images.unsplash.com/photo-1600607688969-a5bfcd646154?auto=format&fit=crop&w=1200&q=82" alt="Open living room renovation with wood floors and large windows" />
+          <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=900&q=82" alt="General contractor reviewing construction site work" />
+        </div>
+        <div>
+          <div class="eyebrow">Who we are</div>
+          <h2>A father-son team with an operator's mindset.</h2>
+          <div class="about-copy">
+            <p><strong>Frank Nozar</strong> is a California Licensed General Contractor and entrepreneurial operator with more than two decades across commercial real estate, multi-unit retail, wholesale distribution, and hands-on construction management.</p>
+            <p>Frank built and operated 10 AT&T authorized retail locations across Los Angeles, led 40+ employees, and managed full P&amp;L responsibility. Today, the Nozar family owns and manages 100,000+ sq. ft. of commercial real estate, where Frank scopes, bids, and executes tenant improvements, repairs, and value-add projects.</p>
+            <p><strong>Ori Nozar</strong> brings the next-generation operating lens: responsive communication, disciplined follow-through, and a long-term focus on preserving trust while building the next chapter.</p>
+          </div>
+
+          <div class="credentials">
+            <div class="credential"><strong>$30M+</strong><span>Annual revenue operated</span></div>
+            <div class="credential"><strong>5</strong><span>Properties under management</span></div>
+            <div class="credential"><strong>40+</strong><span>Employees led</span></div>
+            <div class="credential"><strong>#1107974</strong><span>CA Class B license</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Project Types</div>
+          <h2>From private homes to income-producing properties.</h2>
+        </div>
+        <p>Joon Development Group is built for owners who care about both the finished look and the durability, budget, schedule, and resale implications behind the walls.</p>
+      </div>
+
+      <div class="project-types">
+        <article class="project-card">
+          <img src="https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=900&q=80" alt="Luxury bathroom remodel with stone and glass shower" />
+          <div>
+            <h3>Luxury Remodels</h3>
+            <p>Kitchen, bath, living space, and whole-home renovations with careful finish coordination.</p>
+          </div>
+        </article>
+        <article class="project-card">
+          <img src="https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=900&q=80" alt="Backyard pool and outdoor living renovation" />
+          <div>
+            <h3>Outdoor Living</h3>
+            <p>Patios, hardscape, pool-adjacent upgrades, exterior paint, and curb appeal improvements.</p>
+          </div>
+        </article>
+        <article class="project-card">
+          <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80" alt="Commercial office interior build-out" />
+          <div>
+            <h3>Commercial TIs</h3>
+            <p>Office, retail, and industrial spaces prepared for real operators and real occupancy.</p>
+          </div>
+        </article>
+        <article class="project-card">
+          <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=900&q=80" alt="Contractor and construction worker reviewing plans" />
+          <div>
+            <h3>Capital Repairs</h3>
+            <p>Roofing, concrete, ADA upgrades, preventive maintenance, and value-add property work.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="process" class="band">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Process</div>
+          <h2>Clear scope. Clean communication. No mystery handoffs.</h2>
+        </div>
+        <p>You work directly with an owner-led team that understands permits, trades, tenant needs, change orders, and the cost of slow decisions.</p>
+      </div>
+
+      <div class="process-grid">
+        <div class="process-step">
+          <span>01 / Walkthrough</span>
+          <h3>We understand the goal.</h3>
+          <p>We review the property, constraints, budget range, timeline, and the reason the project matters.</p>
+        </div>
+        <div class="process-step">
+          <span>02 / Scope</span>
+          <h3>We price the real work.</h3>
+          <p>We define materials, trades, permitting needs, unknowns, and assumptions before the job starts.</p>
+        </div>
+        <div class="process-step">
+          <span>03 / Build</span>
+          <h3>We coordinate the moving parts.</h3>
+          <p>Subcontractors, inspections, schedule, field decisions, and change control stay organized.</p>
+        </div>
+        <div class="process-step">
+          <span>04 / Closeout</span>
+          <h3>We finish with accountability.</h3>
+          <p>Punch list, documentation, final walkthrough, and follow-up are handled with ownership.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="contact">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">Request an estimate</div>
+          <h2>Tell us what you want to build, improve, or repair.</h2>
+        </div>
+        <p>Send the basics and we will follow up to understand the site, scope, timing, and next step. Southern California residential and commercial projects welcome.</p>
+      </div>
+
+      <div class="contact-panel">
+        <div class="contact-card">
+          <div class="contact-line">
+            <span>Phone</span>
+            <a href="tel:8183710334">(818) 371-0334</a>
+          </div>
+          <div class="contact-line">
+            <span>Email</span>
+            <a href="mailto:ori.nozar@joonmgmt.com">ori.nozar@joonmgmt.com</a>
+          </div>
+          <div class="contact-line">
+            <span>Location</span>
+            <strong>Los Angeles, CA<br />Serving Southern California</strong>
+          </div>
+          <div class="contact-line">
+            <span>License</span>
+            <strong>CA General Contractor Class B #1107974</strong>
+          </div>
+        </div>
+
+        <form id="estimateForm">
+          <div class="form-grid">
+            <div>
+              <label for="name">Name</label>
+              <input id="name" name="name" autocomplete="name" required />
+            </div>
+            <div>
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" autocomplete="tel" />
+            </div>
+            <div>
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" autocomplete="email" />
+            </div>
+            <div>
+              <label for="service">Project Type</label>
+              <select id="service" name="service">
+                <option>Kitchen or bathroom remodel</option>
+                <option>Full home renovation</option>
+                <option>ADU or room addition</option>
+                <option>Tenant improvement or commercial build-out</option>
+                <option>Exterior, concrete, roofing, or repair work</option>
+                <option>Other or not sure yet</option>
+              </select>
+            </div>
+            <div class="full">
+              <label for="message">Project Details</label>
+              <textarea id="message" name="message" placeholder="Property city, desired scope, timing, and anything important about the site."></textarea>
+            </div>
+            <div class="full">
+              <button class="form-submit" type="submit">Open Email Draft</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div><strong>Joon Development Group</strong><br />Southern California General Contractor</div>
+    <div>CA General Contractor License Class B #1107974<br /><a href="tel:8183710334">(818) 371-0334</a> | <a href="mailto:ori.nozar@joonmgmt.com">ori.nozar@joonmgmt.com</a></div>
+  </footer>
+
+  <script>
+    const form = document.querySelector("#estimateForm");
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const data = new FormData(form);
+      const body = [
+        `Name: ${data.get("name") || ""}`,
+        `Phone: ${data.get("phone") || ""}`,
+        `Email: ${data.get("email") || ""}`,
+        `Project type: ${data.get("service") || ""}`,
+        "",
+        "Project details:",
+        data.get("message") || ""
+      ].join("\n");
+
+      const subject = encodeURIComponent("Joon Development Group estimate request");
+      window.location.href = `mailto:ori.nozar@joonmgmt.com?subject=${subject}&body=${encodeURIComponent(body)}`;
+    });
+  </script>
 </body>
 </html>
