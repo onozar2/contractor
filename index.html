@@ -333,7 +333,10 @@
       align-items: center;
     }
 
-    .founder-photo {
+    .founder-media {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 520px;
       background: var(--white);
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -341,14 +344,25 @@
       overflow: hidden;
     }
 
-    .founder-photo img {
+    .founder-panel,
+    .property-panel {
+      min-height: 100%;
+      position: relative;
+    }
+
+    .founder-panel img,
+    .property-panel img {
       width: 100%;
-      aspect-ratio: 1 / 1;
+      height: 100%;
       object-fit: cover;
     }
 
     .founder-caption {
+      position: absolute;
+      inset: auto 0 0;
       padding: 1rem;
+      background: linear-gradient(180deg, rgba(17, 24, 39, 0), rgba(17, 24, 39, 0.78));
+      color: var(--white);
       display: grid;
       gap: 0.15rem;
     }
@@ -359,11 +373,25 @@
     }
 
     .founder-caption span {
-      color: var(--steel);
+      color: rgba(255, 255, 255, 0.72);
       font-size: 0.84rem;
       font-weight: 800;
       letter-spacing: 0.07em;
       text-transform: uppercase;
+    }
+
+    .property-panel::after {
+      content: "Representative residential property imagery";
+      position: absolute;
+      left: 1rem;
+      right: 1rem;
+      bottom: 1rem;
+      color: rgba(255, 255, 255, 0.74);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
     }
 
     .pill-list {
@@ -393,28 +421,26 @@
 
     .credentials {
       margin-top: 2rem;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.8rem;
+      display: block;
     }
 
     .credential {
       background: var(--white);
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 1rem;
+      padding: 1.15rem;
     }
 
     .credential strong {
       display: block;
       color: var(--clay);
-      font-size: 1.6rem;
+      font-size: 1.9rem;
       line-height: 1.1;
     }
 
     .credential span {
       color: var(--steel);
-      font-size: 0.82rem;
+      font-size: 0.9rem;
       font-weight: 800;
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -661,7 +687,7 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .founder-photo { max-width: 520px; }
+      .founder-media { min-height: 430px; max-width: 620px; }
     }
 
     @media (max-width: 720px) {
@@ -682,7 +708,15 @@
       .proof-item { border-right: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.18); }
       .proof-item:last-child { border-bottom: 0; }
       section { padding: 4rem 5vw; }
-      .founder-photo { max-width: 100%; }
+      .founder-media {
+        grid-template-columns: 1fr;
+        min-height: 0;
+        max-width: 100%;
+      }
+      .founder-panel,
+      .property-panel {
+        min-height: 330px;
+      }
     }
   </style>
 </head>
@@ -719,9 +753,9 @@
           </div>
         </div>
         <div class="hero-proof" aria-label="Company experience highlights">
-          <div class="proof-item"><strong>20+</strong><span>Years operating</span></div>
-          <div class="proof-item"><strong>100k+</strong><span>Sq. ft. managed</span></div>
-          <div class="proof-item"><strong>10</strong><span>Retail build-outs</span></div>
+          <div class="proof-item"><strong>Since 2013</strong><span>Real estate development</span></div>
+          <div class="proof-item"><strong>Residential</strong><span>Core project focus</span></div>
+          <div class="proof-item"><strong>SoCal</strong><span>Local property lens</span></div>
           <div class="proof-item"><strong>Class B</strong><span>CA GC license</span></div>
         </div>
       </div>
@@ -804,32 +838,34 @@
           </div>
         </article>
       </div>
-      <p class="photo-note">Service imagery is representative while Joon's public project photography library is being built.</p>
+      <p class="photo-note">Visuals on this page are representative or conceptual service imagery while Joon's public project photography library is being built; they are not presented as completed Joon projects.</p>
     </section>
 
     <section id="about" class="band">
       <div class="split">
-        <div class="founder-photo">
-          <img src="assets/nozar_bio_photo_2.jpg" alt="Frank Nozar, principal of Joon Development Group" />
-          <div class="founder-caption">
-            <strong>Frank Nozar</strong>
-            <span>Principal / California Class B General Contractor</span>
+        <div class="founder-media">
+          <div class="founder-panel">
+            <img src="assets/nozar_bio_photo_2.jpg" alt="Frank Nozar, principal of Joon Development Group" />
+            <div class="founder-caption">
+              <strong>Frank Nozar</strong>
+              <span>Principal / California Class B General Contractor</span>
+            </div>
+          </div>
+          <div class="property-panel">
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=82" alt="Representative Southern California residential property exterior" />
           </div>
         </div>
         <div>
           <div class="eyebrow">Who we are</div>
           <h2>Led by Frank Nozar.</h2>
           <div class="about-copy">
-            <p><strong>Frank Nozar</strong> has been developing commercial real estate in Los Angeles for over a decade and brings that owner's perspective to residential construction.</p>
+            <p><strong>Frank Nozar</strong> has been investing in and developing real estate in Los Angeles since 2013 and brings that owner's perspective to residential construction.</p>
             <p>Joon Development Group is built around clear communication, practical budgeting, and durable work. The goal is simple: help homeowners improve the spaces they live in without losing control of the scope, schedule, or finish quality.</p>
             <p>The team focuses on residential remodels, additions, ADUs, outdoor living, and property upgrades throughout Southern California.</p>
           </div>
 
           <div class="credentials">
-            <div class="credential"><strong>$30M+</strong><span>Annual revenue operated</span></div>
-            <div class="credential"><strong>5</strong><span>Properties under management</span></div>
-            <div class="credential"><strong>40+</strong><span>Employees led</span></div>
-            <div class="credential"><strong>#1107974</strong><span>CA Class B license</span></div>
+            <div class="credential"><strong>Since 2013</strong><span>Investing in and developing Los Angeles real estate</span></div>
           </div>
         </div>
       </div>
@@ -841,7 +877,7 @@
           <div class="eyebrow">Residential Focus</div>
           <h2>Homes, additions, ADUs, and outdoor spaces.</h2>
         </div>
-        <p>Joon Development Group is built for homeowners who care about both the finished look and the durability, budget, schedule, and resale implications behind the walls. As new client projects are photographed, this section should become a true portfolio with locations, scopes, and before-and-after proof.</p>
+        <p>Joon Development Group is built for homeowners who care about both the finished look and the durability, budget, schedule, and resale implications behind the walls. The images below are representative categories, not completed-project claims. As new client projects are photographed, this section should become a true portfolio with locations, scopes, and before-and-after proof.</p>
       </div>
 
       <div class="project-types">
