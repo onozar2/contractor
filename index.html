@@ -226,6 +226,39 @@
 
     section { padding: 5.8rem 5vw; }
 
+    .trust-strip {
+      padding: 1rem 5vw;
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+    }
+
+    .trust-item {
+      min-height: 86px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      display: grid;
+      align-content: center;
+      gap: 0.15rem;
+    }
+
+    .trust-item strong {
+      font-size: 0.96rem;
+      line-height: 1.2;
+    }
+
+    .trust-item span {
+      color: var(--steel);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
     .section-head {
       display: grid;
       grid-template-columns: minmax(0, 0.9fr) minmax(280px, 0.7fr);
@@ -279,6 +312,12 @@
     .service-card p {
       color: var(--steel);
       font-size: 0.93rem;
+    }
+
+    .photo-note {
+      margin-top: 1rem;
+      color: var(--steel);
+      font-size: 0.86rem;
     }
 
     .band {
@@ -456,6 +495,30 @@
       font-size: 0.92rem;
     }
 
+    .faq-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .faq-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--white);
+      padding: 1.25rem;
+      min-height: 170px;
+    }
+
+    .faq-item h3 {
+      font-size: 1rem;
+      margin-bottom: 0.45rem;
+    }
+
+    .faq-item p {
+      color: var(--steel);
+      font-size: 0.94rem;
+    }
+
     .contact {
       background:
         linear-gradient(90deg, rgba(23, 32, 51, 0.95), rgba(23, 32, 51, 0.78)),
@@ -604,6 +667,8 @@
       .project-types,
       .process-grid,
       .credentials,
+      .trust-strip,
+      .faq-grid,
       .form-grid {
         grid-template-columns: 1fr;
       }
@@ -642,6 +707,7 @@
       <li><a href="#services">Services</a></li>
       <li><a href="#about">About</a></li>
       <li><a href="#process">Process</a></li>
+      <li><a href="#faq">FAQ</a></li>
       <li><a class="nav-cta" href="#contact">Request Estimate</a></li>
     </ul>
   </nav>
@@ -666,6 +732,25 @@
         </div>
       </div>
     </section>
+
+    <div class="trust-strip" aria-label="Joon Development Group trust highlights">
+      <div class="trust-item">
+        <span>License</span>
+        <strong>CA Class B General Contractor #1107974</strong>
+      </div>
+      <div class="trust-item">
+        <span>Service Area</span>
+        <strong>Los Angeles, San Fernando Valley, Ventura, and surrounding SoCal cities</strong>
+      </div>
+      <div class="trust-item">
+        <span>Delivery</span>
+        <strong>Plans, permits, trades, inspections, and closeout coordination</strong>
+      </div>
+      <div class="trust-item">
+        <span>Best Fit</span>
+        <strong>Owners who value clear scope, durable work, and direct communication</strong>
+      </div>
+    </div>
 
     <section id="services">
       <div class="section-head">
@@ -725,6 +810,7 @@
           </div>
         </article>
       </div>
+      <p class="photo-note">Service imagery is representative while Joon's public project photography library is being built.</p>
     </section>
 
     <section id="about" class="band">
@@ -755,10 +841,10 @@
     <section>
       <div class="section-head">
         <div>
-          <div class="eyebrow">Project Types</div>
+          <div class="eyebrow">Representative Work</div>
           <h2>From private homes to income-producing properties.</h2>
         </div>
-        <p>Joon Development Group is built for owners who care about both the finished look and the durability, budget, schedule, and resale implications behind the walls.</p>
+        <p>Joon Development Group is built for owners who care about both the finished look and the durability, budget, schedule, and resale implications behind the walls. As new client projects are photographed, this section should become a true portfolio with locations, scopes, and before-and-after proof.</p>
       </div>
 
       <div class="project-types">
@@ -823,6 +909,35 @@
           <h3>We finish with accountability.</h3>
           <p>Punch list, documentation, final walkthrough, and follow-up are handled with ownership.</p>
         </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">FAQ</div>
+          <h2>Answers homeowners and property owners usually need first.</h2>
+        </div>
+        <p>Strong local contractor sites reduce uncertainty before the first call. These answers set expectations around scope, permits, communication, and project fit.</p>
+      </div>
+
+      <div class="faq-grid">
+        <article class="faq-item">
+          <h3>Do you handle permits and inspections?</h3>
+          <p>Yes. When a project requires permits, Joon coordinates the permit path, required trades, inspections, and closeout steps so the work is documented properly.</p>
+        </article>
+        <article class="faq-item">
+          <h3>What areas do you serve?</h3>
+          <p>Joon is based in Los Angeles and focuses on Southern California, including the San Fernando Valley, Ventura, and nearby Los Angeles County communities.</p>
+        </article>
+        <article class="faq-item">
+          <h3>Can you work with existing plans?</h3>
+          <p>Yes. Joon can review existing drawings, coordinate with architects or engineers, and help turn plans into a realistic scope, budget, and construction sequence.</p>
+        </article>
+        <article class="faq-item">
+          <h3>What makes Joon different from a typical remodeler?</h3>
+          <p>The team has operated retail locations and commercial real estate, so projects are viewed through an owner's lens: budget discipline, schedule, tenant or family impact, and long-term property value.</p>
+        </article>
       </div>
     </section>
 
