@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Joon Development Group is an owner-operated Southern California general contractor for remodels, ADUs, additions, tenant improvements, and commercial build-outs." />
+  <meta name="description" content="Joon Development Group is an owner-operated Southern California general contractor for residential remodels, ADUs, additions, outdoor living, and property improvements." />
   <title>Joon Development Group | Southern California General Contractor</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -333,30 +333,37 @@
       align-items: center;
     }
 
-    .image-stack {
-      position: relative;
-      min-height: 520px;
-    }
-
-    .image-stack img {
-      position: absolute;
-      object-fit: cover;
+    .founder-photo {
+      background: var(--white);
+      border: 1px solid var(--line);
       border-radius: 8px;
       box-shadow: var(--shadow);
+      overflow: hidden;
     }
 
-    .image-stack img:first-child {
-      inset: 0 auto auto 0;
-      width: 76%;
-      height: 73%;
+    .founder-photo img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
     }
 
-    .image-stack img:last-child {
-      right: 0;
-      bottom: 0;
-      width: 54%;
-      height: 48%;
-      border: 10px solid var(--mist);
+    .founder-caption {
+      padding: 1rem;
+      display: grid;
+      gap: 0.15rem;
+    }
+
+    .founder-caption strong {
+      font-size: 1.08rem;
+      line-height: 1.2;
+    }
+
+    .founder-caption span {
+      color: var(--steel);
+      font-size: 0.84rem;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
     }
 
     .pill-list {
@@ -654,7 +661,7 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .image-stack { min-height: 430px; }
+      .founder-photo { max-width: 520px; }
     }
 
     @media (max-width: 720px) {
@@ -675,20 +682,7 @@
       .proof-item { border-right: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.18); }
       .proof-item:last-child { border-bottom: 0; }
       section { padding: 4rem 5vw; }
-      .image-stack {
-        min-height: 0;
-        display: grid;
-        gap: 1rem;
-      }
-      .image-stack img,
-      .image-stack img:first-child,
-      .image-stack img:last-child {
-        position: static;
-        width: 100%;
-        height: auto;
-        aspect-ratio: 4 / 3;
-        border: 0;
-      }
+      .founder-photo { max-width: 100%; }
     }
   </style>
 </head>
@@ -716,9 +710,9 @@
     <section class="hero">
       <div>
         <div class="hero-copy">
-          <div class="eyebrow">Owner-operated design-build and general contracting</div>
+          <div class="eyebrow">Owner-operated residential general contracting</div>
           <h1>Built for the way Southern California lives and works.</h1>
-          <p>Joon Development Group helps homeowners, property owners, and business operators move from idea to finished space with disciplined estimating, hands-on project management, and a builder's respect for long-term value.</p>
+          <p>Joon Development Group helps homeowners and property owners move from idea to finished space with disciplined estimating, hands-on project management, and a builder's respect for long-term value.</p>
           <div class="hero-actions">
             <a class="btn-primary" href="#contact">Start a Project</a>
             <a class="btn-secondary" href="#services">Explore Services</a>
@@ -744,7 +738,7 @@
       </div>
       <div class="trust-item">
         <span>Delivery</span>
-        <strong>Plans, permits, trades, inspections, and closeout coordination</strong>
+        <strong>Planning, permits, trades, inspections, and closeout coordination</strong>
       </div>
       <div class="trust-item">
         <span>Best Fit</span>
@@ -758,7 +752,7 @@
           <div class="eyebrow">Services</div>
           <h2>Renovation, construction, and owner-minded execution.</h2>
         </div>
-        <p>Our work spans residential remodels and additions, ADUs, new construction support, tenant improvements, capital repairs, and exterior upgrades across Southern California.</p>
+        <p>Our work centers on residential remodels, additions, ADUs, new construction support, outdoor living, and practical property upgrades across Southern California.</p>
       </div>
 
       <div class="service-grid">
@@ -787,10 +781,10 @@
         </article>
 
         <article class="service-card">
-          <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=900&q=80" alt="Commercial construction team reviewing plans on site" />
+          <img src="https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=900&q=80" alt="Residential addition and exterior remodel under construction" />
           <div>
-            <h3>Tenant Improvements</h3>
-            <p>Commercial build-outs, reconfigurations, restrooms, ADA work, storefront improvements, electrical and plumbing coordination, and inspection-ready closeout.</p>
+            <h3>New Construction Support</h3>
+            <p>Residential ground-up projects, major additions, framing, trade coordination, and inspection-ready closeout with a practical owner's eye.</p>
           </div>
         </article>
 
@@ -798,7 +792,7 @@
           <img src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80" alt="Finished bedroom remodel with warm natural light" />
           <div>
             <h3>Interior Finish Work</h3>
-            <p>Flooring, paint, drywall, millwork, doors, hardware, lighting, and final punch-list management for residential and commercial spaces.</p>
+            <p>Flooring, paint, drywall, millwork, doors, hardware, lighting, and final punch-list management for homes and residential investment properties.</p>
           </div>
         </article>
 
@@ -815,17 +809,20 @@
 
     <section id="about" class="band">
       <div class="split">
-        <div class="image-stack" aria-label="Construction and finished renovation photography">
-          <img src="https://images.unsplash.com/photo-1600607688969-a5bfcd646154?auto=format&fit=crop&w=1200&q=82" alt="Open living room renovation with wood floors and large windows" />
-          <img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=900&q=82" alt="General contractor reviewing construction site work" />
+        <div class="founder-photo">
+          <img src="assets/nozar_bio_photo_2.jpg" alt="Frank Nozar, principal of Joon Development Group" />
+          <div class="founder-caption">
+            <strong>Frank Nozar</strong>
+            <span>Principal / California Class B General Contractor</span>
+          </div>
         </div>
         <div>
           <div class="eyebrow">Who we are</div>
-          <h2>A father-son team with an operator's mindset.</h2>
+          <h2>Led by Frank Nozar.</h2>
           <div class="about-copy">
-            <p><strong>Frank Nozar</strong> is a California Licensed General Contractor and entrepreneurial operator with more than two decades across commercial real estate, multi-unit retail, wholesale distribution, and hands-on construction management.</p>
-            <p>Frank built and operated 10 AT&T authorized retail locations across Los Angeles, led 40+ employees, and managed full P&amp;L responsibility. Today, the Nozar family owns and manages 100,000+ sq. ft. of commercial real estate, where Frank scopes, bids, and executes tenant improvements, repairs, and value-add projects.</p>
-            <p><strong>Ori Nozar</strong> brings the next-generation operating lens: responsive communication, disciplined follow-through, and a long-term focus on preserving trust while building the next chapter.</p>
+            <p><strong>Frank Nozar</strong> has been developing commercial real estate in Los Angeles for over a decade and brings that owner's perspective to residential construction.</p>
+            <p>Joon Development Group is built around clear communication, practical budgeting, and durable work. The goal is simple: help homeowners improve the spaces they live in without losing control of the scope, schedule, or finish quality.</p>
+            <p>The team focuses on residential remodels, additions, ADUs, outdoor living, and property upgrades throughout Southern California.</p>
           </div>
 
           <div class="credentials">
@@ -841,10 +838,10 @@
     <section>
       <div class="section-head">
         <div>
-          <div class="eyebrow">Representative Work</div>
-          <h2>From private homes to income-producing properties.</h2>
+          <div class="eyebrow">Residential Focus</div>
+          <h2>Homes, additions, ADUs, and outdoor spaces.</h2>
         </div>
-        <p>Joon Development Group is built for owners who care about both the finished look and the durability, budget, schedule, and resale implications behind the walls. As new client projects are photographed, this section should become a true portfolio with locations, scopes, and before-and-after proof.</p>
+        <p>Joon Development Group is built for homeowners who care about both the finished look and the durability, budget, schedule, and resale implications behind the walls. As new client projects are photographed, this section should become a true portfolio with locations, scopes, and before-and-after proof.</p>
       </div>
 
       <div class="project-types">
@@ -863,10 +860,10 @@
           </div>
         </article>
         <article class="project-card">
-          <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80" alt="Commercial office interior build-out" />
+          <img src="https://images.unsplash.com/photo-1600607687644-c7171b42498f?auto=format&fit=crop&w=900&q=80" alt="Detached guest house and residential addition" />
           <div>
-            <h3>Commercial TIs</h3>
-            <p>Office, retail, and industrial spaces prepared for real operators and real occupancy.</p>
+            <h3>ADUs and Additions</h3>
+            <p>Detached units, garage conversions, bedrooms, family rooms, and added square footage planned around real daily use.</p>
           </div>
         </article>
         <article class="project-card">
@@ -885,7 +882,7 @@
           <div class="eyebrow">Process</div>
           <h2>Clear scope. Clean communication. No mystery handoffs.</h2>
         </div>
-        <p>You work directly with an owner-led team that understands permits, trades, tenant needs, change orders, and the cost of slow decisions.</p>
+        <p>You work directly with an owner-led team that understands permits, trades, homeowner needs, change orders, and the cost of slow decisions.</p>
       </div>
 
       <div class="process-grid">
@@ -936,7 +933,7 @@
         </article>
         <article class="faq-item">
           <h3>What makes Joon different from a typical remodeler?</h3>
-          <p>The team has operated retail locations and commercial real estate, so projects are viewed through an owner's lens: budget discipline, schedule, tenant or family impact, and long-term property value.</p>
+          <p>Frank's commercial real estate background gives each project an owner's lens: budget discipline, schedule, family impact, and long-term property value.</p>
         </article>
       </div>
     </section>
@@ -947,7 +944,7 @@
           <div class="eyebrow">Request an estimate</div>
           <h2>Tell us what you want to build, improve, or repair.</h2>
         </div>
-        <p>Send the basics and we will follow up to understand the site, scope, timing, and next step. Southern California residential and commercial projects welcome.</p>
+        <p>Send the basics and we will follow up to understand the site, scope, timing, and next step. Southern California residential projects are the core focus.</p>
       </div>
 
       <div class="contact-panel">
@@ -990,7 +987,7 @@
                 <option>Kitchen or bathroom remodel</option>
                 <option>Full home renovation</option>
                 <option>ADU or room addition</option>
-                <option>Tenant improvement or commercial build-out</option>
+                <option>Outdoor living or exterior upgrade</option>
                 <option>Exterior, concrete, roofing, or repair work</option>
                 <option>Other or not sure yet</option>
               </select>
