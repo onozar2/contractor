@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lead Generation | Joon Development Group</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #172033; --steel: #334155; --muted: #64748b; --mist: #f4f6f8;
+      --white: #ffffff; --line: #dde3ea; --clay: #b85c38; --copper: #d78b54;
+      --green: #0f766e; --amber: #b45309; --red: #b42318;
+      --shadow: 0 16px 42px rgba(23, 32, 51, 0.1);
+    }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--mist); color: var(--ink); line-height: 1.55;
+    }
+    a { color: inherit; }
+    .topbar {
+      background: #111827; color: rgba(255,255,255,0.82); display: flex;
+      justify-content: space-between; gap: 1rem; padding: 0.55rem 5vw; font-size: 0.82rem;
+    }
+    .topbar strong { color: var(--white); }
+    .topbar a, nav a { text-decoration: none; }
+    nav {
+      position: sticky; top: 0; z-index: 20; min-height: 72px; padding: 0 5vw;
+      background: rgba(255,255,255,0.94); border-bottom: 1px solid rgba(221,227,234,0.86);
+      backdrop-filter: blur(18px); display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+    }
+    .brand { display: grid; gap: 0.05rem; line-height: 1.1; }
+    .brand span:first-child { font-size: 1rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+    .brand span:last-child { color: var(--clay); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+    nav ul { list-style: none; display: flex; align-items: center; gap: 1rem; color: var(--steel); font-size: 0.84rem; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase; }
+    nav li a:hover, nav li a.active { color: var(--clay); }
+    main { padding: 0 5vw 4rem; }
+    .hero {
+      padding: 4rem 0 2rem; display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(320px, 0.5fr);
+      gap: 2rem; align-items: end;
+    }
+    .eyebrow { color: var(--clay); font-size: 0.78rem; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; }
+    h1 { margin-top: 0.45rem; font-size: clamp(2.35rem, 6vw, 5.1rem); line-height: 0.96; letter-spacing: 0; max-width: 920px; }
+    h2 { font-size: 1.25rem; line-height: 1.2; margin-bottom: 0.35rem; }
+    h3 { font-size: 1.05rem; line-height: 1.2; }
+    .hero p, .panel > p, .muted { color: var(--muted); }
+    .metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+    .metric, .panel, .lead-card, .source-card {
+      border: 1px solid var(--line); border-radius: 8px; background: var(--white); box-shadow: 0 8px 28px rgba(23,32,51,0.05);
+    }
+    .metric { padding: 0.9rem; }
+    .metric strong { display: block; font-size: 1.8rem; line-height: 1; }
+    .metric span { color: var(--muted); font-size: 0.76rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    .tabs a {
+      min-height: 42px; border-radius: 6px; border: 1px solid var(--line); background: var(--white);
+      padding: 0 0.9rem; display: inline-flex; align-items: center; font-weight: 900; text-decoration: none;
+    }
+    .tabs a.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
+    .layout { display: grid; grid-template-columns: minmax(320px, 0.45fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+    .panel { padding: 1rem; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+    .full { grid-column: 1 / -1; }
+    label { display: block; color: var(--steel); font-size: 0.76rem; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.3rem; }
+    input, select, textarea {
+      width: 100%; border: 1px solid var(--line); border-radius: 6px; min-height: 44px;
+      padding: 0.72rem 0.82rem; background: var(--white); color: var(--ink); font: inherit;
+    }
+    textarea { min-height: 96px; resize: vertical; }
+    button, .button {
+      min-height: 42px; border: 0; border-radius: 6px; background: var(--ink); color: var(--white);
+      font: inherit; font-weight: 900; padding: 0 0.95rem; cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    button:hover, .button:hover { background: var(--clay); }
+    button.secondary, .button.secondary { background: var(--white); color: var(--ink); border: 1px solid var(--line); }
+    button.secondary:hover, .button.secondary:hover { border-color: var(--clay); color: var(--clay); }
+    .actions { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+    .source-list, .lead-list { display: grid; gap: 0.75rem; }
+    .source-card, .lead-card { padding: 1rem; }
+    .source-card p, .lead-card p { color: var(--steel); font-size: 0.92rem; margin-top: 0.45rem; }
+    .source-links { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.7rem; }
+    .source-links a {
+      color: var(--clay); font-size: 0.82rem; font-weight: 850; text-decoration: none;
+      border-bottom: 1px solid rgba(184,92,56,0.3);
+    }
+    .badge {
+      display: inline-flex; align-items: center; min-height: 26px; border-radius: 999px; padding: 0 0.65rem;
+      font-size: 0.74rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; background: var(--mist); color: var(--steel);
+    }
+    .badge.good { background: #dff5ef; color: var(--green); }
+    .badge.warn { background: #fff3d6; color: var(--amber); }
+    .badge.bad { background: #fee4e2; color: var(--red); }
+    .meta { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.45rem; }
+    .lead-card header { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; align-items: start; }
+    .value { text-align: right; font-weight: 900; }
+    .traffic-table { width: 100%; border-collapse: collapse; margin-top: 0.8rem; font-size: 0.9rem; }
+    .traffic-table th, .traffic-table td { border-bottom: 1px solid var(--line); padding: 0.6rem; text-align: left; }
+    .traffic-table th { color: var(--muted); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    footer { background: #0f172a; color: rgba(255,255,255,0.64); padding: 2rem 5vw; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.88rem; }
+    footer strong { color: var(--white); }
+    @media (max-width: 1040px) { .hero, .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 720px) { .topbar, nav ul { display: none; } nav { min-height: 64px; } main { padding-inline: 4vw; } .grid, .metrics { grid-template-columns: 1fr; } .lead-card header { grid-template-columns: 1fr; } .value { text-align: left; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div><strong>Internal growth CRM</strong></div>
+    <div><a href="subcontractor_finder.html">Subcontractor Finder</a> &nbsp; | &nbsp; <a href="bid_lab.html">Bid Lab</a> &nbsp; | &nbsp; <a href="http://localhost:4173/">Public site</a></div>
+  </div>
+  <nav>
+    <a class="brand" href="http://localhost:4173/"><span>Joon Development Group</span><span>Lead Generation</span></a>
+    <ul>
+      <li><a href="subcontractor_finder.html">Sub Finder</a></li>
+      <li><a class="active" href="lead_generation.html">Lead Gen</a></li>
+      <li><a href="bid_lab.html">Bid Lab</a></li>
+      <li><a href="#traffic">Traffic</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Agent-first sales finder</div>
+        <h1>Let the lead agent fill MongoDB, then work the pipeline.</h1>
+        <p class="muted">The primary workflow is public source research into MongoDB. Manual entry remains the secondary path for incoming calls, referrals, and form fills.</p>
+      </div>
+      <aside class="metrics">
+        <div class="metric"><strong id="leadCount">0</strong><span>Total leads</span></div>
+        <div class="metric"><strong id="wonRate">0%</strong><span>Won rate</span></div>
+        <div class="metric"><strong id="openValue">$0</strong><span>Open pipeline</span></div>
+        <div class="metric"><strong id="trafficRate">0%</strong><span>Traffic to lead</span></div>
+      </aside>
+    </section>
+
+    <div class="tabs">
+      <a href="subcontractor_finder.html">Subcontractor Tracker</a>
+      <a class="active" href="lead_generation.html">Lead Generation</a>
+      <a href="bid_lab.html">Bid Lab</a>
+    </div>
+
+    <section class="layout">
+      <aside class="panel">
+        <h2>Sales lead agent</h2>
+        <p>Pick a service and urgency. The agent searches public high-intent sources, writes review-needed lead candidates into MongoDB, and leaves manual outreach decisions to you.</p>
+        <div class="grid">
+          <div>
+            <label for="agentService">Service</label>
+            <select id="agentService"></select>
+          </div>
+          <div>
+            <label for="agentMarket">Market</label>
+            <input id="agentMarket" value="Los Angeles CA" />
+          </div>
+          <div>
+            <label for="agentIntent">Intent</label>
+            <select id="agentIntent">
+              <option>Emergency repair</option>
+              <option>Remodel estimate</option>
+              <option>Commercial TI</option>
+              <option>ADU or addition</option>
+              <option>Property manager vendor need</option>
+            </select>
+          </div>
+          <div>
+            <label for="agentBudget">Budget</label>
+            <select id="agentBudget">
+              <option>Any</option>
+              <option>$5k-$25k</option>
+              <option>$25k-$100k</option>
+              <option>$100k+</option>
+            </select>
+          </div>
+          <div>
+            <label for="agentMax">Max Records</label>
+            <input id="agentMax" type="number" min="1" max="25" value="10" />
+          </div>
+          <div class="full actions">
+            <button id="runLeadAgent" type="button">Run Agent to MongoDB</button>
+            <button id="buildQueue" type="button">Build Priority Queue</button>
+            <button id="copyPrompt" class="secondary" type="button">Copy Agent Prompt</button>
+          </div>
+        </div>
+        <p id="agentStatus" class="muted" style="margin-top:0.65rem;"></p>
+        <div id="agentQueue" class="source-list" style="margin-top:1rem;"></div>
+      </aside>
+
+      <section class="panel">
+        <h2>Add customer lead</h2>
+        <p>Use this for incoming calls, directory finds, Craigslist posts, property manager requests, referrals, and form submissions.</p>
+        <form id="leadForm">
+          <input type="hidden" id="leadId" />
+          <div class="grid">
+            <div><label for="customerName">Name</label><input id="customerName" required /></div>
+            <div><label for="projectType">Project Type</label><select id="projectType"></select></div>
+            <div><label for="phone">Phone</label><input id="phone" /></div>
+            <div><label for="email">Email</label><input id="email" type="email" /></div>
+            <div><label for="city">City</label><input id="city" /></div>
+            <div><label for="source">Source</label><select id="source"></select></div>
+            <div><label for="status">Status</label><select id="status"><option>new</option><option>contacted</option><option>estimate scheduled</option><option>bid sent</option><option>won</option><option>lost</option><option>nurture</option></select></div>
+            <div><label for="priority">Priority</label><select id="priority"><option>high</option><option>medium</option><option>low</option></select></div>
+            <div><label for="estimatedValue">Estimated Value</label><input id="estimatedValue" type="number" min="0" step="500" /></div>
+            <div><label for="probability">Probability %</label><input id="probability" type="number" min="0" max="100" step="5" value="25" /></div>
+            <div><label for="nextActionDate">Next Action Date</label><input id="nextActionDate" type="date" /></div>
+            <div><label for="nextAction">Next Action</label><input id="nextAction" placeholder="Call, text, send estimate..." /></div>
+            <div class="full"><label for="sourceUrl">Source URL</label><input id="sourceUrl" /></div>
+            <div class="full"><label for="summary">Summary</label><textarea id="summary"></textarea></div>
+            <div class="full"><label for="notes">Notes</label><textarea id="notes"></textarea></div>
+            <div class="full actions"><button type="submit">Save Lead</button><button id="clearLead" class="secondary" type="button">Clear</button></div>
+          </div>
+        </form>
+      </section>
+    </section>
+
+    <section class="layout" style="margin-top:1rem;">
+      <aside class="panel" id="traffic">
+        <h2>Website traffic snapshot</h2>
+        <p>Log weekly numbers from Google Analytics, Search Console, Google Business Profile, call tracking, or hosting stats.</p>
+        <form id="trafficForm">
+          <div class="grid">
+            <div><label for="trafficDate">Date</label><input id="trafficDate" type="date" /></div>
+            <div><label for="channel">Channel</label><select id="channel"><option>Website</option><option>Google Business Profile</option><option>Organic Search</option><option>Paid Search</option><option>Yelp</option><option>Angi</option><option>Craigslist</option><option>Referral</option></select></div>
+            <div><label for="visits">Visits</label><input id="visits" type="number" min="0" /></div>
+            <div><label for="trafficLeads">Leads</label><input id="trafficLeads" type="number" min="0" /></div>
+            <div><label for="calls">Calls</label><input id="calls" type="number" min="0" /></div>
+            <div><label for="trafficSource">Source</label><input id="trafficSource" placeholder="GA4, GBP, Yelp dashboard..." /></div>
+            <div class="full"><label for="trafficNotes">Notes</label><textarea id="trafficNotes"></textarea></div>
+            <div class="full"><button type="submit">Log Traffic</button></div>
+          </div>
+        </form>
+        <table class="traffic-table">
+          <thead><tr><th>Date</th><th>Channel</th><th>Visits</th><th>Leads</th><th>Conv.</th></tr></thead>
+          <tbody id="trafficRows"></tbody>
+        </table>
+      </aside>
+
+      <section class="panel">
+        <h2>Lead tracker</h2>
+        <p>Conversion rates update from saved statuses. Keep lost reasons and source quality notes so spend follows what works.</p>
+        <div class="actions" style="margin-bottom:0.8rem;">
+          <input id="leadSearch" placeholder="Search leads..." />
+          <select id="leadFilter"><option>All statuses</option><option>new</option><option>contacted</option><option>estimate scheduled</option><option>bid sent</option><option>won</option><option>lost</option><option>nurture</option></select>
+        </div>
+        <div id="leadList" class="lead-list"></div>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    <div><strong>Joon Development Group</strong><br />Lead generation CRM</div>
+    <div>Mongo collections: <strong>customerLeads</strong> and <strong>websiteTraffic</strong></div>
+  </footer>
+
+  <script>
+    const services = ["Kitchen remodel", "Bathroom remodel", "Outdoor living", "Concrete and hardscape", "Landscape and drainage", "Flooring", "Exterior repair", "Painting", "Full home renovation", "ADU or addition", "Tenant improvement", "Water damage repair"];
+    const leadSources = ["Website form", "Phone call", "Google Business Profile", "Google Organic", "Yelp", "Angi", "Craigslist", "Nextdoor", "Facebook Groups", "Property manager outreach", "Real estate agent referral", "Past customer referral", "Walk-in/referral"];
+    const sourcePlans = [
+      { name: "Yelp high-intent scan", why: "Look for recent quote requests and competitor review language to identify urgent project types.", links: (q) => [`https://www.yelp.com/search?find_desc=${encodeURIComponent(q.service)}&find_loc=${encodeURIComponent(q.market)}`] },
+      { name: "Craigslist services + gigs", why: "Find homeowners and small operators posting immediate repair/remodel needs; respond manually and carefully.", links: (q) => [`https://losangeles.craigslist.org/search/sss?query=${encodeURIComponent(q.service)}`, `https://losangeles.craigslist.org/search/ggg?query=${encodeURIComponent(q.service)}`] },
+      { name: "Angi/HomeAdvisor positioning", why: "Compare categories, service wording, and review promises before deciding whether paid lead flow is worth testing.", links: (q) => [`https://www.angi.com/companylist/us/ca/los-angeles/${encodeURIComponent(q.service.toLowerCase().replaceAll(" ", "-"))}.htm`, `https://www.homeadvisor.com/c.html?search=${encodeURIComponent(q.service + " " + q.market)}`] },
+      { name: "Google Business Profile gaps", why: "Search like a customer and note competitors with weak response quality, thin photos, or service gaps.", links: (q) => [`https://www.google.com/search?q=${encodeURIComponent(q.service + " contractor " + q.market)}`, `https://www.google.com/maps/search/${encodeURIComponent(q.service + " contractor " + q.market)}`] },
+      { name: "Neighborhood demand", why: "Nextdoor and Facebook groups surface repeat complaints, referral requests, and local phrasing for ad copy.", links: (q) => [`https://www.google.com/search?q=${encodeURIComponent('site:nextdoor.com ' + q.service + ' ' + q.market)}`, `https://www.google.com/search?q=${encodeURIComponent('site:facebook.com/groups ' + q.service + ' ' + q.market)}`] },
+      { name: "Referral partner list", why: "Build repeat lead channels through property managers, realtors, insurance brokers, designers, and cabinet shops.", links: (q) => [`https://www.google.com/search?q=${encodeURIComponent('property managers ' + q.market)}`, `https://www.google.com/search?q=${encodeURIComponent('interior designers ' + q.market + ' remodel')}`] }
+    ];
+    const localLeadKey = "joonCustomerLeads";
+    const localTrafficKey = "joonWebsiteTraffic";
+    const apiBase = window.location.port === "4174" ? "" : "http://localhost:4174";
+    let leads = [];
+    let traffic = [];
+    let apiAvailable = false;
+
+    const $ = (id) => document.querySelector(id);
+    const clean = (value) => String(value || "").trim();
+    const money = (value) => Number(value || 0).toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+    const today = new Date().toISOString().slice(0, 10);
+
+    function normalizeLead(input) {
+      const estimatedValue = Number(input.estimatedValue || 0);
+      const probability = Number(input.probability || 0);
+      return {
+        id: input.id || crypto.randomUUID(),
+        customerName: clean(input.customerName),
+        phone: clean(input.phone),
+        email: clean(input.email).toLowerCase(),
+        city: clean(input.city),
+        projectType: clean(input.projectType || services[0]),
+        source: clean(input.source || leadSources[0]),
+        sourceUrl: clean(input.sourceUrl),
+        status: clean(input.status || "new"),
+        priority: clean(input.priority || "medium"),
+        estimatedValue,
+        probability,
+        expectedValue: Math.round(estimatedValue * probability / 100),
+        nextAction: clean(input.nextAction),
+        nextActionDate: clean(input.nextActionDate),
+        summary: clean(input.summary),
+        notes: clean(input.notes),
+        sourcingMethod: clean(input.sourcingMethod || "manual"),
+        sourcingRunId: clean(input.sourcingRunId),
+        agentStatus: clean(input.agentStatus || "needs_review"),
+        sourceConfidence: clean(input.sourceConfidence || "medium"),
+        createdAt: input.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+    }
+
+    function normalizeTraffic(input) {
+      const visits = Number(input.visits || 0);
+      const leadCount = Number(input.leads || input.trafficLeads || 0);
+      const calls = Number(input.calls || 0);
+      return {
+        id: input.id || crypto.randomUUID(),
+        date: clean(input.date || today),
+        channel: clean(input.channel || "Website"),
+        visits,
+        leads: leadCount,
+        calls,
+        source: clean(input.source),
+        notes: clean(input.notes),
+        conversionRate: visits ? Number(((leadCount / visits) * 100).toFixed(1)) : 0,
+        callRate: visits ? Number(((calls / visits) * 100).toFixed(1)) : 0
+      };
+    }
+
+    async function api(path, options = {}) {
+      const response = await fetch(`${apiBase}${path}`, { headers: { "content-type": "application/json" }, ...options });
+      if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error || `HTTP ${response.status}`);
+      if (response.status === 204) return null;
+      return response.json();
+    }
+
+    async function load() {
+      try {
+        const health = await api("/api/health");
+        apiAvailable = Boolean(health.mongoConfigured);
+        if (!apiAvailable) throw new Error("Mongo not configured");
+        leads = (await api("/api/customer-leads")).map(normalizeLead);
+        traffic = (await api("/api/traffic")).map(normalizeTraffic);
+      } catch (_error) {
+        apiAvailable = false;
+        leads = JSON.parse(localStorage.getItem(localLeadKey) || "[]").map(normalizeLead);
+        traffic = JSON.parse(localStorage.getItem(localTrafficKey) || "[]").map(normalizeTraffic);
+      }
+      render();
+    }
+
+    function saveLocal() {
+      localStorage.setItem(localLeadKey, JSON.stringify(leads));
+      localStorage.setItem(localTrafficKey, JSON.stringify(traffic));
+    }
+
+    function populate() {
+      $("#agentService").innerHTML = services.map((s) => `<option>${s}</option>`).join("");
+      $("#projectType").innerHTML = services.map((s) => `<option>${s}</option>`).join("");
+      $("#source").innerHTML = leadSources.map((s) => `<option>${s}</option>`).join("");
+      $("#trafficDate").value = today;
+    }
+
+    function buildQueue() {
+      const q = { service: $("#agentService").value, market: $("#agentMarket").value, intent: $("#agentIntent").value, budget: $("#agentBudget").value };
+      $("#agentQueue").innerHTML = sourcePlans.map((plan, index) => `
+        <article class="source-card">
+          <h3>${index + 1}. ${plan.name}</h3>
+          <p>${plan.why}</p>
+          <p><strong>Agent task:</strong> Search for ${q.intent.toLowerCase()} leads for ${q.service} in ${q.market}. Prioritize reachable prospects, recent posts, owner/property-manager intent, likely budget ${q.budget}, and clear next action.</p>
+          <div class="source-links">${plan.links(q).map((url) => `<a href="${url}" target="_blank" rel="noopener">Open source</a>`).join("")}</div>
+        </article>
+      `).join("");
+    }
+
+    function agentPrompt() {
+      return `Act as Joon Development Group's lead-generation research assistant. Find research-candidate customer leads for ${$("#agentService").value} in ${$("#agentMarket").value}. Prioritize ${$("#agentIntent").value} with budget ${$("#agentBudget").value}. Search high-intent public sources first: Craigslist services/gigs, property managers, realtor referrals, designer referrals, Google Business Profile/Maps gaps, Yelp/Angi competitor gaps, and public Nextdoor/Facebook recommendation posts. For every lead, return only source-backed data: customer/company name if available, neighborhood/city, project need, visible contact path, source URL, urgency, likely budget range, confidence, recommended next action, and notes. Do not invent contact details. Mark every AI-found lead as needs_review until a human verifies the outreach path.`;
+    }
+
+    function renderMetrics() {
+      const won = leads.filter((lead) => lead.status === "won").length;
+      const open = leads.filter((lead) => !["won", "lost"].includes(lead.status)).reduce((sum, lead) => sum + Number(lead.expectedValue || 0), 0);
+      const visits = traffic.reduce((sum, row) => sum + Number(row.visits || 0), 0);
+      const trafficLeads = traffic.reduce((sum, row) => sum + Number(row.leads || 0), 0);
+      $("#leadCount").textContent = leads.length;
+      $("#wonRate").textContent = leads.length ? `${Math.round((won / leads.length) * 100)}%` : "0%";
+      $("#openValue").textContent = money(open);
+      $("#trafficRate").textContent = visits ? `${((trafficLeads / visits) * 100).toFixed(1)}%` : "0%";
+    }
+
+    function renderLeads() {
+      const search = clean($("#leadSearch").value).toLowerCase();
+      const filter = $("#leadFilter").value;
+      const rows = leads.filter((lead) => filter === "All statuses" || lead.status === filter).filter((lead) => {
+        if (!search) return true;
+        return Object.values(lead).join(" ").toLowerCase().includes(search);
+      }).sort((a, b) => clean(b.updatedAt).localeCompare(clean(a.updatedAt)));
+      $("#leadList").innerHTML = rows.length ? rows.map((lead) => `
+        <article class="lead-card">
+          <header>
+            <div>
+              <h3>${lead.customerName || "Unnamed lead"}</h3>
+              <div class="meta">
+                <span class="badge ${lead.priority === "high" ? "good" : lead.priority === "low" ? "bad" : "warn"}">${lead.priority}</span>
+                <span class="badge">${lead.status}</span>
+                <span class="badge">${lead.source}</span>
+                <span class="badge">${lead.projectType}</span>
+                <span class="badge">${lead.sourcingMethod}</span>
+                ${lead.agentStatus ? `<span class="badge warn">${lead.agentStatus.replaceAll("_", " ")}</span>` : ""}
+              </div>
+            </div>
+            <div class="value">${money(lead.expectedValue)}<br><span class="muted">${lead.probability}% of ${money(lead.estimatedValue)}</span></div>
+          </header>
+          <p><strong>Contact:</strong> ${lead.phone || "No phone"} ${lead.email ? ` | <a href="mailto:${lead.email}">${lead.email}</a>` : ""} ${lead.city ? ` | ${lead.city}` : ""}</p>
+          <p>${lead.summary || "No summary yet."}</p>
+          <p><strong>Next:</strong> ${lead.nextAction || "No next action"} ${lead.nextActionDate ? `on ${lead.nextActionDate}` : ""}</p>
+          <p class="muted">${lead.notes || ""}</p>
+          <div class="source-links">${lead.sourceUrl ? `<a href="${lead.sourceUrl}" target="_blank" rel="noopener">Source</a>` : ""}</div>
+          <div class="actions" style="margin-top:0.7rem;"><button class="secondary" data-edit="${lead.id}" type="button">Edit</button><button class="secondary" data-delete="${lead.id}" type="button">Delete</button></div>
+        </article>
+      `).join("") : `<div class="source-card"><p>No leads match the current filters.</p></div>`;
+    }
+
+    function renderTraffic() {
+      $("#trafficRows").innerHTML = traffic.slice().sort((a, b) => clean(b.date).localeCompare(clean(a.date))).map((row) => `
+        <tr><td>${row.date}</td><td>${row.channel}</td><td>${row.visits}</td><td>${row.leads}</td><td>${row.conversionRate}%</td></tr>
+      `).join("") || `<tr><td colspan="5">No traffic logged yet.</td></tr>`;
+    }
+
+    function render() { renderMetrics(); renderLeads(); renderTraffic(); }
+
+    function leadFromForm() {
+      return normalizeLead({
+        id: $("#leadId").value, customerName: $("#customerName").value, phone: $("#phone").value, email: $("#email").value,
+        city: $("#city").value, projectType: $("#projectType").value, source: $("#source").value, sourceUrl: $("#sourceUrl").value,
+        status: $("#status").value, priority: $("#priority").value, estimatedValue: $("#estimatedValue").value, probability: $("#probability").value,
+        nextAction: $("#nextAction").value, nextActionDate: $("#nextActionDate").value, summary: $("#summary").value, notes: $("#notes").value,
+        sourcingMethod: "manual",
+        agentStatus: "reviewed"
+      });
+    }
+
+    function fillLead(lead) {
+      $("#leadId").value = lead.id || ""; $("#customerName").value = lead.customerName || ""; $("#phone").value = lead.phone || ""; $("#email").value = lead.email || "";
+      $("#city").value = lead.city || ""; $("#projectType").value = lead.projectType || services[0]; $("#source").value = lead.source || leadSources[0]; $("#sourceUrl").value = lead.sourceUrl || "";
+      $("#status").value = lead.status || "new"; $("#priority").value = lead.priority || "medium"; $("#estimatedValue").value = lead.estimatedValue || ""; $("#probability").value = lead.probability || 25;
+      $("#nextAction").value = lead.nextAction || ""; $("#nextActionDate").value = lead.nextActionDate || ""; $("#summary").value = lead.summary || ""; $("#notes").value = lead.notes || "";
+      $("#customerName").scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    async function upsertLead(lead) {
+      if (apiAvailable) {
+        const saved = lead.id && !lead.id.includes("-") ? await api(`/api/customer-leads/${lead.id}`, { method: "PUT", body: JSON.stringify(lead) }) : await api("/api/customer-leads", { method: "POST", body: JSON.stringify(lead) });
+        const normalized = normalizeLead(saved);
+        leads = leads.filter((row) => row.id !== lead.id && row.id !== normalized.id).concat(normalized);
+      } else {
+        leads = leads.filter((row) => row.id !== lead.id).concat(lead);
+        saveLocal();
+      }
+      render();
+    }
+
+    async function saveTraffic(row) {
+      if (apiAvailable) traffic = traffic.concat(normalizeTraffic(await api("/api/traffic", { method: "POST", body: JSON.stringify(row) })));
+      else { traffic = traffic.concat(normalizeTraffic(row)); saveLocal(); }
+      render();
+    }
+
+    async function runLeadAgent() {
+      if (!apiAvailable) {
+        $("#agentStatus").textContent = "Start the local server with npm start so the agent can write to MongoDB.";
+        return;
+      }
+      $("#runLeadAgent").disabled = true;
+      $("#agentStatus").textContent = "Agent is searching public demand signals and writing lead candidates to MongoDB...";
+      try {
+        const result = await api("/api/customer-leads/agent-search", {
+          method: "POST",
+          body: JSON.stringify({
+            projectType: $("#agentService").value,
+            market: $("#agentMarket").value,
+            intent: $("#agentIntent").value,
+            budget: $("#agentBudget").value,
+            maxResults: $("#agentMax").value
+          })
+        });
+        leads = (await api("/api/customer-leads")).map(normalizeLead);
+        $("#agentStatus").textContent = `Saved ${result.savedCount} lead candidate(s) from run ${result.runId}. Review source links before outreach.`;
+        render();
+      } catch (error) {
+        $("#agentStatus").textContent = error.message;
+      } finally {
+        $("#runLeadAgent").disabled = false;
+      }
+    }
+
+    $("#runLeadAgent").addEventListener("click", runLeadAgent);
+    $("#buildQueue").addEventListener("click", buildQueue);
+    $("#copyPrompt").addEventListener("click", async () => navigator.clipboard.writeText(agentPrompt()));
+    $("#leadSearch").addEventListener("input", renderLeads);
+    $("#leadFilter").addEventListener("change", renderLeads);
+    $("#clearLead").addEventListener("click", () => $("#leadForm").reset());
+    $("#leadForm").addEventListener("submit", async (event) => { event.preventDefault(); await upsertLead(leadFromForm()); event.target.reset(); $("#leadId").value = ""; $("#probability").value = 25; });
+    $("#trafficForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await saveTraffic({ date: $("#trafficDate").value, channel: $("#channel").value, visits: $("#visits").value, leads: $("#trafficLeads").value, calls: $("#calls").value, source: $("#trafficSource").value, notes: $("#trafficNotes").value });
+      event.target.reset(); $("#trafficDate").value = today;
+    });
+    $("#leadList").addEventListener("click", async (event) => {
+      const editId = event.target.dataset.edit;
+      const deleteId = event.target.dataset.delete;
+      if (editId) fillLead(leads.find((lead) => lead.id === editId));
+      if (deleteId && confirm("Delete this customer lead?")) {
+        if (apiAvailable && !deleteId.includes("-")) await api(`/api/customer-leads/${deleteId}`, { method: "DELETE" });
+        leads = leads.filter((lead) => lead.id !== deleteId); saveLocal(); render();
+      }
+    });
+
+    populate();
+    buildQueue();
+    load();
+  </script>
+</body>
+</html>

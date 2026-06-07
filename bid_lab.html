@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bid Lab | Joon Development Group</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #172033; --steel: #334155; --muted: #64748b; --mist: #f4f6f8;
+      --white: #ffffff; --line: #dde3ea; --clay: #b85c38; --green: #0f766e;
+      --amber: #b45309; --red: #b42318;
+    }
+    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--mist); color: var(--ink); line-height: 1.55; }
+    a { color: inherit; text-decoration: none; }
+    .topbar { background: #111827; color: rgba(255,255,255,0.82); display: flex; justify-content: space-between; gap: 1rem; padding: 0.55rem 5vw; font-size: 0.82rem; }
+    .topbar strong { color: var(--white); }
+    nav { position: sticky; top: 0; z-index: 20; min-height: 72px; padding: 0 5vw; background: rgba(255,255,255,0.94); border-bottom: 1px solid rgba(221,227,234,0.86); backdrop-filter: blur(18px); display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+    .brand { display: grid; gap: 0.05rem; line-height: 1.1; }
+    .brand span:first-child { font-size: 1rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+    .brand span:last-child { color: var(--clay); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+    nav ul { list-style: none; display: flex; align-items: center; gap: 1rem; color: var(--steel); font-size: 0.84rem; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase; }
+    nav li a:hover, nav li a.active { color: var(--clay); }
+    main { padding: 0 5vw 4rem; }
+    .hero { padding: 4rem 0 2rem; display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(320px, 0.52fr); gap: 2rem; align-items: end; }
+    .eyebrow { color: var(--clay); font-size: 0.78rem; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; }
+    h1 { margin-top: 0.45rem; font-size: clamp(2.35rem, 6vw, 5.1rem); line-height: 0.96; letter-spacing: 0; max-width: 960px; }
+    h2 { font-size: 1.25rem; line-height: 1.2; margin-bottom: 0.35rem; }
+    h3 { font-size: 1.05rem; line-height: 1.2; }
+    .muted, .hero p, .panel > p { color: var(--muted); }
+    .metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+    .metric, .panel, .project-card, .script-card { border: 1px solid var(--line); border-radius: 8px; background: var(--white); box-shadow: 0 8px 28px rgba(23,32,51,0.05); }
+    .metric { padding: 0.9rem; }
+    .metric strong { display: block; font-size: 1.65rem; line-height: 1; }
+    .metric span { color: var(--muted); font-size: 0.74rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+    .tabs, .actions, .meta, .source-links { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+    .tabs { margin-bottom: 1rem; }
+    .tabs a { min-height: 42px; border-radius: 6px; border: 1px solid var(--line); background: var(--white); padding: 0 0.9rem; display: inline-flex; align-items: center; font-weight: 900; }
+    .tabs a.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
+    .layout { display: grid; grid-template-columns: minmax(340px, 0.42fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+    .panel, .project-card, .script-card { padding: 1rem; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+    .full { grid-column: 1 / -1; }
+    label { display: block; color: var(--steel); font-size: 0.76rem; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.3rem; }
+    input, select, textarea { width: 100%; border: 1px solid var(--line); border-radius: 6px; min-height: 44px; padding: 0.72rem 0.82rem; background: var(--white); color: var(--ink); font: inherit; }
+    textarea { min-height: 104px; resize: vertical; }
+    button, .button { min-height: 42px; border: 0; border-radius: 6px; background: var(--ink); color: var(--white); font: inherit; font-weight: 900; padding: 0 0.95rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+    button:hover, .button:hover { background: var(--clay); }
+    button.secondary, .button.secondary { background: var(--white); color: var(--ink); border: 1px solid var(--line); }
+    button.secondary:hover, .button.secondary:hover { border-color: var(--clay); color: var(--clay); }
+    .project-list { display: grid; gap: 0.75rem; }
+    .project-card header { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; align-items: start; }
+    .badge { display: inline-flex; align-items: center; min-height: 26px; border-radius: 999px; padding: 0 0.65rem; font-size: 0.74rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; background: var(--mist); color: var(--steel); }
+    .badge.good { background: #dff5ef; color: var(--green); }
+    .badge.warn { background: #fff3d6; color: var(--amber); }
+    .badge.bad { background: #fee4e2; color: var(--red); }
+    .money { text-align: right; font-weight: 900; }
+    .detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem 1rem; margin-top: 0.75rem; color: var(--steel); font-size: 0.92rem; }
+    .wide { grid-column: 1 / -1; }
+    pre { white-space: pre-wrap; word-break: break-word; border: 1px solid var(--line); border-radius: 8px; background: #0f172a; color: #e5e7eb; padding: 1rem; min-height: 160px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 0.7rem; font-size: 0.9rem; }
+    th, td { border-bottom: 1px solid var(--line); padding: 0.55rem; text-align: left; vertical-align: top; }
+    th { color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    footer { background: #0f172a; color: rgba(255,255,255,0.64); padding: 2rem 5vw; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.88rem; }
+    footer strong { color: var(--white); }
+    @media (max-width: 1040px) { .hero, .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 720px) { .topbar, nav ul { display: none; } nav { min-height: 64px; } main { padding-inline: 4vw; } .grid, .metrics, .detail-grid { grid-template-columns: 1fr; } .project-card header { grid-template-columns: 1fr; } .money { text-align: left; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div><strong>Internal bidding lab</strong></div>
+    <div><a href="lead_generation.html">Lead Gen</a> &nbsp; | &nbsp; <a href="subcontractor_finder.html">Sub Finder</a> &nbsp; | &nbsp; <a href="http://localhost:4173/">Public site</a></div>
+  </div>
+  <nav>
+    <a class="brand" href="http://localhost:4173/"><span>Joon Development Group</span><span>Bid Lab</span></a>
+    <ul>
+      <li><a href="subcontractor_finder.html">Sub Finder</a></li>
+      <li><a href="lead_generation.html">Lead Gen</a></li>
+      <li><a class="active" href="bid_lab.html">Bid Lab</a></li>
+      <li><a href="#script">Scripts</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Budget range first, fixed bid second</div>
+        <h1>Turn every walkthrough into pricing memory.</h1>
+        <p>The Bid Lab keeps you honest while you learn the trades: capture the walkthrough, draft scope, request sub validation, compare quote spread, and only mark fixed-bid ready when the missing pieces are gone.</p>
+      </div>
+      <aside class="metrics">
+        <div class="metric"><strong id="projectCount">0</strong><span>Bid projects</span></div>
+        <div class="metric"><strong id="readyCount">0</strong><span>Fixed-ready</span></div>
+        <div class="metric"><strong id="avgRange">$0</strong><span>Avg range high</span></div>
+        <div class="metric"><strong id="storageStatus">Checking</strong><span>Storage</span></div>
+      </aside>
+    </section>
+
+    <div class="tabs">
+      <a href="subcontractor_finder.html">Subcontractor Tracker</a>
+      <a href="lead_generation.html">Lead Generation</a>
+      <a class="active" href="bid_lab.html">Bid Lab</a>
+    </div>
+
+    <section class="layout">
+      <aside class="panel">
+        <h2>Project Intake</h2>
+        <p>Capture the first walkthrough and planning range. Unknown is better than guessed.</p>
+        <form id="projectForm">
+          <input type="hidden" id="projectId" />
+          <div class="grid">
+            <div><label for="customerName">Customer / Lead</label><input id="customerName" required /></div>
+            <div><label for="projectType">Project Type</label><select id="projectType"></select></div>
+            <div><label for="city">City</label><input id="city" value="Los Angeles" /></div>
+            <div><label for="neighborhood">Neighborhood</label><input id="neighborhood" /></div>
+            <div><label for="propertyType">Property Type</label><input id="propertyType" placeholder="SFR, duplex, condo..." /></div>
+            <div><label for="clientBudget">Client Budget</label><input id="clientBudget" placeholder="$40k-$60k, unknown..." /></div>
+            <div><label for="status">Status</label><select id="status"><option>intake</option><option>walkthrough_scheduled</option><option>range_sent</option><option>design_scope</option><option>sub_validation</option><option>proposal_ready</option><option>proposal_sent</option><option>won</option><option>lost</option><option>no_bid</option></select></div>
+            <div><label for="designerStatus">Designer</label><select id="designerStatus"><option>not_needed_yet</option><option>needed</option><option>requested</option><option>scheduled</option><option>concept_received</option><option>not_available</option></select></div>
+            <div><label for="designerName">Designer Name</label><input id="designerName" /></div>
+            <div><label for="designPackageFee">Design Package Fee</label><input id="designPackageFee" type="number" min="0" step="100" /></div>
+            <div><label for="budgetLow">Budget Low</label><input id="budgetLow" type="number" min="0" step="500" /></div>
+            <div><label for="budgetHigh">Budget High</label><input id="budgetHigh" type="number" min="0" step="500" /></div>
+            <div><label for="internalEstimatedCost">Internal Est. Cost</label><input id="internalEstimatedCost" type="number" min="0" step="500" /></div>
+            <div><label for="finalProposalAmount">Final Proposal</label><input id="finalProposalAmount" type="number" min="0" step="500" /></div>
+            <div><label for="contingencyPercent">Contingency %</label><input id="contingencyPercent" type="number" min="0" max="60" step="1" value="12" /></div>
+            <div><label for="markupPercent">Markup %</label><input id="markupPercent" type="number" min="0" max="100" step="1" value="25" /></div>
+            <div class="full"><label for="mustHaves">Must-Haves</label><textarea id="mustHaves"></textarea></div>
+            <div class="full"><label for="photosNotes">Photos / Walkthrough Notes</label><textarea id="photosNotes" placeholder="Measurements, site access, visible conditions, photos taken, client comments."></textarea></div>
+            <div class="full"><label for="unknowns">Unknowns / Risk Flags</label><textarea id="unknowns" placeholder="Drainage, electrical, plumbing, structural, access, demolition, permits, selections."></textarea></div>
+            <div class="full"><label for="scopeDraft">Scope Draft</label><textarea id="scopeDraft" placeholder="Use Generate Scope Draft, then edit manually."></textarea></div>
+            <div class="full"><label for="budgetRangeNotes">Budget Range Notes</label><textarea id="budgetRangeNotes" placeholder="Why low/high ranges differ. Include assumptions and exclusions."></textarea></div>
+            <div><label for="nextActionDate">Next Action Date</label><input id="nextActionDate" type="date" /></div>
+            <div><label for="nextAction">Next Action</label><input id="nextAction" placeholder="Send range, call designer, request sub quotes..." /></div>
+            <div class="full actions">
+              <button type="submit">Save Bid Project</button>
+              <button id="generateScope" class="secondary" type="button">Generate Scope Draft</button>
+              <button id="clearForm" class="secondary" type="button">Clear</button>
+            </div>
+          </div>
+        </form>
+      </aside>
+
+      <section>
+        <div class="panel">
+          <h2>Bid Projects</h2>
+          <p>Use this as the quote discipline board: range first, validation second, fixed proposal last.</p>
+          <div class="actions" style="margin-top:0.75rem;">
+            <input id="searchInput" placeholder="Search projects, city, trade, notes..." />
+            <select id="statusFilter"><option>All statuses</option><option>intake</option><option>range_sent</option><option>design_scope</option><option>sub_validation</option><option>proposal_ready</option><option>proposal_sent</option><option>won</option><option>lost</option><option>no_bid</option></select>
+          </div>
+        </div>
+        <div id="projectList" class="project-list" style="margin-top:0.75rem;"></div>
+      </section>
+    </section>
+
+    <section id="script" class="layout" style="margin-top:1rem;">
+      <div class="script-card">
+        <h2>Sub Quote Request</h2>
+        <p>Select a project card, choose a trade, then generate a sub-facing validation request.</p>
+        <div class="grid" style="margin-top:0.75rem;">
+          <div><label for="quoteProjectId">Project</label><select id="quoteProjectId"></select></div>
+          <div><label for="quoteTrade">Trade</label><select id="quoteTrade"></select></div>
+          <div class="full actions"><button id="buildQuoteRequest" type="button">Build Quote Request</button></div>
+          <div class="full"><pre id="quoteOutput">Select a project and trade.</pre></div>
+        </div>
+      </div>
+      <div class="script-card">
+        <h2>On-Site Range Script</h2>
+        <pre>Because we price with real trade input, I can give you a responsible planning range today, not a fake fixed bid. If this range feels workable, we will turn it into a fixed proposal after scope/design and sub validation.</pre>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div><strong>Joon Development Group</strong><br />Bid Lab and pricing memory</div>
+    <div>Mongo collection: <strong>bidProjects</strong></div>
+  </footer>
+
+  <script>
+    const projectTypes = ["Kitchen remodel", "Bathroom remodel", "Outdoor living", "Concrete and hardscape", "Landscape and drainage", "Flooring", "Exterior repair", "Painting", "Full home renovation", "Water damage repair"];
+    const trades = ["Demo / haul-off", "Concrete and hardscape", "Landscape and drainage", "Electrical", "Plumbing", "Tile and waterproofing", "Cabinetry and millwork", "Counters", "Flooring", "Painting", "Drywall and framing", "Designer / drafting"];
+    const localKey = "joonBidProjects";
+    const apiBase = window.location.port === "4173" ? `http://${window.location.hostname}:4373` : "";
+    let projects = [];
+    let apiAvailable = false;
+
+    const $ = (selector) => document.querySelector(selector);
+    const clean = (value) => String(value || "").trim();
+    const money = (value) => Number(value || 0).toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+    function id() { return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`; }
+    function splitLines(value) { return clean(value).split(/\n/).map(clean).filter(Boolean); }
+    function today() { return new Date().toISOString().slice(0, 10); }
+
+    function readiness(project) {
+      const missing = [];
+      const quoteTrades = new Set((project.subQuotes || []).filter((quote) => /received|validated|accepted/i.test(quote.status)).map((quote) => quote.trade));
+      const lineTrades = new Set((project.lineItems || []).map((item) => item.trade).filter(Boolean));
+      if (!clean(project.scopeDraft)) missing.push("written scope");
+      if (!project.lineItems?.length) missing.push("trade line items");
+      if (!project.subQuotes?.length) missing.push("sub quote requests");
+      lineTrades.forEach((trade) => { if (!quoteTrades.has(trade)) missing.push(`${trade} validation`); });
+      if (!(project.budgetLow && project.budgetHigh) && !clean(project.budgetRangeNotes)) missing.push("budget range");
+      if (!(project.subQuotes || []).some((quote) => clean(quote.exclusions))) missing.push("exclusions");
+      return { ready: missing.length === 0, notes: missing.length ? `Not ready for fixed bid. Missing: ${[...new Set(missing)].join(", ")}.` : "Ready for fixed proposal review." };
+    }
+
+    function normalize(input) {
+      const project = {
+        id: input.id || id(),
+        customerName: clean(input.customerName),
+        projectType: clean(input.projectType || projectTypes[0]),
+        city: clean(input.city),
+        neighborhood: clean(input.neighborhood),
+        propertyType: clean(input.propertyType),
+        clientBudget: clean(input.clientBudget),
+        status: clean(input.status || "intake"),
+        outcome: clean(input.outcome || "open"),
+        designerStatus: clean(input.designerStatus || "not_needed_yet"),
+        designerName: clean(input.designerName),
+        designPackageFee: Number(input.designPackageFee || 0),
+        mustHaves: clean(input.mustHaves),
+        photosNotes: clean(input.photosNotes),
+        unknowns: clean(input.unknowns),
+        scopeDraft: clean(input.scopeDraft),
+        budgetLow: Number(input.budgetLow || 0),
+        budgetHigh: Number(input.budgetHigh || 0),
+        budgetRangeNotes: clean(input.budgetRangeNotes),
+        internalEstimatedCost: Number(input.internalEstimatedCost || 0),
+        contingencyPercent: Number(input.contingencyPercent || 12),
+        markupPercent: Number(input.markupPercent || 25),
+        targetGrossMarginPercent: Number(input.targetGrossMarginPercent || 30),
+        finalProposalAmount: Number(input.finalProposalAmount || 0),
+        actualCost: Number(input.actualCost || 0),
+        lineItems: Array.isArray(input.lineItems) ? input.lineItems : [],
+        subQuotes: Array.isArray(input.subQuotes) ? input.subQuotes : [],
+        nextAction: clean(input.nextAction),
+        nextActionDate: clean(input.nextActionDate),
+        fixedBidReady: Boolean(input.fixedBidReady),
+        fixedBidReadinessNotes: clean(input.fixedBidReadinessNotes),
+        createdAt: input.createdAt || new Date().toISOString(),
+        updatedAt: input.updatedAt || new Date().toISOString()
+      };
+      const check = readiness(project);
+      project.fixedBidReady = check.ready;
+      project.fixedBidReadinessNotes = clean(project.fixedBidReadinessNotes || check.notes);
+      return project;
+    }
+
+    function projectFromForm() {
+      return normalize({
+        id: $("#projectId").value,
+        customerName: $("#customerName").value,
+        projectType: $("#projectType").value,
+        city: $("#city").value,
+        neighborhood: $("#neighborhood").value,
+        propertyType: $("#propertyType").value,
+        clientBudget: $("#clientBudget").value,
+        status: $("#status").value,
+        designerStatus: $("#designerStatus").value,
+        designerName: $("#designerName").value,
+        designPackageFee: $("#designPackageFee").value,
+        budgetLow: $("#budgetLow").value,
+        budgetHigh: $("#budgetHigh").value,
+        internalEstimatedCost: $("#internalEstimatedCost").value,
+        finalProposalAmount: $("#finalProposalAmount").value,
+        contingencyPercent: $("#contingencyPercent").value,
+        markupPercent: $("#markupPercent").value,
+        mustHaves: $("#mustHaves").value,
+        photosNotes: $("#photosNotes").value,
+        unknowns: $("#unknowns").value,
+        scopeDraft: $("#scopeDraft").value,
+        budgetRangeNotes: $("#budgetRangeNotes").value,
+        nextAction: $("#nextAction").value,
+        nextActionDate: $("#nextActionDate").value,
+        lineItems: buildLineItems($("#scopeDraft").value),
+        subQuotes: projects.find((project) => project.id === $("#projectId").value)?.subQuotes || []
+      });
+    }
+
+    function buildLineItems(scopeText) {
+      const text = clean(scopeText);
+      const detected = trades.filter((trade) => text.toLowerCase().includes(trade.split(" ")[0].toLowerCase()));
+      const source = detected.length ? detected : [$("#projectType").value];
+      return source.map((trade) => ({ id: id(), trade, description: `${trade} scope to validate`, quantity: "", unit: "", allowance: "", lowCost: 0, highCost: 0, validationStatus: "unvalidated", notes: "" }));
+    }
+
+    function localScopeDraft(project) {
+      return [
+        `Project: ${project.projectType}`,
+        `Location: ${[project.neighborhood, project.city].filter(Boolean).join(", ") || "Los Angeles area"}`,
+        project.mustHaves ? `Client must-haves: ${project.mustHaves}` : "",
+        project.photosNotes ? `Walkthrough/photo notes: ${project.photosNotes}` : "",
+        project.unknowns ? `Unknowns to validate before fixed bid: ${project.unknowns}` : "",
+        "",
+        "Trade package draft:",
+        "- Demo/haul-off: confirm existing conditions, access, protection, disposal, and patch-back.",
+        "- Primary build trade: quantify visible work and define material allowances.",
+        "- Electrical/plumbing/irrigation/drainage: validate code, permit, and concealed-condition risk before fixed price.",
+        "- Finish/cleanup: define punch, protection, and exclusions.",
+        "",
+        "Pricing rule: issue a planning range first. Do not issue a fixed bid until major trade packages have sub validation, allowances, exclusions, and change-order rules."
+      ].filter((line) => line !== "").join("\n");
+    }
+
+    async function api(path, options = {}) {
+      const response = await fetch(`${apiBase}${path}`, { headers: { "content-type": "application/json" }, ...options });
+      if (!response.ok) throw new Error((await response.json().catch(() => ({}))).error || `HTTP ${response.status}`);
+      if (response.status === 204) return null;
+      return response.json();
+    }
+
+    async function load() {
+      try {
+        const health = await api("/api/health");
+        apiAvailable = Boolean(health.mongoConfigured);
+        if (!apiAvailable) throw new Error("Mongo not configured");
+        projects = (await api("/api/bid-projects")).map(normalize);
+        $("#storageStatus").textContent = "MongoDB";
+      } catch (_error) {
+        apiAvailable = false;
+        projects = JSON.parse(localStorage.getItem(localKey) || "[]").map(normalize);
+        $("#storageStatus").textContent = "Browser";
+      }
+      render();
+    }
+
+    function saveLocal() { localStorage.setItem(localKey, JSON.stringify(projects)); }
+
+    async function saveProject(project) {
+      if (apiAvailable) {
+        const saved = project.id && !project.id.includes("-") && !project.id.includes("local")
+          ? await api(`/api/bid-projects/${project.id}`, { method: "PUT", body: JSON.stringify(project) })
+          : await api("/api/bid-projects", { method: "POST", body: JSON.stringify(project) });
+        projects = projects.filter((row) => row.id !== project.id && row.id !== saved.id).concat(normalize(saved));
+      } else {
+        projects = projects.filter((row) => row.id !== project.id).concat(project);
+        saveLocal();
+      }
+      render();
+    }
+
+    function fillForm(project) {
+      $("#projectId").value = project.id || "";
+      $("#customerName").value = project.customerName || "";
+      $("#projectType").value = project.projectType || projectTypes[0];
+      $("#city").value = project.city || "";
+      $("#neighborhood").value = project.neighborhood || "";
+      $("#propertyType").value = project.propertyType || "";
+      $("#clientBudget").value = project.clientBudget || "";
+      $("#status").value = project.status || "intake";
+      $("#designerStatus").value = project.designerStatus || "not_needed_yet";
+      $("#designerName").value = project.designerName || "";
+      $("#designPackageFee").value = project.designPackageFee || "";
+      $("#budgetLow").value = project.budgetLow || "";
+      $("#budgetHigh").value = project.budgetHigh || "";
+      $("#internalEstimatedCost").value = project.internalEstimatedCost || "";
+      $("#finalProposalAmount").value = project.finalProposalAmount || "";
+      $("#contingencyPercent").value = project.contingencyPercent || 12;
+      $("#markupPercent").value = project.markupPercent || 25;
+      $("#mustHaves").value = project.mustHaves || "";
+      $("#photosNotes").value = project.photosNotes || "";
+      $("#unknowns").value = project.unknowns || "";
+      $("#scopeDraft").value = project.scopeDraft || "";
+      $("#budgetRangeNotes").value = project.budgetRangeNotes || "";
+      $("#nextAction").value = project.nextAction || "";
+      $("#nextActionDate").value = project.nextActionDate || "";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function clearForm() {
+      $("#projectForm").reset();
+      $("#projectId").value = "";
+      $("#city").value = "Los Angeles";
+      $("#contingencyPercent").value = 12;
+      $("#markupPercent").value = 25;
+    }
+
+    function filteredProjects() {
+      const search = clean($("#searchInput").value).toLowerCase();
+      const status = $("#statusFilter").value;
+      return projects
+        .filter((project) => status === "All statuses" || project.status === status)
+        .filter((project) => !search || JSON.stringify(project).toLowerCase().includes(search))
+        .sort((a, b) => clean(b.updatedAt).localeCompare(clean(a.updatedAt)));
+    }
+
+    function render() {
+      $("#projectCount").textContent = projects.length;
+      $("#readyCount").textContent = projects.filter((project) => project.fixedBidReady).length;
+      const avgHigh = projects.length ? projects.reduce((sum, project) => sum + Number(project.budgetHigh || 0), 0) / projects.length : 0;
+      $("#avgRange").textContent = money(avgHigh);
+      $("#quoteProjectId").innerHTML = projects.map((project) => `<option value="${project.id}">${project.customerName || "Unnamed"} - ${project.projectType}</option>`).join("");
+      const rows = filteredProjects();
+      $("#projectList").innerHTML = rows.length ? rows.map((project) => {
+        const quoteRows = (project.subQuotes || []).map((quote) => `<tr><td>${quote.trade || ""}</td><td>${quote.subcontractorName || quote.subcontractorId || "Unknown"}</td><td>${quote.status || ""}</td><td>${money(quote.quoteFixed || quote.quoteHigh || quote.quoteLow)}</td><td>${quote.confidence || "unknown"}</td></tr>`).join("");
+        return `
+          <article class="project-card">
+            <header>
+              <div>
+                <h3>${project.customerName || "Unnamed project"}</h3>
+                <div class="meta">
+                  <span class="badge">${project.projectType}</span>
+                  <span class="badge">${project.status}</span>
+                  <span class="badge ${project.fixedBidReady ? "good" : "warn"}">${project.fixedBidReady ? "fixed ready" : "range only"}</span>
+                  <span class="badge">${project.designerStatus}</span>
+                </div>
+              </div>
+              <div class="money">${money(project.budgetLow)} - ${money(project.budgetHigh)}<br><span class="muted">planning range</span></div>
+            </header>
+            <div class="detail-grid">
+              <div><strong>Location:</strong> ${[project.neighborhood, project.city].filter(Boolean).join(", ") || "Unknown"}</div>
+              <div><strong>Client Budget:</strong> ${project.clientBudget || "Unknown"}</div>
+              <div><strong>Internal Cost:</strong> ${money(project.internalEstimatedCost)}</div>
+              <div><strong>Final Proposal:</strong> ${money(project.finalProposalAmount)}</div>
+              <div class="wide"><strong>Unknowns:</strong> ${project.unknowns || "None logged"}</div>
+              <div class="wide"><strong>Readiness:</strong> ${project.fixedBidReadinessNotes}</div>
+              <div class="wide"><strong>Next:</strong> ${project.nextAction || "No next action"} ${project.nextActionDate ? `on ${project.nextActionDate}` : ""}</div>
+            </div>
+            ${quoteRows ? `<table><thead><tr><th>Trade</th><th>Sub</th><th>Status</th><th>Quote</th><th>Confidence</th></tr></thead><tbody>${quoteRows}</tbody></table>` : ""}
+            <div class="actions" style="margin-top:0.8rem;">
+              <button class="secondary" data-edit="${project.id}" type="button">Edit</button>
+              <button class="secondary" data-quote="${project.id}" type="button">Quote Request</button>
+              <button class="secondary" data-delete="${project.id}" type="button">Delete</button>
+            </div>
+          </article>`;
+      }).join("") : `<div class="project-card">No bid projects match the current filters.</div>`;
+    }
+
+    function buildLocalQuoteRequest(project, trade) {
+      return [
+        `Bid validation request - ${trade || project.projectType}`,
+        "",
+        `Project: ${project.projectType}`,
+        `Location: ${[project.neighborhood, project.city].filter(Boolean).join(", ") || "Los Angeles area"}`,
+        `Client planning range shown: ${money(project.budgetLow)} - ${money(project.budgetHigh)}`,
+        "",
+        "Please reply with a budget range or fixed quote, plus exclusions and what else you need to tighten it within 24-48 hours.",
+        "",
+        project.scopeDraft || localScopeDraft(project),
+        "",
+        "Required reply format:",
+        "1. Budget low / high or fixed quote",
+        "2. Included scope",
+        "3. Exclusions",
+        "4. Needed photos, measurements, drawings, site visit, or selections",
+        "5. Earliest start / expected duration",
+        "6. Confidence: low, medium, or high"
+      ].join("\n");
+    }
+
+    async function buildQuoteRequest() {
+      const project = projects.find((row) => row.id === $("#quoteProjectId").value);
+      if (!project) return;
+      const trade = $("#quoteTrade").value;
+      if (apiAvailable && project.id && !project.id.includes("-")) {
+        try {
+          const result = await api(`/api/bid-projects/${project.id}/quote-request`, { method: "POST", body: JSON.stringify({ trade }) });
+          $("#quoteOutput").textContent = result.quoteRequest;
+          return;
+        } catch (_error) {}
+      }
+      $("#quoteOutput").textContent = buildLocalQuoteRequest(project, trade);
+    }
+
+    function populate() {
+      $("#projectType").innerHTML = projectTypes.map((type) => `<option>${type}</option>`).join("");
+      $("#quoteTrade").innerHTML = trades.map((trade) => `<option>${trade}</option>`).join("");
+    }
+
+    $("#projectForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await saveProject(projectFromForm());
+      clearForm();
+    });
+    $("#generateScope").addEventListener("click", () => {
+      const project = projectFromForm();
+      $("#scopeDraft").value = localScopeDraft(project);
+      $("#budgetRangeNotes").value = $("#budgetRangeNotes").value || "Low range assumes visible scope, basic finishes, normal access, and no major hidden conditions. High range includes better finishes, trade risk, unknowns, and contingency.";
+    });
+    $("#clearForm").addEventListener("click", clearForm);
+    $("#searchInput").addEventListener("input", render);
+    $("#statusFilter").addEventListener("change", render);
+    $("#buildQuoteRequest").addEventListener("click", buildQuoteRequest);
+    $("#projectList").addEventListener("click", async (event) => {
+      const editId = event.target.dataset.edit;
+      const quoteId = event.target.dataset.quote;
+      const deleteId = event.target.dataset.delete;
+      if (editId) fillForm(projects.find((project) => project.id === editId));
+      if (quoteId) {
+        $("#quoteProjectId").value = quoteId;
+        await buildQuoteRequest();
+        document.querySelector("#script").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      if (deleteId && confirm("Delete this bid project?")) {
+        if (apiAvailable && !deleteId.includes("-")) await api(`/api/bid-projects/${deleteId}`, { method: "DELETE" });
+        projects = projects.filter((project) => project.id !== deleteId);
+        saveLocal();
+        render();
+      }
+    });
+
+    populate();
+    clearForm();
+    load();
+  </script>
+</body>
+</html>
