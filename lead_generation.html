@@ -19,10 +19,17 @@
     a { color: inherit; }
     .topbar {
       background: #111827; color: rgba(255,255,255,0.82); display: flex;
-      justify-content: space-between; gap: 1rem; padding: 0.55rem 5vw; font-size: 0.82rem;
+      align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+      padding: 0.55rem 5vw; font-size: 0.82rem;
     }
     .topbar strong { color: var(--white); }
     .topbar a, nav a { text-decoration: none; }
+    .workspace-switcher { display: flex; align-items: center; justify-content: flex-end; gap: 0.35rem; flex-wrap: wrap; }
+    .workspace-switcher a {
+      min-height: 28px; border-radius: 6px; padding: 0.18rem 0.52rem;
+      color: rgba(255,255,255,0.72); font-weight: 850;
+    }
+    .workspace-switcher a:hover, .workspace-switcher a.active { color: var(--white); background: rgba(255,255,255,0.12); }
     nav {
       position: sticky; top: 0; z-index: 20; min-height: 72px; padding: 0 5vw;
       background: rgba(255,255,255,0.94); border-bottom: 1px solid rgba(221,227,234,0.86);
@@ -43,7 +50,7 @@
     h2 { font-size: 1.25rem; line-height: 1.2; margin-bottom: 0.35rem; }
     h3 { font-size: 1.05rem; line-height: 1.2; }
     .hero p, .panel > p, .muted { color: var(--muted); }
-    .metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+    .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }
     .metric, .panel, .lead-card, .source-card {
       border: 1px solid var(--line); border-radius: 8px; background: var(--white); box-shadow: 0 8px 28px rgba(23,32,51,0.05);
     }
@@ -96,23 +103,68 @@
     .traffic-table { width: 100%; border-collapse: collapse; margin-top: 0.8rem; font-size: 0.9rem; }
     .traffic-table th, .traffic-table td { border-bottom: 1px solid var(--line); padding: 0.6rem; text-align: left; }
     .traffic-table th { color: var(--muted); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .growth-command {
+      border: 1px solid var(--line); border-radius: 8px; background: #fbfcfe; padding: 0.85rem;
+      display: grid; grid-template-columns: minmax(180px, 0.35fr) minmax(0, 1fr); gap: 0.85rem; margin: 0.85rem 0;
+    }
+    .guide-card {
+      border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 0.85rem;
+      display: grid; gap: 0.45rem;
+    }
+    .guide-card h3 { display: flex; align-items: center; justify-content: space-between; gap: 0.7rem; }
+    .guide-card p { color: var(--steel); font-size: 0.9rem; }
+    .guide-points { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.45rem; margin-top: 0.25rem; }
+    .guide-points span {
+      min-height: 34px; border: 1px solid var(--line); border-radius: 6px; background: var(--mist);
+      color: var(--steel); padding: 0.45rem 0.55rem; font-size: 0.82rem; font-weight: 750;
+    }
+    .compact-details {
+      border: 1px solid var(--line); border-radius: 8px; background: #fff; margin-top: 0.7rem; overflow: hidden;
+    }
+    .compact-details summary {
+      min-height: 46px; padding: 0 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+      color: var(--ink); font-weight: 900;
+    }
+    .compact-details summary::after { content: "+"; color: var(--muted); font-size: 1.2rem; }
+    .compact-details[open] summary::after { content: "-"; }
+    .compact-body { border-top: 1px solid var(--line); padding: 0.85rem; }
+    .tracking-health {
+      border: 1px solid var(--line); border-radius: 8px; background: #fbfcfe; padding: 0.8rem;
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.65rem; margin: 0.8rem 0;
+    }
+    .tracking-health label {
+      margin: 0; min-height: 38px; border-radius: 6px; background: var(--white); border: 1px solid var(--line);
+      display: flex; align-items: center; gap: 0.45rem; padding: 0.45rem 0.55rem; color: var(--steel);
+      text-transform: none; letter-spacing: 0; font-size: 0.86rem; font-weight: 850;
+    }
+    .tracking-health input { width: auto; min-height: auto; }
+    .utm-output {
+      border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 0.75rem;
+      color: var(--steel); font-size: 0.88rem; word-break: break-word; min-height: 54px;
+    }
+    .utm-output strong { color: var(--ink); }
     footer { background: #0f172a; color: rgba(255,255,255,0.64); padding: 2rem 5vw; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.88rem; }
     footer strong { color: var(--white); }
     @media (max-width: 1040px) { .hero, .layout { grid-template-columns: 1fr; } }
-    @media (max-width: 720px) { .topbar, nav ul { display: none; } nav { min-height: 64px; } main { padding-inline: 4vw; } .grid, .metrics { grid-template-columns: 1fr; } .lead-card header { grid-template-columns: 1fr; } .value { text-align: left; } }
+    @media (max-width: 720px) { .topbar, nav ul { display: none; } nav { min-height: 64px; } main { padding-inline: 4vw; } .grid, .metrics, .growth-command, .guide-points, .tracking-health { grid-template-columns: 1fr; } .lead-card header { grid-template-columns: 1fr; } .value { text-align: left; } }
   </style>
 </head>
 <body>
   <div class="topbar">
     <div><strong>Internal growth CRM</strong></div>
-    <div><a href="subcontractor_finder.html">Subcontractor Finder</a> &nbsp; | &nbsp; <a href="bid_lab.html">Bid Lab</a> &nbsp; | &nbsp; <a href="http://localhost:4173/">Public site</a></div>
+    <div class="workspace-switcher" role="navigation" aria-label="Workspace switcher">
+      <a href="subcontractor_finder.html">Subcontractors</a>
+      <a class="active" href="lead_generation.html">Lead Gen</a>
+      <a href="bid_lab.html">Bid Lab</a>
+      <a href="http://localhost:4173/">Public Site</a>
+    </div>
   </div>
   <nav>
     <a class="brand" href="http://localhost:4173/"><span>Joon Development Group</span><span>Lead Generation</span></a>
     <ul>
-      <li><a href="subcontractor_finder.html">Sub Finder</a></li>
-      <li><a class="active" href="lead_generation.html">Lead Gen</a></li>
-      <li><a href="bid_lab.html">Bid Lab</a></li>
+      <li><a href="#agent">Agent</a></li>
+      <li><a href="#editor">Add Lead</a></li>
+      <li><a href="#leads">Lead Tracker</a></li>
       <li><a href="#traffic">Traffic</a></li>
     </ul>
   </nav>
@@ -129,17 +181,13 @@
         <div class="metric"><strong id="wonRate">0%</strong><span>Won rate</span></div>
         <div class="metric"><strong id="openValue">$0</strong><span>Open pipeline</span></div>
         <div class="metric"><strong id="trafficRate">0%</strong><span>Traffic to lead</span></div>
+        <div class="metric"><strong id="adSpend">$0</strong><span>Tracked spend</span></div>
+        <div class="metric"><strong id="costPerLead">$0</strong><span>Cost per lead</span></div>
       </aside>
     </section>
 
-    <div class="tabs">
-      <a href="subcontractor_finder.html">Subcontractor Tracker</a>
-      <a class="active" href="lead_generation.html">Lead Generation</a>
-      <a href="bid_lab.html">Bid Lab</a>
-    </div>
-
     <section class="layout">
-      <aside class="panel">
+      <aside id="agent" class="panel">
         <h2>Sales lead agent</h2>
         <p>Pick a service and urgency. The agent searches public high-intent sources, writes review-needed lead candidates into MongoDB, and leaves manual outreach decisions to you.</p>
         <div class="grid">
@@ -184,7 +232,7 @@
         <div id="agentQueue" class="source-list" style="margin-top:1rem;"></div>
       </aside>
 
-      <section class="panel">
+      <section id="editor" class="panel">
         <h2>Add customer lead</h2>
         <p>Use this for incoming calls, directory finds, Craigslist posts, property manager requests, referrals, and form submissions.</p>
         <form id="leadForm">
@@ -213,27 +261,74 @@
 
     <section class="layout" style="margin-top:1rem;">
       <aside class="panel" id="traffic">
-        <h2>Website traffic snapshot</h2>
-        <p>Log weekly numbers from Google Analytics, Search Console, Google Business Profile, call tracking, or hosting stats.</p>
-        <form id="trafficForm">
-          <div class="grid">
-            <div><label for="trafficDate">Date</label><input id="trafficDate" type="date" /></div>
-            <div><label for="channel">Channel</label><select id="channel"><option>Website</option><option>Google Business Profile</option><option>Organic Search</option><option>Paid Search</option><option>Yelp</option><option>Angi</option><option>Craigslist</option><option>Referral</option></select></div>
-            <div><label for="visits">Visits</label><input id="visits" type="number" min="0" /></div>
-            <div><label for="trafficLeads">Leads</label><input id="trafficLeads" type="number" min="0" /></div>
-            <div><label for="calls">Calls</label><input id="calls" type="number" min="0" /></div>
-            <div><label for="trafficSource">Source</label><input id="trafficSource" placeholder="GA4, GBP, Yelp dashboard..." /></div>
-            <div class="full"><label for="trafficNotes">Notes</label><textarea id="trafficNotes"></textarea></div>
-            <div class="full"><button type="submit">Log Traffic</button></div>
+        <h2>Growth tracking</h2>
+        <p>One clean operating model: every channel points to a landing page, every click has a source, and every real lead is tied back to CRM quality.</p>
+
+        <div class="growth-command" aria-label="Growth channel guide">
+          <div>
+            <label for="growthFocus">Focus</label>
+            <select id="growthFocus">
+              <option>Google SEO</option>
+              <option>Google Ads</option>
+              <option>Meta Ads</option>
+              <option>GA4</option>
+            </select>
           </div>
-        </form>
+          <article id="channelGuide" class="guide-card"></article>
+        </div>
+
+        <details class="compact-details">
+          <summary>Tracking setup</summary>
+          <div class="compact-body">
+            <div class="tracking-health" aria-label="Tracking setup checklist">
+              <label><input id="ga4Ready" type="checkbox" /> GA4 key events defined</label>
+              <label><input id="googleAdsReady" type="checkbox" /> Google Ads conversions linked</label>
+              <label><input id="metaReady" type="checkbox" /> Meta Pixel / CAPI plan</label>
+              <label><input id="callTrackingReady" type="checkbox" /> Call tracking numbers mapped</label>
+              <label><input id="searchConsoleReady" type="checkbox" /> Search Console reviewed</label>
+              <label><input id="crmAttributionReady" type="checkbox" /> CRM source required</label>
+            </div>
+          </div>
+        </details>
+
+        <details class="compact-details">
+          <summary>Log campaign metrics</summary>
+          <div class="compact-body">
+            <form id="trafficForm">
+              <div class="grid">
+                <div><label for="trafficDate">Date</label><input id="trafficDate" type="date" /></div>
+                <div><label for="channel">Channel</label><select id="channel"><option>Google SEO</option><option>Google Business Profile</option><option>Google Ads</option><option>Meta Ads</option><option>GA4 Direct / Referral</option><option>Yelp</option><option>Angi</option><option>Craigslist</option><option>Referral</option></select></div>
+                <div><label for="campaign">Campaign</label><input id="campaign" placeholder="la_kitchen_remodel_search" /></div>
+                <div><label for="objective">Objective</label><select id="objective"><option>Quote form</option><option>Phone call</option><option>Booked estimate</option><option>Lead form</option><option>Remarketing</option><option>SEO visibility</option></select></div>
+                <div class="full"><label for="landingPage">Landing Page</label><input id="landingPage" placeholder="https://joondevelopmentgroup.com/kitchen-remodel-los-angeles" /></div>
+                <div><label for="utmSource">UTM Source</label><input id="utmSource" placeholder="google, meta, gbp" /></div>
+                <div><label for="utmMedium">UTM Medium</label><input id="utmMedium" placeholder="cpc, paid_social, organic" /></div>
+                <div><label for="utmCampaign">UTM Campaign</label><input id="utmCampaign" placeholder="service_market_intent" /></div>
+                <div><label for="impressions">Impressions</label><input id="impressions" type="number" min="0" /></div>
+                <div><label for="clicks">Clicks</label><input id="clicks" type="number" min="0" /></div>
+                <div><label for="visits">Visits</label><input id="visits" type="number" min="0" /></div>
+                <div><label for="keyEvents">GA4 Key Events</label><input id="keyEvents" type="number" min="0" /></div>
+                <div><label for="trafficLeads">Leads</label><input id="trafficLeads" type="number" min="0" /></div>
+                <div><label for="calls">Calls</label><input id="calls" type="number" min="0" /></div>
+                <div><label for="spend">Spend</label><input id="spend" type="number" min="0" step="0.01" /></div>
+                <div><label for="trafficSource">Source</label><input id="trafficSource" placeholder="GA4, GBP, ads dashboard..." /></div>
+                <div class="full">
+                  <label>Campaign URL</label>
+                  <div id="utmOutput" class="utm-output">Enter a landing page and UTM fields to generate a tagged URL.</div>
+                </div>
+                <div class="full"><label for="trafficNotes">Notes</label><textarea id="trafficNotes"></textarea></div>
+                <div class="full"><button type="submit">Log Traffic</button></div>
+              </div>
+            </form>
+          </div>
+        </details>
         <table class="traffic-table">
-          <thead><tr><th>Date</th><th>Channel</th><th>Visits</th><th>Leads</th><th>Conv.</th></tr></thead>
+          <thead><tr><th>Date</th><th>Channel</th><th>Campaign</th><th>Clicks</th><th>Visits</th><th>Leads</th><th>CPL</th><th>Conv.</th></tr></thead>
           <tbody id="trafficRows"></tbody>
         </table>
       </aside>
 
-      <section class="panel">
+      <section id="leads" class="panel">
         <h2>Lead tracker</h2>
         <p>Conversion rates update from saved statuses. Keep lost reasons and source quality notes so spend follows what works.</p>
         <div class="actions" style="margin-bottom:0.8rem;">
@@ -252,8 +347,12 @@
 
   <script>
     const services = ["Kitchen remodel", "Bathroom remodel", "Outdoor living", "Concrete and hardscape", "Landscape and drainage", "Flooring", "Exterior repair", "Painting", "Full home renovation", "ADU or addition", "Tenant improvement", "Water damage repair"];
-    const leadSources = ["Website form", "Phone call", "Google Business Profile", "Google Organic", "Yelp", "Angi", "Craigslist", "Nextdoor", "Facebook Groups", "Property manager outreach", "Real estate agent referral", "Past customer referral", "Walk-in/referral"];
+    const leadSources = ["Website form", "Phone call", "Google Business Profile", "Google Organic", "Google Ads", "Meta Ads", "Yelp", "Angi", "Craigslist", "Nextdoor", "Facebook Groups", "Property manager outreach", "Real estate agent referral", "Past customer referral", "Walk-in/referral"];
     const sourcePlans = [
+      { name: "SEO service-page buildout", why: "Create one useful page per service and market, with a clear title, meta description, owner proof, photos, FAQs, and conversion path.", links: (q) => [`https://www.google.com/search?q=${encodeURIComponent(q.service + " contractor " + q.market)}`, `https://search.google.com/search-console/about`] },
+      { name: "Google Ads intent test", why: "Run small exact/phrase-match campaigns around high-intent searches, then optimize only toward calls, quote forms, and qualified booked estimates.", links: (q) => [`https://ads.google.com/`, `https://www.google.com/search?q=${encodeURIComponent(q.service + " estimate " + q.market)}`] },
+      { name: "Meta project-photo test", why: "Use proof-heavy before/after creative for homeowners and property managers, then compare landing-page leads against call quality.", links: () => [`https://business.facebook.com/adsmanager/`, `https://business.facebook.com/events_manager2/list/pixel/`] },
+      { name: "GA4 conversion audit", why: "Make sure phone clicks, email clicks, form submits, and booked estimates are tracked as key events before scaling paid traffic.", links: () => [`https://analytics.google.com/`, `https://tagmanager.google.com/`] },
       { name: "Yelp high-intent scan", why: "Look for recent quote requests and competitor review language to identify urgent project types.", links: (q) => [`https://www.yelp.com/search?find_desc=${encodeURIComponent(q.service)}&find_loc=${encodeURIComponent(q.market)}`] },
       { name: "Craigslist services + gigs", why: "Find homeowners and small operators posting immediate repair/remodel needs; respond manually and carefully.", links: (q) => [`https://losangeles.craigslist.org/search/sss?query=${encodeURIComponent(q.service)}`, `https://losangeles.craigslist.org/search/ggg?query=${encodeURIComponent(q.service)}`] },
       { name: "Angi/HomeAdvisor positioning", why: "Compare categories, service wording, and review promises before deciding whether paid lead flow is worth testing.", links: (q) => [`https://www.angi.com/companylist/us/ca/los-angeles/${encodeURIComponent(q.service.toLowerCase().replaceAll(" ", "-"))}.htm`, `https://www.homeadvisor.com/c.html?search=${encodeURIComponent(q.service + " " + q.market)}`] },
@@ -261,9 +360,35 @@
       { name: "Neighborhood demand", why: "Nextdoor and Facebook groups surface repeat complaints, referral requests, and local phrasing for ad copy.", links: (q) => [`https://www.google.com/search?q=${encodeURIComponent('site:nextdoor.com ' + q.service + ' ' + q.market)}`, `https://www.google.com/search?q=${encodeURIComponent('site:facebook.com/groups ' + q.service + ' ' + q.market)}`] },
       { name: "Referral partner list", why: "Build repeat lead channels through property managers, realtors, insurance brokers, designers, and cabinet shops.", links: (q) => [`https://www.google.com/search?q=${encodeURIComponent('property managers ' + q.market)}`, `https://www.google.com/search?q=${encodeURIComponent('interior designers ' + q.market + ' remodel')}`] }
     ];
+    const channelGuides = {
+      "Google SEO": {
+        badge: "Organic",
+        tone: "good",
+        summary: "Win searches without paying per click by creating useful, crawlable service pages for each core offer and market.",
+        points: ["One service + market per page", "Clear title and meta description", "Internal links from related pages", "Search Console query review"]
+      },
+      "Google Ads": {
+        badge: "Paid search",
+        tone: "warn",
+        summary: "Buy high-intent searches only when conversions are tracked. Optimize around qualified calls, quote forms, and booked estimates.",
+        points: ["Separate branded and non-branded campaigns", "Use exact/phrase match first", "Add negative keywords weekly", "Import only real conversion actions"]
+      },
+      "Meta Ads": {
+        badge: "Paid social",
+        tone: "",
+        summary: "Use project proof, before/after creative, and owner/operator credibility to warm up homeowners and property managers.",
+        points: ["Pixel first, CAPI when ready", "Track Lead and Contact events", "Retarget site visitors", "Exclude low-fit audiences"]
+      },
+      "GA4": {
+        badge: "Measurement",
+        tone: "good",
+        summary: "Treat GA4 as the measurement layer. Mark only meaningful actions as key events, then compare channels by lead quality.",
+        points: ["Track phone, email, form, booking", "Use consistent UTMs", "Review landing pages weekly", "Tie CRM wins back to source"]
+      }
+    };
     const localLeadKey = "joonCustomerLeads";
     const localTrafficKey = "joonWebsiteTraffic";
-    const apiBase = window.location.port === "4174" ? "" : "http://localhost:4174";
+    const apiBase = window.location.port === "4173" ? `http://${window.location.hostname}:4373` : "";
     let leads = [];
     let traffic = [];
     let apiAvailable = false;
@@ -307,15 +432,33 @@
       const visits = Number(input.visits || 0);
       const leadCount = Number(input.leads || input.trafficLeads || 0);
       const calls = Number(input.calls || 0);
+      const impressions = Number(input.impressions || 0);
+      const clicks = Number(input.clicks || 0);
+      const spend = Number(input.spend || 0);
+      const keyEvents = Number(input.keyEvents || 0);
       return {
         id: input.id || crypto.randomUUID(),
         date: clean(input.date || today),
         channel: clean(input.channel || "Website"),
+        platform: clean(input.platform || input.channel || "Website"),
+        campaign: clean(input.campaign),
+        objective: clean(input.objective),
+        landingPage: clean(input.landingPage),
+        utmSource: clean(input.utmSource),
+        utmMedium: clean(input.utmMedium),
+        utmCampaign: clean(input.utmCampaign),
+        impressions,
+        clicks,
         visits,
         leads: leadCount,
         calls,
+        spend,
+        keyEvents,
         source: clean(input.source),
         notes: clean(input.notes),
+        ctr: impressions ? Number(((clicks / impressions) * 100).toFixed(2)) : 0,
+        cpc: clicks ? Number((spend / clicks).toFixed(2)) : 0,
+        cpl: leadCount ? Number((spend / leadCount).toFixed(2)) : 0,
         conversionRate: visits ? Number(((leadCount / visits) * 100).toFixed(1)) : 0,
         callRate: visits ? Number(((calls / visits) * 100).toFixed(1)) : 0
       };
@@ -355,6 +498,57 @@
       $("#trafficDate").value = today;
     }
 
+    function renderChannelGuide() {
+      const guide = channelGuides[$("#growthFocus").value] || channelGuides["Google SEO"];
+      $("#channelGuide").innerHTML = `
+        <h3>${$("#growthFocus").value} <span class="badge ${guide.tone}">${guide.badge}</span></h3>
+        <p>${guide.summary}</p>
+        <div class="guide-points">${guide.points.map((point) => `<span>${point}</span>`).join("")}</div>
+      `;
+    }
+
+    function defaultUtmForChannel(channel) {
+      if (channel === "Google Ads") return { source: "google", medium: "cpc" };
+      if (channel === "Meta Ads") return { source: "meta", medium: "paid_social" };
+      if (channel === "Google Business Profile") return { source: "google_business_profile", medium: "organic" };
+      if (channel === "Google SEO") return { source: "google", medium: "organic" };
+      return { source: channel.toLowerCase().replaceAll(" ", "_"), medium: "referral" };
+    }
+
+    function updateUtmDefaults(force = false) {
+      const defaults = defaultUtmForChannel($("#channel").value);
+      if (force || !clean($("#utmSource").value)) $("#utmSource").value = defaults.source;
+      if (force || !clean($("#utmMedium").value)) $("#utmMedium").value = defaults.medium;
+      if (force || !clean($("#utmCampaign").value)) {
+        $("#utmCampaign").value = [
+          clean($("#campaign").value),
+          clean($("#agentService").value).toLowerCase().replaceAll(" ", "_"),
+          clean($("#agentMarket").value).toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "")
+        ].filter(Boolean)[0] || "joon_growth";
+      }
+      renderUtm();
+    }
+
+    function renderUtm() {
+      const landingPage = clean($("#landingPage").value);
+      const source = clean($("#utmSource").value);
+      const medium = clean($("#utmMedium").value);
+      const campaign = clean($("#utmCampaign").value || $("#campaign").value);
+      if (!landingPage || !source || !medium || !campaign) {
+        $("#utmOutput").textContent = "Enter a landing page and UTM fields to generate a tagged URL.";
+        return;
+      }
+      try {
+        const url = new URL(landingPage);
+        url.searchParams.set("utm_source", source);
+        url.searchParams.set("utm_medium", medium);
+        url.searchParams.set("utm_campaign", campaign);
+        $("#utmOutput").innerHTML = `<strong>Tagged URL:</strong> <a href="${url.href}" target="_blank" rel="noopener">${url.href}</a>`;
+      } catch (_error) {
+        $("#utmOutput").textContent = "Use a full landing page URL, including https://";
+      }
+    }
+
     function buildQueue() {
       const q = { service: $("#agentService").value, market: $("#agentMarket").value, intent: $("#agentIntent").value, budget: $("#agentBudget").value };
       $("#agentQueue").innerHTML = sourcePlans.map((plan, index) => `
@@ -376,10 +570,13 @@
       const open = leads.filter((lead) => !["won", "lost"].includes(lead.status)).reduce((sum, lead) => sum + Number(lead.expectedValue || 0), 0);
       const visits = traffic.reduce((sum, row) => sum + Number(row.visits || 0), 0);
       const trafficLeads = traffic.reduce((sum, row) => sum + Number(row.leads || 0), 0);
+      const spend = traffic.reduce((sum, row) => sum + Number(row.spend || 0), 0);
       $("#leadCount").textContent = leads.length;
       $("#wonRate").textContent = leads.length ? `${Math.round((won / leads.length) * 100)}%` : "0%";
       $("#openValue").textContent = money(open);
       $("#trafficRate").textContent = visits ? `${((trafficLeads / visits) * 100).toFixed(1)}%` : "0%";
+      $("#adSpend").textContent = money(spend);
+      $("#costPerLead").textContent = trafficLeads ? money(spend / trafficLeads) : "$0";
     }
 
     function renderLeads() {
@@ -417,8 +614,8 @@
 
     function renderTraffic() {
       $("#trafficRows").innerHTML = traffic.slice().sort((a, b) => clean(b.date).localeCompare(clean(a.date))).map((row) => `
-        <tr><td>${row.date}</td><td>${row.channel}</td><td>${row.visits}</td><td>${row.leads}</td><td>${row.conversionRate}%</td></tr>
-      `).join("") || `<tr><td colspan="5">No traffic logged yet.</td></tr>`;
+        <tr><td>${row.date}</td><td>${row.channel}</td><td>${row.campaign || row.objective || "-"}</td><td>${row.clicks || 0}</td><td>${row.visits}</td><td>${row.leads}</td><td>${row.cpl ? money(row.cpl) : "$0"}</td><td>${row.conversionRate}%</td></tr>
+      `).join("") || `<tr><td colspan="8">No traffic logged yet.</td></tr>`;
     }
 
     function render() { renderMetrics(); renderLeads(); renderTraffic(); }
@@ -497,8 +694,28 @@
     $("#leadForm").addEventListener("submit", async (event) => { event.preventDefault(); await upsertLead(leadFromForm()); event.target.reset(); $("#leadId").value = ""; $("#probability").value = 25; });
     $("#trafficForm").addEventListener("submit", async (event) => {
       event.preventDefault();
-      await saveTraffic({ date: $("#trafficDate").value, channel: $("#channel").value, visits: $("#visits").value, leads: $("#trafficLeads").value, calls: $("#calls").value, source: $("#trafficSource").value, notes: $("#trafficNotes").value });
+      await saveTraffic({
+        date: $("#trafficDate").value,
+        channel: $("#channel").value,
+        platform: $("#channel").value,
+        campaign: $("#campaign").value,
+        objective: $("#objective").value,
+        landingPage: $("#landingPage").value,
+        utmSource: $("#utmSource").value,
+        utmMedium: $("#utmMedium").value,
+        utmCampaign: $("#utmCampaign").value,
+        impressions: $("#impressions").value,
+        clicks: $("#clicks").value,
+        visits: $("#visits").value,
+        keyEvents: $("#keyEvents").value,
+        leads: $("#trafficLeads").value,
+        calls: $("#calls").value,
+        spend: $("#spend").value,
+        source: $("#trafficSource").value,
+        notes: $("#trafficNotes").value
+      });
       event.target.reset(); $("#trafficDate").value = today;
+      $("#utmOutput").textContent = "Enter a landing page and UTM fields to generate a tagged URL.";
     });
     $("#leadList").addEventListener("click", async (event) => {
       const editId = event.target.dataset.edit;
@@ -509,8 +726,16 @@
         leads = leads.filter((lead) => lead.id !== deleteId); saveLocal(); render();
       }
     });
+    $("#channel").addEventListener("change", () => updateUtmDefaults(true));
+    $("#growthFocus").addEventListener("change", renderChannelGuide);
+    ["#campaign", "#landingPage", "#utmSource", "#utmMedium", "#utmCampaign"].forEach((selector) => {
+      $(selector).addEventListener("input", renderUtm);
+      $(selector).addEventListener("change", renderUtm);
+    });
 
     populate();
+    renderChannelGuide();
+    updateUtmDefaults();
     buildQueue();
     load();
   </script>

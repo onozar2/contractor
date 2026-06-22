@@ -60,12 +60,20 @@ function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 
+function daysUntilDate(value) {
+  const raw = cleanString(value);
+  if (!raw) return null;
+  const time = Date.parse(raw);
+  if (Number.isNaN(time)) return null;
+  return Math.round((time - Date.now()) / 86400000);
+}
+
 function scoreSubcontractor(input) {
   const rating = Number(input.reviewRating || 0);
   const reviewCount = Number(input.reviewCount || 0);
   const sentiment = cleanString(input.sentiment).toLowerCase();
-  const priceTier = cleanString(input.priceTier);
   const sourceConfidence = cleanString(input.sourceConfidence || "medium").toLowerCase();
+  const bondedStatus = cleanString(input.bondedStatus || "unknown").toLowerCase();
   let score = 35;
 
   if (rating > 0) score += clamp((rating - 3) * 16, -20, 32);
@@ -73,11 +81,17 @@ function scoreSubcontractor(input) {
   if (sentiment === "positive") score += 12;
   if (sentiment === "mixed") score += 3;
   if (sentiment === "negative") score -= 14;
-  if (priceTier === "$$") score += 6;
-  if (priceTier === "$") score += 3;
-  if (priceTier === "$$$") score += 1;
+  if (cleanString(input.phone)) score += 5;
+  if (cleanString(input.email)) score += 5;
+  if (cleanString(input.website)) score += 4;
   if (input.licenseVerified) score += 8;
   if (input.insuranceVerified) score += 5;
+  if (input.additionalInsured) score += 4;
+  const insExpiry = daysUntilDate(input.insuranceExpiresAt);
+  if (insExpiry !== null) score += insExpiry < 0 ? -14 : insExpiry <= 30 ? -5 : 5;
+  const licExpiry = daysUntilDate(input.licenseExpiresAt);
+  if (licExpiry !== null) score += licExpiry < 0 ? -10 : licExpiry <= 30 ? -3 : 3;
+  if (/bonded|verified|active|yes/.test(bondedStatus)) score += 4;
   if (/active|verified|current/i.test(input.workersCompStatus || "")) score += 4;
   if (/active|verified|current/i.test(input.generalLiabilityStatus || "")) score += 4;
   if (/supplier_referral|job_site|permit_data|sub_referral/i.test(input.sourceChannel || "")) score += 8;
@@ -90,11 +104,6 @@ function scoreSubcontractor(input) {
   if (sourceConfidence === "high") score += 8;
   if (sourceConfidence === "low") score -= 7;
   if (cleanArray(input.specialties).length >= 2) score += 4;
-  if (cleanString(input.minimumJobSize)) score += 2;
-  if (cleanString(input.unitPriceNotes)) score += 3;
-  if (cleanString(input.typicalQuoteTurnaround)) score += 2;
-  if (/high/i.test(input.quoteConfidence || "")) score += 4;
-  if (/low/i.test(input.quoteConfidence || "")) score -= 3;
 
   return clamp(Math.round(score), 0, 100);
 }
@@ -138,8 +147,11 @@ function normalize(input) {
     licenseLastCheckedAt: cleanString(input.licenseLastCheckedAt),
     workersCompStatus: cleanString(input.workersCompStatus),
     generalLiabilityStatus: cleanString(input.generalLiabilityStatus),
+    bondedStatus: cleanString(input.bondedStatus || "unknown"),
     dirRegistrationStatus: cleanString(input.dirRegistrationStatus),
     insuranceExpiresAt: cleanString(input.insuranceExpiresAt),
+    licenseExpiresAt: cleanString(input.licenseExpiresAt),
+    additionalInsured: Boolean(input.additionalInsured),
     recentProjects: cleanString(input.recentProjects),
     projectPhotos: cleanList(input.projectPhotos),
     lienHistoryNotes: cleanString(input.lienHistoryNotes),
@@ -213,7 +225,7 @@ function buildSubcontractorChaseTask(record, mode = "both") {
     "5. Is your CSLB license active, and can you provide COI/workers comp if we request it?",
     "6. What is the best way to send plans or a scope?",
     "7. What photos, measurements, or drawings do you need to give a budget number within 24-48 hours?",
-    "8. Do you have minimums, mobilization fees, typical exclusions, or rough unit-price ranges we should know before sending you work?"
+    "8. Are you bonded, and is there anything we should verify before adding you to our preferred roster?"
   ].join("\n");
   return {
     subcontractorId: record._id?.toString?.() || record.id || "",
@@ -266,6 +278,13 @@ function inferPriceTier(text) {
   return "unknown";
 }
 
+function inferBondedStatus(text) {
+  const lower = cleanString(text).toLowerCase();
+  if (/\bnot\s+bonded\b/.test(lower)) return "not_bonded";
+  if (/\bbonded\b|\bbondable\b/.test(lower)) return "bonded";
+  return "unknown";
+}
+
 function extractRating(text) {
   const ratingMatch = text.match(/([1-5](?:\.\d)?)\s*(?:out of\s*)?5\s*(?:stars?|rating)?/i) || text.match(/rating[:\s]+([1-5](?:\.\d)?)/i);
   const countMatch = text.match(/([\d,]+)\s*(?:reviews?|ratings?)/i);
@@ -306,6 +325,7 @@ function parseResearchPage(url, html) {
   const phones = uniqueMatches(text, /(?:\+?1[\s.-]?)?(?:\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}/g);
   const emails = uniqueMatches(text, /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi);
   const rating = extractRating(text);
+  const license = extractLicenseDetails(text);
   const summary = cleanString(meta || text.slice(0, 260));
 
   return {
@@ -313,14 +333,20 @@ function parseResearchPage(url, html) {
     phone: phones[0] || "",
     email: emails[0] || "",
     website: url,
+    licenseNumber: license.licenseNumber,
+    licenseClass: license.licenseClass,
+    licenseType: license.licenseType,
+    licenseVerified: license.found,
+    bondedStatus: inferBondedStatus(text),
     reviewRating: rating.reviewRating,
     reviewCount: rating.reviewCount,
     sentiment: inferSentiment(text),
     priceTier: inferPriceTier(text),
     summary,
     sourceUrls: [url],
-    sourceNotes: `Imported from public URL. Found ${phones.length} phone(s), ${emails.length} email(s), rating ${rating.reviewRating || "not found"}, reviews ${rating.reviewCount || "not found"}.`,
-    sourceConfidence: phones.length || emails.length || rating.reviewRating ? "medium" : "low"
+    sourceNotes: `Imported from public URL. Found ${phones.length} phone(s), ${emails.length} email(s), license ${license.licenseNumber || "not found"}, bonded status ${inferBondedStatus(text)}, rating ${rating.reviewRating || "not found"}, reviews ${rating.reviewCount || "not found"}.`,
+    sourceConfidence: license.found || phones.length || emails.length || rating.reviewRating ? "medium" : "low",
+    pageTextSample: text.slice(0, 1800)
   };
 }
 
@@ -413,6 +439,102 @@ function sourceTypeForUrl(url) {
   return host || "Public web";
 }
 
+function isBlockedSubcontractorSource(url, title = "", snippet = "") {
+  const host = hostname(url);
+  const path = (() => {
+    try {
+      return new URL(url).pathname.toLowerCase();
+    } catch (_error) {
+      return "";
+    }
+  })();
+  const text = `${title} ${snippet} ${url}`.toLowerCase();
+  if (host.includes("duckduckgo.com") && /\/y\.js|ad_domain|ad_provider|aclick/.test(`${path} ${text}`)) return true;
+  const blockedHosts = [
+    "careerjet.com",
+    "indeed.com",
+    "monster.com",
+    "jooble.org",
+    "simplyhired.com",
+    "facebook.com",
+    "arcgis.com",
+    "clca.org",
+    "clca-lasgv.org",
+    "ua345.org",
+    "dir.ca.gov",
+    "ladwp.com",
+    "lacity.org",
+    "lacitydbs.org",
+    "permitla.org",
+    "dbs.lacity.gov",
+    "engpermits.lacity.org",
+    "bca.lacity.gov",
+    "permitgrab.com",
+    "subcontractorfinder.com",
+    "firstchoicelandscapesupply.com",
+    "patagoniabuildingsupplies.com",
+    "expertise.com",
+    "thehomeatlas.com",
+    "craigslist.org"
+  ];
+  if (blockedHosts.some((blocked) => host === blocked || host.endsWith(`.${blocked}`))) return true;
+  if (host.includes("linkedin.com") && !path.startsWith("/company/")) return true;
+  if (host.includes("yelp.com") && path.startsWith("/search")) return true;
+  if (host.includes("angi.com") && /companylist|search|category/.test(path)) return true;
+  if (host.includes("houzz.com") && /professionals|probr|photos|ideabooks/.test(path)) return true;
+  if (host.includes("bbb.org") && /\/category\/|\/search/.test(path)) return true;
+  return /\b(top\s+10|best\s+15|best\s+los angeles|jobs?|employment|hiring|career|preferred vendors|vendors and bidders|permit portal|permit and inspection|supplier|landscape supply|building supplies|business group|buying group|association|local union|public works contractors|directory of|find .* remodelers|search .* contractors)\b/i.test(text);
+}
+
+function validateSubcontractorCandidate(result, enriched, serviceCategory, market) {
+  const host = hostname(result.url);
+  const searchable = cleanString([
+    result.title,
+    result.snippet,
+    enriched.companyName,
+    enriched.summary,
+    enriched.sourceNotes,
+    enriched.pageTextSample
+  ].join(" "));
+  const lower = searchable.toLowerCase();
+  if (isBlockedSubcontractorSource(result.url, result.title, result.snippet)) {
+    return { ok: false, reason: "Skipped non-contractor source category." };
+  }
+
+  const contractorTerms = /\b(contractor|subcontractor|construction|builder|remodel(?:er|ing)?|renovation|licensed|cslb|general contractor|landscape contractor|drainage contractor|masonry|electric(?:al|ian)?|plumb(?:ing|er)?|hvac|roof(?:ing|er)?|drywall|framing|flooring|tile|waterproofing|concrete|hardscape|painting|cabinetry|millwork|windows?|doors?)\b/i;
+  const negativeTerms = /\b(job board|apply now|employment|hiring|association|union|wholesale supplier|supplier directory|directory|marketplace|top 10|best 15|search results|government portal|permit portal|vendor portal)\b/i;
+  const serviceWords = cleanString(serviceCategory)
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((word) => word.length >= 5 && !["remodels", "renovations", "contractor", "subcontractor"].includes(word));
+  const hasTradeEvidence = !serviceWords.length || serviceWords.some((word) => lower.includes(word));
+  const hasContractorEvidence = contractorTerms.test(searchable);
+  const hasContactEvidence = Boolean(enriched.phone || enriched.email || enriched.licenseNumber);
+  const isLinkedInCompany = host.includes("linkedin.com") && /\/company\//i.test(result.url);
+  const marketWords = cleanString(market).toLowerCase().split(/[^a-z0-9]+/).filter((word) => word.length >= 3);
+  const hasMarketEvidence = !marketWords.length || marketWords.some((word) => lower.includes(word)) || /southern california|los angeles|greater la|ventura|orange county|san fernando|pasadena|glendale|santa monica|beverly hills/i.test(searchable);
+
+  if (negativeTerms.test(searchable) && !isLinkedInCompany) {
+    return { ok: false, reason: "Skipped page with directory/job/supplier language." };
+  }
+  if (!hasContractorEvidence || !hasTradeEvidence) {
+    return { ok: false, reason: "Skipped because fetched page did not show contractor/trade evidence." };
+  }
+  if (!hasContactEvidence && !isLinkedInCompany) {
+    return { ok: false, reason: "Skipped because page did not expose phone, email, or license evidence." };
+  }
+  if (!hasMarketEvidence) {
+    return { ok: false, reason: "Skipped because page did not show market/service-area evidence." };
+  }
+
+  const method = isLinkedInCompany
+    ? "Verified against LinkedIn company profile text."
+    : enriched.licenseNumber
+      ? "Verified against fetched website text with license evidence."
+      : "Verified against fetched contractor website text with contact evidence.";
+  return { ok: true, method };
+}
+
 function mergeUrls(...groups) {
   return [...new Set(groups.flat().map(cleanString).filter(Boolean))];
 }
@@ -420,7 +542,11 @@ function mergeUrls(...groups) {
 async function enrichPublicResult(result) {
   try {
     const html = await fetchHtml(result.url, 9000);
-    return parseResearchPage(result.url, html);
+    const parsed = parseResearchPage(result.url, html);
+    return {
+      ...parsed,
+      sourceNotes: cleanString([parsed.sourceNotes, `Fetched and parsed ${hostname(result.url) || result.url}.`].join(" "))
+    };
   } catch (error) {
     return {
       companyName: companyFromResult(result),
@@ -541,27 +667,27 @@ async function upsertSourcedSubcontractor(coll, input) {
 function buildSubcontractorQueries(input) {
   const service = cleanString(input.serviceCategory || "general contractor subcontractor");
   const market = cleanString(input.market || "Los Angeles CA");
-  const sources = cleanArray(input.sources).length ? cleanArray(input.sources) : ["public web", "Yelp", "Angi", "BBB", "LinkedIn"];
+  const sources = cleanArray(input.sources).length ? cleanArray(input.sources) : ["company websites", "LinkedIn", "CSLB"];
+  const exclusions = "-jobs -career -employment -directory -\"top 10\" -\"best 15\" -yelp -angi -houzz -homeadvisor -facebook";
   const base = [
-    `${service} subcontractor ${market}`,
-    `${service} contractor ${market} phone reviews`,
-    `${service} ${market} licensed insured subcontractor`,
-    `${service} ${market} supplier referral contractor`,
-    `${service} ${market} permit contractor CSLB`,
-    `${service} ${market} active job site subcontractor`
+    `${service} contractor ${market} licensed insured CSLB ${exclusions}`,
+    `${service} subcontractor ${market} contact license ${exclusions}`,
+    `"${service}" "${market}" "licensed" "insured" contractor ${exclusions}`,
+    `site:linkedin.com/company ${service} contractor ${market} -jobs`,
+    `"${service}" "${market}" "CSLB" contractor ${exclusions}`
   ];
   const sourceQueries = sources.map((source) => {
-    if (/supplier/i.test(source)) return `${service} contractor ${market} Ferguson Ganahl HD Supply Grainger`;
-    if (/job/i.test(source)) return `${service} subcontractor ${market} foreman truck job site`;
-    if (/permit/i.test(source)) return `${service} contractor ${market} LADBS permit Pasadena Glendale Santa Monica Beverly Hills`;
-    if (/subcontractor referral|sub referral/i.test(source)) return `${service} subcontractor referral ${market}`;
-    if (/association/i.test(source)) return `${service} ${market} ASA AGC Builders Exchange subcontractor`;
-    if (/platform|buildingconnected|smartbid|houzz|thumbtack/i.test(source)) return `${service} ${market} BuildingConnected SmartBid Houzz Pro Thumbtack`;
-    if (/public web/i.test(source)) return `${service} subcontractor ${market}`;
+    if (/supplier/i.test(source)) return `${service} contractor ${market} licensed insured CSLB supplier recommended ${exclusions}`;
+    if (/job/i.test(source)) return `${service} contractor ${market} licensed insured active projects ${exclusions}`;
+    if (/permit|cslb|license/i.test(source)) return `${service} contractor ${market} CSLB license phone ${exclusions}`;
+    if (/subcontractor referral|sub referral/i.test(source)) return `${service} subcontractor ${market} licensed phone ${exclusions}`;
+    if (/association/i.test(source)) return `${service} contractor member ${market} licensed insured ${exclusions}`;
+    if (/platform|buildingconnected|smartbid|houzz|thumbtack/i.test(source)) return `${service} contractor ${market} company website license phone ${exclusions}`;
+    if (/public web|company/i.test(source)) return `${service} contractor ${market} licensed insured phone ${exclusions}`;
     if (/linkedin/i.test(source)) return `site:linkedin.com/company ${service} contractor ${market}`;
-    return `${source} ${service} contractor ${market}`;
+    return `${source} ${service} contractor ${market} licensed insured ${exclusions}`;
   });
-  return [...new Set([...sourceQueries, ...base])].slice(0, Number(input.queryLimit || 6));
+  return [...new Set([...sourceQueries, ...base])].slice(0, Number(input.queryLimit || 8));
 }
 
 async function runSubcontractorAgent(input) {
@@ -575,6 +701,7 @@ async function runSubcontractorAgent(input) {
   const seen = new Set();
   const saved = [];
   const errors = [];
+  const skipped = [];
 
   for (const query of queries) {
     try {
@@ -585,6 +712,16 @@ async function runSubcontractorAgent(input) {
         seen.add(key);
         const enriched = await enrichPublicResult(result);
         const sourceType = sourceTypeForUrl(result.url);
+        const validation = validateSubcontractorCandidate(result, enriched, serviceCategory, market);
+        if (!validation.ok) {
+          skipped.push({
+            title: result.title,
+            url: result.url,
+            reason: validation.reason,
+            query
+          });
+          continue;
+        }
         const savedDoc = await upsertSourcedSubcontractor(coll, {
           ...enriched,
           companyName: enriched.companyName || companyFromResult(result),
@@ -595,6 +732,7 @@ async function runSubcontractorAgent(input) {
           sourceUrls: mergeUrls(enriched.sourceUrls || [], [result.url, result.searchUrl]),
           sourceNotes: cleanString([
             `Agent run ${runId}. Query: "${query}". Source: ${sourceType}.`,
+            validation.method,
             result.snippet ? `Snippet: ${result.snippet}` : "",
             enriched.sourceNotes
           ].filter(Boolean).join(" ")),
@@ -602,7 +740,7 @@ async function runSubcontractorAgent(input) {
           sourcingMethod: "agent",
           sourcingRunId: runId,
           agentStatus: "needs_review",
-          sourceConfidence: enriched.sourceConfidence || "low"
+          sourceConfidence: enriched.licenseNumber ? "high" : (enriched.sourceConfidence || "medium")
         });
         saved.push(savedDoc);
       }
@@ -620,12 +758,14 @@ async function runSubcontractorAgent(input) {
       market,
       queries,
       savedCount: saved.length,
+      skippedCount: skipped.length,
+      skipped: skipped.slice(0, 50),
       errors,
       createdAt: new Date().toISOString()
     });
   }
 
-  return { runId, serviceCategory, market, queries, savedCount: saved.length, saved, errors };
+  return { runId, serviceCategory, market, queries, savedCount: saved.length, skippedCount: skipped.length, skipped, saved, errors };
 }
 
 app.get("/api/health", async (_req, res) => {
@@ -913,14 +1053,32 @@ function normalizeTraffic(input) {
   const visits = Number(input.visits || 0);
   const leads = Number(input.leads || 0);
   const calls = Number(input.calls || 0);
+  const impressions = Number(input.impressions || 0);
+  const clicks = Number(input.clicks || 0);
+  const spend = Number(input.spend || 0);
+  const keyEvents = Number(input.keyEvents || 0);
   return {
     date: cleanString(input.date || new Date().toISOString().slice(0, 10)),
     channel: cleanString(input.channel || "Website"),
+    platform: cleanString(input.platform || input.channel || "Website"),
+    campaign: cleanString(input.campaign),
+    objective: cleanString(input.objective),
+    landingPage: cleanString(input.landingPage),
+    utmSource: cleanString(input.utmSource),
+    utmMedium: cleanString(input.utmMedium),
+    utmCampaign: cleanString(input.utmCampaign),
+    impressions,
+    clicks,
     visits,
     leads,
     calls,
+    spend,
+    keyEvents,
     source: cleanString(input.source),
     notes: cleanString(input.notes),
+    ctr: impressions > 0 ? Number(((clicks / impressions) * 100).toFixed(2)) : 0,
+    cpc: clicks > 0 ? Number((spend / clicks).toFixed(2)) : 0,
+    cpl: leads > 0 ? Number((spend / leads).toFixed(2)) : 0,
     conversionRate: visits > 0 ? Number(((leads / visits) * 100).toFixed(1)) : 0,
     callRate: visits > 0 ? Number(((calls / visits) * 100).toFixed(1)) : 0,
     updatedAt: new Date().toISOString()

@@ -3,874 +3,993 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Internal subcontractor finder and CRM for Joon Development Group." />
+  <meta name="description" content="Internal subcontractor roster for Joon Development Group." />
   <title>Subcontractor Finder | Joon Development Group</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --ink: #172033;
-      --steel: #334155;
-      --muted: #64748b;
-      --mist: #f4f6f8;
-      --paper: #fffaf2;
-      --clay: #b85c38;
-      --copper: #d78b54;
-      --sage: #6f7d68;
-      --line: #dde3ea;
-      --white: #ffffff;
+      --steel: #3c4658;
+      --muted: #687587;
+      --line: #d8dee8;
+      --soft: #f5f7fa;
+      --paper: #ffffff;
+      --charcoal: #101828;
+      --blue: #2563eb;
       --green: #0f766e;
       --amber: #b45309;
       --red: #b42318;
-      --shadow: 0 18px 46px rgba(23, 32, 51, 0.12);
+      --plum: #7c3aed;
+      --rust: #b85c38;
+      --shadow: 0 14px 36px rgba(16, 24, 40, 0.08);
     }
     html { scroll-behavior: smooth; }
     body {
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-width: 320px;
       color: var(--ink);
-      background: var(--mist);
-      line-height: 1.55;
+      background: #eef2f6;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
     }
     a { color: inherit; }
     .topbar {
-      background: #111827;
-      color: rgba(255, 255, 255, 0.82);
+      background: var(--charcoal);
+      color: rgba(255, 255, 255, 0.76);
       display: flex;
+      align-items: center;
       justify-content: space-between;
       gap: 1rem;
-      padding: 0.55rem 5vw;
+      flex-wrap: wrap;
+      padding: 0.5rem 4vw;
       font-size: 0.82rem;
     }
     .topbar a { text-decoration: none; }
-    .topbar strong { color: var(--white); font-weight: 700; }
-    nav {
+    .topbar strong { color: #fff; }
+    .workspace-switcher {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+    .workspace-switcher a {
+      min-height: 28px;
+      border-radius: 6px;
+      padding: 0.18rem 0.52rem;
+      color: rgba(255, 255, 255, 0.72);
+      font-weight: 850;
+    }
+    .workspace-switcher a:hover,
+    .workspace-switcher a.active {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
+    }
+    .app-header {
       position: sticky;
       top: 0;
       z-index: 20;
       min-height: 72px;
-      padding: 0 5vw;
-      background: rgba(255, 255, 255, 0.94);
-      border-bottom: 1px solid rgba(221, 227, 234, 0.86);
-      backdrop-filter: blur(18px);
+      padding: 0 4vw;
+      border-bottom: 1px solid rgba(216, 222, 232, 0.9);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 1.5rem;
     }
     .brand {
-      text-decoration: none;
       display: grid;
-      gap: 0.05rem;
-      line-height: 1.1;
+      gap: 0.1rem;
+      text-decoration: none;
+      line-height: 1.05;
     }
     .brand span:first-child {
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 900;
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
     .brand span:last-child {
-      color: var(--clay);
+      color: var(--rust);
       font-size: 0.72rem;
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: 0.14em;
       text-transform: uppercase;
     }
-    nav ul {
-      list-style: none;
+    nav {
       display: flex;
       align-items: center;
-      gap: 1.2rem;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    nav a,
+    .nav-button {
+      min-height: 36px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 0 0.72rem;
       color: var(--steel);
-      font-size: 0.84rem;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-    nav a { text-decoration: none; }
-    nav li a:hover { color: var(--clay); }
-    main { padding: 0 5vw 4rem; }
-    .hero {
-      padding: 4.5rem 0 2rem;
-      display: grid;
-      grid-template-columns: minmax(0, 0.9fr) minmax(320px, 0.55fr);
-      gap: 2rem;
-      align-items: end;
-    }
-    .eyebrow {
-      color: var(--clay);
-      font-size: 0.78rem;
-      font-weight: 900;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-    }
-    h1 {
-      margin-top: 0.45rem;
-      font-size: clamp(2.35rem, 6vw, 5.2rem);
-      line-height: 0.96;
-      letter-spacing: 0;
-      max-width: 900px;
-    }
-    .hero p {
-      max-width: 780px;
-      color: var(--steel);
-      font-size: 1.05rem;
-      margin-top: 1.1rem;
-    }
-    .status-card,
-    .panel,
-    .sub-card,
-    .research-card {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--white);
-      box-shadow: 0 8px 28px rgba(23, 32, 51, 0.05);
-    }
-    .status-card { padding: 1rem; display: grid; gap: 0.7rem; }
-    .status-row { display: flex; justify-content: space-between; gap: 1rem; color: var(--steel); font-size: 0.92rem; }
-    .status-row strong { color: var(--ink); }
-    .badge {
+      background: transparent;
       display: inline-flex;
       align-items: center;
-      min-height: 26px;
-      border-radius: 999px;
-      padding: 0 0.65rem;
-      font-size: 0.76rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      background: var(--mist);
-      color: var(--steel);
-      white-space: nowrap;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 850;
+      text-decoration: none;
+      cursor: pointer;
     }
-    .badge.good { background: #dff5ef; color: var(--green); }
-    .badge.warn { background: #fff3d6; color: var(--amber); }
-    .badge.bad { background: #fee4e2; color: var(--red); }
-    .toolbar {
+    nav a:hover,
+    .nav-button:hover {
+      color: var(--rust);
+      border-color: var(--line);
+      background: var(--soft);
+    }
+    .app-shell {
+      width: min(1560px, 100%);
+      margin: 0 auto;
+      padding: 1.2rem 4vw 3rem;
       display: grid;
-      grid-template-columns: minmax(220px, 1fr) minmax(180px, 0.38fr) minmax(180px, 0.38fr);
-      gap: 0.75rem;
-      margin: 1rem 0;
+      gap: 1rem;
     }
-    input, select, textarea {
-      width: 100%;
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 0.7rem;
+    }
+    .metric,
+    .module,
+    .roster-section,
+    .filter-bar {
       border: 1px solid var(--line);
-      border-radius: 6px;
-      min-height: 44px;
-      padding: 0.72rem 0.82rem;
-      background: var(--white);
-      color: var(--ink);
-      font: inherit;
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
     }
-    textarea { min-height: 104px; resize: vertical; }
+    .metric {
+      position: relative;
+      padding: 0.85rem;
+      min-height: 82px;
+      display: grid;
+      align-content: space-between;
+      gap: 0.25rem;
+      border-top: 3px solid transparent;
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.05s;
+    }
+    .metric[data-filter] { cursor: pointer; }
+    .metric[data-filter]:hover {
+      border-top-color: var(--steel);
+      box-shadow: 0 16px 38px rgba(16, 24, 40, 0.12);
+    }
+    .metric[data-filter]:active { transform: translateY(1px); }
+    .metric[data-filter]:focus-visible {
+      outline: 2px solid rgba(37, 99, 235, 0.4);
+      outline-offset: 2px;
+    }
+    .metric.active {
+      border-top-color: var(--charcoal);
+      box-shadow: 0 0 0 1px var(--charcoal), var(--shadow);
+    }
+    .metric.alert strong { color: var(--red); }
+    .metric.alert.active { border-top-color: var(--red); box-shadow: 0 0 0 1px var(--red), var(--shadow); }
+    .metric.attention strong { color: var(--amber); }
+    .metric.attention.active { border-top-color: var(--amber); box-shadow: 0 0 0 1px var(--amber), var(--shadow); }
+    .metric span {
+      color: var(--muted);
+      font-size: 0.74rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .metric strong {
+      color: var(--ink);
+      font-size: 1.75rem;
+      line-height: 1;
+    }
+    .filter-bar {
+      padding: 0.75rem;
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) minmax(180px, 0.45fr) minmax(170px, 0.42fr) minmax(170px, 0.42fr) minmax(150px, 0.35fr);
+      gap: 0.65rem;
+      align-items: end;
+      box-shadow: 0 8px 22px rgba(16, 24, 40, 0.05);
+    }
     label {
       display: block;
-      color: var(--steel);
-      font-size: 0.76rem;
+      color: var(--muted);
+      font-size: 0.72rem;
       font-weight: 900;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.28rem;
     }
-    button, .button-link {
-      min-height: 44px;
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      padding: 0.65rem 0.72rem;
+    }
+    textarea { min-height: 104px; resize: vertical; }
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: 2px solid rgba(37, 99, 235, 0.2);
+      border-color: rgba(37, 99, 235, 0.55);
+    }
+    button,
+    .button-link {
+      min-height: 42px;
       border: 0;
       border-radius: 6px;
-      background: var(--ink);
-      color: var(--white);
-      font: inherit;
-      font-weight: 900;
-      padding: 0 1rem;
-      cursor: pointer;
-      text-decoration: none;
+      background: var(--charcoal);
+      color: #fff;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 0.4rem;
+      padding: 0 0.9rem;
+      font: inherit;
+      font-weight: 900;
+      text-decoration: none;
+      cursor: pointer;
     }
-    button:hover, .button-link:hover { background: var(--clay); }
-    button.secondary, .button-link.secondary {
-      background: var(--white);
+    button:hover,
+    .button-link:hover { background: var(--rust); }
+    button:disabled { opacity: 0.58; cursor: wait; }
+    button.secondary,
+    .button-link.secondary {
+      background: #fff;
       color: var(--ink);
       border: 1px solid var(--line);
     }
-    button.secondary:hover, .button-link.secondary:hover { border-color: var(--clay); color: var(--clay); }
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 1rem;
-      align-items: start;
+    button.secondary:hover,
+    .button-link.secondary:hover {
+      color: var(--rust);
+      border-color: var(--rust);
+      background: #fff;
     }
-    .panel { padding: 1rem; }
-    .panel h2 {
-      font-size: 1.25rem;
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .roster-section { overflow: hidden; }
+    .section-head {
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .section-head h1,
+    .section-head h2 {
+      font-size: 1.05rem;
       line-height: 1.2;
-      margin-bottom: 0.35rem;
     }
-    .panel > p { color: var(--muted); font-size: 0.92rem; margin-bottom: 1rem; }
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.75rem;
-    }
-    .full { grid-column: 1 / -1; }
-    .actions { display: flex; flex-wrap: wrap; gap: 0.55rem; align-items: center; }
-    .view-tabs {
-      position: sticky;
-      top: 72px;
-      z-index: 12;
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 0.45rem;
-      padding: 0.6rem;
-      margin: 0 0 1rem;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.94);
-      backdrop-filter: blur(14px);
-      box-shadow: 0 8px 22px rgba(23, 32, 51, 0.06);
-    }
-    .view-tabs button {
-      min-height: 40px;
-      background: transparent;
-      color: var(--steel);
-      border: 1px solid transparent;
-      font-size: 0.84rem;
-    }
-    .view-tabs button.active {
-      background: var(--ink);
-      color: var(--white);
-      border-color: var(--ink);
-    }
-    .view-hidden { display: none !important; }
-    .source-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.5rem;
-      margin-top: 0.8rem;
-    }
-    .source-grid a {
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      background: var(--white);
-      padding: 0.62rem 0.7rem;
-      color: var(--steel);
-      text-decoration: none;
-      font-size: 0.86rem;
-      font-weight: 800;
-    }
-    .source-grid a:hover { border-color: var(--clay); color: var(--clay); }
-    .service-checklist {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.45rem;
-      margin-top: 0.8rem;
-    }
-    .service-checklist button {
-      min-height: 34px;
-      background: var(--mist);
-      color: var(--steel);
-      border: 1px solid var(--line);
-      font-size: 0.78rem;
-      padding: 0 0.65rem;
-    }
-    .service-checklist button.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
-    .type-counts {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin: 0.9rem 0 1rem;
-    }
-    .type-count {
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      background: var(--white);
-      padding: 0.55rem 0.7rem;
-      display: grid;
-      gap: 0.1rem;
-      min-width: 130px;
-    }
-    .type-count strong { font-size: 1.25rem; line-height: 1; }
-    .type-count span {
+    .section-head p,
+    .muted {
       color: var(--muted);
-      font-size: 0.74rem;
-      font-weight: 900;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-    .strategy-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 0.75rem;
-      margin: 0.75rem 0 1rem;
-    }
-    .strategy-card {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--white);
-      padding: 0.85rem;
-      display: grid;
-      gap: 0.35rem;
-      min-height: 150px;
-    }
-    .strategy-card strong { font-size: 0.95rem; }
-    .strategy-card p { color: var(--steel); font-size: 0.86rem; }
-    .strategy-card .badge { width: fit-content; }
-    .checklist {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.45rem 0.8rem;
-      color: var(--steel);
       font-size: 0.88rem;
-      margin-top: 0.65rem;
     }
-    .checklist span::before {
-      content: "";
-      display: inline-block;
-      width: 0.45rem;
-      height: 0.45rem;
-      border-radius: 999px;
-      background: var(--clay);
-      margin-right: 0.45rem;
-      vertical-align: 0.08rem;
-    }
-    .sub-list { display: grid; gap: 0.8rem; }
-    .sub-card { padding: 1rem; }
-    .sub-card header {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 1rem;
-      align-items: start;
-      margin-bottom: 0.65rem;
-    }
-    .sub-card h3 { font-size: 1.16rem; line-height: 1.2; }
-    .meta {
+    .service-counts {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--line);
       display: flex;
       flex-wrap: wrap;
       gap: 0.45rem;
-      margin-top: 0.45rem;
+      background: #fbfcfe;
     }
-    .score {
-      min-width: 72px;
-      border-radius: 8px;
-      background: var(--ink);
-      color: var(--white);
-      padding: 0.45rem 0.55rem;
-      text-align: center;
+    .count-chip {
+      min-height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--steel);
+      padding: 0 0.7rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      font-weight: 850;
+      cursor: pointer;
     }
-    .score strong { display: block; font-size: 1.45rem; line-height: 1; }
-    .score span {
-      display: block;
-      color: rgba(255, 255, 255, 0.72);
-      font-size: 0.68rem;
+    .count-chip.active {
+      background: var(--charcoal);
+      color: #fff;
+      border-color: var(--charcoal);
+    }
+    .record-head,
+    .record-summary {
+      display: grid;
+      grid-template-columns: minmax(220px, 1.25fr) minmax(140px, 0.82fr) minmax(92px, 0.45fr) minmax(150px, 0.78fr) minmax(175px, 0.82fr) minmax(140px, 0.62fr) minmax(112px, 0.48fr);
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .record-head {
+      padding: 0.65rem 1rem;
+      color: var(--muted);
+      background: #f8fafc;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.72rem;
       font-weight: 900;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      margin-top: 0.2rem;
     }
-    .summary { color: var(--steel); font-size: 0.94rem; margin: 0.7rem 0; }
-    .contact-lines {
+    .record-list { display: grid; }
+    .record-card {
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+    .record-card:last-child { border-bottom: 0; }
+    summary { list-style: none; }
+    summary::-webkit-details-marker { display: none; }
+    .record-summary {
+      min-height: 72px;
+      padding: 0.78rem 1rem;
+      cursor: pointer;
+    }
+    .record-summary:hover { background: #fbfcfe; }
+    .company-cell {
+      min-width: 0;
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.5rem;
-      font-size: 0.88rem;
-      color: var(--steel);
-      margin-bottom: 0.7rem;
+      gap: 0.16rem;
     }
-    .contact-lines a { color: var(--ink); font-weight: 750; word-break: break-word; }
-    .field-wide { grid-column: 1 / -1; }
+    .company-cell strong {
+      font-size: 0.98rem;
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+    }
+    .company-cell span,
+    .cell-note {
+      color: var(--muted);
+      font-size: 0.82rem;
+      overflow-wrap: anywhere;
+    }
+    .compact-cell {
+      min-width: 0;
+      color: var(--steel);
+      font-size: 0.88rem;
+      overflow-wrap: anywhere;
+    }
+    .contact-stack {
+      display: grid;
+      gap: 0.14rem;
+      min-width: 0;
+      color: var(--steel);
+      font-size: 0.84rem;
+    }
+    .website-cell {
+      min-width: 0;
+      color: var(--blue);
+      font-size: 0.84rem;
+      font-weight: 850;
+      overflow-wrap: anywhere;
+    }
+    .pill {
+      width: fit-content;
+      max-width: 100%;
+      min-height: 26px;
+      border-radius: 999px;
+      padding: 0.18rem 0.58rem;
+      display: inline-flex;
+      align-items: center;
+      color: var(--steel);
+      background: var(--soft);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .pill.good { color: var(--green); background: #ddf5ef; }
+    .pill.warn { color: var(--amber); background: #fff2cf; }
+    .pill.bad { color: var(--red); background: #fee4e2; }
+    .pill.blue { color: var(--blue); background: #dbeafe; }
+    .pill.plum { color: var(--plum); background: #ede9fe; }
+    .readiness {
+      display: grid;
+      justify-items: start;
+      gap: 0.25rem;
+    }
+    .score-bar {
+      width: 88px;
+      height: 7px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+    .score-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: var(--blue);
+    }
+    .score-fill.good { background: var(--green); }
+    .score-fill.warn { background: var(--amber); }
+    .score-fill.bad { background: var(--red); }
+    .record-detail {
+      border-top: 1px solid var(--line);
+      padding: 1rem;
+      background: #fbfcfe;
+      display: grid;
+      gap: 0.85rem;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.65rem;
+    }
+    .detail-item {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      padding: 0.65rem;
+      display: grid;
+      gap: 0.2rem;
+    }
+    .detail-item span {
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 900;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+    .detail-item strong,
+    .detail-item a {
+      color: var(--ink);
+      font-size: 0.9rem;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+    .detail-item a { color: var(--blue); text-decoration: none; }
+    .note-box {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      padding: 0.75rem;
+      display: grid;
+      gap: 0.35rem;
+    }
+    .note-box span {
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 900;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+    .note-box p {
+      color: var(--steel);
+      font-size: 0.9rem;
+      overflow-wrap: anywhere;
+    }
     .source-links {
       display: flex;
       flex-wrap: wrap;
       gap: 0.45rem;
-      margin-top: 0.7rem;
     }
     .source-links a {
-      color: var(--clay);
-      font-size: 0.82rem;
-      font-weight: 850;
+      color: var(--blue);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      min-height: 30px;
+      padding: 0.28rem 0.65rem;
+      display: inline-flex;
+      align-items: center;
       text-decoration: none;
+      font-size: 0.78rem;
+      font-weight: 850;
     }
-    .card-actions { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.8rem; }
-    .card-actions button { min-height: 36px; font-size: 0.82rem; }
-    .empty {
-      border: 1px dashed #cbd5e1;
-      border-radius: 8px;
-      padding: 2rem;
-      text-align: center;
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(360px, 0.68fr);
+      gap: 1rem;
+      align-items: start;
+    }
+    .module { padding: 1rem; }
+    .module summary {
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      font-weight: 900;
+      font-size: 1.02rem;
+    }
+    .module summary::after {
+      content: "+";
       color: var(--muted);
-      background: rgba(255, 255, 255, 0.55);
+      font-weight: 900;
+      font-size: 1.25rem;
     }
+    .module[open] summary::after { content: "-"; }
+    .module-body {
+      margin-top: 0.85rem;
+      display: grid;
+      gap: 0.85rem;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.68rem;
+    }
+    .full { grid-column: 1 / -1; }
+    .form-section {
+      grid-column: 1 / -1;
+      margin-top: 0.55rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink);
+      font-size: 0.76rem;
+      font-weight: 900;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+    .form-section:first-of-type { margin-top: 0; }
+    .form-section small {
+      display: block;
+      margin-top: 0.18rem;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+    .check-row {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .check-row label {
+      margin: 0;
+      color: var(--steel);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      letter-spacing: 0;
+      text-transform: none;
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+    .check-row input {
+      width: auto;
+      min-height: auto;
+    }
+    .source-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+    .source-grid a {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0.5rem 0.6rem;
+      color: var(--steel);
+      background: #fff;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      font-size: 0.84rem;
+      font-weight: 850;
+    }
+    .source-grid a:hover { color: var(--rust); border-color: var(--rust); }
+    .status-line {
+      min-height: 24px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .status-line.good { color: var(--green); }
+    .status-line.warn { color: var(--amber); }
+    .status-line.bad { color: var(--red); }
+    .empty {
+      padding: 2.2rem 1rem;
+      color: var(--muted);
+      text-align: center;
+      background: #fff;
+    }
+    .toast-host {
+      position: fixed;
+      right: 1.2rem;
+      bottom: 1.2rem;
+      z-index: 60;
+      display: grid;
+      gap: 0.5rem;
+      max-width: min(360px, 90vw);
+    }
+    .toast {
+      border-left: 4px solid var(--steel);
+      border-radius: 8px;
+      background: var(--charcoal);
+      color: #fff;
+      padding: 0.7rem 0.9rem;
+      font-size: 0.86rem;
+      font-weight: 700;
+      box-shadow: 0 18px 40px rgba(16, 24, 40, 0.28);
+      animation: toastIn 0.18s ease-out;
+    }
+    .toast.good { border-left-color: #34d399; }
+    .toast.warn { border-left-color: #fbbf24; }
+    .toast.bad { border-left-color: #f87171; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .empty-cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 0.9rem;
+    }
+    @media (prefers-reduced-motion: reduce) { .toast { animation: none; } html { scroll-behavior: auto; } }
     footer {
-      background: #0f172a;
-      color: rgba(255, 255, 255, 0.64);
-      padding: 2rem 5vw;
+      padding: 1.5rem 4vw 2.5rem;
+      color: rgba(255, 255, 255, 0.66);
+      background: var(--charcoal);
       display: flex;
       justify-content: space-between;
       gap: 1rem;
       flex-wrap: wrap;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
     }
-    footer strong { color: var(--white); }
-    @media (max-width: 1080px) {
-      .hero, .layout { grid-template-columns: 1fr; }
-      .toolbar { grid-template-columns: 1fr; }
-      .strategy-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    footer strong { color: #fff; }
+    @media (max-width: 1180px) {
+      .metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .filter-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .workspace-grid { grid-template-columns: 1fr; }
+      .record-head { display: none; }
+      .record-summary {
+        grid-template-columns: minmax(220px, 1fr) minmax(145px, 0.55fr) minmax(105px, 0.35fr);
+      }
+      .record-summary .compact-cell:nth-of-type(3),
+      .record-summary .contact-stack,
+      .record-summary .website-cell { display: none; }
+      .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 720px) {
       .topbar { display: none; }
-      nav { min-height: 64px; }
-      nav ul { display: none; }
-      main { padding-inline: 4vw; }
-      .hero { padding-top: 3rem; }
-      .view-tabs { top: 64px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .form-grid, .source-grid, .contact-lines { grid-template-columns: 1fr; }
-      .strategy-grid, .checklist { grid-template-columns: 1fr; }
-      .field-wide { grid-column: auto; }
-      .sub-card header { grid-template-columns: 1fr; }
-      .score { width: 76px; }
+      .app-header { min-height: 64px; align-items: flex-start; padding-top: 0.72rem; padding-bottom: 0.72rem; }
+      nav a:not(.button-link),
+      nav .nav-button.secondary { display: none; }
+      .app-shell { padding-inline: 3.5vw; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .filter-bar,
+      .form-grid,
+      .source-grid,
+      .detail-grid { grid-template-columns: 1fr; }
+      .full { grid-column: auto; }
+      .record-summary { grid-template-columns: 1fr; gap: 0.5rem; }
+      .record-summary .compact-cell:nth-of-type(2),
+      .record-summary .readiness { display: none; }
+      .actions button,
+      .actions .button-link { flex: 1 1 160px; }
     }
   </style>
 </head>
 <body>
   <div class="topbar">
-    <div><strong>Internal subcontractor CRM</strong></div>
-    <div><a href="lead_generation.html">Lead Gen</a> &nbsp; | &nbsp; <a href="bid_lab.html">Bid Lab</a> &nbsp; | &nbsp; <a href="http://localhost:4173/">Public site</a></div>
+    <div><strong>Internal subcontractor roster</strong></div>
+    <div class="workspace-switcher" role="navigation" aria-label="Workspace switcher">
+      <a class="active" href="subcontractor_finder.html">Subcontractors</a>
+      <a href="lead_generation.html">Lead Gen</a>
+      <a href="bid_lab.html">Bid Lab</a>
+      <a href="http://localhost:4173/">Public Site</a>
+    </div>
   </div>
 
-  <nav>
+  <header class="app-header">
     <a class="brand" href="http://localhost:4173/">
       <span>Joon Development Group</span>
       <span>Subcontractor Finder</span>
     </a>
-    <ul>
-      <li><a href="#tracker">Tracker</a></li>
-      <li><a href="#research">Research Links</a></li>
-      <li><a href="lead_generation.html">Lead Gen</a></li>
-      <li><a href="bid_lab.html">Bid Lab</a></li>
-      <li><a href="#add">Add Sub</a></li>
-    </ul>
-  </nav>
+    <nav aria-label="Main navigation">
+      <a href="#roster">Roster</a>
+      <a href="#agent">Agent</a>
+      <a href="#editor">Add / Edit</a>
+      <a href="#import">Import</a>
+      <button id="newRecordTop" class="nav-button button-link" type="button">New Record</button>
+    </nav>
+  </header>
 
-  <main>
-    <section class="hero">
+  <main class="app-shell">
+    <section class="metrics" aria-label="Roster metrics — click a card to filter">
+      <div class="metric"><span>Storage</span><strong id="storageStatus">...</strong></div>
+      <div class="metric" data-filter="all" role="button" tabindex="0" title="Show all records"><span>Records</span><strong id="totalCount">0</strong></div>
+      <div class="metric" data-filter="contactable" role="button" tabindex="0" title="Filter to records with a phone or email"><span>Contactable</span><strong id="contactableCount">0</strong></div>
+      <div class="metric" data-filter="license_verified" role="button" tabindex="0" title="Filter to licensed records"><span>Licensed</span><strong id="licensedCount">0</strong></div>
+      <div class="metric" data-filter="insurance_verified" role="button" tabindex="0" title="Filter to insured records"><span>Insured</span><strong id="insuredCount">0</strong></div>
+      <div class="metric" data-filter="compliance_risk" role="button" tabindex="0" title="Filter to expiring/expired coverage"><span>Comp. Risk</span><strong id="complianceRiskMetric">0</strong></div>
+      <div class="metric" data-filter="needs_review" role="button" tabindex="0" title="Filter to records that need review"><span>Needs Review</span><strong id="reviewCountMetric">0</strong></div>
+    </section>
+
+    <section class="filter-bar" aria-label="Roster filters">
       <div>
-        <div class="eyebrow">Agent-first subcontractor sourcing</div>
-        <h1>Let the sourcing agent fill MongoDB, then review the best subs.</h1>
-        <p>The primary workflow is AI-assisted public research into MongoDB. Manual entry, one-off page import, and CSV upload stay available as secondary backup lanes for lists you already have.</p>
+        <label for="searchInput">Search</label>
+        <input id="searchInput" placeholder="Company, trade, phone, email, city, source..." />
       </div>
-      <aside class="status-card">
-        <div class="status-row"><span>Storage</span><strong id="storageStatus">Checking...</strong></div>
-        <div class="status-row"><span>Tracked subs</span><strong id="trackedCount">0</strong></div>
-        <div class="status-row"><span>Best score</span><strong id="bestScore">0</strong></div>
+      <div>
+        <label for="serviceFilter">Trade</label>
+        <select id="serviceFilter"></select>
+      </div>
+      <div>
+        <label for="statusFilter">Status</label>
+        <select id="statusFilter"></select>
+      </div>
+      <div>
+        <label for="verificationFilter">Filter</label>
+        <select id="verificationFilter">
+          <option value="all">All records</option>
+          <option value="contactable">Contactable</option>
+          <option value="missing_contact">Missing contact</option>
+          <option value="license_verified">License verified</option>
+          <option value="insurance_verified">Insurance verified</option>
+          <option value="compliance_risk">Expiring / expired</option>
+          <option value="bonded">Bonded</option>
+          <option value="needs_review">Needs review</option>
+        </select>
+      </div>
+      <div>
+        <label for="sortBy">Sort</label>
+        <select id="sortBy">
+          <option value="readiness">Readiness</option>
+          <option value="compliance">Compliance risk</option>
+          <option value="companyName">Company</option>
+          <option value="serviceCategory">Trade</option>
+          <option value="updatedAt">Updated</option>
+          <option value="reviewRating">Reviews</option>
+        </select>
+      </div>
+    </section>
+
+    <section id="roster" class="roster-section" aria-label="Subcontractor roster">
+      <div class="section-head">
+        <div>
+          <h1>Subcontractor Roster</h1>
+          <p id="resultCount" class="muted">Loading records...</p>
+        </div>
         <div class="actions">
           <button id="exportJson" class="secondary" type="button">Export JSON</button>
-          <button id="seedExamples" class="secondary" type="button">Load Starter Examples</button>
+          <button id="seedExamples" class="secondary" type="button">Starter Examples</button>
         </div>
-      </aside>
+      </div>
+      <div id="serviceCounts" class="service-counts" aria-label="Trade counts"></div>
+      <div class="record-head" aria-hidden="true">
+        <div>Contractor</div>
+        <div>What They Do</div>
+        <div>Bonded</div>
+        <div>License / Insurance</div>
+        <div>Phone / Email</div>
+        <div>Website</div>
+        <div>Status</div>
+      </div>
+      <div id="subList" class="record-list" aria-live="polite"></div>
     </section>
 
-    <section class="view-tabs" aria-label="Subcontractor workflow sections">
-      <button class="active" type="button" data-view-target="roster">Roster</button>
-      <button type="button" data-view-target="source">Source</button>
-      <button type="button" data-view-target="add">Add / Edit</button>
-      <button type="button" data-view-target="chase">Chase</button>
-    </section>
+    <section class="workspace-grid">
+      <div>
+        <details id="agent" class="module" open>
+          <summary>Subcontractor Agent</summary>
+          <div class="module-body">
+            <div class="form-grid">
+              <div>
+                <label for="agentService">Trade</label>
+                <select id="agentService"></select>
+              </div>
+              <div>
+                <label for="agentMarket">Market</label>
+                <input id="agentMarket" value="Los Angeles CA" />
+              </div>
+              <div>
+                <label for="agentMax">Max Records</label>
+                <input id="agentMax" type="number" min="1" max="30" value="8" />
+              </div>
+              <div>
+                <label for="agentSources">Sources</label>
+                <input id="agentSources" value="company websites, LinkedIn, CSLB" />
+              </div>
+            </div>
+            <div class="actions">
+              <button id="runAgent" type="button">Run Agent</button>
+              <button id="findMissingLicenses" class="secondary" type="button">Find Missing Licenses</button>
+              <button id="copyAgentPrompt" class="secondary" type="button">Copy Prompt</button>
+            </div>
+            <p id="agentStatus" class="status-line"></p>
+            <div class="form-grid">
+              <div>
+                <label for="researchService">Research Links</label>
+                <select id="researchService"></select>
+              </div>
+              <div class="full">
+                <div id="sourceGrid" class="source-grid"></div>
+              </div>
+            </div>
+          </div>
+        </details>
 
-    <section id="tracker" class="toolbar" aria-label="Subcontractor filters" data-view-panel="roster">
-      <input id="searchInput" placeholder="Search company, trade, city, notes, phone, email..." />
-      <select id="serviceFilter"></select>
-      <select id="sortBy">
-        <option value="fitScore">Sort by fit score</option>
-        <option value="reviewRating">Sort by review rating</option>
-        <option value="reviewCount">Sort by review count</option>
-        <option value="companyName">Sort by company name</option>
-        <option value="lastResearchedAt">Sort by last researched</option>
-      </select>
-    </section>
-    <section id="typeCounts" class="type-counts" aria-label="Subcontractor counts by type" data-view-panel="roster"></section>
+        <details id="import" class="module">
+          <summary>Import Tools</summary>
+          <div class="module-body">
+            <div>
+              <label for="importUrl">Public URL</label>
+              <div class="actions">
+                <input id="importUrl" placeholder="https://example.com/subcontractor-profile" />
+                <button id="importButton" type="button">Import URL</button>
+              </div>
+              <p id="importStatus" class="status-line"></p>
+            </div>
+            <div>
+              <label for="csvInput">CSV</label>
+              <textarea id="csvInput" placeholder="companyName,phone,email,website,serviceCategory,bondedStatus,sourceNotes"></textarea>
+              <div class="actions" style="margin-top:0.55rem;">
+                <button id="importCsv" class="secondary" type="button">Import CSV</button>
+              </div>
+              <p id="csvStatus" class="status-line"></p>
+            </div>
+          </div>
+        </details>
 
-    <section class="layout">
-      <div class="panel" id="research" data-view-panel="source">
-        <h2>Subcontractor sourcing agent</h2>
-        <p>Run the agent by trade and market. It searches public sources, extracts source-backed details when pages allow it, and writes candidates directly into MongoDB as review-needed records.</p>
-        <div class="form-grid">
+        <details id="outreach" class="module">
+          <summary>Outreach Scratchpad</summary>
+          <div class="module-body">
+            <textarea id="chaseOutput" readonly placeholder="Email and phone scripts appear here."></textarea>
+            <div class="actions">
+              <button id="copyChaseOutput" class="secondary" type="button">Copy Script</button>
+            </div>
+            <p id="chaseStatus" class="status-line"></p>
+          </div>
+        </details>
+      </div>
+
+      <section id="editor" class="module" aria-label="Record editor">
+        <div class="section-head" style="padding:0 0 0.85rem; border-bottom:0;">
           <div>
-            <label for="agentService">Trade</label>
-            <select id="agentService"></select>
+            <h2 id="formTitle">Add subcontractor</h2>
+            <p class="muted">Unknown beats guessed.</p>
+          </div>
+        </div>
+        <form id="subForm" class="form-grid">
+          <input type="hidden" id="recordId" />
+          <div class="form-section">Identity &amp; trade</div>
+          <div class="full">
+            <label for="companyName">Contractor</label>
+            <input id="companyName" required />
           </div>
           <div>
-            <label for="agentMarket">Market</label>
-            <input id="agentMarket" value="Los Angeles CA" />
+            <label for="serviceCategory">Trade</label>
+            <select id="serviceCategory"></select>
           </div>
           <div>
-            <label for="agentMax">Max Records</label>
-            <input id="agentMax" type="number" min="1" max="30" value="12" />
+            <label for="status">Status</label>
+            <select id="status">
+              <option>new</option>
+              <option>researching</option>
+              <option>needs_vetting</option>
+              <option>vetted</option>
+              <option>outreach_ready</option>
+              <option>contacted</option>
+              <option>responded</option>
+              <option>qualified</option>
+              <option>active</option>
+              <option>preferred</option>
+              <option>do not use</option>
+            </select>
+          </div>
+          <div class="full">
+            <label for="specialties">What They Do</label>
+            <input id="specialties" placeholder="drywall, framing, electrical, tenant improvements" />
+          </div>
+          <div class="form-section">Contact &amp; source</div>
+          <div>
+            <label for="contactName">Contact</label>
+            <input id="contactName" placeholder="Owner, estimator, dispatcher" />
           </div>
           <div>
-            <label for="agentSources">Sources</label>
-            <input id="agentSources" value="supplier referrals, active job sites, permit data, subcontractor referrals, associations, public web" />
+            <label for="phone">Phone</label>
+            <input id="phone" />
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input id="email" type="email" />
+          </div>
+          <div>
+            <label for="website">Website</label>
+            <input id="website" />
+          </div>
+          <div>
+            <label for="serviceArea">Service Area</label>
+            <input id="serviceArea" value="Southern California" />
+          </div>
+          <div>
+            <label for="sourceChannel">Source</label>
+            <select id="sourceChannel">
+              <option>manual</option>
+              <option>supplier_referral</option>
+              <option>job_site</option>
+              <option>permit_data</option>
+              <option>sub_referral</option>
+              <option>association</option>
+              <option>online_platform</option>
+              <option>agent</option>
+              <option>csv</option>
+            </select>
+          </div>
+          <div class="form-section">Licensing &amp; compliance<small>Add expiry dates to surface 30-day renewal alerts on the roster.</small></div>
+          <div>
+            <label for="licenseNumber">CSLB License</label>
+            <input id="licenseNumber" />
+          </div>
+          <div>
+            <label for="licenseClass">License Class</label>
+            <input id="licenseClass" placeholder="B, C-10, C-36..." />
+          </div>
+          <div>
+            <label for="bondedStatus">Bonded</label>
+            <select id="bondedStatus">
+              <option>unknown</option>
+              <option>bonded</option>
+              <option>not_bonded</option>
+              <option>not_required</option>
+              <option>needs_verification</option>
+            </select>
+          </div>
+          <div>
+            <label for="workersCompStatus">Workers Comp</label>
+            <input id="workersCompStatus" placeholder="active, exempt, unknown" />
+          </div>
+          <div>
+            <label for="generalLiabilityStatus">General Liability / COI</label>
+            <input id="generalLiabilityStatus" placeholder="active, requested, unknown" />
+          </div>
+          <div>
+            <label for="insuranceExpiresAt">Insurance Expires</label>
+            <input id="insuranceExpiresAt" type="date" />
+          </div>
+          <div>
+            <label for="licenseExpiresAt">License Expires</label>
+            <input id="licenseExpiresAt" type="date" />
+          </div>
+          <div class="check-row">
+            <label><input id="licenseVerified" type="checkbox" /> License verified</label>
+            <label><input id="insuranceVerified" type="checkbox" /> Insurance verified</label>
+            <label><input id="additionalInsured" type="checkbox" /> Additional insured</label>
+          </div>
+          <div class="form-section">Notes &amp; evidence</div>
+          <div class="full">
+            <label for="sourceUrls">Source URLs</label>
+            <textarea id="sourceUrls" placeholder="One source URL per line"></textarea>
+          </div>
+          <div class="full">
+            <label for="summary">Summary</label>
+            <textarea id="summary" placeholder="Short source-backed notes on fit, coverage, and red flags"></textarea>
+          </div>
+          <div class="full">
+            <label for="sourceNotes">Source Notes</label>
+            <textarea id="sourceNotes" placeholder="Where the contact, license, insurance, and bonded status came from"></textarea>
           </div>
           <div class="full actions">
-            <button id="runAgent" type="button">Run Agent to MongoDB</button>
-            <button id="findMissingLicenses" class="secondary" type="button">Find Missing Licenses</button>
-            <button id="copyAgentPrompt" class="secondary" type="button">Copy Agent Prompt</button>
-          </div>
-        </div>
-        <p id="agentStatus" style="margin-top:0.65rem;"></p>
-
-        <hr style="border: 0; border-top: 1px solid var(--line); margin: 1rem 0;" />
-
-        <h2>Ranked sourcing playbook</h2>
-        <p>Best-first sourcing for Los Angeles subs: start where strong crews already leave evidence, then use online platforms only to fill gaps.</p>
-        <div class="strategy-grid">
-          <div class="strategy-card"><span class="badge good">1 Highest ROI</span><strong>Supplier referrals</strong><p>Ask supply houses which crews have real volume, good payment habits, and net-30 accounts.</p></div>
-          <div class="strategy-card"><span class="badge good">2 Field signal</span><strong>Active job sites</strong><p>Photo trucks/signs, capture foreman numbers, and log who is working on good projects.</p></div>
-          <div class="strategy-card"><span class="badge good">3 Repeat evidence</span><strong>Permit data</strong><p>Find who repeatedly pulls permits in LADBS, Pasadena, Glendale, Santa Monica, and Beverly Hills.</p></div>
-          <div class="strategy-card"><span class="badge warn">4 Trust graph</span><strong>Other subs</strong><p>When one trade is excellent, ask who they like working with across the other trades.</p></div>
-          <div class="strategy-card"><span class="badge warn">5 Network</span><strong>Trade associations</strong><p>Use ASA, AGC California, and Builders Exchange for events, rosters, and bid-network signal.</p></div>
-          <div class="strategy-card"><span class="badge">6 Volume</span><strong>Online platforms</strong><p>Use BuildingConnected, SmartBid, Houzz Pro, and Thumbtack for names, then verify hard.</p></div>
-        </div>
-        <div class="checklist">
-          <span>CSLB active license</span>
-          <span>Workers comp status</span>
-          <span>General liability / COI</span>
-          <span>Recent projects</span>
-          <span>Lien or dispute notes</span>
-          <span>Actual field supervisor</span>
-        </div>
-
-        <hr style="border: 0; border-top: 1px solid var(--line); margin: 1rem 0;" />
-
-        <h2>Manual research links</h2>
-        <p>Open targeted sources yourself, then import or enter verified records manually.</p>
-        <select id="researchService"></select>
-        <div class="source-grid" id="sourceGrid"></div>
-        <div class="service-checklist" id="serviceChips"></div>
-
-        <hr style="border: 0; border-top: 1px solid var(--line); margin: 1rem 0;" />
-
-        <h2>Import a public page</h2>
-        <p>Paste a website, BBB/Yelp-style profile, directory listing, or public LinkedIn company URL. Some sites block scraping; keep source notes honest.</p>
-        <div class="actions">
-          <input id="importUrl" placeholder="https://example.com/subcontractor-profile" />
-          <button id="importButton" type="button">Import URL</button>
-        </div>
-        <p id="importStatus" style="margin-top:0.65rem;"></p>
-
-        <hr style="border: 0; border-top: 1px solid var(--line); margin: 1rem 0;" />
-
-        <h2>CSV import</h2>
-        <p>Secondary workflow for existing lists. Use headers like companyName, phone, email, website, serviceCategory, specialties, sourceUrls, and sourceNotes.</p>
-        <textarea id="csvInput" placeholder="companyName,phone,email,website,serviceCategory,sourceNotes"></textarea>
-        <div class="actions" style="margin-top:0.6rem;">
-          <button id="importCsv" class="secondary" type="button">Import CSV to MongoDB</button>
-        </div>
-        <p id="csvStatus" style="margin-top:0.65rem;"></p>
-      </div>
-
-      <div class="panel" id="add" data-view-panel="add">
-        <h2 id="formTitle">Add subcontractor</h2>
-        <p>Store only source-backed details. Unknown is better than guessed.</p>
-        <form id="subForm">
-          <input type="hidden" id="recordId" />
-          <div class="form-grid">
-            <div>
-              <label for="companyName">Company</label>
-              <input id="companyName" required />
-            </div>
-            <div>
-              <label for="serviceCategory">Service</label>
-              <select id="serviceCategory"></select>
-            </div>
-            <div>
-              <label for="contactName">Contact</label>
-              <input id="contactName" placeholder="Owner, estimator, dispatcher..." />
-            </div>
-            <div>
-              <label for="phone">Phone</label>
-              <input id="phone" />
-            </div>
-            <div>
-              <label for="email">Email</label>
-              <input id="email" type="email" />
-            </div>
-            <div>
-              <label for="website">Website</label>
-              <input id="website" />
-            </div>
-            <div>
-              <label for="linkedIn">LinkedIn</label>
-              <input id="linkedIn" />
-            </div>
-            <div>
-              <label for="serviceArea">Service Area</label>
-              <input id="serviceArea" value="Southern California" />
-            </div>
-            <div>
-              <label for="licenseNumber">License Number</label>
-              <input id="licenseNumber" placeholder="CSLB number if verified" />
-            </div>
-            <div>
-              <label for="licenseClass">License Type / Class</label>
-              <input id="licenseClass" placeholder="Class B, C-10 electrical, C-36 plumbing..." />
-            </div>
-            <div>
-              <label for="specialties">Expertise</label>
-              <input id="specialties" placeholder="tile, waterproofing, kitchens" />
-            </div>
-            <div>
-              <label for="reviewRating">Review Rating</label>
-              <input id="reviewRating" type="number" min="0" max="5" step="0.1" />
-            </div>
-            <div>
-              <label for="reviewCount">Review Count</label>
-              <input id="reviewCount" type="number" min="0" step="1" />
-            </div>
-            <div>
-              <label for="reviewSource">Review Source</label>
-              <input id="reviewSource" placeholder="Google, Yelp, BBB..." />
-            </div>
-            <div>
-              <label for="sentiment">Review Sentiment</label>
-              <select id="sentiment">
-                <option>unknown</option>
-                <option>positive</option>
-                <option>mixed</option>
-                <option>negative</option>
-              </select>
-            </div>
-            <div>
-              <label for="priceTier">Price Signal</label>
-              <select id="priceTier">
-                <option>unknown</option>
-                <option>$</option>
-                <option>$$</option>
-                <option>$$$</option>
-              </select>
-            </div>
-            <div>
-              <label for="status">Status</label>
-              <select id="status">
-                <option>new</option>
-                <option>researching</option>
-                <option>needs_vetting</option>
-                <option>vetted</option>
-                <option>outreach_ready</option>
-                <option>contacted</option>
-                <option>responded</option>
-                <option>qualified</option>
-                <option>called</option>
-                <option>bid requested</option>
-                <option>active</option>
-                <option>preferred</option>
-                <option>do not use</option>
-              </select>
-            </div>
-            <div>
-              <label for="sourceChannel">Source Channel</label>
-              <select id="sourceChannel">
-                <option>manual</option>
-                <option>supplier_referral</option>
-                <option>job_site</option>
-                <option>permit_data</option>
-                <option>sub_referral</option>
-                <option>association</option>
-                <option>online_platform</option>
-              </select>
-            </div>
-            <div>
-              <label for="referralSource">Referral Source</label>
-              <input id="referralSource" placeholder="Sub, GC, supplier contact..." />
-            </div>
-            <div>
-              <label for="supplierName">Supplier</label>
-              <input id="supplierName" placeholder="Ferguson, Ganahl, HD Supply..." />
-            </div>
-            <div>
-              <label for="jobSiteAddress">Job Site / Neighborhood</label>
-              <input id="jobSiteAddress" placeholder="Observed site or truck location" />
-            </div>
-            <div>
-              <label for="permitJurisdiction">Permit Jurisdiction</label>
-              <input id="permitJurisdiction" placeholder="LADBS, Pasadena, Glendale..." />
-            </div>
-            <div>
-              <label for="permitReference">Permit / Project Reference</label>
-              <input id="permitReference" />
-            </div>
-            <div>
-              <label for="crewSize">Crew Size</label>
-              <input id="crewSize" placeholder="2-4, 5-10, unknown" />
-            </div>
-            <div>
-              <label for="fieldSupervisor">Field Supervisor</label>
-              <input id="fieldSupervisor" placeholder="Who actually runs the crew?" />
-            </div>
-            <div>
-              <label for="net30Status">Supplier Account Signal</label>
-              <select id="net30Status">
-                <option>unknown</option>
-                <option>net_30_verified</option>
-                <option>supplier_says_good_standing</option>
-                <option>cash_only</option>
-                <option>not_applicable</option>
-              </select>
-            </div>
-            <div>
-              <label for="unionStatus">Union / Open Shop</label>
-              <select id="unionStatus">
-                <option>unknown</option>
-                <option>open_shop</option>
-                <option>union</option>
-                <option>mixed</option>
-              </select>
-            </div>
-            <div>
-              <label for="minimumJobSize">Minimum Job Size</label>
-              <input id="minimumJobSize" placeholder="$2,500 minimum, half-day minimum..." />
-            </div>
-            <div>
-              <label for="mobilizationFee">Mobilization Fee</label>
-              <input id="mobilizationFee" placeholder="$500, included, unknown..." />
-            </div>
-            <div>
-              <label for="typicalQuoteTurnaround">Quote Turnaround</label>
-              <input id="typicalQuoteTurnaround" placeholder="24 hours, 2-3 days, after site visit..." />
-            </div>
-            <div>
-              <label for="quoteConfidence">Quote Confidence</label>
-              <select id="quoteConfidence">
-                <option>unknown</option>
-                <option>low</option>
-                <option>medium</option>
-                <option>high</option>
-              </select>
-            </div>
-            <div class="full">
-              <label for="unitPriceNotes">Unit Price Notes</label>
-              <textarea id="unitPriceNotes" placeholder="Pavers per sq ft, tile per sq ft, demo per day. Source every number to a call, quote, or completed job."></textarea>
-            </div>
-            <div class="full">
-              <label for="laborRateHints">Labor Rate Hints</label>
-              <textarea id="laborRateHints" placeholder="Crew day, hourly, helper/lead rates, or 'does not disclose'."></textarea>
-            </div>
-            <div class="full">
-              <label for="bidInputRequirements">Bid Input Requirements</label>
-              <textarea id="bidInputRequirements" placeholder="What photos, measurements, drawings, site access, or selections they need to give a budget number in 24-48 hours."></textarea>
-            </div>
-            <div class="full">
-              <label for="pricingExclusions">Pricing Exclusions</label>
-              <textarea id="pricingExclusions" placeholder="Typical exclusions: permits, engineering, hidden conditions, haul-off, materials, patching, waterproofing warranty, etc."></textarea>
-            </div>
-            <div>
-              <label for="workersCompStatus">Workers Comp</label>
-              <input id="workersCompStatus" placeholder="active, exempt, unknown..." />
-            </div>
-            <div>
-              <label for="generalLiabilityStatus">General Liability</label>
-              <input id="generalLiabilityStatus" placeholder="COI requested, active, unknown..." />
-            </div>
-            <div>
-              <label for="dirRegistrationStatus">DIR Registration</label>
-              <input id="dirRegistrationStatus" placeholder="Only if public works relevant" />
-            </div>
-            <div>
-              <label for="nextFollowUpAt">Next Follow-up</label>
-              <input id="nextFollowUpAt" type="date" />
-            </div>
-            <div class="full">
-              <label for="recentProjects">Recent Projects</label>
-              <textarea id="recentProjects" placeholder="Addresses, project types, permit/project references, or photos to request."></textarea>
-            </div>
-            <div class="full">
-              <label for="projectPhotos">Project Photos</label>
-              <textarea id="projectPhotos" placeholder="One photo URL, folder path, or note per line."></textarea>
-            </div>
-            <div class="full">
-              <label for="lienHistoryNotes">Lien / Dispute Notes</label>
-              <textarea id="lienHistoryNotes" placeholder="Only source-backed lien, lawsuit, payment, or dispute notes. Unknown is okay."></textarea>
-            </div>
-            <div class="full actions">
-              <label><input id="licenseVerified" type="checkbox" style="width:auto; min-height:auto;" /> License verified</label>
-              <label><input id="insuranceVerified" type="checkbox" style="width:auto; min-height:auto;" /> Insurance verified</label>
-            </div>
-            <div class="full">
-              <label for="sourceUrls">Source URLs</label>
-              <textarea id="sourceUrls" placeholder="One URL per line"></textarea>
-            </div>
-            <div class="full">
-              <label for="summary">Summary</label>
-              <textarea id="summary" placeholder="What they do, quality signal, location fit, any red flags."></textarea>
-            </div>
-            <div class="full">
-              <label for="sourceNotes">Source Notes</label>
-              <textarea id="sourceNotes" placeholder="Where the phone/email/reviews/license came from."></textarea>
-            </div>
-            <div class="full actions">
-              <button type="submit">Save Subcontractor</button>
-              <button id="resetForm" class="secondary" type="button">Clear</button>
-            </div>
+            <button type="submit">Save Record</button>
+            <button id="resetForm" class="secondary" type="button">Clear</button>
           </div>
         </form>
-      </div>
-    </section>
-
-    <section class="sub-list" id="subList" aria-live="polite" data-view-panel="roster"></section>
-
-    <section class="panel" style="margin-top:1rem;" data-view-panel="chase">
-      <h2>Chase workflow</h2>
-      <p>Generate vendor-roster outreach, phone scripts, and log follow-ups against the selected subcontractor.</p>
-      <textarea id="chaseOutput" readonly placeholder="Use Email Task or Phone Script on a subcontractor card."></textarea>
-      <form id="activityForm" class="form-grid" style="margin-top:0.75rem;">
-        <input id="activitySubId" type="hidden" />
-        <div>
-          <label for="activityType">Activity Type</label>
-          <select id="activityType">
-            <option>phone_call</option>
-            <option>outbound_email</option>
-            <option>inbound_reply</option>
-            <option>vetting_note</option>
-            <option>note</option>
-          </select>
-        </div>
-        <div>
-          <label for="activityOutcome">Outcome</label>
-          <select id="activityOutcome">
-            <option>logged</option>
-            <option>left_voicemail</option>
-            <option>gatekeeper</option>
-            <option>connected</option>
-            <option>send_plans</option>
-            <option>not_available</option>
-            <option>not_a_fit</option>
-            <option>bid_requested</option>
-            <option>meeting_scheduled</option>
-          </select>
-        </div>
-        <div>
-          <label for="activityContact">Contact</label>
-          <input id="activityContact" />
-        </div>
-        <div>
-          <label for="activityFollowUp">Next Follow-up</label>
-          <input id="activityFollowUp" type="date" />
-        </div>
-        <div class="full">
-          <label for="activityNotes">Notes</label>
-          <textarea id="activityNotes" placeholder="What happened, who answered, what to do next."></textarea>
-        </div>
-        <div class="full actions">
-          <button type="submit">Log Activity</button>
-          <button id="copyChaseOutput" class="secondary" type="button">Copy Script</button>
-        </div>
-      </form>
-      <p id="chaseStatus" style="margin-top:0.65rem;"></p>
+      </section>
     </section>
   </main>
 
+  <div id="toastHost" class="toast-host" role="status" aria-live="polite"></div>
+
   <footer>
-    <div><strong>Joon Development Group</strong><br />Internal subcontractor finder</div>
-    <div>Use source-backed research only. Mongo collection: <strong>subcontractors</strong></div>
+    <div><strong>Joon Development Group</strong><br />Internal subcontractor roster</div>
+    <div>Mongo collection: <strong>subcontractors</strong></div>
   </footer>
 
   <script>
@@ -896,29 +1015,16 @@
     ];
 
     const sourceTemplates = [
-      ["Ganahl Lumber", (q) => `https://www.google.com/search?q=${encodeURIComponent("Ganahl Lumber " + q + " subcontractor referral")}`],
-      ["Ferguson", (q) => `https://www.google.com/search?q=${encodeURIComponent("Ferguson " + q + " contractor counter Los Angeles")}`],
-      ["HD Supply", (q) => `https://www.google.com/search?q=${encodeURIComponent("HD Supply " + q + " contractor Los Angeles")}`],
-      ["Grainger", (q) => `https://www.google.com/search?q=${encodeURIComponent("Grainger " + q + " contractor Los Angeles")}`],
-      ["LADBS Permits", () => "https://www.ladbs.org/services/check-status/online-building-records"],
-      ["Pasadena Permits", () => "https://www.cityofpasadena.net/planning/permit-center/"],
-      ["Glendale Permits", () => "https://www.glendaleca.gov/government/departments/community-development/building-safety"],
-      ["Santa Monica Permits", () => "https://www.santamonica.gov/process-explainers/how-to-access-permit-records"],
-      ["Beverly Hills Permits", () => "https://www.beverlyhills.org/departments/communitydevelopment/"],
-      ["ASA", () => "https://www.asaonline.com/"],
-      ["AGC California", () => "https://www.agc-ca.org/"],
-      ["Builders Exchange", () => "https://www.bxssc.com/"],
-      ["BuildingConnected", () => "https://www.buildingconnected.com/"],
-      ["SmartBid", () => "https://www.smartbid.co/"],
       ["Google", (q) => `https://www.google.com/search?q=${encodeURIComponent(q)}`],
       ["Google Maps", (q) => `https://www.google.com/maps/search/${encodeURIComponent(q)}`],
-      ["Yelp", (q) => `https://www.yelp.com/search?find_desc=${encodeURIComponent(q)}&find_loc=Los+Angeles%2C+CA`],
+      ["CSLB", () => "https://www.cslb.ca.gov/onlineservices/checklicenseII/checklicense.aspx"],
       ["BBB", (q) => `https://www.bbb.org/search?find_country=USA&find_text=${encodeURIComponent(q)}&find_loc=Los%20Angeles%2C%20CA`],
-      ["CSLB License Check", () => "https://www.cslb.ca.gov/onlineservices/checklicenseII/checklicense.aspx"],
-      ["Angi", (q) => `https://www.angi.com/companylist/us/ca/los-angeles/${encodeURIComponent(q.toLowerCase().replaceAll(" ", "-"))}.htm`],
-      ["HomeAdvisor", (q) => `https://www.homeadvisor.com/c.html?search=${encodeURIComponent(q)}`],
-      ["Thumbtack", (q) => `https://www.thumbtack.com/k/${encodeURIComponent(q.toLowerCase().replaceAll(" ", "-"))}/near-me/`],
-      ["LinkedIn Companies", (q) => `https://www.linkedin.com/search/results/companies/?keywords=${encodeURIComponent(q + " Los Angeles subcontractor")}`]
+      ["Yelp", (q) => `https://www.yelp.com/search?find_desc=${encodeURIComponent(q)}&find_loc=Los+Angeles%2C+CA`],
+      ["LinkedIn", (q) => `https://www.linkedin.com/search/results/companies/?keywords=${encodeURIComponent(q + " Los Angeles subcontractor")}`],
+      ["Ganahl", (q) => `https://www.google.com/search?q=${encodeURIComponent("Ganahl Lumber " + q + " subcontractor referral")}`],
+      ["Ferguson", (q) => `https://www.google.com/search?q=${encodeURIComponent("Ferguson " + q + " contractor Los Angeles")}`],
+      ["LADBS", () => "https://www.ladbs.org/services/check-status/online-building-records"],
+      ["Pasadena", () => "https://www.cityofpasadena.net/planning/permit-center/"]
     ];
 
     const starterExamples = [
@@ -929,14 +1035,13 @@
         website: "https://example.com",
         serviceArea: "Los Angeles and San Fernando Valley",
         specialties: ["showers", "waterproofing", "large-format tile"],
-        reviewRating: 4.7,
-        reviewCount: 42,
-        reviewSource: "Manual example",
-        sentiment: "positive",
-        priceTier: "$$",
-        licenseVerified: false,
-        insuranceVerified: false,
-        summary: "Starter placeholder showing how to capture trade fit, review signals, and source notes. Replace with real source-backed research.",
+        bondedStatus: "needs_verification",
+        licenseVerified: true,
+        insuranceVerified: true,
+        additionalInsured: true,
+        insuranceExpiresAt: isoInDays(18),
+        licenseExpiresAt: isoInDays(220),
+        summary: "Example record only. Replace with source-backed research.",
         sourceUrls: ["https://example.com"],
         sourceNotes: "Example record only. Do not treat as verified.",
         status: "researching"
@@ -947,13 +1052,12 @@
         phone: "(323) 555-0144",
         serviceArea: "Greater Los Angeles",
         specialties: ["tenant improvements", "panel upgrades", "lighting"],
-        reviewRating: 4.4,
-        reviewCount: 88,
-        reviewSource: "Manual example",
-        sentiment: "mixed",
-        priceTier: "$$",
-        summary: "Starter placeholder for a commercial electrical subcontractor profile.",
-        sourceNotes: "Example record only. Verify license, insurance, and reviews before use.",
+        bondedStatus: "unknown",
+        insuranceVerified: true,
+        insuranceExpiresAt: isoInDays(-40),
+        licenseExpiresAt: isoInDays(-12),
+        summary: "Example record only. Verify license, insurance, and reviews before use.",
+        sourceNotes: "Example record only.",
         status: "researching"
       }
     ];
@@ -965,13 +1069,20 @@
 
     const els = {
       storageStatus: document.querySelector("#storageStatus"),
-      trackedCount: document.querySelector("#trackedCount"),
-      bestScore: document.querySelector("#bestScore"),
-      viewTabs: document.querySelector(".view-tabs"),
+      totalCount: document.querySelector("#totalCount"),
+      contactableCount: document.querySelector("#contactableCount"),
+      licensedCount: document.querySelector("#licensedCount"),
+      insuredCount: document.querySelector("#insuredCount"),
+      complianceRiskMetric: document.querySelector("#complianceRiskMetric"),
+      reviewCountMetric: document.querySelector("#reviewCountMetric"),
+      resultCount: document.querySelector("#resultCount"),
       searchInput: document.querySelector("#searchInput"),
       serviceFilter: document.querySelector("#serviceFilter"),
+      statusFilter: document.querySelector("#statusFilter"),
+      verificationFilter: document.querySelector("#verificationFilter"),
       sortBy: document.querySelector("#sortBy"),
-      typeCounts: document.querySelector("#typeCounts"),
+      serviceCounts: document.querySelector("#serviceCounts"),
+      subList: document.querySelector("#subList"),
       agentService: document.querySelector("#agentService"),
       agentMarket: document.querySelector("#agentMarket"),
       agentMax: document.querySelector("#agentMax"),
@@ -981,67 +1092,147 @@
       agentStatus: document.querySelector("#agentStatus"),
       researchService: document.querySelector("#researchService"),
       sourceGrid: document.querySelector("#sourceGrid"),
-      serviceChips: document.querySelector("#serviceChips"),
       importUrl: document.querySelector("#importUrl"),
       importButton: document.querySelector("#importButton"),
       importStatus: document.querySelector("#importStatus"),
       csvInput: document.querySelector("#csvInput"),
       importCsv: document.querySelector("#importCsv"),
       csvStatus: document.querySelector("#csvStatus"),
-      subList: document.querySelector("#subList"),
       chaseOutput: document.querySelector("#chaseOutput"),
       chaseStatus: document.querySelector("#chaseStatus"),
-      activityForm: document.querySelector("#activityForm"),
-      activitySubId: document.querySelector("#activitySubId"),
-      activityType: document.querySelector("#activityType"),
-      activityOutcome: document.querySelector("#activityOutcome"),
-      activityContact: document.querySelector("#activityContact"),
-      activityFollowUp: document.querySelector("#activityFollowUp"),
-      activityNotes: document.querySelector("#activityNotes"),
       form: document.querySelector("#subForm")
     };
 
     function clean(value) {
-      return String(value || "").trim();
+      return String(value || "").replace(/\s+/g, " ").trim();
+    }
+
+    function splitList(value) {
+      if (Array.isArray(value)) return [...new Set(value.map(clean).filter(Boolean))];
+      return clean(value).split(/\n|,/).map(clean).filter(Boolean);
     }
 
     function clamp(value, min, max) {
       return Math.max(min, Math.min(max, value));
     }
 
-    function splitList(value) {
-      if (Array.isArray(value)) return value.map(clean).filter(Boolean);
-      return clean(value).split(/\n|,/).map(clean).filter(Boolean);
+    function toast(message, tone = "") {
+      const host = document.querySelector("#toastHost");
+      if (!host) return;
+      const node = document.createElement("div");
+      node.className = `toast ${tone}`.trim();
+      node.textContent = message;
+      host.appendChild(node);
+      setTimeout(() => {
+        node.style.transition = "opacity 0.3s, transform 0.3s";
+        node.style.opacity = "0";
+        node.style.transform = "translateY(8px)";
+        setTimeout(() => node.remove(), 320);
+      }, 2600);
+    }
+
+    function isoInDays(offset) {
+      return new Date(Date.now() + offset * 86400000).toISOString().slice(0, 10);
+    }
+
+    function daysUntil(value) {
+      const raw = clean(value);
+      if (!raw) return null;
+      const time = Date.parse(raw);
+      if (Number.isNaN(time)) return null;
+      return Math.round((time - Date.now()) / 86400000);
+    }
+
+    // Prequalification best practice: flag lapsed coverage and credentials expiring within 30 days.
+    function complianceStatus(record) {
+      const checks = [
+        { label: "Insurance", days: daysUntil(record.insuranceExpiresAt) },
+        { label: "License", days: daysUntil(record.licenseExpiresAt) }
+      ].filter((check) => check.days !== null);
+      if (!checks.length) return { state: "unknown", tone: "", label: "No expiry tracked", parts: [] };
+      const parts = checks.map((check) => {
+        if (check.days < 0) return `${check.label} expired ${Math.abs(check.days)}d ago`;
+        if (check.days <= 30) return `${check.label} expires in ${check.days}d`;
+        return `${check.label} ok (${check.days}d)`;
+      });
+      if (checks.some((check) => check.days < 0)) return { state: "expired", tone: "bad", label: "Expired", parts };
+      if (checks.some((check) => check.days <= 30)) return { state: "expiring", tone: "warn", label: "Expiring ≤30d", parts };
+      return { state: "current", tone: "good", label: "Current", parts };
+    }
+
+    function escapeHtml(value) {
+      return clean(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#39;"
+      })[char]);
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, "&#96;");
+    }
+
+    function labelize(value) {
+      return clean(value || "unknown").replaceAll("_", " ");
+    }
+
+    function isMongoId(id) {
+      return /^[a-f0-9]{24}$/i.test(clean(id));
+    }
+
+    function normalizeUrl(url) {
+      const value = clean(url);
+      if (!value) return "";
+      return /^https?:\/\//i.test(value) ? value : `https://${value}`;
+    }
+
+    function displayDomain(url) {
+      const value = normalizeUrl(url);
+      if (!value) return "";
+      try {
+        return new URL(value).hostname.replace(/^www\./, "");
+      } catch (_error) {
+        return clean(url);
+      }
     }
 
     function score(record) {
       const rating = Number(record.reviewRating || 0);
       const reviewCount = Number(record.reviewCount || 0);
       const sentiment = clean(record.sentiment).toLowerCase();
-      const priceTier = clean(record.priceTier);
+      const sourceConfidence = clean(record.sourceConfidence || "medium").toLowerCase();
+      const bondedStatus = clean(record.bondedStatus || "unknown").toLowerCase();
       let total = 35;
       if (rating > 0) total += clamp((rating - 3) * 16, -20, 32);
       total += clamp(Math.log10(reviewCount + 1) * 7, 0, 16);
       if (sentiment === "positive") total += 12;
       if (sentiment === "mixed") total += 3;
       if (sentiment === "negative") total -= 14;
-      if (priceTier === "$$") total += 6;
-      if (priceTier === "$") total += 3;
-      if (priceTier === "$$$") total += 1;
+      if (record.phone) total += 5;
+      if (record.email) total += 5;
+      if (record.website) total += 4;
       if (record.licenseVerified) total += 8;
       if (record.insuranceVerified) total += 5;
+      if (record.additionalInsured) total += 4;
+      const insExpiry = daysUntil(record.insuranceExpiresAt);
+      if (insExpiry !== null) total += insExpiry < 0 ? -14 : insExpiry <= 30 ? -5 : 5;
+      const licExpiry = daysUntil(record.licenseExpiresAt);
+      if (licExpiry !== null) total += licExpiry < 0 ? -10 : licExpiry <= 30 ? -3 : 3;
+      if (/bonded|verified|active|yes/.test(bondedStatus)) total += 4;
+      if (/active|verified|current/i.test(record.workersCompStatus || "")) total += 4;
+      if (/active|verified|current/i.test(record.generalLiabilityStatus || "")) total += 4;
       if (/supplier_referral|job_site|permit_data|sub_referral/i.test(record.sourceChannel || "")) total += 8;
       if (/net_30_verified|good_standing/i.test(record.net30Status || "")) total += 6;
       if (/cash_only/i.test(record.net30Status || "")) total -= 6;
-      if (clean(record.fieldSupervisor)) total += 3;
-      if (clean(record.recentProjects)) total += 4;
-      if (clean(record.lienHistoryNotes) && !/none|clear|not found/i.test(record.lienHistoryNotes)) total -= 5;
+      if (record.fieldSupervisor) total += 3;
+      if (record.recentProjects) total += 4;
+      if (record.lienHistoryNotes && !/none|clear|not found/i.test(record.lienHistoryNotes)) total -= 5;
+      if (/preferred|qualified|outreach_ready/i.test(record.chaseState || "")) total += 6;
+      if (sourceConfidence === "high") total += 8;
+      if (sourceConfidence === "low") total -= 7;
       if (splitList(record.specialties).length >= 2) total += 4;
-      if (clean(record.minimumJobSize)) total += 2;
-      if (clean(record.unitPriceNotes)) total += 3;
-      if (clean(record.typicalQuoteTurnaround)) total += 2;
-      if (/high/i.test(record.quoteConfidence || "")) total += 4;
-      if (/low/i.test(record.quoteConfidence || "")) total -= 3;
       return clamp(Math.round(total), 0, 100);
     }
 
@@ -1075,18 +1266,23 @@
         bidInputRequirements: clean(record.bidInputRequirements),
         pricingExclusions: clean(record.pricingExclusions),
         quoteConfidence: clean(record.quoteConfidence || "unknown"),
-        workersCompStatus: clean(record.workersCompStatus),
-        generalLiabilityStatus: clean(record.generalLiabilityStatus),
-        dirRegistrationStatus: clean(record.dirRegistrationStatus),
-        recentProjects: clean(record.recentProjects),
-        projectPhotos: splitList(record.projectPhotos),
-        lienHistoryNotes: clean(record.lienHistoryNotes),
         licenseNumber: clean(record.licenseNumber),
         licenseClass: clean(record.licenseClass || record.licenseType),
         licenseType: clean(record.licenseType || record.licenseClass),
         licenseSourceUrl: clean(record.licenseSourceUrl),
         licenseSourceNotes: clean(record.licenseSourceNotes),
         licenseLastCheckedAt: clean(record.licenseLastCheckedAt),
+        workersCompStatus: clean(record.workersCompStatus),
+        generalLiabilityStatus: clean(record.generalLiabilityStatus),
+        bondedStatus: clean(record.bondedStatus || "unknown"),
+        dirRegistrationStatus: clean(record.dirRegistrationStatus),
+        insuranceExpiresAt: clean(record.insuranceExpiresAt),
+        licenseExpiresAt: clean(record.licenseExpiresAt),
+        additionalInsured: Boolean(record.additionalInsured),
+        recentProjects: clean(record.recentProjects),
+        projectPhotos: splitList(record.projectPhotos),
+        lienHistoryNotes: clean(record.lienHistoryNotes),
+        vettingStatus: clean(record.vettingStatus || (record.licenseVerified ? "license_checked" : "needs_vetting")),
         licenseVerified: Boolean(record.licenseVerified),
         insuranceVerified: Boolean(record.insuranceVerified),
         reviewRating: Number(record.reviewRating || 0),
@@ -1106,25 +1302,12 @@
         lastContactedAt: clean(record.lastContactedAt),
         chaseNotes: clean(record.chaseNotes),
         status: clean(record.status || "researching"),
-        lastResearchedAt: record.lastResearchedAt || new Date().toISOString()
+        lastResearchedAt: record.lastResearchedAt || new Date().toISOString(),
+        createdAt: clean(record.createdAt),
+        updatedAt: clean(record.updatedAt)
       };
       normalized.fitScore = score(normalized);
       return normalized;
-    }
-
-    function showView(view) {
-      document.querySelectorAll("[data-view-panel]").forEach((panel) => {
-        panel.classList.toggle("view-hidden", panel.dataset.viewPanel !== view);
-      });
-      els.viewTabs.querySelectorAll("[data-view-target]").forEach((button) => {
-        button.classList.toggle("active", button.dataset.viewTarget === view);
-      });
-      const firstPanel = document.querySelector(`[data-view-panel="${view}"]`);
-      if (firstPanel) firstPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-
-    function saveLocal() {
-      localStorage.setItem(storageKey, JSON.stringify(subcontractors));
     }
 
     async function api(path, options = {}) {
@@ -1140,51 +1323,71 @@
       return response.json();
     }
 
-    async function load() {
-      try {
-        const health = await api("/api/health");
-        apiAvailable = Boolean(health.mongoConfigured);
-        if (apiAvailable) {
-          subcontractors = (await api("/api/subcontractors")).map(normalize);
-          els.storageStatus.textContent = "MongoDB";
-          els.storageStatus.parentElement.querySelector("strong").className = "";
-        } else {
-          throw new Error("MongoDB not configured");
-        }
-      } catch (_error) {
-        apiAvailable = false;
-        subcontractors = JSON.parse(localStorage.getItem(storageKey) || "[]").map(normalize);
-        els.storageStatus.textContent = "Browser local";
-      }
-      render();
+    function saveLocal() {
+      localStorage.setItem(storageKey, JSON.stringify(subcontractors));
+    }
+
+    function dynamicServices() {
+      return [...new Set([...services, ...subcontractors.map((row) => row.serviceCategory).filter(Boolean)])];
+    }
+
+    function setOptions(select, values, currentValue = select.value) {
+      select.innerHTML = values.map((value) => `<option value="${escapeAttr(value)}">${escapeHtml(value)}</option>`).join("");
+      if (values.includes(currentValue)) select.value = currentValue;
+    }
+
+    function ensureOption(select, value) {
+      const cleanValue = clean(value);
+      if (!cleanValue) return;
+      const exists = [...select.options].some((option) => option.value === cleanValue);
+      if (!exists) select.insertAdjacentHTML("beforeend", `<option value="${escapeAttr(cleanValue)}">${escapeHtml(cleanValue)}</option>`);
+      select.value = cleanValue;
     }
 
     function populateSelects() {
-      const options = ["All services", ...services].map((service) => `<option>${service}</option>`).join("");
-      els.serviceFilter.innerHTML = options;
-      els.agentService.innerHTML = services.map((service) => `<option>${service}</option>`).join("");
-      els.researchService.innerHTML = services.map((service) => `<option>${service}</option>`).join("");
-      document.querySelector("#serviceCategory").innerHTML = services.map((service) => `<option>${service}</option>`).join("");
-      els.serviceChips.innerHTML = services.map((service) => `<button type="button" data-service="${service}">${service}</button>`).join("");
+      const serviceValues = dynamicServices();
+      setOptions(els.serviceFilter, ["All trades", ...serviceValues]);
+      setOptions(els.agentService, serviceValues, els.agentService.value || serviceValues[0]);
+      setOptions(els.researchService, serviceValues, els.researchService.value || serviceValues[0]);
+      setOptions(document.querySelector("#serviceCategory"), serviceValues, document.querySelector("#serviceCategory").value || serviceValues[0]);
+      const statuses = [...new Set(["All statuses", "new", "researching", "needs_vetting", "vetted", "outreach_ready", "contacted", "responded", "qualified", "active", "preferred", "do not use", ...subcontractors.map((row) => row.status).filter(Boolean)])];
+      setOptions(els.statusFilter, statuses);
     }
 
     function renderSourceLinks() {
-      const service = els.researchService.value;
+      const service = els.researchService.value || services[0];
       const query = `${service} subcontractor Los Angeles CA`;
       els.sourceGrid.innerHTML = sourceTemplates.map(([label, build]) => {
-        return `<a href="${build(query)}" target="_blank" rel="noopener">${label}</a>`;
+        const url = build(query);
+        return `<a href="${escapeAttr(url)}" target="_blank" rel="noopener">${escapeHtml(label)}</a>`;
       }).join("");
-      els.serviceChips.querySelectorAll("button").forEach((button) => {
-        button.classList.toggle("active", button.dataset.service === service);
-      });
+    }
+
+    function matchesVerification(record, filter) {
+      if (filter === "all") return true;
+      if (filter === "contactable") return Boolean(record.phone || record.email);
+      if (filter === "missing_contact") return !record.phone && !record.email;
+      if (filter === "license_verified") return Boolean(record.licenseVerified || record.licenseNumber);
+      if (filter === "insurance_verified") return Boolean(record.insuranceVerified || /active|verified|current/i.test(`${record.workersCompStatus} ${record.generalLiabilityStatus}`));
+      if (filter === "compliance_risk") {
+        const state = complianceStatus(record).state;
+        return state === "expired" || state === "expiring";
+      }
+      if (filter === "bonded") return /bonded|verified|active|yes/i.test(record.bondedStatus || "");
+      if (filter === "needs_review") return /needs|research|review/i.test(`${record.agentStatus} ${record.status} ${record.vettingStatus}`);
+      return true;
     }
 
     function filteredRecords() {
       const search = clean(els.searchInput.value).toLowerCase();
       const service = els.serviceFilter.value;
+      const status = els.statusFilter.value;
+      const verification = els.verificationFilter.value;
       const sortBy = els.sortBy.value;
       return subcontractors
-        .filter((record) => service === "All services" || record.serviceCategory === service)
+        .filter((record) => service === "All trades" || record.serviceCategory === service)
+        .filter((record) => status === "All statuses" || record.status === status)
+        .filter((record) => matchesVerification(record, verification))
         .filter((record) => {
           if (!search) return true;
           return [
@@ -1193,196 +1396,441 @@
             record.phone,
             record.email,
             record.website,
-            record.linkedIn,
             record.serviceCategory,
             record.serviceArea,
             record.sourceChannel,
-            record.referralSource,
-            record.supplierName,
-            record.jobSiteAddress,
-            record.permitJurisdiction,
-            record.permitReference,
-            record.fieldSupervisor,
-            record.net30Status,
-            record.minimumJobSize,
-            record.unitPriceNotes,
-            record.laborRateHints,
-            record.mobilizationFee,
-            record.typicalQuoteTurnaround,
-            record.bidInputRequirements,
-            record.pricingExclusions,
-            record.quoteConfidence,
-            record.recentProjects,
-            record.lienHistoryNotes,
+            record.licenseNumber,
+            record.licenseClass,
+            record.bondedStatus,
+            record.workersCompStatus,
+            record.generalLiabilityStatus,
+            record.status,
             record.summary,
             record.sourceNotes,
-            record.chaseNotes,
             ...record.specialties
           ].join(" ").toLowerCase().includes(search);
         })
         .sort((a, b) => {
+          if (sortBy === "compliance") {
+            const rank = { expired: 0, expiring: 1, unknown: 2, current: 3 };
+            return rank[complianceStatus(a).state] - rank[complianceStatus(b).state] || Number(b.fitScore || 0) - Number(a.fitScore || 0);
+          }
           if (sortBy === "companyName") return a.companyName.localeCompare(b.companyName);
-          if (sortBy === "lastResearchedAt") return clean(b.lastResearchedAt).localeCompare(clean(a.lastResearchedAt));
-          return Number(b[sortBy] || 0) - Number(a[sortBy] || 0);
+          if (sortBy === "serviceCategory") return a.serviceCategory.localeCompare(b.serviceCategory) || a.companyName.localeCompare(b.companyName);
+          if (sortBy === "updatedAt") return clean(b.updatedAt || b.lastResearchedAt).localeCompare(clean(a.updatedAt || a.lastResearchedAt));
+          if (sortBy === "reviewRating") return Number(b.reviewRating || 0) - Number(a.reviewRating || 0) || Number(b.reviewCount || 0) - Number(a.reviewCount || 0);
+          return Number(b.fitScore || 0) - Number(a.fitScore || 0) || a.companyName.localeCompare(b.companyName);
         });
     }
 
-    function badgeClass(record) {
-      if (record.fitScore >= 75) return "good";
-      if (record.fitScore >= 50) return "warn";
+    function pill(text, tone = "") {
+      return `<span class="pill ${tone}">${escapeHtml(text)}</span>`;
+    }
+
+    function scoreTone(scoreValue) {
+      if (scoreValue >= 75) return "good";
+      if (scoreValue >= 50) return "warn";
       return "bad";
     }
 
-    function renderTypeCounts() {
+    function bondedTone(value) {
+      const status = clean(value).toLowerCase();
+      if (/^bonded$|verified|active|yes/.test(status)) return "good";
+      if (/not_bonded|not bonded/.test(status)) return "bad";
+      if (/needs/.test(status)) return "warn";
+      return "";
+    }
+
+    function insuranceText(record) {
+      if (record.insuranceVerified) return "Insurance verified";
+      const parts = [record.workersCompStatus, record.generalLiabilityStatus].filter(Boolean);
+      return parts.length ? parts.join(" / ") : "Insurance unknown";
+    }
+
+    function licenseText(record) {
+      if (record.licenseNumber) return `CSLB ${record.licenseNumber}`;
+      return record.licenseVerified ? "License verified" : "License unknown";
+    }
+
+    function contactHtml(record) {
+      const phone = record.phone ? `<a href="tel:${escapeAttr(record.phone)}">${escapeHtml(record.phone)}</a>` : `<span class="cell-note">No phone</span>`;
+      const email = record.email ? `<a href="mailto:${escapeAttr(record.email)}">${escapeHtml(record.email)}</a>` : `<span class="cell-note">No email</span>`;
+      return `${phone}${email}`;
+    }
+
+    function sourceLinks(record) {
+      const links = [];
+      if (record.website) links.push(["Website", normalizeUrl(record.website)]);
+      if (record.linkedIn) links.push(["LinkedIn", normalizeUrl(record.linkedIn)]);
+      record.sourceUrls.forEach((url, index) => links.push([`Source ${index + 1}`, normalizeUrl(url)]));
+      record.projectPhotos.forEach((url, index) => links.push([`Photo ${index + 1}`, normalizeUrl(url)]));
+      return links
+        .filter(([, url]) => url)
+        .slice(0, 8)
+        .map(([label, url]) => `<a href="${escapeAttr(url)}" target="_blank" rel="noopener">${escapeHtml(label)}</a>`)
+        .join("");
+    }
+
+    function detailItem(label, value) {
+      return `<div class="detail-item"><span>${escapeHtml(label)}</span><strong>${value || "Unknown"}</strong></div>`;
+    }
+
+    function renderMetrics() {
+      const contactable = subcontractors.filter((row) => row.phone || row.email).length;
+      const licensed = subcontractors.filter((row) => row.licenseVerified || row.licenseNumber).length;
+      const insured = subcontractors.filter((row) => row.insuranceVerified || /active|verified|current/i.test(`${row.workersCompStatus} ${row.generalLiabilityStatus}`)).length;
+      const needsReview = subcontractors.filter((row) => matchesVerification(row, "needs_review")).length;
+      const complianceRisk = subcontractors.filter((row) => matchesVerification(row, "compliance_risk")).length;
+      els.totalCount.textContent = subcontractors.length;
+      els.contactableCount.textContent = contactable;
+      els.licensedCount.textContent = licensed;
+      els.insuredCount.textContent = insured;
+      els.complianceRiskMetric.textContent = complianceRisk;
+      els.reviewCountMetric.textContent = needsReview;
+
+      // Semantic tone: risk cards go red/amber only when they actually have items.
+      const compRiskCard = document.querySelector('[data-filter="compliance_risk"]');
+      const reviewCard = document.querySelector('[data-filter="needs_review"]');
+      if (compRiskCard) compRiskCard.classList.toggle("alert", complianceRisk > 0);
+      if (reviewCard) reviewCard.classList.toggle("attention", needsReview > 0);
+
+      // Show which metric maps to the active filter.
+      const activeFilter = els.verificationFilter.value;
+      document.querySelectorAll(".metric[data-filter]").forEach((card) => {
+        card.classList.toggle("active", card.dataset.filter === activeFilter);
+      });
+    }
+
+    function renderServiceCounts() {
       const counts = new Map();
-      for (const record of subcontractors) {
-        const type = record.serviceCategory || "Uncategorized";
-        counts.set(type, (counts.get(type) || 0) + 1);
+      for (const record of subcontractors) counts.set(record.serviceCategory || "Uncategorized", (counts.get(record.serviceCategory || "Uncategorized") || 0) + 1);
+      const rows = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 12);
+      const selected = els.serviceFilter.value || "All trades";
+      els.serviceCounts.innerHTML = [
+        `<button type="button" class="count-chip ${selected === "All trades" ? "active" : ""}" data-service="All trades"><strong>${subcontractors.length}</strong> All</button>`,
+        ...rows.map(([service, count]) => `<button type="button" class="count-chip ${selected === service ? "active" : ""}" data-service="${escapeAttr(service)}"><strong>${count}</strong> ${escapeHtml(service)}</button>`)
+      ].join("");
+    }
+
+    function resetFilters() {
+      els.searchInput.value = "";
+      els.serviceFilter.value = "All trades";
+      els.statusFilter.value = "All statuses";
+      els.verificationFilter.value = "all";
+      els.sortBy.value = "readiness";
+      renderServiceCounts();
+      renderRows();
+      renderMetrics();
+    }
+
+    function renderRows() {
+      const rows = filteredRecords();
+      els.resultCount.textContent = `${rows.length} of ${subcontractors.length} records`;
+      if (!rows.length) {
+        els.subList.innerHTML = subcontractors.length === 0
+          ? `<div class="empty">
+              <strong style="display:block;font-size:1.05rem;color:var(--ink);">No subcontractors yet</strong>
+              Add your first contractor, drop in starter examples, or run the sourcing agent to start your roster.
+              <div class="empty-cta">
+                <button type="button" data-empty-action="add">Add a contractor</button>
+                <button type="button" class="secondary" data-empty-action="seed">Load starter examples</button>
+              </div>
+            </div>`
+          : `<div class="empty">
+              <strong style="display:block;color:var(--ink);">No records match these filters</strong>
+              Try a different trade, status, or search term.
+              <div class="empty-cta">
+                <button type="button" class="secondary" data-empty-action="clear">Clear filters</button>
+              </div>
+            </div>`;
+        return;
       }
-      const rows = [...counts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-      els.typeCounts.innerHTML = rows.length
-        ? rows.map(([type, count]) => `<div class="type-count"><strong>${count}</strong><span>${type}</span></div>`).join("")
-        : `<div class="type-count"><strong>0</strong><span>No contractors yet</span></div>`;
+      els.subList.innerHTML = rows.map((record) => {
+        const scoreValue = record.fitScore || 0;
+        const tone = scoreTone(scoreValue);
+        const domain = displayDomain(record.website);
+        const specialties = record.specialties.length ? record.specialties.join(", ") : record.serviceCategory;
+        const contactLabel = record.contactName || record.serviceArea || "No contact name";
+        const websiteSummary = domain || "No website";
+        const comp = complianceStatus(record);
+        const compliance = [
+          record.licenseVerified || record.licenseNumber ? pill("License", "good") : pill("License ?", "warn"),
+          record.insuranceVerified ? pill("Insurance", "good") : pill("Insurance ?", "warn"),
+          comp.state === "expired" || comp.state === "expiring" ? pill(comp.label, comp.tone) : ""
+        ].join("");
+        return `
+          <details class="record-card">
+            <summary class="record-summary">
+              <div class="company-cell">
+                <strong>${escapeHtml(record.companyName || "Unnamed contractor")}</strong>
+                <span>${escapeHtml(contactLabel)}</span>
+              </div>
+              <div class="compact-cell">
+                <strong>${escapeHtml(record.serviceCategory || "Uncategorized")}</strong>
+                <div class="cell-note">${escapeHtml(specialties)}</div>
+              </div>
+              <div class="compact-cell">${pill(labelize(record.bondedStatus), bondedTone(record.bondedStatus))}</div>
+              <div class="compact-cell">${compliance}</div>
+              <div class="contact-stack">${contactHtml(record)}</div>
+              <div class="website-cell">${escapeHtml(websiteSummary)}</div>
+              <div class="readiness">
+                ${pill(labelize(record.status), tone)}
+                <div class="score-bar"><div class="score-fill ${tone}" style="width:${scoreValue}%;"></div></div>
+              </div>
+            </summary>
+            <div class="record-detail">
+              <div class="detail-grid">
+                ${detailItem("Phone", record.phone ? `<a href="tel:${escapeAttr(record.phone)}">${escapeHtml(record.phone)}</a>` : "")}
+                ${detailItem("Email", record.email ? `<a href="mailto:${escapeAttr(record.email)}">${escapeHtml(record.email)}</a>` : "")}
+                ${detailItem("Website", record.website ? `<a href="${escapeAttr(normalizeUrl(record.website))}" target="_blank" rel="noopener">${escapeHtml(displayDomain(record.website))}</a>` : "")}
+                ${detailItem("Service Area", escapeHtml(record.serviceArea))}
+                ${detailItem("CSLB", escapeHtml(licenseText(record)))}
+                ${detailItem("License Class", escapeHtml(record.licenseClass || record.licenseType))}
+                ${detailItem("Bonded", escapeHtml(labelize(record.bondedStatus)))}
+                ${detailItem("Insurance", escapeHtml(insuranceText(record)))}
+                ${detailItem("Workers Comp", escapeHtml(record.workersCompStatus))}
+                ${detailItem("General Liability", escapeHtml(record.generalLiabilityStatus))}
+                ${detailItem("Insurance Expires", escapeHtml(record.insuranceExpiresAt))}
+                ${detailItem("License Expires", escapeHtml(record.licenseExpiresAt))}
+                ${detailItem("Additional Insured", record.additionalInsured ? "Yes" : "")}
+                ${detailItem("Source", escapeHtml(labelize(record.sourceChannel)))}
+                ${detailItem("Reviews", record.reviewRating ? `${escapeHtml(record.reviewRating)} / 5 (${escapeHtml(record.reviewCount || 0)})` : "")}
+              </div>
+              ${comp.state !== "unknown" ? `<div class="note-box"><span>Compliance</span><p>${escapeHtml(comp.parts.join("  ·  "))}</p></div>` : ""}
+              <div class="note-box">
+                <span>Summary</span>
+                <p>${escapeHtml(record.summary || "No summary yet.")}</p>
+              </div>
+              <div class="note-box">
+                <span>Source Notes</span>
+                <p>${escapeHtml(record.sourceNotes || "No source notes yet.")}</p>
+              </div>
+              ${record.licenseSourceNotes ? `<div class="note-box"><span>License Notes</span><p>${escapeHtml(record.licenseSourceNotes)}</p></div>` : ""}
+              <div class="source-links">${sourceLinks(record)}</div>
+              <div class="actions">
+                <button type="button" class="secondary" data-edit="${escapeAttr(record.id)}">Edit</button>
+                <button type="button" class="secondary" data-license="${escapeAttr(record.id)}">Find License</button>
+                <button type="button" class="secondary" data-chase-email="${escapeAttr(record.id)}">Email</button>
+                <button type="button" class="secondary" data-chase-phone="${escapeAttr(record.id)}">Phone</button>
+                <button type="button" class="secondary" data-delete="${escapeAttr(record.id)}">Delete</button>
+              </div>
+            </div>
+          </details>
+        `;
+      }).join("");
     }
 
     function render() {
-      const rows = filteredRecords();
-      els.trackedCount.textContent = subcontractors.length;
-      els.bestScore.textContent = subcontractors.reduce((max, row) => Math.max(max, row.fitScore || 0), 0);
-      renderTypeCounts();
-      if (!rows.length) {
-        els.subList.innerHTML = `<div class="empty">No subcontractors match the current filters. Add a record, import a public URL, or load starter examples.</div>`;
-        return;
+      populateSelects();
+      renderMetrics();
+      renderServiceCounts();
+      renderRows();
+      renderSourceLinks();
+    }
+
+    async function load() {
+      try {
+        const health = await api("/api/health");
+        apiAvailable = Boolean(health.mongoConfigured);
+        if (!apiAvailable) throw new Error("MongoDB not configured");
+        subcontractors = (await api("/api/subcontractors")).map(normalize);
+        els.storageStatus.textContent = "Mongo";
+      } catch (_error) {
+        apiAvailable = false;
+        subcontractors = JSON.parse(localStorage.getItem(storageKey) || "[]").map(normalize);
+        els.storageStatus.textContent = "Local";
       }
-      els.subList.innerHTML = rows.map((record) => `
-        <article class="sub-card">
-          <header>
-            <div>
-              <h3>${record.companyName || "Unnamed subcontractor"}</h3>
-              <div class="meta">
-                <span class="badge">${record.serviceCategory}</span>
-                <span class="badge">${record.sourceChannel || record.sourcingMethod}</span>
-                ${record.agentStatus ? `<span class="badge warn">${record.agentStatus.replaceAll("_", " ")}</span>` : ""}
-                <span class="badge ${badgeClass(record)}">${record.status}</span>
-                <span class="badge">${record.priceTier}</span>
-                ${record.licenseVerified ? `<span class="badge good">License verified</span>` : ""}
-                ${record.insuranceVerified ? `<span class="badge good">Insurance verified</span>` : ""}
-              </div>
-            </div>
-            <div class="score"><strong>${record.fitScore}</strong><span>Fit</span></div>
-          </header>
-          <div class="contact-lines">
-            <div class="field-wide"><strong>Website:</strong> ${record.website ? `<a href="${record.website}" target="_blank" rel="noopener">${record.website}</a>` : "Unknown"}</div>
-            <div><strong>Phone:</strong> ${record.phone ? `<a href="tel:${record.phone}">${record.phone}</a>` : "Unknown"}</div>
-            <div><strong>Email:</strong> ${record.email ? `<a href="mailto:${record.email}">${record.email}</a>` : "Unknown"}</div>
-            <div><strong>Contact:</strong> ${record.contactName || "Unknown"}</div>
-            <div><strong>Area:</strong> ${record.serviceArea || "Unknown"}</div>
-            <div><strong>Source Channel:</strong> ${record.sourceChannel || "Unknown"}</div>
-            <div><strong>Referral / Supplier:</strong> ${record.referralSource || record.supplierName || "Unknown"}</div>
-            <div><strong>Job Site:</strong> ${record.jobSiteAddress || "Unknown"}</div>
-            <div><strong>Permit Ref:</strong> ${[record.permitJurisdiction, record.permitReference].filter(Boolean).join(" / ") || "Unknown"}</div>
-            <div><strong>Supplier Account:</strong> ${record.net30Status || "Unknown"}</div>
-            <div><strong>Field Supervisor:</strong> ${record.fieldSupervisor || "Unknown"}</div>
-            <div><strong>Minimum Job:</strong> ${record.minimumJobSize || "Unknown"}</div>
-            <div><strong>Mobilization:</strong> ${record.mobilizationFee || "Unknown"}</div>
-            <div><strong>Quote Turnaround:</strong> ${record.typicalQuoteTurnaround || "Unknown"}</div>
-            <div><strong>Quote Confidence:</strong> ${record.quoteConfidence || "Unknown"}</div>
-            <div><strong>License Number:</strong> ${record.licenseNumber || "Unknown"}</div>
-            <div><strong>License Type / Class:</strong> ${record.licenseType || record.licenseClass || "Unknown"}</div>
-            <div><strong>Workers Comp:</strong> ${record.workersCompStatus || "Unknown"}</div>
-            <div><strong>GL Insurance:</strong> ${record.generalLiabilityStatus || "Unknown"}</div>
-            <div><strong>Next Follow-up:</strong> ${record.nextFollowUpAt || "Not scheduled"}</div>
-            <div><strong>Reviews:</strong> ${record.reviewRating || "?"}/5 from ${record.reviewCount || 0} ${record.reviewSource ? `(${record.reviewSource})` : ""}</div>
-            <div><strong>Expertise:</strong> ${record.specialties.join(", ") || "Unknown"}</div>
-            <div class="field-wide"><strong>Recent Projects:</strong> ${record.recentProjects || "Unknown"}</div>
-            <div class="field-wide"><strong>Unit Price Notes:</strong> ${record.unitPriceNotes || "Unknown"}</div>
-            <div class="field-wide"><strong>Labor Rate Hints:</strong> ${record.laborRateHints || "Unknown"}</div>
-            <div class="field-wide"><strong>Bid Inputs Needed:</strong> ${record.bidInputRequirements || "Unknown"}</div>
-            <div class="field-wide"><strong>Pricing Exclusions:</strong> ${record.pricingExclusions || "Unknown"}</div>
-            <div class="field-wide"><strong>Lien / Dispute Notes:</strong> ${record.lienHistoryNotes || "Unknown"}</div>
-            <div class="field-wide"><strong>License source:</strong> ${record.licenseSourceUrl ? `<a href="${record.licenseSourceUrl}" target="_blank" rel="noopener">${record.licenseSourceUrl}</a>` : "Not checked or not found"}</div>
-          </div>
-          <p class="summary">${record.summary || "No summary yet."}</p>
-          ${record.licenseSourceNotes ? `<p class="summary"><strong>License notes:</strong> ${record.licenseSourceNotes}</p>` : ""}
-          <p class="summary"><strong>Source notes:</strong> ${record.sourceNotes || "No source notes yet."}</p>
-          <div class="source-links">
-            ${record.website ? `<a href="${record.website}" target="_blank" rel="noopener">Website</a>` : ""}
-            ${record.linkedIn ? `<a href="${record.linkedIn}" target="_blank" rel="noopener">LinkedIn</a>` : ""}
-            ${record.projectPhotos.map((url, index) => `<a href="${url}" target="_blank" rel="noopener">Photo ${index + 1}</a>`).join("")}
-            ${record.sourceUrls.map((url, index) => `<a href="${url}" target="_blank" rel="noopener">Source ${index + 1}</a>`).join("")}
-          </div>
-          <div class="card-actions">
-            <button type="button" class="secondary" data-chase-email="${record.id}">Email Task</button>
-            <button type="button" class="secondary" data-chase-phone="${record.id}">Phone Script</button>
-            <button type="button" class="secondary" data-log="${record.id}">Log Call</button>
-            <button type="button" class="secondary" data-license="${record.id}">Find License</button>
-            <button type="button" class="secondary" data-edit="${record.id}">Edit</button>
-            <button type="button" class="secondary" data-delete="${record.id}">Delete</button>
-          </div>
-        </article>
-      `).join("");
+      render();
+    }
+
+    function currentFormRecord() {
+      const id = clean(document.querySelector("#recordId").value);
+      return subcontractors.find((row) => row.id === id) || {};
     }
 
     function recordFromForm() {
+      const existing = currentFormRecord();
       return normalize({
-        id: document.querySelector("#recordId").value,
+        ...existing,
+        id: document.querySelector("#recordId").value || existing.id,
         companyName: document.querySelector("#companyName").value,
         contactName: document.querySelector("#contactName").value,
         phone: document.querySelector("#phone").value,
         email: document.querySelector("#email").value,
         website: document.querySelector("#website").value,
-        linkedIn: document.querySelector("#linkedIn").value,
         serviceCategory: document.querySelector("#serviceCategory").value,
         specialties: document.querySelector("#specialties").value,
         serviceArea: document.querySelector("#serviceArea").value,
         sourceChannel: document.querySelector("#sourceChannel").value,
-        referralSource: document.querySelector("#referralSource").value,
-        supplierName: document.querySelector("#supplierName").value,
-        jobSiteAddress: document.querySelector("#jobSiteAddress").value,
-        permitJurisdiction: document.querySelector("#permitJurisdiction").value,
-        permitReference: document.querySelector("#permitReference").value,
-        crewSize: document.querySelector("#crewSize").value,
-        fieldSupervisor: document.querySelector("#fieldSupervisor").value,
-        net30Status: document.querySelector("#net30Status").value,
-        unionStatus: document.querySelector("#unionStatus").value,
-        minimumJobSize: document.querySelector("#minimumJobSize").value,
-        unitPriceNotes: document.querySelector("#unitPriceNotes").value,
-        laborRateHints: document.querySelector("#laborRateHints").value,
-        mobilizationFee: document.querySelector("#mobilizationFee").value,
-        typicalQuoteTurnaround: document.querySelector("#typicalQuoteTurnaround").value,
-        bidInputRequirements: document.querySelector("#bidInputRequirements").value,
-        pricingExclusions: document.querySelector("#pricingExclusions").value,
-        quoteConfidence: document.querySelector("#quoteConfidence").value,
-        workersCompStatus: document.querySelector("#workersCompStatus").value,
-        generalLiabilityStatus: document.querySelector("#generalLiabilityStatus").value,
-        dirRegistrationStatus: document.querySelector("#dirRegistrationStatus").value,
-        nextFollowUpAt: document.querySelector("#nextFollowUpAt").value,
-        recentProjects: document.querySelector("#recentProjects").value,
-        projectPhotos: document.querySelector("#projectPhotos").value,
-        lienHistoryNotes: document.querySelector("#lienHistoryNotes").value,
         licenseNumber: document.querySelector("#licenseNumber").value,
         licenseClass: document.querySelector("#licenseClass").value,
         licenseType: document.querySelector("#licenseClass").value,
+        bondedStatus: document.querySelector("#bondedStatus").value,
+        workersCompStatus: document.querySelector("#workersCompStatus").value,
+        generalLiabilityStatus: document.querySelector("#generalLiabilityStatus").value,
         licenseVerified: document.querySelector("#licenseVerified").checked,
         insuranceVerified: document.querySelector("#insuranceVerified").checked,
-        reviewRating: document.querySelector("#reviewRating").value,
-        reviewCount: document.querySelector("#reviewCount").value,
-        reviewSource: document.querySelector("#reviewSource").value,
-        sentiment: document.querySelector("#sentiment").value,
-        priceTier: document.querySelector("#priceTier").value,
+        additionalInsured: document.querySelector("#additionalInsured").checked,
+        insuranceExpiresAt: document.querySelector("#insuranceExpiresAt").value,
+        licenseExpiresAt: document.querySelector("#licenseExpiresAt").value,
         status: document.querySelector("#status").value,
+        chaseState: document.querySelector("#status").value,
         sourceUrls: document.querySelector("#sourceUrls").value,
         summary: document.querySelector("#summary").value,
         sourceNotes: document.querySelector("#sourceNotes").value,
-        sourcingMethod: document.querySelector("#sourceChannel").value || "manual",
-        agentStatus: "reviewed",
-        chaseState: document.querySelector("#status").value,
+        agentStatus: existing.agentStatus === "needs_review" ? "reviewed" : existing.agentStatus || "reviewed",
         lastResearchedAt: new Date().toISOString()
       });
     }
 
+    function fillForm(record = {}) {
+      const normalized = normalize(record);
+      document.querySelector("#formTitle").textContent = normalized.id && subcontractors.some((row) => row.id === normalized.id) ? "Edit subcontractor" : "Add subcontractor";
+      document.querySelector("#recordId").value = record.id || "";
+      document.querySelector("#companyName").value = normalized.companyName || "";
+      ensureOption(document.querySelector("#serviceCategory"), normalized.serviceCategory || services[0]);
+      document.querySelector("#status").value = normalized.status || "researching";
+      document.querySelector("#specialties").value = normalized.specialties.join(", ");
+      document.querySelector("#contactName").value = normalized.contactName || "";
+      document.querySelector("#phone").value = normalized.phone || "";
+      document.querySelector("#email").value = normalized.email || "";
+      document.querySelector("#website").value = normalized.website || "";
+      document.querySelector("#serviceArea").value = normalized.serviceArea || "Southern California";
+      ensureOption(document.querySelector("#sourceChannel"), normalized.sourceChannel || "manual");
+      document.querySelector("#licenseNumber").value = normalized.licenseNumber || "";
+      document.querySelector("#licenseClass").value = normalized.licenseClass || "";
+      ensureOption(document.querySelector("#bondedStatus"), normalized.bondedStatus || "unknown");
+      document.querySelector("#workersCompStatus").value = normalized.workersCompStatus || "";
+      document.querySelector("#generalLiabilityStatus").value = normalized.generalLiabilityStatus || "";
+      document.querySelector("#licenseVerified").checked = Boolean(normalized.licenseVerified);
+      document.querySelector("#insuranceVerified").checked = Boolean(normalized.insuranceVerified);
+      document.querySelector("#additionalInsured").checked = Boolean(normalized.additionalInsured);
+      document.querySelector("#insuranceExpiresAt").value = normalized.insuranceExpiresAt || "";
+      document.querySelector("#licenseExpiresAt").value = normalized.licenseExpiresAt || "";
+      document.querySelector("#sourceUrls").value = normalized.sourceUrls.join("\n");
+      document.querySelector("#summary").value = normalized.summary || "";
+      document.querySelector("#sourceNotes").value = normalized.sourceNotes || "";
+      document.querySelector("#editor").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function clearForm() {
+      els.form.reset();
+      document.querySelector("#formTitle").textContent = "Add subcontractor";
+      document.querySelector("#recordId").value = "";
+      document.querySelector("#serviceArea").value = "Southern California";
+      document.querySelector("#bondedStatus").value = "unknown";
+      document.querySelector("#sourceChannel").value = "manual";
+      document.querySelector("#status").value = "new";
+    }
+
+    async function upsert(record) {
+      if (apiAvailable) {
+        const saved = record.id && isMongoId(record.id)
+          ? await api(`/api/subcontractors/${record.id}`, { method: "PUT", body: JSON.stringify(record) })
+          : await api("/api/subcontractors", { method: "POST", body: JSON.stringify(record) });
+        const normalized = normalize(saved);
+        subcontractors = subcontractors.filter((row) => row.id !== record.id && row.id !== normalized.id).concat(normalized);
+      } else {
+        subcontractors = subcontractors.filter((row) => row.id !== record.id).concat(record);
+        saveLocal();
+      }
+      render();
+    }
+
+    async function remove(id) {
+      if (apiAvailable && isMongoId(id)) await api(`/api/subcontractors/${id}`, { method: "DELETE" });
+      subcontractors = subcontractors.filter((row) => row.id !== id);
+      saveLocal();
+      render();
+    }
+
     function agentPrompt() {
-      return `Act as Joon Development Group's subcontractor sourcing agent. Find ${els.agentService.value} subcontractors in ${els.agentMarket.value}. Prioritize sources in this order: supplier referrals, active job-site evidence, permit data, other subcontractor referrals, trade associations, and only then online platforms. For supplier referrals, look for or ask about net-30/good-standing account signals instead of cash-only operations. For active job sites, capture truck/sign/foreman evidence. For permit data, identify repeat permit pullers and higher-end project patterns across LADBS, Beverly Hills, Santa Monica, Pasadena, and Glendale. Save only source-backed details: company name, owner/estimator contact, phone, email, website, LinkedIn, specialties, service area, CSLB license, workers comp, insurance/COI status, source channel, supplier/referral/job-site/permit evidence, net-30 signal, field supervisor, recent projects, project photos, lien/dispute notes, pricing memory if sourced from a call or quote, minimum job size, unit-price notes, labor-rate hints, mobilization fee, quote turnaround, bid input requirements, typical exclusions, source URLs, and source notes. Do not invent people, phone numbers, emails, prices, license numbers, insurance, lien history, review scores, or project history. Mark uncertain records as needs_review.`;
+      return `Act as Joon Development Group's subcontractor sourcing agent. Find ${els.agentService.value} subcontractors in ${els.agentMarket.value}. Save only source-backed contractor records from company websites, LinkedIn company profiles, CSLB/license evidence, or another direct company-owned source. Do not save ads, job boards, Yelp/Angi/Houzz search pages, top-10 lists, directories, city permit portals, suppliers, unions, associations, vendor portals, or generic referral groups. Save only source-backed details: companyName, serviceCategory, specialties, serviceArea, contactName, phone, email, website, linkedIn, CSLB license number, license class, license source URL, workers comp status, general liability or COI status, insurance/COI expiration date, license expiration date, bonded status when a source explicitly supports it, sourceChannel, sourceUrls, sourceNotes, summary, reviewRating, reviewCount, and reviewSource. Do not invent people, phone numbers, emails, license numbers, bonded status, insurance, reviews, or project history. Mark uncertain records as needs_review.`;
+    }
+
+    async function runAgent() {
+      if (!apiAvailable) {
+        els.agentStatus.textContent = "MongoDB is not connected.";
+        els.agentStatus.className = "status-line bad";
+        return;
+      }
+      els.runAgent.disabled = true;
+      els.agentStatus.textContent = "Agent running...";
+      els.agentStatus.className = "status-line";
+      try {
+        const result = await api("/api/subcontractors/agent-search", {
+          method: "POST",
+          body: JSON.stringify({
+            serviceCategory: els.agentService.value,
+            market: els.agentMarket.value,
+            maxResults: els.agentMax.value,
+            sources: splitList(els.agentSources.value)
+          })
+        });
+        subcontractors = (await api("/api/subcontractors")).map(normalize);
+        render();
+        els.agentStatus.textContent = `Saved ${result.savedCount} verified candidate(s), skipped ${result.skippedCount || 0} non-contractors from ${result.runId}.`;
+        els.agentStatus.className = "status-line good";
+      } catch (error) {
+        els.agentStatus.textContent = error.message;
+        els.agentStatus.className = "status-line bad";
+      } finally {
+        els.runAgent.disabled = false;
+      }
+    }
+
+    async function findMissingLicenses() {
+      if (!apiAvailable) {
+        els.agentStatus.textContent = "MongoDB is not connected.";
+        els.agentStatus.className = "status-line bad";
+        return;
+      }
+      els.findMissingLicenses.disabled = true;
+      els.agentStatus.textContent = "Checking missing licenses...";
+      els.agentStatus.className = "status-line";
+      try {
+        const serviceCategory = els.serviceFilter.value === "All trades" ? "" : els.serviceFilter.value;
+        const result = await api("/api/subcontractors/license-search-missing", {
+          method: "POST",
+          body: JSON.stringify({ serviceCategory, limit: 10 })
+        });
+        subcontractors = (await api("/api/subcontractors")).map(normalize);
+        render();
+        els.agentStatus.textContent = `Checked ${result.checkedCount}, found ${result.foundCount}.`;
+        els.agentStatus.className = result.foundCount ? "status-line good" : "status-line warn";
+      } catch (error) {
+        els.agentStatus.textContent = error.message;
+        els.agentStatus.className = "status-line bad";
+      } finally {
+        els.findMissingLicenses.disabled = false;
+      }
+    }
+
+    async function buildChaseTask(id, mode) {
+      const record = subcontractors.find((row) => row.id === id);
+      if (!record) return;
+      document.querySelector("#outreach").open = true;
+      els.chaseOutput.value = "Building script...";
+      els.chaseStatus.textContent = "";
+      try {
+        const result = await api(`/api/subcontractors/${id}/chase-task`, {
+          method: "POST",
+          body: JSON.stringify({ mode })
+        });
+        els.chaseOutput.value = [
+          result.subject ? `SUBJECT: ${result.subject}` : "",
+          mode !== "phone" ? `EMAIL\n${result.emailBody}` : "",
+          mode !== "email" ? `PHONE SCRIPT\n${result.phoneScript}` : "",
+          result.followUpPlan ? `FOLLOW-UP\n${result.followUpPlan}` : ""
+        ].filter(Boolean).join("\n\n");
+        els.chaseStatus.textContent = `Ready for ${record.companyName || "selected subcontractor"}.`;
+        els.chaseStatus.className = "status-line good";
+        document.querySelector("#outreach").scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (error) {
+        els.chaseOutput.value = "";
+        els.chaseStatus.textContent = error.message;
+        els.chaseStatus.className = "status-line bad";
+      }
     }
 
     function parseCsv(text) {
@@ -1414,174 +1862,9 @@
       row.push(value);
       if (row.some((cell) => clean(cell))) rows.push(row);
       const headers = (rows.shift() || []).map((header) => clean(header));
-      return rows.map((cells) => Object.fromEntries(headers.map((header, index) => [header, clean(cells[index])]))).filter((record) => record.companyName || record.website || record.phone || record.email);
-    }
-
-    async function runAgent() {
-      if (!apiAvailable) {
-        els.agentStatus.textContent = "Start the local server with npm start so the agent can write to MongoDB.";
-        return;
-      }
-      els.runAgent.disabled = true;
-      els.agentStatus.textContent = "Agent is searching public sources and writing candidates to MongoDB...";
-      try {
-        const result = await api("/api/subcontractors/agent-search", {
-          method: "POST",
-          body: JSON.stringify({
-            serviceCategory: els.agentService.value,
-            market: els.agentMarket.value,
-            maxResults: els.agentMax.value,
-            sources: splitList(els.agentSources.value)
-          })
-        });
-        subcontractors = (await api("/api/subcontractors")).map(normalize);
-        els.agentStatus.textContent = `Saved ${result.savedCount} candidate(s) from run ${result.runId}. Review source notes before calling or bidding.`;
-        render();
-      } catch (error) {
-        els.agentStatus.textContent = error.message;
-      } finally {
-        els.runAgent.disabled = false;
-      }
-    }
-
-    async function findMissingLicenses() {
-      if (!apiAvailable) {
-        els.agentStatus.textContent = "Start the local server with npm start so license searches can write to MongoDB.";
-        return;
-      }
-      els.findMissingLicenses.disabled = true;
-      els.agentStatus.textContent = "Searching for missing license numbers on the highest-fit records...";
-      try {
-        const serviceCategory = els.serviceFilter.value === "All services" ? "" : els.serviceFilter.value;
-        const result = await api("/api/subcontractors/license-search-missing", {
-          method: "POST",
-          body: JSON.stringify({ serviceCategory, limit: 10 })
-        });
-        subcontractors = (await api("/api/subcontractors")).map(normalize);
-        render();
-        els.agentStatus.textContent = `Checked ${result.checkedCount} record(s), found ${result.foundCount} license number(s).`;
-      } catch (error) {
-        els.agentStatus.textContent = error.message;
-      } finally {
-        els.findMissingLicenses.disabled = false;
-      }
-    }
-
-    async function buildChaseTask(id, mode) {
-      const record = subcontractors.find((row) => row.id === id);
-      els.activitySubId.value = id;
-      els.activityContact.value = record?.contactName || "";
-      els.chaseOutput.value = "Building outreach task...";
-      try {
-        const result = await api(`/api/subcontractors/${id}/chase-task`, {
-          method: "POST",
-          body: JSON.stringify({ mode })
-        });
-        els.chaseOutput.value = [
-          result.subject ? `SUBJECT: ${result.subject}` : "",
-          mode !== "phone" ? `EMAIL\n${result.emailBody}` : "",
-          mode !== "email" ? `PHONE SCRIPT\n${result.phoneScript}` : "",
-          result.followUpPlan ? `FOLLOW-UP\n${result.followUpPlan}` : ""
-        ].filter(Boolean).join("\n\n");
-        els.chaseStatus.textContent = `Task ready for ${record?.companyName || "selected subcontractor"}.`;
-        showView("chase");
-      } catch (error) {
-        els.chaseOutput.value = "";
-        els.chaseStatus.textContent = error.message;
-      }
-    }
-
-    function prepActivity(id) {
-      const record = subcontractors.find((row) => row.id === id);
-      els.activitySubId.value = id;
-      els.activityContact.value = record?.contactName || "";
-      els.activityNotes.value = "";
-      els.chaseStatus.textContent = `Ready to log activity for ${record?.companyName || "selected subcontractor"}.`;
-      showView("chase");
-    }
-
-    function fillForm(record) {
-      document.querySelector("#formTitle").textContent = record.id ? "Edit subcontractor" : "Add subcontractor";
-      document.querySelector("#recordId").value = record.id || "";
-      document.querySelector("#companyName").value = record.companyName || "";
-      document.querySelector("#contactName").value = record.contactName || "";
-      document.querySelector("#phone").value = record.phone || "";
-      document.querySelector("#email").value = record.email || "";
-      document.querySelector("#website").value = record.website || "";
-      document.querySelector("#linkedIn").value = record.linkedIn || "";
-      document.querySelector("#serviceCategory").value = record.serviceCategory || services[0];
-      document.querySelector("#specialties").value = splitList(record.specialties).join(", ");
-      document.querySelector("#serviceArea").value = record.serviceArea || "Southern California";
-      document.querySelector("#sourceChannel").value = record.sourceChannel || "manual";
-      document.querySelector("#referralSource").value = record.referralSource || "";
-      document.querySelector("#supplierName").value = record.supplierName || "";
-      document.querySelector("#jobSiteAddress").value = record.jobSiteAddress || "";
-      document.querySelector("#permitJurisdiction").value = record.permitJurisdiction || "";
-      document.querySelector("#permitReference").value = record.permitReference || "";
-      document.querySelector("#crewSize").value = record.crewSize || "";
-      document.querySelector("#fieldSupervisor").value = record.fieldSupervisor || "";
-      document.querySelector("#net30Status").value = record.net30Status || "unknown";
-      document.querySelector("#unionStatus").value = record.unionStatus || "unknown";
-      document.querySelector("#minimumJobSize").value = record.minimumJobSize || "";
-      document.querySelector("#unitPriceNotes").value = record.unitPriceNotes || "";
-      document.querySelector("#laborRateHints").value = record.laborRateHints || "";
-      document.querySelector("#mobilizationFee").value = record.mobilizationFee || "";
-      document.querySelector("#typicalQuoteTurnaround").value = record.typicalQuoteTurnaround || "";
-      document.querySelector("#bidInputRequirements").value = record.bidInputRequirements || "";
-      document.querySelector("#pricingExclusions").value = record.pricingExclusions || "";
-      document.querySelector("#quoteConfidence").value = record.quoteConfidence || "unknown";
-      document.querySelector("#workersCompStatus").value = record.workersCompStatus || "";
-      document.querySelector("#generalLiabilityStatus").value = record.generalLiabilityStatus || "";
-      document.querySelector("#dirRegistrationStatus").value = record.dirRegistrationStatus || "";
-      document.querySelector("#nextFollowUpAt").value = record.nextFollowUpAt || "";
-      document.querySelector("#recentProjects").value = record.recentProjects || "";
-      document.querySelector("#projectPhotos").value = splitList(record.projectPhotos).join("\n");
-      document.querySelector("#lienHistoryNotes").value = record.lienHistoryNotes || "";
-      document.querySelector("#licenseNumber").value = record.licenseNumber || "";
-      document.querySelector("#licenseClass").value = record.licenseClass || "";
-      document.querySelector("#licenseVerified").checked = Boolean(record.licenseVerified);
-      document.querySelector("#insuranceVerified").checked = Boolean(record.insuranceVerified);
-      document.querySelector("#reviewRating").value = record.reviewRating || "";
-      document.querySelector("#reviewCount").value = record.reviewCount || "";
-      document.querySelector("#reviewSource").value = record.reviewSource || "";
-      document.querySelector("#sentiment").value = record.sentiment || "unknown";
-      document.querySelector("#priceTier").value = record.priceTier || "unknown";
-      document.querySelector("#status").value = record.status || "researching";
-      document.querySelector("#sourceUrls").value = splitList(record.sourceUrls).join("\n");
-      document.querySelector("#summary").value = record.summary || "";
-      document.querySelector("#sourceNotes").value = record.sourceNotes || "";
-      showView("add");
-    }
-
-    function clearForm() {
-      els.form.reset();
-      document.querySelector("#recordId").value = "";
-      document.querySelector("#formTitle").textContent = "Add subcontractor";
-      document.querySelector("#serviceArea").value = "Southern California";
-      document.querySelector("#net30Status").value = "unknown";
-    }
-
-    async function upsert(record) {
-      if (apiAvailable) {
-        const saved = record.id && !record.id.includes("-")
-          ? await api(`/api/subcontractors/${record.id}`, { method: "PUT", body: JSON.stringify(record) })
-          : await api("/api/subcontractors", { method: "POST", body: JSON.stringify(record) });
-        const normalized = normalize(saved);
-        subcontractors = subcontractors.filter((row) => row.id !== record.id && row.id !== normalized.id).concat(normalized);
-      } else {
-        subcontractors = subcontractors.filter((row) => row.id !== record.id).concat(record);
-        saveLocal();
-      }
-      render();
-    }
-
-    async function remove(id) {
-      if (apiAvailable && !id.includes("-")) {
-        await api(`/api/subcontractors/${id}`, { method: "DELETE" });
-      }
-      subcontractors = subcontractors.filter((row) => row.id !== id);
-      saveLocal();
-      render();
+      return rows
+        .map((cells) => Object.fromEntries(headers.map((header, index) => [header, clean(cells[index])])))
+        .filter((record) => record.companyName || record.website || record.phone || record.email);
     }
 
     els.form.addEventListener("submit", async (event) => {
@@ -1589,97 +1872,105 @@
       const record = recordFromForm();
       await upsert(record);
       clearForm();
+      toast(`Saved ${record.companyName || "record"}.`, "good");
     });
 
     document.querySelector("#resetForm").addEventListener("click", clearForm);
+    document.querySelector("#newRecordTop").addEventListener("click", () => {
+      clearForm();
+      document.querySelector("#editor").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
     els.runAgent.addEventListener("click", runAgent);
     els.findMissingLicenses.addEventListener("click", findMissingLicenses);
-    els.viewTabs.addEventListener("click", (event) => {
-      const button = event.target.closest("[data-view-target]");
-      if (!button) return;
-      showView(button.dataset.viewTarget);
-    });
     document.querySelector("#copyAgentPrompt").addEventListener("click", async () => {
       await navigator.clipboard.writeText(agentPrompt());
-      els.agentStatus.textContent = "Agent prompt copied.";
+      els.agentStatus.textContent = "Prompt copied.";
+      els.agentStatus.className = "status-line good";
+      toast("Agent prompt copied.", "good");
     });
-    els.searchInput.addEventListener("input", render);
-    els.serviceFilter.addEventListener("change", render);
-    els.sortBy.addEventListener("change", render);
+    els.searchInput.addEventListener("input", renderRows);
+    els.serviceFilter.addEventListener("change", () => { renderServiceCounts(); renderRows(); });
+    els.statusFilter.addEventListener("change", renderRows);
+    els.verificationFilter.addEventListener("change", () => { renderRows(); renderMetrics(); });
+    els.sortBy.addEventListener("change", renderRows);
     els.researchService.addEventListener("change", renderSourceLinks);
-    els.serviceChips.addEventListener("click", (event) => {
-      const button = event.target.closest("button[data-service]");
-      if (!button) return;
-      els.researchService.value = button.dataset.service;
-      renderSourceLinks();
+    els.serviceCounts.addEventListener("click", (event) => {
+      const chip = event.target.closest("[data-service]");
+      if (!chip) return;
+      els.serviceFilter.value = chip.dataset.service;
+      renderServiceCounts();
+      renderRows();
+    });
+
+    // Metric cards double as one-click filters (keyboard accessible).
+    function applyMetricFilter(filter) {
+      els.verificationFilter.value = filter;
+      renderRows();
+      renderMetrics();
+      document.querySelector("#roster").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    const metricsBar = document.querySelector(".metrics");
+    metricsBar.addEventListener("click", (event) => {
+      const card = event.target.closest(".metric[data-filter]");
+      if (card) applyMetricFilter(card.dataset.filter);
+    });
+    metricsBar.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      const card = event.target.closest(".metric[data-filter]");
+      if (!card) return;
+      event.preventDefault();
+      applyMetricFilter(card.dataset.filter);
     });
 
     els.subList.addEventListener("click", async (event) => {
-      const editId = event.target.dataset.edit;
-      const deleteId = event.target.dataset.delete;
-      const licenseId = event.target.dataset.license;
-      const chaseEmailId = event.target.dataset.chaseEmail;
-      const chasePhoneId = event.target.dataset.chasePhone;
-      const logId = event.target.dataset.log;
+      const button = event.target.closest("button");
+      if (!button) return;
+      const editId = button.dataset.edit;
+      const deleteId = button.dataset.delete;
+      const licenseId = button.dataset.license;
+      const chaseEmailId = button.dataset.chaseEmail;
+      const chasePhoneId = button.dataset.chasePhone;
+      const emptyAction = button.dataset.emptyAction;
+      if (emptyAction === "clear") { resetFilters(); return; }
+      if (emptyAction === "seed") { document.querySelector("#seedExamples").click(); return; }
+      if (emptyAction === "add") { clearForm(); document.querySelector("#editor").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+      if (editId) fillForm(subcontractors.find((row) => row.id === editId));
+      if (deleteId && confirm("Delete this subcontractor record?")) { await remove(deleteId); toast("Record deleted.", "good"); }
       if (chaseEmailId) await buildChaseTask(chaseEmailId, "email");
       if (chasePhoneId) await buildChaseTask(chasePhoneId, "phone");
-      if (logId) prepActivity(logId);
       if (licenseId) {
-        event.target.disabled = true;
-        event.target.textContent = "Searching...";
+        if (!apiAvailable) {
+          els.agentStatus.textContent = "MongoDB is not connected.";
+          els.agentStatus.className = "status-line bad";
+          return;
+        }
+        button.disabled = true;
+        button.textContent = "Searching...";
         try {
           const result = await api(`/api/subcontractors/${licenseId}/license-search`, { method: "POST", body: JSON.stringify({}) });
           subcontractors = (await api("/api/subcontractors")).map(normalize);
           render();
-          els.agentStatus.textContent = result.found
-            ? `Found license ${result.licenseNumber} for ${result.companyName}.`
-            : `No specific license found for ${result.companyName}.`;
+          els.agentStatus.textContent = result.found ? `Found license ${result.licenseNumber} for ${result.companyName}.` : `No license found for ${result.companyName}.`;
+          els.agentStatus.className = result.found ? "status-line good" : "status-line warn";
         } catch (error) {
           els.agentStatus.textContent = error.message;
-          event.target.disabled = false;
-          event.target.textContent = "Find License";
+          els.agentStatus.className = "status-line bad";
+          button.disabled = false;
+          button.textContent = "Find License";
         }
-      }
-      if (editId) fillForm(subcontractors.find((row) => row.id === editId));
-      if (deleteId && confirm("Delete this subcontractor record?")) await remove(deleteId);
-    });
-
-    els.activityForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const id = els.activitySubId.value;
-      if (!id) {
-        els.chaseStatus.textContent = "Select a subcontractor with Log Call, Email Task, or Phone Script first.";
-        return;
-      }
-      try {
-        await api(`/api/subcontractors/${id}/activities`, {
-          method: "POST",
-          body: JSON.stringify({
-            type: els.activityType.value,
-            contactName: els.activityContact.value,
-            outcome: els.activityOutcome.value,
-            notes: els.activityNotes.value,
-            nextFollowUpAt: els.activityFollowUp.value
-          })
-        });
-        subcontractors = (await api("/api/subcontractors")).map(normalize);
-        render();
-        els.chaseStatus.textContent = "Activity logged and follow-up state updated.";
-        els.activityNotes.value = "";
-      } catch (error) {
-        els.chaseStatus.textContent = error.message;
       }
     });
 
     document.querySelector("#copyChaseOutput").addEventListener("click", async () => {
       await navigator.clipboard.writeText(els.chaseOutput.value);
       els.chaseStatus.textContent = "Script copied.";
+      els.chaseStatus.className = "status-line good";
+      toast("Outreach script copied.", "good");
     });
 
     document.querySelector("#seedExamples").addEventListener("click", async () => {
-      for (const example of starterExamples) {
-        await upsert(normalize(example));
-      }
+      for (const example of starterExamples) await upsert(normalize(example));
+      toast("Added starter examples.", "good");
     });
 
     document.querySelector("#exportJson").addEventListener("click", () => {
@@ -1690,60 +1981,67 @@
       link.download = `joon-subcontractors-${new Date().toISOString().slice(0, 10)}.json`;
       link.click();
       URL.revokeObjectURL(url);
+      toast(`Exported ${subcontractors.length} record(s).`, "good");
     });
 
     els.importButton.addEventListener("click", async () => {
       const url = clean(els.importUrl.value);
       if (!url) return;
-      els.importStatus.textContent = "Importing public page...";
+      els.importStatus.textContent = "Importing...";
+      els.importStatus.className = "status-line";
       try {
         const imported = await api("/api/subcontractors/research-url", { method: "POST", body: JSON.stringify({ url }) });
         fillForm(normalize({
           ...imported,
           serviceCategory: els.researchService.value,
-          reviewSource: new URL(url).hostname,
+          reviewSource: displayDomain(url),
+          sourceUrls: [url, ...(imported.sourceUrls || [])],
           status: "researching"
         }));
-        els.importStatus.textContent = "Imported what the page exposed. Review and save if source notes look credible.";
+        els.importStatus.textContent = "Imported into the editor.";
+        els.importStatus.className = "status-line good";
       } catch (error) {
-        els.importStatus.textContent = `${error.message}. Add the source manually if the site blocks automated fetches.`;
+        els.importStatus.textContent = error.message;
+        els.importStatus.className = "status-line bad";
       }
     });
 
     els.importCsv.addEventListener("click", async () => {
       const records = parseCsv(els.csvInput.value).map((record) => normalize({
         ...record,
-        specialties: record.specialties,
-        sourceUrls: record.sourceUrls,
         sourceNotes: record.sourceNotes || "Imported from CSV. Verify before use.",
         sourcingMethod: "csv",
+        sourceChannel: record.sourceChannel || "csv",
         sourceConfidence: "low",
         agentStatus: "needs_review",
         status: record.status || "researching"
       }));
       if (!records.length) {
         els.csvStatus.textContent = "No CSV records found.";
+        els.csvStatus.className = "status-line warn";
         return;
       }
       try {
         if (apiAvailable) {
           const result = await api("/api/subcontractors/bulk", { method: "POST", body: JSON.stringify({ records }) });
           subcontractors = (await api("/api/subcontractors")).map(normalize);
-          els.csvStatus.textContent = `Imported ${result.savedCount} CSV record(s) into MongoDB.`;
+          els.csvStatus.textContent = `Imported ${result.savedCount} record(s).`;
         } else {
           subcontractors = subcontractors.concat(records);
           saveLocal();
-          els.csvStatus.textContent = `Imported ${records.length} CSV record(s) into browser storage.`;
+          els.csvStatus.textContent = `Imported ${records.length} record(s).`;
         }
+        els.csvStatus.className = "status-line good";
         render();
       } catch (error) {
         els.csvStatus.textContent = error.message;
+        els.csvStatus.className = "status-line bad";
       }
     });
 
     populateSelects();
     renderSourceLinks();
-    showView("roster");
+    clearForm();
     load();
   </script>
 </body>

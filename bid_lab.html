@@ -13,8 +13,11 @@
     }
     body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--mist); color: var(--ink); line-height: 1.55; }
     a { color: inherit; text-decoration: none; }
-    .topbar { background: #111827; color: rgba(255,255,255,0.82); display: flex; justify-content: space-between; gap: 1rem; padding: 0.55rem 5vw; font-size: 0.82rem; }
+    .topbar { background: #111827; color: rgba(255,255,255,0.82); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: 0.55rem 5vw; font-size: 0.82rem; }
     .topbar strong { color: var(--white); }
+    .workspace-switcher { display: flex; align-items: center; justify-content: flex-end; gap: 0.35rem; flex-wrap: wrap; }
+    .workspace-switcher a { min-height: 28px; border-radius: 6px; padding: 0.18rem 0.52rem; color: rgba(255,255,255,0.72); font-weight: 850; }
+    .workspace-switcher a:hover, .workspace-switcher a.active { color: var(--white); background: rgba(255,255,255,0.12); }
     nav { position: sticky; top: 0; z-index: 20; min-height: 72px; padding: 0 5vw; background: rgba(255,255,255,0.94); border-bottom: 1px solid rgba(221,227,234,0.86); backdrop-filter: blur(18px); display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
     .brand { display: grid; gap: 0.05rem; line-height: 1.1; }
     .brand span:first-child { font-size: 1rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
@@ -22,32 +25,46 @@
     nav ul { list-style: none; display: flex; align-items: center; gap: 1rem; color: var(--steel); font-size: 0.84rem; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase; }
     nav li a:hover, nav li a.active { color: var(--clay); }
     main { padding: 0 5vw 4rem; }
-    .hero { padding: 4rem 0 2rem; display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(320px, 0.52fr); gap: 2rem; align-items: end; }
+    .hero { padding: 2rem 0 1rem; display: grid; grid-template-columns: minmax(0, 0.82fr) minmax(300px, 0.48fr); gap: 1.25rem; align-items: center; }
+    .hero-copy { max-width: 820px; }
     .eyebrow { color: var(--clay); font-size: 0.78rem; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; }
-    h1 { margin-top: 0.45rem; font-size: clamp(2.35rem, 6vw, 5.1rem); line-height: 0.96; letter-spacing: 0; max-width: 960px; }
+    h1 { margin-top: 0.35rem; font-size: clamp(2.2rem, 4vw, 3.7rem); line-height: 1.02; letter-spacing: 0; max-width: 960px; }
     h2 { font-size: 1.25rem; line-height: 1.2; margin-bottom: 0.35rem; }
     h3 { font-size: 1.05rem; line-height: 1.2; }
     .muted, .hero p, .panel > p { color: var(--muted); }
+    .hero p { max-width: 680px; margin-top: 0.55rem; }
     .metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
     .metric, .panel, .project-card, .script-card { border: 1px solid var(--line); border-radius: 8px; background: var(--white); box-shadow: 0 8px 28px rgba(23,32,51,0.05); }
-    .metric { padding: 0.9rem; }
-    .metric strong { display: block; font-size: 1.65rem; line-height: 1; }
+    .metric { padding: 0.85rem; }
+    .metric strong { display: block; font-size: 1.45rem; line-height: 1; }
     .metric span { color: var(--muted); font-size: 0.74rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
     .tabs, .actions, .meta, .source-links { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
-    .tabs { margin-bottom: 1rem; }
+    .tabs { margin-bottom: 0.85rem; }
     .tabs a { min-height: 42px; border-radius: 6px; border: 1px solid var(--line); background: var(--white); padding: 0 0.9rem; display: inline-flex; align-items: center; font-weight: 900; }
     .tabs a.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
-    .layout { display: grid; grid-template-columns: minmax(340px, 0.42fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+    .layout { display: grid; grid-template-columns: minmax(380px, 0.46fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
     .panel, .project-card, .script-card { padding: 1rem; }
+    .intake-panel { border-top: 4px solid var(--clay); }
+    .form-section { border-top: 1px solid var(--line); margin-top: 0.95rem; padding-top: 0.95rem; }
+    .section-title { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.65rem; color: var(--ink); font-weight: 900; }
+    .section-title span { width: 24px; height: 24px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; background: var(--ink); color: var(--white); font-size: 0.78rem; }
+    .field-hint { margin-top: 0.3rem; color: var(--muted); font-size: 0.78rem; }
     .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
     .full { grid-column: 1 / -1; }
     label { display: block; color: var(--steel); font-size: 0.76rem; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.3rem; }
     input, select, textarea { width: 100%; border: 1px solid var(--line); border-radius: 6px; min-height: 44px; padding: 0.72rem 0.82rem; background: var(--white); color: var(--ink); font: inherit; }
-    textarea { min-height: 104px; resize: vertical; }
+    input:focus, select:focus, textarea:focus { outline: 3px solid rgba(184,92,56,0.18); border-color: var(--clay); }
+    textarea { min-height: 90px; resize: vertical; }
     button, .button { min-height: 42px; border: 0; border-radius: 6px; background: var(--ink); color: var(--white); font: inherit; font-weight: 900; padding: 0 0.95rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
     button:hover, .button:hover { background: var(--clay); }
     button.secondary, .button.secondary { background: var(--white); color: var(--ink); border: 1px solid var(--line); }
     button.secondary:hover, .button.secondary:hover { border-color: var(--clay); color: var(--clay); }
+    button.primary { min-width: 148px; }
+    .advanced-fields { border: 1px solid var(--line); border-radius: 8px; margin-top: 0.95rem; background: #fbfcfd; }
+    .advanced-fields summary { min-height: 46px; padding: 0 0.9rem; display: flex; align-items: center; cursor: pointer; color: var(--ink); font-weight: 900; }
+    .advanced-fields .grid { padding: 0 0.9rem 0.9rem; }
+    .form-status { min-height: 22px; color: var(--green); font-size: 0.85rem; font-weight: 800; }
+    .empty-state { color: var(--muted); }
     .project-list { display: grid; gap: 0.75rem; }
     .project-card header { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; align-items: start; }
     .badge { display: inline-flex; align-items: center; min-height: 26px; border-radius: 999px; padding: 0 0.65rem; font-size: 0.74rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; background: var(--mist); color: var(--steel); }
@@ -70,24 +87,28 @@
 <body>
   <div class="topbar">
     <div><strong>Internal bidding lab</strong></div>
-    <div><a href="lead_generation.html">Lead Gen</a> &nbsp; | &nbsp; <a href="subcontractor_finder.html">Sub Finder</a> &nbsp; | &nbsp; <a href="http://localhost:4173/">Public site</a></div>
+    <div class="workspace-switcher" role="navigation" aria-label="Workspace switcher">
+      <a href="subcontractor_finder.html">Subcontractors</a>
+      <a href="lead_generation.html">Lead Gen</a>
+      <a class="active" href="bid_lab.html">Bid Lab</a>
+      <a href="http://localhost:4173/">Public Site</a>
+    </div>
   </div>
   <nav>
     <a class="brand" href="http://localhost:4173/"><span>Joon Development Group</span><span>Bid Lab</span></a>
     <ul>
-      <li><a href="subcontractor_finder.html">Sub Finder</a></li>
-      <li><a href="lead_generation.html">Lead Gen</a></li>
-      <li><a class="active" href="bid_lab.html">Bid Lab</a></li>
+      <li><a href="#intake">Intake</a></li>
+      <li><a href="#projects">Projects</a></li>
       <li><a href="#script">Scripts</a></li>
     </ul>
   </nav>
 
   <main>
     <section class="hero">
-      <div>
+      <div class="hero-copy">
         <div class="eyebrow">Budget range first, fixed bid second</div>
-        <h1>Turn every walkthrough into pricing memory.</h1>
-        <p>The Bid Lab keeps you honest while you learn the trades: capture the walkthrough, draft scope, request sub validation, compare quote spread, and only mark fixed-bid ready when the missing pieces are gone.</p>
+        <h1>Bid tracker</h1>
+        <p>Save the lead, project, rough range, and next action first. Add scope and validation detail only when the job is worth tightening.</p>
       </div>
       <aside class="metrics">
         <div class="metric"><strong id="projectCount">0</strong><span>Bid projects</span></div>
@@ -104,51 +125,77 @@
     </div>
 
     <section class="layout">
-      <aside class="panel">
-        <h2>Project Intake</h2>
-        <p>Capture the first walkthrough and planning range. Unknown is better than guessed.</p>
+      <aside id="intake" class="panel intake-panel">
+        <h2>New bid</h2>
+        <p>Start rough. Unknown is better than guessed.</p>
         <form id="projectForm">
           <input type="hidden" id="projectId" />
-          <div class="grid">
-            <div><label for="customerName">Customer / Lead</label><input id="customerName" required /></div>
-            <div><label for="projectType">Project Type</label><select id="projectType"></select></div>
-            <div><label for="city">City</label><input id="city" value="Los Angeles" /></div>
-            <div><label for="neighborhood">Neighborhood</label><input id="neighborhood" /></div>
-            <div><label for="propertyType">Property Type</label><input id="propertyType" placeholder="SFR, duplex, condo..." /></div>
-            <div><label for="clientBudget">Client Budget</label><input id="clientBudget" placeholder="$40k-$60k, unknown..." /></div>
-            <div><label for="status">Status</label><select id="status"><option>intake</option><option>walkthrough_scheduled</option><option>range_sent</option><option>design_scope</option><option>sub_validation</option><option>proposal_ready</option><option>proposal_sent</option><option>won</option><option>lost</option><option>no_bid</option></select></div>
-            <div><label for="designerStatus">Designer</label><select id="designerStatus"><option>not_needed_yet</option><option>needed</option><option>requested</option><option>scheduled</option><option>concept_received</option><option>not_available</option></select></div>
-            <div><label for="designerName">Designer Name</label><input id="designerName" /></div>
-            <div><label for="designPackageFee">Design Package Fee</label><input id="designPackageFee" type="number" min="0" step="100" /></div>
-            <div><label for="budgetLow">Budget Low</label><input id="budgetLow" type="number" min="0" step="500" /></div>
-            <div><label for="budgetHigh">Budget High</label><input id="budgetHigh" type="number" min="0" step="500" /></div>
-            <div><label for="internalEstimatedCost">Internal Est. Cost</label><input id="internalEstimatedCost" type="number" min="0" step="500" /></div>
-            <div><label for="finalProposalAmount">Final Proposal</label><input id="finalProposalAmount" type="number" min="0" step="500" /></div>
-            <div><label for="contingencyPercent">Contingency %</label><input id="contingencyPercent" type="number" min="0" max="60" step="1" value="12" /></div>
-            <div><label for="markupPercent">Markup %</label><input id="markupPercent" type="number" min="0" max="100" step="1" value="25" /></div>
-            <div class="full"><label for="mustHaves">Must-Haves</label><textarea id="mustHaves"></textarea></div>
-            <div class="full"><label for="photosNotes">Photos / Walkthrough Notes</label><textarea id="photosNotes" placeholder="Measurements, site access, visible conditions, photos taken, client comments."></textarea></div>
-            <div class="full"><label for="unknowns">Unknowns / Risk Flags</label><textarea id="unknowns" placeholder="Drainage, electrical, plumbing, structural, access, demolition, permits, selections."></textarea></div>
-            <div class="full"><label for="scopeDraft">Scope Draft</label><textarea id="scopeDraft" placeholder="Use Generate Scope Draft, then edit manually."></textarea></div>
-            <div class="full"><label for="budgetRangeNotes">Budget Range Notes</label><textarea id="budgetRangeNotes" placeholder="Why low/high ranges differ. Include assumptions and exclusions."></textarea></div>
-            <div><label for="nextActionDate">Next Action Date</label><input id="nextActionDate" type="date" /></div>
-            <div><label for="nextAction">Next Action</label><input id="nextAction" placeholder="Send range, call designer, request sub quotes..." /></div>
-            <div class="full actions">
-              <button type="submit">Save Bid Project</button>
-              <button id="generateScope" class="secondary" type="button">Generate Scope Draft</button>
-              <button id="clearForm" class="secondary" type="button">Clear</button>
+          <div class="form-section" style="border-top:0;margin-top:0.75rem;padding-top:0;">
+            <div class="section-title"><span>1</span><strong>Lead and job</strong></div>
+            <div class="grid">
+              <div class="full"><label for="customerName">Customer / Lead</label><input id="customerName" required placeholder="Name or address" /></div>
+              <div><label for="projectType">Project Type</label><select id="projectType"></select></div>
+              <div><label for="propertyType">Property Type</label><input id="propertyType" placeholder="SFR, duplex, condo..." /></div>
+              <div><label for="city">City</label><input id="city" value="Los Angeles" /></div>
+              <div><label for="neighborhood">Neighborhood</label><input id="neighborhood" /></div>
+              <div class="full"><label for="clientBudget">Client Budget</label><input id="clientBudget" placeholder="$40k-$60k, unknown..." /></div>
             </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-title"><span>2</span><strong>Range and next step</strong></div>
+            <div class="grid">
+              <div><label for="budgetLow">Range Low</label><input id="budgetLow" type="number" min="0" step="500" placeholder="35000" /></div>
+              <div><label for="budgetHigh">Range High</label><input id="budgetHigh" type="number" min="0" step="500" placeholder="50000" /></div>
+              <div><label for="status">Status</label><select id="status"><option value="intake">Intake</option><option value="walkthrough_scheduled">Walkthrough scheduled</option><option value="range_sent">Range sent</option><option value="design_scope">Design / scope</option><option value="sub_validation">Sub validation</option><option value="proposal_ready">Proposal ready</option><option value="proposal_sent">Proposal sent</option><option value="won">Won</option><option value="lost">Lost</option><option value="no_bid">No bid</option></select></div>
+              <div><label for="nextActionDate">Next Action Date</label><input id="nextActionDate" type="date" /></div>
+              <div class="full"><label for="nextAction">Next Action</label><input id="nextAction" placeholder="Send range, call designer, request sub quotes..." /></div>
+            </div>
+            <div class="field-hint">A loose range is fine. The tracker will keep fixed-bid readiness separate.</div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-title"><span>3</span><strong>Key notes</strong></div>
+            <div class="grid">
+              <div class="full"><label for="mustHaves">Must-Haves</label><textarea id="mustHaves"></textarea></div>
+              <div class="full"><label for="unknowns">Unknowns / Risk Flags</label><textarea id="unknowns" placeholder="Drainage, electrical, plumbing, structural, access, demolition, permits, selections."></textarea></div>
+            </div>
+          </div>
+
+          <details class="advanced-fields">
+            <summary>Advanced pricing, design, and scope details</summary>
+            <div class="grid">
+              <div><label for="designerStatus">Designer</label><select id="designerStatus"><option value="not_needed_yet">Not needed yet</option><option value="needed">Needed</option><option value="requested">Requested</option><option value="scheduled">Scheduled</option><option value="concept_received">Concept received</option><option value="not_available">Not available</option></select></div>
+              <div><label for="designerName">Designer Name</label><input id="designerName" /></div>
+              <div><label for="designPackageFee">Design Package Fee</label><input id="designPackageFee" type="number" min="0" step="100" /></div>
+              <div><label for="internalEstimatedCost">Internal Est. Cost</label><input id="internalEstimatedCost" type="number" min="0" step="500" /></div>
+              <div><label for="finalProposalAmount">Final Proposal</label><input id="finalProposalAmount" type="number" min="0" step="500" /></div>
+              <div><label for="contingencyPercent">Contingency %</label><input id="contingencyPercent" type="number" min="0" max="60" step="1" value="12" /></div>
+              <div><label for="markupPercent">Markup %</label><input id="markupPercent" type="number" min="0" max="100" step="1" value="25" /></div>
+              <div class="full"><label for="photosNotes">Photos / Walkthrough Notes</label><textarea id="photosNotes" placeholder="Measurements, site access, visible conditions, photos taken, client comments."></textarea></div>
+              <div class="full"><label for="scopeDraft">Scope Draft</label><textarea id="scopeDraft" placeholder="Use Generate Scope Draft, then edit manually."></textarea></div>
+              <div class="full"><label for="budgetRangeNotes">Budget Range Notes</label><textarea id="budgetRangeNotes" placeholder="Why low/high ranges differ. Include assumptions and exclusions."></textarea></div>
+            </div>
+          </details>
+
+          <div class="form-section">
+            <div class="full actions">
+              <button id="saveButton" class="primary" type="submit">Save bid</button>
+              <button id="generateScope" class="secondary" type="button">Generate Scope Draft</button>
+              <button id="clearForm" class="secondary" type="button">New blank bid</button>
+            </div>
+            <div id="formStatus" class="form-status" aria-live="polite"></div>
           </div>
         </form>
       </aside>
 
-      <section>
+      <section id="projects">
         <div class="panel">
-          <h2>Bid Projects</h2>
-          <p>Use this as the quote discipline board: range first, validation second, fixed proposal last.</p>
+          <h2>Saved bids</h2>
+          <p>Range first, validation second, fixed proposal last.</p>
           <div class="actions" style="margin-top:0.75rem;">
-            <input id="searchInput" placeholder="Search projects, city, trade, notes..." />
-            <select id="statusFilter"><option>All statuses</option><option>intake</option><option>range_sent</option><option>design_scope</option><option>sub_validation</option><option>proposal_ready</option><option>proposal_sent</option><option>won</option><option>lost</option><option>no_bid</option></select>
+            <input id="searchInput" placeholder="Search saved bids..." />
+            <select id="statusFilter"><option>All statuses</option><option value="intake">Intake</option><option value="range_sent">Range sent</option><option value="design_scope">Design / scope</option><option value="sub_validation">Sub validation</option><option value="proposal_ready">Proposal ready</option><option value="proposal_sent">Proposal sent</option><option value="won">Won</option><option value="lost">Lost</option><option value="no_bid">No bid</option></select>
           </div>
         </div>
         <div id="projectList" class="project-list" style="margin-top:0.75rem;"></div>
@@ -189,10 +236,20 @@
     const $ = (selector) => document.querySelector(selector);
     const clean = (value) => String(value || "").trim();
     const money = (value) => Number(value || 0).toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+    const labelize = (value) => clean(value).replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 
     function id() { return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`; }
     function splitLines(value) { return clean(value).split(/\n/).map(clean).filter(Boolean); }
     function today() { return new Date().toISOString().slice(0, 10); }
+    function rangeLabel(project) {
+      if (!project.budgetLow && !project.budgetHigh) return "No range set";
+      if (!project.budgetLow) return `Up to ${money(project.budgetHigh)}`;
+      if (!project.budgetHigh) return `${money(project.budgetLow)}+`;
+      return `${money(project.budgetLow)} - ${money(project.budgetHigh)}`;
+    }
+    function hasAdvancedDetails(project) {
+      return Boolean(project.designerName || project.designPackageFee || project.internalEstimatedCost || project.finalProposalAmount || project.photosNotes || project.scopeDraft || project.budgetRangeNotes);
+    }
 
     function readiness(project) {
       const missing = [];
@@ -330,19 +387,23 @@
     function saveLocal() { localStorage.setItem(localKey, JSON.stringify(projects)); }
 
     async function saveProject(project) {
+      let savedProject = project;
       if (apiAvailable) {
         const saved = project.id && !project.id.includes("-") && !project.id.includes("local")
           ? await api(`/api/bid-projects/${project.id}`, { method: "PUT", body: JSON.stringify(project) })
           : await api("/api/bid-projects", { method: "POST", body: JSON.stringify(project) });
-        projects = projects.filter((row) => row.id !== project.id && row.id !== saved.id).concat(normalize(saved));
+        savedProject = normalize(saved);
+        projects = projects.filter((row) => row.id !== project.id && row.id !== savedProject.id).concat(savedProject);
       } else {
         projects = projects.filter((row) => row.id !== project.id).concat(project);
         saveLocal();
       }
       render();
+      return savedProject;
     }
 
     function fillForm(project) {
+      if (!project) return;
       $("#projectId").value = project.id || "";
       $("#customerName").value = project.customerName || "";
       $("#projectType").value = project.projectType || projectTypes[0];
@@ -367,15 +428,21 @@
       $("#budgetRangeNotes").value = project.budgetRangeNotes || "";
       $("#nextAction").value = project.nextAction || "";
       $("#nextActionDate").value = project.nextActionDate || "";
+      $(".advanced-fields").open = hasAdvancedDetails(project);
+      $("#saveButton").textContent = "Update bid";
+      $("#formStatus").textContent = `Editing ${project.customerName || "saved bid"}.`;
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    function clearForm() {
+    function clearForm(options = {}) {
       $("#projectForm").reset();
       $("#projectId").value = "";
       $("#city").value = "Los Angeles";
       $("#contingencyPercent").value = 12;
       $("#markupPercent").value = 25;
+      $(".advanced-fields").open = false;
+      $("#saveButton").textContent = "Save bid";
+      if (!options.keepStatus) $("#formStatus").textContent = "";
     }
 
     function filteredProjects() {
@@ -403,12 +470,12 @@
                 <h3>${project.customerName || "Unnamed project"}</h3>
                 <div class="meta">
                   <span class="badge">${project.projectType}</span>
-                  <span class="badge">${project.status}</span>
+                  <span class="badge">${labelize(project.status)}</span>
                   <span class="badge ${project.fixedBidReady ? "good" : "warn"}">${project.fixedBidReady ? "fixed ready" : "range only"}</span>
-                  <span class="badge">${project.designerStatus}</span>
+                  <span class="badge">${labelize(project.designerStatus)}</span>
                 </div>
               </div>
-              <div class="money">${money(project.budgetLow)} - ${money(project.budgetHigh)}<br><span class="muted">planning range</span></div>
+              <div class="money">${rangeLabel(project)}<br><span class="muted">planning range</span></div>
             </header>
             <div class="detail-grid">
               <div><strong>Location:</strong> ${[project.neighborhood, project.city].filter(Boolean).join(", ") || "Unknown"}</div>
@@ -421,12 +488,12 @@
             </div>
             ${quoteRows ? `<table><thead><tr><th>Trade</th><th>Sub</th><th>Status</th><th>Quote</th><th>Confidence</th></tr></thead><tbody>${quoteRows}</tbody></table>` : ""}
             <div class="actions" style="margin-top:0.8rem;">
-              <button class="secondary" data-edit="${project.id}" type="button">Edit</button>
+              <button class="secondary" data-edit="${project.id}" type="button">Edit bid</button>
               <button class="secondary" data-quote="${project.id}" type="button">Quote Request</button>
               <button class="secondary" data-delete="${project.id}" type="button">Delete</button>
             </div>
           </article>`;
-      }).join("") : `<div class="project-card">No bid projects match the current filters.</div>`;
+      }).join("") : `<div class="project-card empty-state">No saved bids match the current filters. Add the lead, project type, and rough range on the left.</div>`;
     }
 
     function buildLocalQuoteRequest(project, trade) {
@@ -435,7 +502,7 @@
         "",
         `Project: ${project.projectType}`,
         `Location: ${[project.neighborhood, project.city].filter(Boolean).join(", ") || "Los Angeles area"}`,
-        `Client planning range shown: ${money(project.budgetLow)} - ${money(project.budgetHigh)}`,
+        `Client planning range shown: ${rangeLabel(project)}`,
         "",
         "Please reply with a budget range or fixed quote, plus exclusions and what else you need to tighten it within 24-48 hours.",
         "",
@@ -472,13 +539,16 @@
 
     $("#projectForm").addEventListener("submit", async (event) => {
       event.preventDefault();
-      await saveProject(projectFromForm());
-      clearForm();
+      const saved = await saveProject(projectFromForm());
+      clearForm({ keepStatus: true });
+      $("#formStatus").textContent = `Saved ${saved.customerName || "bid"}.`;
     });
     $("#generateScope").addEventListener("click", () => {
       const project = projectFromForm();
       $("#scopeDraft").value = localScopeDraft(project);
       $("#budgetRangeNotes").value = $("#budgetRangeNotes").value || "Low range assumes visible scope, basic finishes, normal access, and no major hidden conditions. High range includes better finishes, trade risk, unknowns, and contingency.";
+      $(".advanced-fields").open = true;
+      $("#formStatus").textContent = "Scope draft added below advanced details.";
     });
     $("#clearForm").addEventListener("click", clearForm);
     $("#searchInput").addEventListener("input", render);
