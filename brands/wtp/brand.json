@@ -1,0 +1,187 @@
+{
+  "slug": "wtp",
+  "companyName": "We The People Construction",
+  "tagline": "Full-Service Southern California Remodeler",
+  "metaDescription": "We The People Construction is a full-service Southern California design-build remodeler for kitchens, bathrooms, whole-home renovations, ADUs, roofing, solar, and restoration.",
+  "pageTitle": "We The People Construction | Full-Service SoCal Design-Build Remodeler",
+  "licenseText": "CA General Contractor License #1076924",
+  "licenseContact": "CA General Contractor #1076924",
+  "licenseShort": "CA General Contractor #1076924",
+  "licenseClass": "Licensed",
+  "phone": "(323) 555-0158",
+  "phoneHref": "3235550158",
+  "email": "info@wtpconstruction.com",
+  "serviceArea": "Hollywood, Greater Los Angeles, Orange County, and the Inland Empire",
+  "locationLine": "958 N Western Ave, Hollywood, CA<br />Serving all of Southern California",
+  "colors": {
+    "ink": "#0b1f3a",
+    "steel": "#3f4b5c",
+    "mist": "#eef2f7",
+    "paper": "#f2f7f5",
+    "clay": "#1f7a5c",
+    "clayDark": "#155e46",
+    "copper": "#38b48b",
+    "sage": "#6f8f80",
+    "line": "#d5dde6",
+    "white": "#ffffff",
+    "topbar": "#0b1f3a",
+    "footer": "#081a30"
+  },
+  "heroImage": "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=2200&q=82",
+  "contactImage": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=2200&q=82",
+  "hero": {
+    "eyebrow": "Full-service design-build remodeling",
+    "headline": "One team, every trade, from permit to final walkthrough.",
+    "subhead": "We The People Construction handles kitchens, baths, whole-home remodels, ADUs, roofing, solar, and restoration across Southern California with a single accountable crew and clean project communication.",
+    "ctaPrimary": "Get a Free Estimate",
+    "ctaSecondary": "See Our Services"
+  },
+  "heroProof": [
+    { "value": "12+ yrs", "label": "Building across SoCal" },
+    { "value": "Design-Build", "label": "One accountable team" },
+    { "value": "Hollywood", "label": "Local headquarters" },
+    { "value": "Licensed", "label": "CSLB #1076924" }
+  ],
+  "trust": [
+    { "label": "License", "value": "CA General Contractor #1076924" },
+    { "label": "Service Area", "value": "Hollywood, Greater LA, Orange County, and the Inland Empire" },
+    { "label": "Delivery", "value": "Design, permits, every trade in-house, inspections, and closeout" },
+    { "label": "Best Fit", "value": "Owners who want one full-service team from design through completion" }
+  ],
+  "services": {
+    "eyebrow": "Services",
+    "heading": "Every trade for kitchens, baths, whole homes, and more.",
+    "intro": "From discretionary remodels to roofing, solar, and restoration, We The People Construction self-performs and coordinates every trade a Southern California project needs.",
+    "note": "Imagery on this page is representative of the categories of work We The People Construction performs and is not presented as a specific completed project.",
+    "cards": [
+      {
+        "title": "Kitchen Remodeling",
+        "blurb": "Layouts, cabinetry, countertops, tile, plumbing, electrical, and finish coordination for the hardest-working room in the home.",
+        "image": "https://images.unsplash.com/photo-1556912173-3bb406ef7e77?auto=format&fit=crop&w=900&q=80",
+        "alt": "Modern kitchen remodel with island and stone counters"
+      },
+      {
+        "title": "Bathroom Renovations",
+        "blurb": "Waterproofing, tile, glass and shower systems, vanities, fixtures, and lighting done to last in high-moisture spaces.",
+        "image": "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=900&q=80",
+        "alt": "Renovated bathroom with glass shower and stone tile"
+      },
+      {
+        "title": "Whole & Full Home Remodeling",
+        "blurb": "Self-performed general contracting across every trade for open floor plans, systems upgrades, and full interior and exterior renovations.",
+        "image": "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=900&q=80",
+        "alt": "Contemporary home exterior after full renovation"
+      },
+      {
+        "title": "ADUs & Home Additions",
+        "blurb": "Detached units, garage conversions, and room additions handled through framing, foundation, MEP trades, windows, roofing, and closeout.",
+        "image": "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=900&q=80",
+        "alt": "Detached accessory dwelling unit in a backyard"
+      },
+      {
+        "title": "Roofing & Solar",
+        "blurb": "Roof replacements and renovations paired with C-46 solar and battery installations to modernize and protect the whole building envelope.",
+        "image": "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=900&q=80",
+        "alt": "Rooftop solar panel installation on a residential home"
+      },
+      {
+        "title": "Restoration & Insurance Claims",
+        "blurb": "Mold, fire, and water damage restoration plus full insurance-claims remodeling to bring a property back to move-in condition.",
+        "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=900&q=80",
+        "alt": "Home interior mid-restoration after damage repair"
+      }
+    ]
+  },
+  "about": {
+    "eyebrow": "Who we are",
+    "heading": "A full-service crew built in Hollywood.",
+    "founderName": "We The People Construction",
+    "founderTitle": "Design-Build General Contractor / CSLB #1076924",
+    "founderImage": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=900&q=82",
+    "founderImageAlt": "We The People Construction team on a job site",
+    "propertyImage": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=82",
+    "propertyImageAlt": "Representative Southern California residential property",
+    "propertyCaption": "Representative Southern California project imagery",
+    "paragraphs": [
+      "<strong>We The People Construction</strong> has spent more than twelve years building across Southern California from its headquarters at 958 N Western Ave in Hollywood.",
+      "As a design-build general contractor, we self-perform and coordinate every trade a project needs, so homeowners deal with one accountable team from design through the final walkthrough.",
+      "Our work spans kitchens, bathrooms, whole-home remodels, ADUs, additions, roofing, solar, and restoration throughout Greater LA, Orange County, and the Inland Empire."
+    ],
+    "credentialValue": "12+ years",
+    "credentialLabel": "Full-service remodeling across Southern California"
+  },
+  "focus": {
+    "eyebrow": "What we build",
+    "heading": "Remodels, additions, exteriors, and restoration.",
+    "intro": "We The People Construction is built for owners who want one team for the whole scope. The categories below reflect the range of work we self-perform; imagery is representative rather than a specific completed-project claim.",
+    "cards": [
+      {
+        "title": "Kitchen & Bath",
+        "blurb": "High-use rooms rebuilt with full cabinetry, countertop, tile, plumbing, and electrical coordination.",
+        "image": "https://images.unsplash.com/photo-1556912167-f556f1f39fdf?auto=format&fit=crop&w=900&q=80",
+        "alt": "Bright renovated kitchen and dining area"
+      },
+      {
+        "title": "Outdoor Living & Pools",
+        "blurb": "Hardscaping, patios, pool building, and backyard remodels designed for the SoCal outdoor lifestyle.",
+        "image": "https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=900&q=80",
+        "alt": "Backyard pool and outdoor living space"
+      },
+      {
+        "title": "ADUs & Additions",
+        "blurb": "Detached units, conversions, and square-footage additions delivered permit-to-keys.",
+        "image": "https://images.unsplash.com/photo-1600607687644-c7171b42498f?auto=format&fit=crop&w=900&q=80",
+        "alt": "Detached guest house addition"
+      },
+      {
+        "title": "Roofing, Solar & Restoration",
+        "blurb": "Roof replacements, solar and battery installs, and mold, fire, and water restoration work.",
+        "image": "https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=900&q=80",
+        "alt": "Solar and roofing work on a residential roof"
+      }
+    ]
+  },
+  "process": {
+    "eyebrow": "Process",
+    "heading": "Design it, permit it, build it, close it out.",
+    "intro": "As a design-build contractor we keep design, trades, permitting, and field work under one roof, so decisions move quickly and nothing falls between vendors.",
+    "steps": [
+      { "step": "01 / Consult", "title": "We scope the vision.", "blurb": "We review the property, goals, budget range, and timeline, then shape a realistic design-build scope." },
+      { "step": "02 / Design & Permit", "title": "We plan and permit.", "blurb": "We handle design details, material selections, permitting, and every trade requirement before the build begins." },
+      { "step": "03 / Build", "title": "We self-perform the work.", "blurb": "One crew coordinates framing, MEP trades, finishes, roofing, and inspections on a milestone schedule." },
+      { "step": "04 / Closeout", "title": "We finish and warranty.", "blurb": "Punch list, final inspections, walkthrough, and follow-up are all handled by the same accountable team." }
+    ]
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "heading": "What Southern California owners ask us first.",
+    "intro": "A full-service design-build approach removes a lot of the usual remodeling uncertainty. These answers cover scope, permits, trades, and how we work.",
+    "items": [
+      { "q": "Do you handle design, permits, and every trade?", "a": "Yes. We The People Construction is a design-build general contractor, so design, permitting, and all required trades are coordinated by one team from start to finish." },
+      { "q": "What areas do you serve?", "a": "We are headquartered in Hollywood and serve Greater Los Angeles, Orange County, and the Inland Empire." },
+      { "q": "What kinds of projects do you take on?", "a": "Kitchens, bathrooms, whole-home remodels, ADUs and additions, roofing, solar, hardscaping, pools, and mold, fire, and water restoration, including insurance-claims remodeling." },
+      { "q": "Can you help with insurance claims and restoration?", "a": "Yes. We handle mold, fire, and water damage restoration and can manage the rebuild side of insurance-claims remodeling." }
+    ]
+  },
+  "contact": {
+    "eyebrow": "Request an estimate",
+    "heading": "Tell us about your remodel, addition, or repair.",
+    "intro": "Send the basics and our team will follow up to understand the property, scope, and timing. Southern California residential projects are our focus.",
+    "formSubject": "We The People Construction estimate request",
+    "projectTypes": [
+      "Kitchen or bathroom remodel",
+      "Whole or full home remodel",
+      "ADU or home addition",
+      "Roofing or solar",
+      "Mold, fire, or water restoration",
+      "Other or not sure yet"
+    ]
+  },
+  "nav": [
+    { "label": "Services", "href": "#services" },
+    { "label": "About", "href": "#about" },
+    { "label": "Process", "href": "#process" },
+    { "label": "FAQ", "href": "#faq" }
+  ],
+  "navCta": "Free Estimate"
+}

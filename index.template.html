@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="{{metaDescription}}" />
+  <title>{{pageTitle}}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: {{colors.ink}};
+      --steel: {{colors.steel}};
+      --mist: {{colors.mist}};
+      --paper: {{colors.paper}};
+      --clay: {{colors.clay}};
+      --copper: {{colors.copper}};
+      --sage: {{colors.sage}};
+      --line: {{colors.line}};
+      --white: {{colors.white}};
+      --shadow: 0 24px 60px rgba(23, 32, 51, 0.14);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--white);
+      line-height: 1.6;
+    }
+
+    img { display: block; max-width: 100%; }
+    a { color: inherit; }
+
+    .topbar {
+      background: {{colors.topbar}};
+      color: rgba(255, 255, 255, 0.82);
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.55rem 5vw;
+      font-size: 0.82rem;
+    }
+
+    .topbar a { text-decoration: none; }
+    .topbar strong { color: var(--white); font-weight: 700; }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      min-height: 72px;
+      padding: 0 5vw;
+      background: rgba(255, 255, 255, 0.94);
+      border-bottom: 1px solid rgba(221, 227, 234, 0.86);
+      backdrop-filter: blur(18px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .brand {
+      text-decoration: none;
+      display: grid;
+      gap: 0.05rem;
+      line-height: 1.1;
+    }
+
+    .brand span:first-child {
+      font-size: 1rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .brand span:last-child {
+      color: var(--clay);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 1.55rem;
+      color: var(--steel);
+      font-size: 0.86rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    nav a { text-decoration: none; }
+    nav li a:hover { color: var(--clay); }
+
+    .nav-cta,
+    .btn-primary,
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 850;
+      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+    }
+
+    .nav-cta {
+      background: var(--ink);
+      color: var(--white);
+      padding: 0 1rem;
+    }
+
+    .nav-cta:hover { background: var(--clay); color: var(--white); }
+
+    .hero {
+      min-height: calc(100vh - 108px);
+      padding: 7rem 5vw 4rem;
+      color: var(--white);
+      position: relative;
+      isolation: isolate;
+      display: grid;
+      align-items: end;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background:
+        linear-gradient(90deg, rgba(13, 20, 34, 0.92) 0%, rgba(13, 20, 34, 0.70) 45%, rgba(13, 20, 34, 0.26) 100%),
+        url("{{heroImage}}") center / cover;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto 5vw 0;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.24);
+    }
+
+    .eyebrow {
+      color: var(--copper);
+      font-size: 0.78rem;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .hero-copy {
+      width: min(760px, 100%);
+      display: grid;
+      gap: 1.35rem;
+    }
+
+    h1 {
+      font-size: clamp(2.65rem, 7vw, 6.6rem);
+      line-height: 0.96;
+      letter-spacing: 0;
+      max-width: 860px;
+    }
+
+    .hero p {
+      max-width: 690px;
+      color: rgba(255, 255, 255, 0.84);
+      font-size: clamp(1rem, 1.8vw, 1.25rem);
+    }
+
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+
+    .btn-primary {
+      background: var(--clay);
+      color: var(--white);
+      padding: 0 1.35rem;
+    }
+
+    .btn-primary:hover { background: {{colors.clayDark}}; transform: translateY(-1px); }
+
+    .btn-secondary {
+      border: 1px solid rgba(255, 255, 255, 0.42);
+      color: var(--white);
+      padding: 0 1.25rem;
+    }
+
+    .btn-secondary:hover { border-color: var(--white); transform: translateY(-1px); }
+
+    .hero-proof {
+      margin-top: 4rem;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(17, 24, 39, 0.48);
+      backdrop-filter: blur(14px);
+    }
+
+    .proof-item {
+      padding: 1rem;
+      border-right: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .proof-item:last-child { border-right: 0; }
+
+    .proof-item strong {
+      display: block;
+      color: var(--white);
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      line-height: 1;
+    }
+
+    .proof-item span {
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    section { padding: 5.8rem 5vw; }
+
+    .trust-strip {
+      padding: 1rem 5vw;
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+    }
+
+    .trust-item {
+      min-height: 86px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      display: grid;
+      align-content: center;
+      gap: 0.15rem;
+    }
+
+    .trust-item strong {
+      font-size: 0.96rem;
+      line-height: 1.2;
+    }
+
+    .trust-item span {
+      color: var(--steel);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(280px, 0.7fr);
+      gap: 2rem;
+      align-items: end;
+      margin-bottom: 2.5rem;
+    }
+
+    h2 {
+      margin-top: 0.4rem;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    .section-head p,
+    .lead {
+      color: var(--steel);
+      font-size: 1.02rem;
+    }
+
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .service-card {
+      min-height: 255px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--white);
+      box-shadow: 0 8px 26px rgba(23, 32, 51, 0.05);
+    }
+
+    .service-card img {
+      width: 100%;
+      aspect-ratio: 4 / 2.45;
+      object-fit: cover;
+    }
+
+    .service-card div { padding: 1.2rem; }
+
+    .service-card h3 {
+      font-size: 1.06rem;
+      line-height: 1.25;
+      margin-bottom: 0.45rem;
+    }
+
+    .service-card p {
+      color: var(--steel);
+      font-size: 0.93rem;
+    }
+
+    .photo-note {
+      margin-top: 1rem;
+      color: var(--steel);
+      font-size: 0.86rem;
+    }
+
+    .band {
+      background: var(--mist);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(300px, 0.68fr);
+      gap: 4vw;
+      align-items: center;
+    }
+
+    .founder-media {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 520px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .founder-panel,
+    .property-panel {
+      min-height: 100%;
+      position: relative;
+    }
+
+    .founder-panel img,
+    .property-panel img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .founder-caption {
+      position: absolute;
+      inset: auto 0 0;
+      padding: 1rem;
+      background: linear-gradient(180deg, rgba(17, 24, 39, 0), rgba(17, 24, 39, 0.78));
+      color: var(--white);
+      display: grid;
+      gap: 0.15rem;
+    }
+
+    .founder-caption strong {
+      font-size: 1.08rem;
+      line-height: 1.2;
+    }
+
+    .founder-caption span {
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 0.84rem;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .property-panel::after {
+      content: "{{about.propertyCaption}}";
+      position: absolute;
+      left: 1rem;
+      right: 1rem;
+      bottom: 1rem;
+      color: rgba(255, 255, 255, 0.74);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1.5rem;
+    }
+
+    .pill-list span {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0.45rem 0.85rem;
+      background: var(--white);
+      color: var(--steel);
+      font-size: 0.86rem;
+      font-weight: 750;
+    }
+
+    .about-copy {
+      display: grid;
+      gap: 1rem;
+      color: var(--steel);
+    }
+
+    .about-copy strong { color: var(--ink); }
+
+    .credentials {
+      margin-top: 2rem;
+      display: block;
+    }
+
+    .credential {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 1.15rem;
+    }
+
+    .credential strong {
+      display: block;
+      color: var(--clay);
+      font-size: 1.9rem;
+      line-height: 1.1;
+    }
+
+    .credential span {
+      color: var(--steel);
+      font-size: 0.9rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .project-types {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .project-card {
+      min-height: 330px;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      isolation: isolate;
+      display: flex;
+      align-items: end;
+      color: var(--white);
+      background: var(--ink);
+    }
+
+    .project-card img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+      transition: transform 0.28s ease;
+    }
+
+    .project-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(180deg, rgba(17, 24, 39, 0.10), rgba(17, 24, 39, 0.78));
+    }
+
+    .project-card:hover img { transform: scale(1.04); }
+
+    .project-card div { padding: 1.15rem; }
+
+    .project-card h3 {
+      font-size: 1.15rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .project-card p {
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 0.9rem;
+    }
+
+    .process-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+    }
+
+    .process-step {
+      background: var(--white);
+      padding: 1.35rem;
+      min-height: 220px;
+    }
+
+    .process-step span {
+      color: var(--clay);
+      font-size: 0.82rem;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .process-step h3 {
+      margin: 0.8rem 0 0.45rem;
+      font-size: 1.02rem;
+    }
+
+    .process-step p {
+      color: var(--steel);
+      font-size: 0.92rem;
+    }
+
+    .faq-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .faq-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--white);
+      padding: 1.25rem;
+      min-height: 170px;
+    }
+
+    .faq-item h3 {
+      font-size: 1rem;
+      margin-bottom: 0.45rem;
+    }
+
+    .faq-item p {
+      color: var(--steel);
+      font-size: 0.94rem;
+    }
+
+    .contact {
+      background:
+        linear-gradient(90deg, rgba(23, 32, 51, 0.95), rgba(23, 32, 51, 0.78)),
+        url("{{contactImage}}") center / cover;
+      color: var(--white);
+    }
+
+    .contact .section-head p,
+    .contact .eyebrow { color: rgba(255, 255, 255, 0.76); }
+
+    .contact .eyebrow { color: var(--copper); }
+
+    .contact-panel {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.48fr) minmax(0, 0.72fr);
+      gap: 1rem;
+    }
+
+    .contact-card,
+    form {
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      padding: 1.35rem;
+    }
+
+    .contact-card {
+      display: grid;
+      gap: 1rem;
+      align-content: start;
+    }
+
+    .contact-line {
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .contact-line:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .contact-line span {
+      display: block;
+      color: rgba(255, 255, 255, 0.62);
+      font-size: 0.75rem;
+      font-weight: 850;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .contact-line a,
+    .contact-line strong {
+      color: var(--white);
+      text-decoration: none;
+      font-size: 1.02rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+
+    label {
+      display: block;
+      color: rgba(255, 255, 255, 0.76);
+      font-size: 0.78rem;
+      font-weight: 800;
+      margin-bottom: 0.32rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 6px;
+      min-height: 46px;
+      padding: 0.75rem 0.85rem;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--ink);
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 138px;
+      resize: vertical;
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    .form-submit {
+      min-height: 48px;
+      width: 100%;
+      border: 0;
+      border-radius: 6px;
+      background: var(--clay);
+      color: var(--white);
+      font: inherit;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .form-submit:hover { background: {{colors.clayDark}}; }
+
+    footer {
+      background: {{colors.footer}};
+      color: rgba(255, 255, 255, 0.64);
+      padding: 2rem 5vw;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      font-size: 0.88rem;
+    }
+
+    footer strong { color: var(--white); }
+
+    @media (max-width: 980px) {
+      .section-head,
+      .split,
+      .contact-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .service-grid,
+      .project-types,
+      .process-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .founder-media { min-height: 430px; max-width: 620px; }
+    }
+
+    @media (max-width: 720px) {
+      .topbar { display: none; }
+      nav { min-height: 64px; }
+      nav ul { display: none; }
+      .hero { min-height: calc(100vh - 64px); padding-top: 4rem; }
+      .hero-proof,
+      .service-grid,
+      .project-types,
+      .process-grid,
+      .credentials,
+      .trust-strip,
+      .faq-grid,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .proof-item { border-right: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.18); }
+      .proof-item:last-child { border-bottom: 0; }
+      section { padding: 4rem 5vw; }
+      .founder-media {
+        grid-template-columns: 1fr;
+        min-height: 0;
+        max-width: 100%;
+      }
+      .founder-panel,
+      .property-panel {
+        min-height: 330px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div><strong>{{licenseText}}</strong></div>
+    <div><a href="tel:{{phoneHref}}">{{phone}}</a> &nbsp; | &nbsp; <a href="mailto:{{email}}">{{email}}</a></div>
+  </div>
+
+  <nav>
+    <a class="brand" href="#">
+      <span>{{companyName}}</span>
+      <span>{{tagline}}</span>
+    </a>
+    <ul>
+      <!--LOOP:nav-->
+      <li><a href="{{href}}">{{label}}</a></li>
+      <!--/LOOP:nav-->
+      <li><a class="nav-cta" href="#contact">{{navCta}}</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div>
+        <div class="hero-copy">
+          <div class="eyebrow">{{hero.eyebrow}}</div>
+          <h1>{{hero.headline}}</h1>
+          <p>{{hero.subhead}}</p>
+          <div class="hero-actions">
+            <a class="btn-primary" href="#contact">{{hero.ctaPrimary}}</a>
+            <a class="btn-secondary" href="#services">{{hero.ctaSecondary}}</a>
+          </div>
+        </div>
+        <div class="hero-proof" aria-label="Company experience highlights">
+          <!--LOOP:heroProof-->
+          <div class="proof-item"><strong>{{value}}</strong><span>{{label}}</span></div>
+          <!--/LOOP:heroProof-->
+        </div>
+      </div>
+    </section>
+
+    <div class="trust-strip" aria-label="{{companyName}} trust highlights">
+      <!--LOOP:trust-->
+      <div class="trust-item">
+        <span>{{label}}</span>
+        <strong>{{value}}</strong>
+      </div>
+      <!--/LOOP:trust-->
+    </div>
+
+    <section id="services">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">{{services.eyebrow}}</div>
+          <h2>{{services.heading}}</h2>
+        </div>
+        <p>{{services.intro}}</p>
+      </div>
+
+      <div class="service-grid">
+        <!--LOOP:services.cards-->
+        <article class="service-card">
+          <img src="{{image}}" alt="{{alt}}" />
+          <div>
+            <h3>{{title}}</h3>
+            <p>{{blurb}}</p>
+          </div>
+        </article>
+        <!--/LOOP:services.cards-->
+      </div>
+      <p class="photo-note">{{services.note}}</p>
+    </section>
+
+    <section id="about" class="band">
+      <div class="split">
+        <div class="founder-media">
+          <div class="founder-panel">
+            <img src="{{about.founderImage}}" alt="{{about.founderImageAlt}}" />
+            <div class="founder-caption">
+              <strong>{{about.founderName}}</strong>
+              <span>{{about.founderTitle}}</span>
+            </div>
+          </div>
+          <div class="property-panel">
+            <img src="{{about.propertyImage}}" alt="{{about.propertyImageAlt}}" />
+          </div>
+        </div>
+        <div>
+          <div class="eyebrow">{{about.eyebrow}}</div>
+          <h2>{{about.heading}}</h2>
+          <div class="about-copy">
+            <!--LOOP:about.paragraphs-->
+            <p>{{.}}</p>
+            <!--/LOOP:about.paragraphs-->
+          </div>
+
+          <div class="credentials">
+            <div class="credential"><strong>{{about.credentialValue}}</strong><span>{{about.credentialLabel}}</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">{{focus.eyebrow}}</div>
+          <h2>{{focus.heading}}</h2>
+        </div>
+        <p>{{focus.intro}}</p>
+      </div>
+
+      <div class="project-types">
+        <!--LOOP:focus.cards-->
+        <article class="project-card">
+          <img src="{{image}}" alt="{{alt}}" />
+          <div>
+            <h3>{{title}}</h3>
+            <p>{{blurb}}</p>
+          </div>
+        </article>
+        <!--/LOOP:focus.cards-->
+      </div>
+    </section>
+
+    <section id="process" class="band">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">{{process.eyebrow}}</div>
+          <h2>{{process.heading}}</h2>
+        </div>
+        <p>{{process.intro}}</p>
+      </div>
+
+      <div class="process-grid">
+        <!--LOOP:process.steps-->
+        <div class="process-step">
+          <span>{{step}}</span>
+          <h3>{{title}}</h3>
+          <p>{{blurb}}</p>
+        </div>
+        <!--/LOOP:process.steps-->
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">{{faq.eyebrow}}</div>
+          <h2>{{faq.heading}}</h2>
+        </div>
+        <p>{{faq.intro}}</p>
+      </div>
+
+      <div class="faq-grid">
+        <!--LOOP:faq.items-->
+        <article class="faq-item">
+          <h3>{{q}}</h3>
+          <p>{{a}}</p>
+        </article>
+        <!--/LOOP:faq.items-->
+      </div>
+    </section>
+
+    <section id="contact" class="contact">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">{{contact.eyebrow}}</div>
+          <h2>{{contact.heading}}</h2>
+        </div>
+        <p>{{contact.intro}}</p>
+      </div>
+
+      <div class="contact-panel">
+        <div class="contact-card">
+          <div class="contact-line">
+            <span>Phone</span>
+            <a href="tel:{{phoneHref}}">{{phone}}</a>
+          </div>
+          <div class="contact-line">
+            <span>Email</span>
+            <a href="mailto:{{email}}">{{email}}</a>
+          </div>
+          <div class="contact-line">
+            <span>Location</span>
+            <strong>{{locationLine}}</strong>
+          </div>
+          <div class="contact-line">
+            <span>License</span>
+            <strong>{{licenseContact}}</strong>
+          </div>
+        </div>
+
+        <form id="estimateForm">
+          <div class="form-grid">
+            <div>
+              <label for="name">Name</label>
+              <input id="name" name="name" autocomplete="name" required />
+            </div>
+            <div>
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" autocomplete="tel" />
+            </div>
+            <div>
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" autocomplete="email" />
+            </div>
+            <div>
+              <label for="service">Project Type</label>
+              <select id="service" name="service">
+                <!--LOOP:contact.projectTypes-->
+                <option>{{.}}</option>
+                <!--/LOOP:contact.projectTypes-->
+              </select>
+            </div>
+            <div class="full">
+              <label for="message">Project Details</label>
+              <textarea id="message" name="message" placeholder="Property city, desired scope, timing, and anything important about the site."></textarea>
+            </div>
+            <div class="full">
+              <button class="form-submit" type="submit">Open Email Draft</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div><strong>{{companyName}}</strong><br />{{tagline}}</div>
+    <div>{{licenseText}}<br /><a href="tel:{{phoneHref}}">{{phone}}</a> | <a href="mailto:{{email}}">{{email}}</a></div>
+  </footer>
+
+  <script>
+    const form = document.querySelector("#estimateForm");
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const data = new FormData(form);
+      const body = [
+        `Name: ${data.get("name") || ""}`,
+        `Phone: ${data.get("phone") || ""}`,
+        `Email: ${data.get("email") || ""}`,
+        `Project type: ${data.get("service") || ""}`,
+        "",
+        "Project details:",
+        data.get("message") || ""
+      ].join("\n");
+
+      const subject = encodeURIComponent("{{contact.formSubject}}");
+      window.location.href = `mailto:{{email}}?subject=${subject}&body=${encodeURIComponent(body)}`;
+    });
+  </script>
+</body>
+</html>

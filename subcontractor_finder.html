@@ -135,7 +135,7 @@
     }
     .metrics {
       display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
+      grid-template-columns: repeat(8, minmax(0, 1fr));
       gap: 0.7rem;
     }
     .metric,
@@ -175,6 +175,8 @@
     .metric.alert.active { border-top-color: var(--red); box-shadow: 0 0 0 1px var(--red), var(--shadow); }
     .metric.attention strong { color: var(--amber); }
     .metric.attention.active { border-top-color: var(--amber); box-shadow: 0 0 0 1px var(--amber), var(--shadow); }
+    .metric.reachable strong { color: var(--green); }
+    .metric.reachable.active { border-top-color: var(--green); box-shadow: 0 0 0 1px var(--green), var(--shadow); }
     .metric span {
       color: var(--muted);
       font-size: 0.74rem;
@@ -396,6 +398,21 @@
     .pill.bad { color: var(--red); background: #fee4e2; }
     .pill.blue { color: var(--blue); background: #dbeafe; }
     .pill.plum { color: var(--plum); background: #ede9fe; }
+    /* Owner-reach pills — green (strong), amber (partial), grey (weak/unknown). */
+    .pill.reach-high { color: var(--green); background: #ddf5ef; }
+    .pill.reach-mid { color: var(--amber); background: #fff2cf; }
+    .pill.reach-low { color: var(--muted); background: var(--soft); }
+    .owner-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      color: var(--steel);
+      font-size: 0.82rem;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    .owner-line b { color: var(--ink); font-weight: 850; }
     .readiness {
       display: grid;
       justify-items: start;
@@ -683,6 +700,7 @@
       <a class="active" href="subcontractor_finder.html">Subcontractors</a>
       <a href="lead_generation.html">Lead Gen</a>
       <a href="bid_lab.html">Bid Lab</a>
+      <a href="services_board.html">Readiness</a>
       <a href="http://localhost:4173/">Public Site</a>
     </div>
   </div>
@@ -706,6 +724,7 @@
       <div class="metric"><span>Storage</span><strong id="storageStatus">...</strong></div>
       <div class="metric" data-filter="all" role="button" tabindex="0" title="Show all records"><span>Records</span><strong id="totalCount">0</strong></div>
       <div class="metric" data-filter="contactable" role="button" tabindex="0" title="Filter to records with a phone or email"><span>Contactable</span><strong id="contactableCount">0</strong></div>
+      <div class="metric reachable" data-filter="owner_reachable" role="button" tabindex="0" title="Filter to records whose owner is directly reachable"><span>Owner-Reachable</span><strong id="ownerReachableCount">0</strong></div>
       <div class="metric" data-filter="license_verified" role="button" tabindex="0" title="Filter to licensed records"><span>Licensed</span><strong id="licensedCount">0</strong></div>
       <div class="metric" data-filter="insurance_verified" role="button" tabindex="0" title="Filter to insured records"><span>Insured</span><strong id="insuredCount">0</strong></div>
       <div class="metric" data-filter="compliance_risk" role="button" tabindex="0" title="Filter to expiring/expired coverage"><span>Comp. Risk</span><strong id="complianceRiskMetric">0</strong></div>
@@ -730,6 +749,7 @@
         <select id="verificationFilter">
           <option value="all">All records</option>
           <option value="contactable">Contactable</option>
+          <option value="owner_reachable">Owner-reachable</option>
           <option value="missing_contact">Missing contact</option>
           <option value="license_verified">License verified</option>
           <option value="insurance_verified">Insurance verified</option>
@@ -742,6 +762,7 @@
         <label for="sortBy">Sort</label>
         <select id="sortBy">
           <option value="readiness">Readiness</option>
+          <option value="ownerReach">Owner reach</option>
           <option value="compliance">Compliance risk</option>
           <option value="companyName">Company</option>
           <option value="serviceCategory">Trade</option>
@@ -1071,6 +1092,7 @@
       storageStatus: document.querySelector("#storageStatus"),
       totalCount: document.querySelector("#totalCount"),
       contactableCount: document.querySelector("#contactableCount"),
+      ownerReachableCount: document.querySelector("#ownerReachableCount"),
       licensedCount: document.querySelector("#licensedCount"),
       insuredCount: document.querySelector("#insuredCount"),
       complianceRiskMetric: document.querySelector("#complianceRiskMetric"),
@@ -1288,6 +1310,11 @@
         reviewRating: Number(record.reviewRating || 0),
         reviewCount: Number(record.reviewCount || 0),
         reviewSource: clean(record.reviewSource),
+        ownerName: clean(record.ownerName),
+        ownerTitle: clean(record.ownerTitle),
+        ownerReachScore: Number(record.ownerReachScore || 0),
+        ownerReachConfidence: clean(record.ownerReachConfidence || "").toLowerCase(),
+        reachTier: clean(record.reachTier || "").toLowerCase(),
         sentiment: clean(record.sentiment || "unknown"),
         priceTier: clean(record.priceTier || "unknown"),
         summary: clean(record.summary),
@@ -1366,6 +1393,7 @@
     function matchesVerification(record, filter) {
       if (filter === "all") return true;
       if (filter === "contactable") return Boolean(record.phone || record.email);
+      if (filter === "owner_reachable") return isOwnerReachable(record);
       if (filter === "missing_contact") return !record.phone && !record.email;
       if (filter === "license_verified") return Boolean(record.licenseVerified || record.licenseNumber);
       if (filter === "insurance_verified") return Boolean(record.insuranceVerified || /active|verified|current/i.test(`${record.workersCompStatus} ${record.generalLiabilityStatus}`));
@@ -1407,10 +1435,20 @@
             record.status,
             record.summary,
             record.sourceNotes,
+            record.ownerName,
+            record.ownerTitle,
             ...record.specialties
           ].join(" ").toLowerCase().includes(search);
         })
         .sort((a, b) => {
+          if (sortBy === "ownerReach") {
+            const tierRank = { owner: 0, company: 1, none: 2 };
+            const rankA = tierRank[clean(a.reachTier).toLowerCase()] ?? 3;
+            const rankB = tierRank[clean(b.reachTier).toLowerCase()] ?? 3;
+            return rankA - rankB
+              || Number(b.ownerReachScore || 0) - Number(a.ownerReachScore || 0)
+              || Number(b.fitScore || 0) - Number(a.fitScore || 0);
+          }
           if (sortBy === "compliance") {
             const rank = { expired: 0, expiring: 1, unknown: 2, current: 3 };
             return rank[complianceStatus(a).state] - rank[complianceStatus(b).state] || Number(b.fitScore || 0) - Number(a.fitScore || 0);
@@ -1431,6 +1469,31 @@
       if (scoreValue >= 75) return "good";
       if (scoreValue >= 50) return "warn";
       return "bad";
+    }
+
+    // Owner-reach pill tone: green >=75, amber 45-74, grey <45.
+    function reachToneClass(reachScore) {
+      const value = Number(reachScore || 0);
+      if (value >= 75) return "reach-high";
+      if (value >= 45) return "reach-mid";
+      return "reach-low";
+    }
+
+    function isOwnerReachable(record) {
+      return clean(record.reachTier).toLowerCase() === "owner";
+    }
+
+    // Small "Owner: Name · reach NN" line + colored reach pill for a roster card.
+    function ownerReachHtml(record) {
+      const hasReachData = record.ownerName || record.reachTier || Number(record.ownerReachScore || 0) > 0;
+      if (!hasReachData) return "";
+      const score = Number(record.ownerReachScore || 0);
+      const tone = reachToneClass(score);
+      const namePart = record.ownerName
+        ? `Owner: <b>${escapeHtml(record.ownerName)}</b>${record.ownerTitle ? ` <span class="cell-note">(${escapeHtml(record.ownerTitle)})</span>` : ""}`
+        : `Owner: <span class="cell-note">unnamed</span>`;
+      const reachLabel = isOwnerReachable(record) ? `reach ${score}` : `${labelize(record.reachTier || "no reach")} ${score}`;
+      return `<div class="owner-line">${namePart} ${pill(reachLabel, tone)}</div>`;
     }
 
     function bondedTone(value) {
@@ -1477,12 +1540,14 @@
 
     function renderMetrics() {
       const contactable = subcontractors.filter((row) => row.phone || row.email).length;
+      const ownerReachable = subcontractors.filter((row) => isOwnerReachable(row)).length;
       const licensed = subcontractors.filter((row) => row.licenseVerified || row.licenseNumber).length;
       const insured = subcontractors.filter((row) => row.insuranceVerified || /active|verified|current/i.test(`${row.workersCompStatus} ${row.generalLiabilityStatus}`)).length;
       const needsReview = subcontractors.filter((row) => matchesVerification(row, "needs_review")).length;
       const complianceRisk = subcontractors.filter((row) => matchesVerification(row, "compliance_risk")).length;
       els.totalCount.textContent = subcontractors.length;
       els.contactableCount.textContent = contactable;
+      els.ownerReachableCount.textContent = ownerReachable;
       els.licensedCount.textContent = licensed;
       els.insuredCount.textContent = insured;
       els.complianceRiskMetric.textContent = complianceRisk;
@@ -1564,6 +1629,7 @@
               <div class="company-cell">
                 <strong>${escapeHtml(record.companyName || "Unnamed contractor")}</strong>
                 <span>${escapeHtml(contactLabel)}</span>
+                ${ownerReachHtml(record)}
               </div>
               <div class="compact-cell">
                 <strong>${escapeHtml(record.serviceCategory || "Uncategorized")}</strong>
@@ -1595,6 +1661,8 @@
                 ${detailItem("Additional Insured", record.additionalInsured ? "Yes" : "")}
                 ${detailItem("Source", escapeHtml(labelize(record.sourceChannel)))}
                 ${detailItem("Reviews", record.reviewRating ? `${escapeHtml(record.reviewRating)} / 5 (${escapeHtml(record.reviewCount || 0)})` : "")}
+                ${detailItem("Owner", record.ownerName ? `${escapeHtml(record.ownerName)}${record.ownerTitle ? ` — ${escapeHtml(record.ownerTitle)}` : ""}` : "")}
+                ${detailItem("Owner Reach", (record.reachTier || record.ownerReachScore) ? `${escapeHtml(String(record.ownerReachScore || 0))}${record.ownerReachConfidence ? ` (${escapeHtml(record.ownerReachConfidence)})` : ""}${record.reachTier ? ` · ${escapeHtml(labelize(record.reachTier))}` : ""}` : "")}
               </div>
               ${comp.state !== "unknown" ? `<div class="note-box"><span>Compliance</span><p>${escapeHtml(comp.parts.join("  ·  "))}</p></div>` : ""}
               <div class="note-box">

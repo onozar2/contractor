@@ -13,8 +13,76 @@ const dbName = process.env.MONGODB_DB || "contractor";
 
 let clientPromise;
 
-publicApp.get("/", (_req, res) => res.sendFile(path.join(__dirname, "index.html")));
-publicApp.get("/index.html", (_req, res) => res.sendFile(path.join(__dirname, "index.html")));
+// ── White-label public site (zero-dependency brand system) ──
+// A brand is a plain JSON file at brands/<slug>/brand.json. The active brand is
+// chosen by process.env.BRAND (default "joon"); a ?brand=<slug> query overrides
+// it for preview only. index.template.html carries {{tokens}} and <!--LOOP:key-->
+// blocks that renderBrandedPage fills from the brand JSON.
+const fs = require("fs");
+const DEFAULT_BRAND = process.env.BRAND || "joon";
+const brandCache = new Map();
+
+function loadBrand(slug) {
+  const clean = String(slug || "").replace(/[^a-z0-9_-]/gi, "").toLowerCase();
+  const key = clean || DEFAULT_BRAND;
+  if (brandCache.has(key)) return brandCache.get(key);
+  const file = path.join(__dirname, "brands", key, "brand.json");
+  let brand;
+  try {
+    brand = JSON.parse(fs.readFileSync(file, "utf8"));
+  } catch (_error) {
+    if (key !== DEFAULT_BRAND) return loadBrand(DEFAULT_BRAND);
+    throw new Error(`Brand "${key}" not found and no fallback available at ${file}`);
+  }
+  brandCache.set(key, brand);
+  return brand;
+}
+
+// Resolve a dotted path ("colors.ink") against the brand object; "." means the current loop item.
+function lookup(context, expr, item) {
+  const trimmed = String(expr).trim();
+  if (trimmed === "." || trimmed === "this") return item;
+  const root = item && Object.prototype.hasOwnProperty.call(Object(item), trimmed) ? item : context;
+  return trimmed.split(".").reduce((acc, part) => (acc == null ? acc : acc[part]), root);
+}
+
+function fillTokens(str, context, item) {
+  return String(str).replace(/\{\{([^}]+)\}\}/g, (_match, expr) => {
+    const value = lookup(context, expr, item);
+    return value == null ? "" : String(value);
+  });
+}
+
+// Expand <!--LOOP:key-->...<!--/LOOP:key--> blocks by repeating the inner block per array item.
+function renderLoops(template, brand) {
+  const loopRe = /<!--LOOP:([^>]+?)-->([\s\S]*?)<!--\/LOOP:\1-->/g;
+  return template.replace(loopRe, (_match, key, block) => {
+    const list = lookup(brand, key);
+    if (!Array.isArray(list)) return "";
+    return list.map((item) => fillTokens(block, brand, item)).join("");
+  });
+}
+
+function renderBrandedPage(templatePath, brand) {
+  const template = fs.readFileSync(templatePath, "utf8");
+  return fillTokens(renderLoops(template, brand), brand);
+}
+
+function activeBrand(req) {
+  return loadBrand((req.query && req.query.brand) || DEFAULT_BRAND);
+}
+
+function serveIndex(req, res) {
+  try {
+    const html = renderBrandedPage(path.join(__dirname, "index.template.html"), activeBrand(req));
+    res.type("html").send(html);
+  } catch (error) {
+    res.status(500).type("text").send(`Brand render error: ${error.message}`);
+  }
+}
+
+publicApp.get("/", serveIndex);
+publicApp.get("/index.html", serveIndex);
 publicApp.get("/flyer_services.html", (_req, res) => res.sendFile(path.join(__dirname, "flyer_services.html")));
 publicApp.get("/flyer_commercial.html", (_req, res) => res.sendFile(path.join(__dirname, "flyer_commercial.html")));
 publicApp.get("/market_report.html", (_req, res) => res.sendFile(path.join(__dirname, "market_report.html")));
@@ -25,6 +93,9 @@ crmApp.get("/", (_req, res) => res.redirect("/subcontractor_finder.html"));
 crmApp.get("/subcontractor_finder.html", (_req, res) => res.sendFile(path.join(__dirname, "subcontractor_finder.html")));
 crmApp.get("/lead_generation.html", (_req, res) => res.sendFile(path.join(__dirname, "lead_generation.html")));
 crmApp.get("/bid_lab.html", (_req, res) => res.sendFile(path.join(__dirname, "bid_lab.html")));
+crmApp.get("/suppliers.html", (_req, res) => res.sendFile(path.join(__dirname, "suppliers.html")));
+crmApp.get("/services_board.html", (_req, res) => res.sendFile(path.join(__dirname, "services_board.html")));
+crmApp.use("/api/suppliers", require("./suppliers")(collection));
 crmApp.use("/assets", express.static(path.join(__dirname, "assets")));
 
 function getClient() {

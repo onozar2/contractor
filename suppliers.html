@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Internal suppliers & manufacturers roster for Joon Development Group." />
+  <title>Suppliers / Manufacturers | Joon Development Group</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #172033;
+      --steel: #3c4658;
+      --muted: #687587;
+      --line: #d8dee8;
+      --soft: #f5f7fa;
+      --paper: #ffffff;
+      --charcoal: #101828;
+      --blue: #2563eb;
+      --green: #0f766e;
+      --amber: #b45309;
+      --red: #b42318;
+      --plum: #7c3aed;
+      --rust: #b85c38;
+      --shadow: 0 14px 36px rgba(16, 24, 40, 0.08);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      min-width: 320px;
+      color: var(--ink);
+      background: #eef2f6;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    a { color: inherit; }
+    .topbar {
+      background: var(--charcoal);
+      color: rgba(255, 255, 255, 0.76);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding: 0.5rem 4vw;
+      font-size: 0.82rem;
+    }
+    .topbar a { text-decoration: none; }
+    .topbar strong { color: #fff; }
+    .workspace-switcher {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+    .workspace-switcher a {
+      min-height: 28px;
+      border-radius: 6px;
+      padding: 0.18rem 0.52rem;
+      color: rgba(255, 255, 255, 0.72);
+      font-weight: 850;
+    }
+    .workspace-switcher a:hover,
+    .workspace-switcher a.active {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
+    }
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      min-height: 72px;
+      padding: 0 4vw;
+      border-bottom: 1px solid rgba(216, 222, 232, 0.9);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+    .brand {
+      display: grid;
+      gap: 0.1rem;
+      text-decoration: none;
+      line-height: 1.05;
+    }
+    .brand span:first-child {
+      font-size: 0.95rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .brand span:last-child {
+      color: var(--rust);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    nav a,
+    .nav-button {
+      min-height: 36px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 0 0.72rem;
+      color: var(--steel);
+      background: transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 850;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    nav a:hover,
+    .nav-button:hover {
+      color: var(--rust);
+      border-color: var(--line);
+      background: var(--soft);
+    }
+    .app-shell {
+      width: min(1560px, 100%);
+      margin: 0 auto;
+      padding: 1.2rem 4vw 3rem;
+      display: grid;
+      gap: 1rem;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.7rem;
+    }
+    .metric,
+    .module,
+    .roster-section,
+    .filter-bar,
+    .pipeline {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+    .metric {
+      position: relative;
+      padding: 0.85rem;
+      min-height: 82px;
+      display: grid;
+      align-content: space-between;
+      gap: 0.25rem;
+      border-top: 3px solid transparent;
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.05s;
+    }
+    .metric[data-filter] { cursor: pointer; }
+    .metric[data-filter]:hover {
+      border-top-color: var(--steel);
+      box-shadow: 0 16px 38px rgba(16, 24, 40, 0.12);
+    }
+    .metric[data-filter]:active { transform: translateY(1px); }
+    .metric[data-filter]:focus-visible {
+      outline: 2px solid rgba(37, 99, 235, 0.4);
+      outline-offset: 2px;
+    }
+    .metric.active {
+      border-top-color: var(--charcoal);
+      box-shadow: 0 0 0 1px var(--charcoal), var(--shadow);
+    }
+    .metric.attention strong { color: var(--amber); }
+    .metric.attention.active { border-top-color: var(--amber); box-shadow: 0 0 0 1px var(--amber), var(--shadow); }
+    .metric span {
+      color: var(--muted);
+      font-size: 0.74rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .metric strong {
+      color: var(--ink);
+      font-size: 1.75rem;
+      line-height: 1;
+    }
+    .pipeline {
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 8px 22px rgba(16, 24, 40, 0.05);
+    }
+    .pipeline-label {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-right: 0.2rem;
+    }
+    .stage {
+      min-height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--steel);
+      padding: 0 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      font-weight: 850;
+      cursor: pointer;
+    }
+    .stage .count {
+      min-width: 22px;
+      height: 20px;
+      padding: 0 0.35rem;
+      border-radius: 999px;
+      background: var(--soft);
+      color: var(--steel);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 900;
+    }
+    .stage.active { background: var(--charcoal); color: #fff; border-color: var(--charcoal); }
+    .stage.active .count { background: rgba(255, 255, 255, 0.22); color: #fff; }
+    .stage-arrow { color: var(--muted); font-weight: 900; }
+    .filter-bar {
+      padding: 0.75rem;
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) minmax(180px, 0.5fr) minmax(180px, 0.5fr);
+      gap: 0.65rem;
+      align-items: end;
+      box-shadow: 0 8px 22px rgba(16, 24, 40, 0.05);
+    }
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.28rem;
+    }
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      padding: 0.65rem 0.72rem;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: 2px solid rgba(37, 99, 235, 0.2);
+      border-color: rgba(37, 99, 235, 0.55);
+    }
+    button,
+    .button-link {
+      min-height: 42px;
+      border: 0;
+      border-radius: 6px;
+      background: var(--charcoal);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0 0.9rem;
+      font: inherit;
+      font-weight: 900;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    button:hover,
+    .button-link:hover { background: var(--rust); }
+    button:disabled { opacity: 0.58; cursor: wait; }
+    button.secondary,
+    .button-link.secondary {
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    button.secondary:hover,
+    .button-link.secondary:hover {
+      color: var(--rust);
+      border-color: var(--rust);
+      background: #fff;
+    }
+    button.tiny {
+      min-height: 30px;
+      padding: 0 0.6rem;
+      font-size: 0.78rem;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(360px, 0.6fr);
+      gap: 1rem;
+      align-items: start;
+    }
+    .roster-section { overflow: hidden; }
+    .section-head {
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .section-head h1,
+    .section-head h2 {
+      font-size: 1.05rem;
+      line-height: 1.2;
+    }
+    .section-head p,
+    .muted {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .cat-group {
+      border-bottom: 1px solid var(--line);
+    }
+    .cat-group:last-child { border-bottom: 0; }
+    .cat-head {
+      padding: 0.7rem 1rem;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .cat-head h3 {
+      font-size: 0.9rem;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+    .cat-head .cat-count {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 850;
+    }
+    .record-head,
+    .record-summary {
+      display: grid;
+      grid-template-columns: minmax(200px, 1.2fr) minmax(150px, 0.9fr) minmax(120px, 0.5fr) minmax(140px, 0.7fr) minmax(150px, 0.7fr) minmax(96px, 0.4fr);
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .record-head {
+      padding: 0.6rem 1rem;
+      color: var(--muted);
+      background: #fbfcfe;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .record-list { display: grid; }
+    .record-card { border-bottom: 1px solid var(--line); background: #fff; }
+    .record-card:last-child { border-bottom: 0; }
+    summary { list-style: none; }
+    summary::-webkit-details-marker { display: none; }
+    .record-summary {
+      min-height: 66px;
+      padding: 0.7rem 1rem;
+      cursor: pointer;
+    }
+    .record-summary:hover { background: #fbfcfe; }
+    .name-cell {
+      min-width: 0;
+      display: grid;
+      gap: 0.16rem;
+    }
+    .name-cell strong {
+      font-size: 0.96rem;
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+    }
+    .name-cell span,
+    .cell-note {
+      color: var(--muted);
+      font-size: 0.8rem;
+      overflow-wrap: anywhere;
+    }
+    .compact-cell {
+      min-width: 0;
+      color: var(--steel);
+      font-size: 0.86rem;
+      overflow-wrap: anywhere;
+    }
+    .contact-stack {
+      display: grid;
+      gap: 0.14rem;
+      min-width: 0;
+      color: var(--steel);
+      font-size: 0.83rem;
+    }
+    .pill {
+      width: fit-content;
+      max-width: 100%;
+      min-height: 26px;
+      border-radius: 999px;
+      padding: 0.18rem 0.58rem;
+      display: inline-flex;
+      align-items: center;
+      color: var(--steel);
+      background: var(--soft);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .pill.good { color: var(--green); background: #ddf5ef; }
+    .pill.warn { color: var(--amber); background: #fff2cf; }
+    .pill.bad { color: var(--red); background: #fee4e2; }
+    .pill.blue { color: var(--blue); background: #dbeafe; }
+    .pill.plum { color: var(--plum); background: #ede9fe; }
+    .brand-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.28rem;
+      margin-top: 0.1rem;
+    }
+    .brand-tag {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--steel);
+      padding: 0.06rem 0.45rem;
+      font-size: 0.72rem;
+      font-weight: 850;
+      overflow-wrap: anywhere;
+    }
+    .record-detail {
+      border-top: 1px solid var(--line);
+      padding: 1rem;
+      background: #fbfcfe;
+      display: grid;
+      gap: 0.85rem;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.65rem;
+    }
+    .detail-item {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      padding: 0.65rem;
+      display: grid;
+      gap: 0.2rem;
+    }
+    .detail-item span {
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 900;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+    .detail-item strong,
+    .detail-item a {
+      color: var(--ink);
+      font-size: 0.9rem;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+    .detail-item a { color: var(--blue); text-decoration: none; }
+    .note-box {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      padding: 0.75rem;
+      display: grid;
+      gap: 0.35rem;
+    }
+    .note-box span {
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 900;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+    .note-box p {
+      color: var(--steel);
+      font-size: 0.9rem;
+      overflow-wrap: anywhere;
+    }
+    .detail-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      align-items: center;
+    }
+    .stage-picker {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .stage-picker select { min-height: 34px; width: auto; padding: 0.2rem 0.5rem; }
+    .source-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+    .source-links a {
+      color: var(--blue);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      min-height: 30px;
+      padding: 0.28rem 0.65rem;
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      font-size: 0.78rem;
+      font-weight: 850;
+    }
+    .module { padding: 1rem; }
+    .module h2 {
+      font-size: 1.02rem;
+      font-weight: 900;
+    }
+    .module-body {
+      margin-top: 0.85rem;
+      display: grid;
+      gap: 0.85rem;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.68rem;
+    }
+    .full { grid-column: 1 / -1; }
+    .form-section {
+      grid-column: 1 / -1;
+      margin-top: 0.55rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink);
+      font-size: 0.76rem;
+      font-weight: 900;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+    .form-section:first-of-type { margin-top: 0; }
+    .status-line {
+      min-height: 24px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .status-line.good { color: var(--green); }
+    .status-line.warn { color: var(--amber); }
+    .status-line.bad { color: var(--red); }
+    .empty {
+      padding: 2.2rem 1rem;
+      color: var(--muted);
+      text-align: center;
+      background: #fff;
+    }
+    .empty-cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 0.9rem;
+    }
+    .toast-host {
+      position: fixed;
+      right: 1.2rem;
+      bottom: 1.2rem;
+      z-index: 60;
+      display: grid;
+      gap: 0.5rem;
+      max-width: min(360px, 90vw);
+    }
+    .toast {
+      border-left: 4px solid var(--steel);
+      border-radius: 8px;
+      background: var(--charcoal);
+      color: #fff;
+      padding: 0.7rem 0.9rem;
+      font-size: 0.86rem;
+      font-weight: 700;
+      box-shadow: 0 18px 40px rgba(16, 24, 40, 0.28);
+      animation: toastIn 0.18s ease-out;
+    }
+    .toast.good { border-left-color: #34d399; }
+    .toast.warn { border-left-color: #fbbf24; }
+    .toast.bad { border-left-color: #f87171; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    footer {
+      padding: 1.5rem 4vw 2.5rem;
+      color: rgba(255, 255, 255, 0.66);
+      background: var(--charcoal);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      justify-content: space-between;
+      font-size: 0.82rem;
+    }
+    @media (max-width: 960px) {
+      .workspace-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .topbar { display: none; }
+      .app-header { min-height: 64px; align-items: flex-start; padding-top: 0.72rem; padding-bottom: 0.72rem; }
+      nav a:not(.button-link) { display: none; }
+      .app-shell { padding-inline: 3.5vw; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .filter-bar,
+      .form-grid,
+      .detail-grid { grid-template-columns: 1fr; }
+      .full { grid-column: auto; }
+      .record-summary { grid-template-columns: 1fr; gap: 0.5rem; }
+      .record-summary .compact-cell:nth-of-type(2) { display: none; }
+      .actions button,
+      .actions .button-link { flex: 1 1 160px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .toast { animation: none; } html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div><strong>Suppliers &amp; manufacturers roster</strong></div>
+    <div class="workspace-switcher" role="navigation" aria-label="Workspace switcher">
+      <a href="subcontractor_finder.html">Subcontractors</a>
+      <a href="lead_generation.html">Lead Gen</a>
+      <a href="bid_lab.html">Bid Lab</a>
+      <a class="active" href="suppliers.html">Suppliers</a>
+      <a href="http://localhost:4173/">Public Site</a>
+    </div>
+  </div>
+
+  <header class="app-header">
+    <a class="brand" href="http://localhost:4173/">
+      <span>Joon Development Group</span>
+      <span>Suppliers / Manufacturers</span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a href="#roster">Roster</a>
+      <a href="#editor">Add / Edit</a>
+      <button id="newRecordTop" class="nav-button button-link" type="button">New Supplier</button>
+    </nav>
+  </header>
+
+  <main class="app-shell">
+    <section class="metrics" aria-label="Supplier metrics — click a card to filter">
+      <div class="metric" data-filter="all" role="button" tabindex="0" title="Show all suppliers"><span>Total Suppliers</span><strong id="totalCount">0</strong></div>
+      <div class="metric" data-filter="open" role="button" tabindex="0" title="Filter to open accounts"><span>Open Accounts</span><strong id="openCount">0</strong></div>
+      <div class="metric" data-filter="all" role="button" tabindex="0" title="Categories covered"><span>Categories Covered</span><strong id="categoryCount">0</strong></div>
+      <div class="metric attention" data-filter="not_started" role="button" tabindex="0" title="Filter to accounts not started"><span>Not Started</span><strong id="notStartedCount">0</strong></div>
+    </section>
+
+    <section class="pipeline" id="pipeline" aria-label="Account status pipeline">
+      <span class="pipeline-label">Account pipeline</span>
+      <button class="stage" data-stage="not_started" type="button">Not started <span class="count" id="stage-not_started">0</span></button>
+      <span class="stage-arrow" aria-hidden="true">&rarr;</span>
+      <button class="stage" data-stage="researching" type="button">Researching <span class="count" id="stage-researching">0</span></button>
+      <span class="stage-arrow" aria-hidden="true">&rarr;</span>
+      <button class="stage" data-stage="applied" type="button">Applied <span class="count" id="stage-applied">0</span></button>
+      <span class="stage-arrow" aria-hidden="true">&rarr;</span>
+      <button class="stage" data-stage="open" type="button">Open <span class="count" id="stage-open">0</span></button>
+    </section>
+
+    <section class="filter-bar" aria-label="Roster filters">
+      <div>
+        <label for="searchInput">Search</label>
+        <input id="searchInput" placeholder="Name, brand, service, contact, region..." />
+      </div>
+      <div>
+        <label for="categoryFilter">Category</label>
+        <select id="categoryFilter"></select>
+      </div>
+      <div>
+        <label for="statusFilter">Account status</label>
+        <select id="statusFilter"></select>
+      </div>
+    </section>
+
+    <section id="roster" class="roster-section" aria-label="Supplier roster">
+      <div class="section-head">
+        <div>
+          <h1>Suppliers &amp; Manufacturers</h1>
+          <p id="resultCount" class="muted">Loading suppliers...</p>
+        </div>
+        <div class="actions">
+          <span id="storageStatus" class="pill">...</span>
+          <button id="exportJson" class="secondary" type="button">Export JSON</button>
+        </div>
+      </div>
+      <div id="supplierGroups"></div>
+    </section>
+
+    <section class="workspace-grid">
+      <div class="module" id="editor">
+        <h2 id="formTitle">Add supplier</h2>
+        <form id="supplierForm" class="module-body" autocomplete="off">
+          <input type="hidden" id="recordId" />
+          <div class="form-grid">
+            <div class="form-section">Identity</div>
+            <div>
+              <label for="name">Name</label>
+              <input id="name" required placeholder="e.g. Ferguson" />
+            </div>
+            <div>
+              <label for="category">Category</label>
+              <select id="category"></select>
+            </div>
+            <div>
+              <label for="accountType">Account type</label>
+              <select id="accountType"></select>
+            </div>
+            <div>
+              <label for="accountStatus">Account status</label>
+              <select id="accountStatus"></select>
+            </div>
+            <div class="full">
+              <label for="brands">Brands (comma or newline separated)</label>
+              <input id="brands" placeholder="e.g. Milgard, Andersen" />
+            </div>
+            <div class="full">
+              <label for="suppliesServices">Supplies / services</label>
+              <textarea id="suppliesServices" placeholder="e.g. Plumbing fixtures, pipe, valves, water heaters"></textarea>
+            </div>
+
+            <div class="form-section">Account setup</div>
+            <div>
+              <label for="accountCostEstimate">Est. opening cost</label>
+              <input id="accountCostEstimate" placeholder="e.g. $0 to open; net-30" />
+            </div>
+            <div>
+              <label for="region">Region</label>
+              <input id="region" placeholder="Southern California" />
+            </div>
+            <div class="full">
+              <label for="accountRequirements">Account requirements</label>
+              <textarea id="accountRequirements" placeholder="Credit app, resale certificate, personal guaranty..."></textarea>
+            </div>
+
+            <div class="form-section">Contact</div>
+            <div>
+              <label for="contactName">Contact name</label>
+              <input id="contactName" placeholder="Rep / credit dept" />
+            </div>
+            <div>
+              <label for="phone">Phone</label>
+              <input id="phone" placeholder="(800) 000-0000" />
+            </div>
+            <div>
+              <label for="email">Email</label>
+              <input id="email" type="email" placeholder="rep@supplier.com" />
+            </div>
+            <div>
+              <label for="website">Website</label>
+              <input id="website" placeholder="https://supplier.com" />
+            </div>
+            <div class="full">
+              <label for="sourceUrls">Source URLs (one per line)</label>
+              <textarea id="sourceUrls" placeholder="https://supplier.com/credit-application"></textarea>
+            </div>
+            <div class="full">
+              <label for="notes">Notes</label>
+              <textarea id="notes" placeholder="Program tier, deposit terms, acquisition angle..."></textarea>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="saveRecord" type="submit">Save supplier</button>
+            <button id="clearForm" class="secondary" type="button">Clear</button>
+            <span id="formStatus" class="status-line"></span>
+          </div>
+        </form>
+      </div>
+
+      <div class="module">
+        <h2>How supplier accounts work</h2>
+        <div class="module-body">
+          <div class="note-box">
+            <span>The money fact</span>
+            <p>For most building-materials wholesalers, opening a trade account is <strong>free</strong>. The gates are a business license + EIN, a CA resale/seller's-permit certificate, a signed credit application, and (for a new company) a personal guaranty.</p>
+          </div>
+          <div class="note-box">
+            <span>Where the dollars go</span>
+            <p>Budget dollars for <strong>first stocking orders + dealer programs</strong> (window manufacturer dealer programs like Milgard, and tile dealer programs like Daltile Statement Dealer), not for account fees.</p>
+          </div>
+          <div class="note-box">
+            <span>Acquisition angle</span>
+            <p>A target that already holds these trade accounts + dealer certifications (Milgard/Andersen certs, net-30 history, established credit) is worth a premium — those take 6-12 months + volume to build.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Joon Development Group — internal supplier & manufacturer roster.</span>
+    <span>Track account setup: not started &rarr; researching &rarr; applied &rarr; open.</span>
+  </footer>
+
+  <div id="toastHost" class="toast-host" role="status" aria-live="polite"></div>
+
+  <script>
+    const categories = [
+      "Windows & Doors",
+      "Electrical",
+      "Plumbing",
+      "Roofing",
+      "Paint",
+      "Tile & Stone",
+      "HVAC",
+      "Drywall & Insulation",
+      "Concrete & Masonry",
+      "Lumber & Building Materials",
+      "Cabinets & Countertops",
+      "Solar"
+    ];
+    const accountTypes = ["distributor", "manufacturer-dealer", "big-box-pro", "supply-house"];
+    const accountStatuses = ["not_started", "researching", "applied", "open"];
+    const statusOrder = { not_started: 0, researching: 1, applied: 2, open: 3 };
+    const statusTone = { not_started: "warn", researching: "blue", applied: "plum", open: "good" };
+
+    const storageKey = "joonSuppliers";
+    const apiBase = window.location.port === "4173" ? `http://${window.location.hostname}:4373` : "";
+    let suppliers = [];
+    let apiAvailable = false;
+    let activeStatus = "all";
+    let activeCategory = "All categories";
+
+    const els = {
+      totalCount: document.querySelector("#totalCount"),
+      openCount: document.querySelector("#openCount"),
+      categoryCount: document.querySelector("#categoryCount"),
+      notStartedCount: document.querySelector("#notStartedCount"),
+      resultCount: document.querySelector("#resultCount"),
+      storageStatus: document.querySelector("#storageStatus"),
+      searchInput: document.querySelector("#searchInput"),
+      categoryFilter: document.querySelector("#categoryFilter"),
+      statusFilter: document.querySelector("#statusFilter"),
+      supplierGroups: document.querySelector("#supplierGroups"),
+      formStatus: document.querySelector("#formStatus"),
+      form: document.querySelector("#supplierForm")
+    };
+
+    function clean(value) {
+      return String(value || "").replace(/\s+/g, " ").trim();
+    }
+
+    function splitList(value) {
+      if (Array.isArray(value)) return [...new Set(value.map(clean).filter(Boolean))];
+      return clean(value).split(/\n|,/).map(clean).filter(Boolean);
+    }
+
+    function pickEnum(value, allowed, fallback) {
+      const raw = clean(value);
+      return allowed.includes(raw) ? raw : fallback;
+    }
+
+    function isMongoId(id) {
+      return /^[a-f0-9]{24}$/i.test(clean(id));
+    }
+
+    function normalizeUrl(url) {
+      const value = clean(url);
+      if (!value) return "";
+      return /^https?:\/\//i.test(value) ? value : `https://${value}`;
+    }
+
+    function displayDomain(url) {
+      const value = normalizeUrl(url);
+      if (!value) return "";
+      try {
+        return new URL(value).hostname.replace(/^www\./, "");
+      } catch (_error) {
+        return clean(url);
+      }
+    }
+
+    function toast(message, tone = "") {
+      const host = document.querySelector("#toastHost");
+      if (!host) return;
+      const node = document.createElement("div");
+      node.className = `toast ${tone}`.trim();
+      node.textContent = message;
+      host.appendChild(node);
+      setTimeout(() => {
+        node.style.transition = "opacity 0.3s, transform 0.3s";
+        node.style.opacity = "0";
+        node.style.transform = "translateY(8px)";
+        setTimeout(() => node.remove(), 320);
+      }, 2600);
+    }
+
+    function escapeHtml(value) {
+      return clean(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#39;"
+      })[char]);
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, "&#96;");
+    }
+
+    function labelize(value) {
+      return clean(value || "unknown").replaceAll("_", " ");
+    }
+
+    function normalize(record) {
+      return {
+        id: record.id || crypto.randomUUID(),
+        name: clean(record.name),
+        category: pickEnum(record.category, categories, categories[0]),
+        brands: splitList(record.brands),
+        suppliesServices: splitList(record.suppliesServices),
+        accountType: pickEnum(record.accountType, accountTypes, "distributor"),
+        accountStatus: pickEnum(record.accountStatus, accountStatuses, "not_started"),
+        accountCostEstimate: clean(record.accountCostEstimate),
+        accountRequirements: clean(record.accountRequirements),
+        contactName: clean(record.contactName),
+        phone: clean(record.phone),
+        email: clean(record.email).toLowerCase(),
+        website: clean(record.website),
+        region: clean(record.region || "Southern California"),
+        notes: clean(record.notes),
+        sourceUrls: splitList(record.sourceUrls),
+        createdAt: clean(record.createdAt),
+        updatedAt: clean(record.updatedAt)
+      };
+    }
+
+    async function api(path, options = {}) {
+      const response = await fetch(`${apiBase}${path}`, {
+        headers: { "content-type": "application/json" },
+        ...options
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.error || `HTTP ${response.status}`);
+      }
+      if (response.status === 204) return null;
+      return response.json();
+    }
+
+    function saveLocal() {
+      localStorage.setItem(storageKey, JSON.stringify(suppliers));
+    }
+
+    function setOptions(select, values, currentValue = select.value) {
+      select.innerHTML = values.map((value) => `<option value="${escapeAttr(value)}">${escapeHtml(labelize(value))}</option>`).join("");
+      if (values.includes(currentValue)) select.value = currentValue;
+    }
+
+    function populateSelects() {
+      const usedCategories = [...new Set([...categories, ...suppliers.map((row) => row.category).filter(Boolean)])];
+      setOptions(els.categoryFilter, ["All categories", ...usedCategories], activeCategory);
+      setOptions(els.statusFilter, ["All statuses", ...accountStatuses], activeStatus === "all" ? "All statuses" : activeStatus);
+      setOptions(document.querySelector("#category"), categories, document.querySelector("#category").value || categories[0]);
+      setOptions(document.querySelector("#accountType"), accountTypes, document.querySelector("#accountType").value || accountTypes[0]);
+      setOptions(document.querySelector("#accountStatus"), accountStatuses, document.querySelector("#accountStatus").value || accountStatuses[0]);
+    }
+
+    function statusPill(status) {
+      const tone = statusTone[status] || "";
+      return `<span class="pill ${tone}">${escapeHtml(labelize(status))}</span>`;
+    }
+
+    function matchesFilters(record) {
+      if (activeStatus !== "all" && record.accountStatus !== activeStatus) return false;
+      if (activeCategory !== "All categories" && record.category !== activeCategory) return false;
+      const term = clean(els.searchInput.value).toLowerCase();
+      if (!term) return true;
+      const haystack = [
+        record.name,
+        record.category,
+        record.accountType,
+        record.brands.join(" "),
+        record.suppliesServices.join(" "),
+        record.contactName,
+        record.phone,
+        record.email,
+        record.website,
+        record.region,
+        record.notes
+      ].join(" ").toLowerCase();
+      return haystack.includes(term);
+    }
+
+    function renderMetrics() {
+      els.totalCount.textContent = suppliers.length;
+      els.openCount.textContent = suppliers.filter((row) => row.accountStatus === "open").length;
+      els.categoryCount.textContent = new Set(suppliers.map((row) => row.category)).size;
+      els.notStartedCount.textContent = suppliers.filter((row) => row.accountStatus === "not_started").length;
+      for (const status of accountStatuses) {
+        const node = document.querySelector(`#stage-${status}`);
+        if (node) node.textContent = suppliers.filter((row) => row.accountStatus === status).length;
+      }
+      document.querySelectorAll(".metric[data-filter]").forEach((metric) => {
+        metric.classList.toggle("active", metric.dataset.filter === activeStatus);
+      });
+      document.querySelectorAll(".stage").forEach((stage) => {
+        stage.classList.toggle("active", stage.dataset.stage === activeStatus);
+      });
+    }
+
+    function renderRows() {
+      const filtered = suppliers.filter(matchesFilters);
+      els.resultCount.textContent = `${filtered.length} of ${suppliers.length} supplier(s)`
+        + (activeStatus !== "all" ? ` · ${labelize(activeStatus)}` : "")
+        + (activeCategory !== "All categories" ? ` · ${activeCategory}` : "");
+
+      if (!filtered.length) {
+        els.supplierGroups.innerHTML = `
+          <div class="empty">
+            <p>No suppliers match the current filters.</p>
+            <div class="empty-cta">
+              <button id="resetFilters" class="secondary" type="button">Reset filters</button>
+              <button id="emptyAdd" type="button">Add a supplier</button>
+            </div>
+          </div>`;
+        document.querySelector("#resetFilters")?.addEventListener("click", resetFilters);
+        document.querySelector("#emptyAdd")?.addEventListener("click", () => { clearForm(); document.querySelector("#name").focus(); });
+        return;
+      }
+
+      const order = [...new Set([...categories, ...filtered.map((row) => row.category)])];
+      const groups = order
+        .map((category) => ({ category, rows: filtered.filter((row) => row.category === category) }))
+        .filter((group) => group.rows.length);
+
+      els.supplierGroups.innerHTML = groups.map((group) => {
+        const rows = group.rows
+          .slice()
+          .sort((a, b) => (statusOrder[b.accountStatus] || 0) - (statusOrder[a.accountStatus] || 0) || a.name.localeCompare(b.name))
+          .map(renderCard)
+          .join("");
+        return `
+          <div class="cat-group">
+            <div class="cat-head">
+              <h3>${escapeHtml(group.category)}</h3>
+              <span class="cat-count">${group.rows.length} supplier(s)</span>
+            </div>
+            <div class="record-head" aria-hidden="true">
+              <div>Supplier</div>
+              <div>Brands</div>
+              <div>Status</div>
+              <div>Est. Cost</div>
+              <div>Contact</div>
+              <div>Actions</div>
+            </div>
+            <div class="record-list">${rows}</div>
+          </div>`;
+      }).join("");
+    }
+
+    function renderCard(record) {
+      const brandTags = record.brands.length
+        ? `<div class="brand-tags">${record.brands.slice(0, 4).map((brand) => `<span class="brand-tag">${escapeHtml(brand)}</span>`).join("")}</div>`
+        : `<span class="cell-note">—</span>`;
+      const contact = [record.contactName, record.phone, record.email]
+        .filter(Boolean)
+        .map((line) => `<span>${escapeHtml(line)}</span>`)
+        .join("") || `<span class="cell-note">—</span>`;
+      const services = record.suppliesServices.length
+        ? record.suppliesServices.join(", ")
+        : "No services listed yet.";
+      const websiteDetail = record.website
+        ? `<a href="${escapeAttr(normalizeUrl(record.website))}" target="_blank" rel="noopener">${escapeHtml(displayDomain(record.website))}</a>`
+        : "—";
+      const sourceLinks = record.sourceUrls.length
+        ? `<div class="note-box"><span>Sources</span><div class="source-links">${record.sourceUrls
+            .map((url) => `<a href="${escapeAttr(normalizeUrl(url))}" target="_blank" rel="noopener">${escapeHtml(displayDomain(url) || url)}</a>`)
+            .join("")}</div></div>`
+        : "";
+      const stageOptions = accountStatuses
+        .map((status) => `<option value="${status}"${status === record.accountStatus ? " selected" : ""}>${escapeHtml(labelize(status))}</option>`)
+        .join("");
+
+      return `
+        <details class="record-card" data-id="${escapeAttr(record.id)}">
+          <summary class="record-summary">
+            <div class="name-cell">
+              <strong>${escapeHtml(record.name || "Unnamed supplier")}</strong>
+              <span>${escapeHtml(labelize(record.accountType))} · ${escapeHtml(record.region || "Southern California")}</span>
+            </div>
+            <div class="compact-cell">${brandTags}</div>
+            <div>${statusPill(record.accountStatus)}</div>
+            <div class="compact-cell">${escapeHtml(record.accountCostEstimate || "—")}</div>
+            <div class="contact-stack">${contact}</div>
+            <div class="compact-cell">${record.website ? websiteDetail : "—"}</div>
+          </summary>
+          <div class="record-detail">
+            <div class="detail-grid">
+              <div class="detail-item"><span>Category</span><strong>${escapeHtml(record.category)}</strong></div>
+              <div class="detail-item"><span>Account type</span><strong>${escapeHtml(labelize(record.accountType))}</strong></div>
+              <div class="detail-item"><span>Account status</span><strong>${escapeHtml(labelize(record.accountStatus))}</strong></div>
+              <div class="detail-item"><span>Est. opening cost</span><strong>${escapeHtml(record.accountCostEstimate || "—")}</strong></div>
+              <div class="detail-item"><span>Region</span><strong>${escapeHtml(record.region || "—")}</strong></div>
+              <div class="detail-item"><span>Website</span>${websiteDetail}</div>
+            </div>
+            <div class="note-box"><span>Supplies / services</span><p>${escapeHtml(services)}</p></div>
+            ${record.accountRequirements ? `<div class="note-box"><span>Account requirements</span><p>${escapeHtml(record.accountRequirements)}</p></div>` : ""}
+            ${record.notes ? `<div class="note-box"><span>Notes</span><p>${escapeHtml(record.notes)}</p></div>` : ""}
+            ${sourceLinks}
+            <div class="detail-actions">
+              <span class="stage-picker">
+                <label for="stage-select-${escapeAttr(record.id)}" style="margin:0;">Move to</label>
+                <select id="stage-select-${escapeAttr(record.id)}" data-stage-select="${escapeAttr(record.id)}">${stageOptions}</select>
+              </span>
+              <button class="secondary tiny" type="button" data-edit="${escapeAttr(record.id)}">Edit</button>
+              <button class="secondary tiny" type="button" data-delete="${escapeAttr(record.id)}">Delete</button>
+            </div>
+          </div>
+        </details>`;
+    }
+
+    function render() {
+      populateSelects();
+      renderMetrics();
+      renderRows();
+    }
+
+    async function load() {
+      try {
+        const health = await api("/api/health");
+        apiAvailable = Boolean(health.mongoConfigured);
+        if (!apiAvailable) throw new Error("MongoDB not configured");
+        suppliers = (await api("/api/suppliers")).map(normalize);
+        els.storageStatus.textContent = "Mongo";
+        els.storageStatus.className = "pill good";
+      } catch (_error) {
+        apiAvailable = false;
+        suppliers = JSON.parse(localStorage.getItem(storageKey) || "[]").map(normalize);
+        els.storageStatus.textContent = "Local";
+        els.storageStatus.className = "pill warn";
+      }
+      render();
+    }
+
+    function currentFormRecord() {
+      const id = clean(document.querySelector("#recordId").value);
+      return suppliers.find((row) => row.id === id) || {};
+    }
+
+    function recordFromForm() {
+      const existing = currentFormRecord();
+      return normalize({
+        ...existing,
+        id: document.querySelector("#recordId").value || existing.id,
+        name: document.querySelector("#name").value,
+        category: document.querySelector("#category").value,
+        accountType: document.querySelector("#accountType").value,
+        accountStatus: document.querySelector("#accountStatus").value,
+        brands: document.querySelector("#brands").value,
+        suppliesServices: document.querySelector("#suppliesServices").value,
+        accountCostEstimate: document.querySelector("#accountCostEstimate").value,
+        accountRequirements: document.querySelector("#accountRequirements").value,
+        contactName: document.querySelector("#contactName").value,
+        phone: document.querySelector("#phone").value,
+        email: document.querySelector("#email").value,
+        website: document.querySelector("#website").value,
+        region: document.querySelector("#region").value,
+        notes: document.querySelector("#notes").value,
+        sourceUrls: document.querySelector("#sourceUrls").value
+      });
+    }
+
+    function fillForm(record = {}) {
+      const normalized = normalize(record);
+      const isExisting = normalized.id && suppliers.some((row) => row.id === normalized.id);
+      document.querySelector("#formTitle").textContent = isExisting ? "Edit supplier" : "Add supplier";
+      document.querySelector("#recordId").value = record.id || "";
+      document.querySelector("#name").value = normalized.name || "";
+      document.querySelector("#category").value = normalized.category;
+      document.querySelector("#accountType").value = normalized.accountType;
+      document.querySelector("#accountStatus").value = normalized.accountStatus;
+      document.querySelector("#brands").value = normalized.brands.join(", ");
+      document.querySelector("#suppliesServices").value = normalized.suppliesServices.join(", ");
+      document.querySelector("#accountCostEstimate").value = normalized.accountCostEstimate || "";
+      document.querySelector("#accountRequirements").value = normalized.accountRequirements || "";
+      document.querySelector("#contactName").value = normalized.contactName || "";
+      document.querySelector("#phone").value = normalized.phone || "";
+      document.querySelector("#email").value = normalized.email || "";
+      document.querySelector("#website").value = normalized.website || "";
+      document.querySelector("#region").value = normalized.region || "Southern California";
+      document.querySelector("#sourceUrls").value = normalized.sourceUrls.join("\n");
+      document.querySelector("#notes").value = normalized.notes || "";
+      document.querySelector("#editor").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function clearForm() {
+      els.form.reset();
+      document.querySelector("#formTitle").textContent = "Add supplier";
+      document.querySelector("#recordId").value = "";
+      document.querySelector("#category").value = categories[0];
+      document.querySelector("#accountType").value = accountTypes[0];
+      document.querySelector("#accountStatus").value = "not_started";
+      document.querySelector("#region").value = "Southern California";
+      els.formStatus.textContent = "";
+      els.formStatus.className = "status-line";
+    }
+
+    async function upsert(record) {
+      if (apiAvailable) {
+        const saved = record.id && isMongoId(record.id)
+          ? await api(`/api/suppliers/${record.id}`, { method: "PUT", body: JSON.stringify(record) })
+          : await api("/api/suppliers", { method: "POST", body: JSON.stringify(record) });
+        const normalized = normalize(saved);
+        suppliers = suppliers.filter((row) => row.id !== record.id && row.id !== normalized.id).concat(normalized);
+      } else {
+        const stored = { ...record, updatedAt: new Date().toISOString(), createdAt: record.createdAt || new Date().toISOString() };
+        suppliers = suppliers.filter((row) => row.id !== record.id).concat(stored);
+        saveLocal();
+      }
+      render();
+    }
+
+    async function remove(id) {
+      if (apiAvailable && isMongoId(id)) await api(`/api/suppliers/${id}`, { method: "DELETE" });
+      suppliers = suppliers.filter((row) => row.id !== id);
+      saveLocal();
+      render();
+    }
+
+    async function moveStage(id, status) {
+      const record = suppliers.find((row) => row.id === id);
+      if (!record) return;
+      const next = pickEnum(status, accountStatuses, record.accountStatus);
+      await upsert({ ...record, accountStatus: next });
+      toast(`${record.name || "Supplier"} → ${labelize(next)}`, "good");
+    }
+
+    function resetFilters() {
+      activeStatus = "all";
+      activeCategory = "All categories";
+      els.searchInput.value = "";
+      els.categoryFilter.value = "All categories";
+      els.statusFilter.value = "All statuses";
+      render();
+    }
+
+    // ---- Events ----
+    els.searchInput.addEventListener("input", renderRows);
+
+    els.categoryFilter.addEventListener("change", () => {
+      activeCategory = els.categoryFilter.value;
+      render();
+    });
+
+    els.statusFilter.addEventListener("change", () => {
+      activeStatus = els.statusFilter.value === "All statuses" ? "all" : els.statusFilter.value;
+      render();
+    });
+
+    document.querySelectorAll(".metric[data-filter]").forEach((metric) => {
+      const apply = () => {
+        activeStatus = metric.dataset.filter;
+        render();
+      };
+      metric.addEventListener("click", apply);
+      metric.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          apply();
+        }
+      });
+    });
+
+    document.querySelectorAll(".stage").forEach((stage) => {
+      stage.addEventListener("click", () => {
+        activeStatus = activeStatus === stage.dataset.stage ? "all" : stage.dataset.stage;
+        render();
+      });
+    });
+
+    els.supplierGroups.addEventListener("click", async (event) => {
+      const editId = event.target.closest("[data-edit]")?.dataset.edit;
+      const deleteId = event.target.closest("[data-delete]")?.dataset.delete;
+      if (editId) {
+        const record = suppliers.find((row) => row.id === editId);
+        if (record) fillForm(record);
+        return;
+      }
+      if (deleteId) {
+        const record = suppliers.find((row) => row.id === deleteId);
+        if (record && window.confirm(`Delete ${record.name || "this supplier"}?`)) {
+          try {
+            await remove(deleteId);
+            toast("Supplier deleted.", "good");
+          } catch (error) {
+            toast(error.message, "bad");
+          }
+        }
+      }
+    });
+
+    els.supplierGroups.addEventListener("change", async (event) => {
+      const id = event.target.dataset.stageSelect;
+      if (!id) return;
+      try {
+        await moveStage(id, event.target.value);
+      } catch (error) {
+        toast(error.message, "bad");
+      }
+    });
+
+    els.form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const record = recordFromForm();
+      if (!record.name) {
+        els.formStatus.textContent = "Name is required.";
+        els.formStatus.className = "status-line bad";
+        return;
+      }
+      els.formStatus.textContent = "Saving...";
+      els.formStatus.className = "status-line";
+      try {
+        await upsert(record);
+        els.formStatus.textContent = "Saved.";
+        els.formStatus.className = "status-line good";
+        toast(`${record.name} saved.`, "good");
+        clearForm();
+      } catch (error) {
+        els.formStatus.textContent = error.message;
+        els.formStatus.className = "status-line bad";
+      }
+    });
+
+    document.querySelector("#clearForm").addEventListener("click", clearForm);
+    document.querySelector("#newRecordTop").addEventListener("click", () => { clearForm(); document.querySelector("#name").focus(); });
+
+    document.querySelector("#exportJson").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(suppliers, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `joon-suppliers-${new Date().toISOString().slice(0, 10)}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      toast(`Exported ${suppliers.length} supplier(s).`, "good");
+    });
+
+    populateSelects();
+    clearForm();
+    load();
+  </script>
+</body>
+</html>

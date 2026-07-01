@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Services to Subs to Suppliers readiness board for Joon Development Group." />
+  <title>Services Readiness | Joon Development Group</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #172033;
+      --steel: #3c4658;
+      --muted: #687587;
+      --line: #d8dee8;
+      --soft: #f5f7fa;
+      --paper: #ffffff;
+      --charcoal: #101828;
+      --blue: #2563eb;
+      --green: #0f766e;
+      --amber: #b45309;
+      --red: #b42318;
+      --plum: #7c3aed;
+      --shadow: 0 14px 36px rgba(16, 24, 40, 0.08);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      min-width: 320px;
+      color: var(--ink);
+      background: #eef2f6;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    a { color: inherit; }
+    .topbar {
+      background: var(--charcoal);
+      color: rgba(255, 255, 255, 0.76);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding: 0.5rem 4vw;
+      font-size: 0.82rem;
+    }
+    .topbar a { text-decoration: none; }
+    .topbar strong { color: #fff; }
+    .workspace-switcher {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+    .workspace-switcher a {
+      min-height: 28px;
+      border-radius: 6px;
+      padding: 0.18rem 0.52rem;
+      color: rgba(255, 255, 255, 0.72);
+      font-weight: 850;
+    }
+    .workspace-switcher a:hover,
+    .workspace-switcher a.active {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
+    }
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      min-height: 72px;
+      padding: 0 4vw;
+      border-bottom: 1px solid rgba(216, 222, 232, 0.9);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+    .brand {
+      display: grid;
+      gap: 0.1rem;
+      text-decoration: none;
+      line-height: 1.05;
+    }
+    .brand span:first-child {
+      font-size: 0.95rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .brand span:last-child {
+      color: var(--blue);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    nav a {
+      min-height: 36px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 0 0.72rem;
+      color: var(--steel);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 850;
+      text-decoration: none;
+    }
+    nav a:hover {
+      color: var(--blue);
+      border-color: var(--line);
+      background: var(--soft);
+    }
+    .app-shell {
+      width: min(1560px, 100%);
+      margin: 0 auto;
+      padding: 1.2rem 4vw 3rem;
+      display: grid;
+      gap: 1rem;
+    }
+    .intro { display: grid; gap: 0.3rem; }
+    .intro h1 { font-size: 1.35rem; line-height: 1.15; }
+    .intro p { color: var(--muted); font-size: 0.92rem; max-width: 940px; }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.7rem;
+    }
+    .metric,
+    .board,
+    .filter-bar,
+    .legend {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+    .metric {
+      position: relative;
+      padding: 0.85rem;
+      min-height: 82px;
+      display: grid;
+      align-content: space-between;
+      gap: 0.25rem;
+      border-top: 3px solid transparent;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.05s;
+    }
+    .metric:hover { box-shadow: 0 16px 38px rgba(16, 24, 40, 0.12); }
+    .metric:active { transform: translateY(1px); }
+    .metric.active { box-shadow: 0 0 0 1px var(--charcoal), var(--shadow); }
+    .metric span {
+      color: var(--muted);
+      font-size: 0.74rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .metric strong { color: var(--ink); font-size: 1.75rem; line-height: 1; }
+    .metric.ready { border-top-color: var(--green); }
+    .metric.ready strong { color: var(--green); }
+    .metric.partial { border-top-color: var(--amber); }
+    .metric.partial strong { color: var(--amber); }
+    .metric.blocked { border-top-color: var(--red); }
+    .metric.blocked strong { color: var(--red); }
+    .metric.total { border-top-color: var(--charcoal); }
+    .metric.active.ready { border-top-color: var(--green); box-shadow: 0 0 0 1px var(--green), var(--shadow); }
+    .metric.active.partial { border-top-color: var(--amber); box-shadow: 0 0 0 1px var(--amber), var(--shadow); }
+    .metric.active.blocked { border-top-color: var(--red); box-shadow: 0 0 0 1px var(--red), var(--shadow); }
+    .filter-bar {
+      padding: 0.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.65rem;
+      box-shadow: 0 8px 22px rgba(16, 24, 40, 0.05);
+    }
+    .filter-bar .grow { flex: 1 1 260px; min-width: 220px; }
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.28rem;
+    }
+    input, select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      padding: 0.65rem 0.72rem;
+    }
+    input:focus, select:focus {
+      outline: 2px solid rgba(37, 99, 235, 0.2);
+      border-color: rgba(37, 99, 235, 0.55);
+    }
+    .filter-toggles { display: flex; flex-wrap: wrap; gap: 0.4rem; align-self: end; }
+    .toggle {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--steel);
+      padding: 0 0.8rem;
+      font: inherit;
+      font-weight: 850;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .toggle.active { background: var(--charcoal); color: #fff; border-color: var(--charcoal); }
+    .status-line { min-height: 20px; color: var(--muted); font-size: 0.84rem; }
+    .status-line.warn { color: var(--amber); }
+    .status-line.good { color: var(--green); }
+    .board { overflow: hidden; }
+    .board-head {
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .board-head h2 { font-size: 1.05rem; }
+    .board-head p { color: var(--muted); font-size: 0.86rem; }
+    .col-head,
+    .svc-row {
+      display: grid;
+      grid-template-columns: minmax(180px, 0.95fr) minmax(300px, 1.7fr) minmax(260px, 1.4fr) minmax(120px, 0.6fr);
+      gap: 0.85rem;
+      align-items: center;
+    }
+    .col-head {
+      padding: 0.65rem 1rem;
+      color: var(--muted);
+      background: #f8fafc;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .svc-row {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+    .svc-row:last-child { border-bottom: 0; }
+    .svc-row:hover { background: #fbfcfe; }
+    .svc-name { min-width: 0; display: grid; gap: 0.25rem; }
+    .svc-name strong { font-size: 0.98rem; line-height: 1.2; overflow-wrap: anywhere; }
+    .svc-name .svc-note {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 0.4rem; min-width: 0; }
+    .trade-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      min-height: 28px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--steel);
+      padding: 0.15rem 0.55rem 0.15rem 0.5rem;
+      font-size: 0.78rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .trade-chip.ok { border-color: rgba(15, 118, 110, 0.35); background: #ddf5ef; color: var(--green); }
+    .trade-chip.gap { border-color: rgba(180, 35, 24, 0.3); background: #fee4e2; color: var(--red); }
+    .count-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 0.32rem;
+      border-radius: 999px;
+      background: var(--charcoal);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .trade-chip.ok .count-badge { background: var(--green); }
+    .trade-chip.gap .count-badge { background: var(--red); }
+    .mark { font-weight: 900; }
+    .mark.ok { color: var(--green); }
+    .mark.gap { color: var(--red); }
+    .mark.unknown { color: var(--muted); }
+    .supplier-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      min-height: 26px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--soft);
+      color: var(--steel);
+      padding: 0.12rem 0.5rem;
+      font-size: 0.76rem;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+    .supplier-chip.known { background: #ddf5ef; border-color: rgba(15, 118, 110, 0.3); color: var(--green); }
+    .supplier-chip.open { background: #fff2cf; border-color: rgba(180, 83, 9, 0.3); color: var(--amber); }
+    .ready-cell { display: flex; justify-content: flex-start; }
+    .ready-pill {
+      width: fit-content;
+      min-height: 28px;
+      border-radius: 999px;
+      padding: 0.2rem 0.65rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.74rem;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: var(--soft);
+      color: var(--steel);
+    }
+    .ready-pill.ready { background: #ddf5ef; color: var(--green); }
+    .ready-pill.partial { background: #fff2cf; color: var(--amber); }
+    .ready-pill.blocked { background: #fee4e2; color: var(--red); }
+    .legend {
+      padding: 0.85rem 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      align-items: center;
+      box-shadow: 0 8px 22px rgba(16, 24, 40, 0.05);
+    }
+    .legend .legend-title {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .legend .legend-item { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--steel); font-size: 0.82rem; font-weight: 700; }
+    .empty { padding: 2.2rem 1rem; color: var(--muted); text-align: center; background: #fff; }
+    footer {
+      padding: 1.5rem 4vw 2.5rem;
+      color: rgba(255, 255, 255, 0.66);
+      background: var(--charcoal);
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      font-size: 0.86rem;
+    }
+    footer strong { color: #fff; }
+    @media (max-width: 1180px) {
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .col-head { display: none; }
+      .svc-row { grid-template-columns: 1fr; gap: 0.55rem; }
+    }
+    @media (max-width: 720px) {
+      .topbar { display: none; }
+      .app-header { min-height: 64px; }
+      .app-shell { padding-inline: 3.5vw; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div><strong>Services readiness board</strong></div>
+    <div class="workspace-switcher" role="navigation" aria-label="Workspace switcher">
+      <a href="subcontractor_finder.html">Subcontractors</a>
+      <a href="lead_generation.html">Lead Gen</a>
+      <a href="bid_lab.html">Bid Lab</a>
+      <a class="active" href="services_board.html">Readiness</a>
+      <a href="http://localhost:4173/">Public Site</a>
+    </div>
+  </div>
+
+  <header class="app-header">
+    <a class="brand" href="http://localhost:4173/">
+      <span>Joon Development Group</span>
+      <span>Services Readiness</span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a href="subcontractor_finder.html">Roster</a>
+      <a href="bid_lab.html">Bid Lab</a>
+      <a href="#board">Board</a>
+    </nav>
+  </header>
+
+  <main class="app-shell">
+    <section class="intro">
+      <h1>Services &rarr; Subs &rarr; Suppliers readiness</h1>
+      <p>Each service we want to sell needs vetted subcontractor trades and open material-supplier accounts. A service is <strong>ready to deliver</strong> when every required trade has at least one vetted sub and every required supplier category is covered. Sub counts come from the roster; supplier coverage comes from the suppliers list (falls back to "unknown" until that data is connected).</p>
+    </section>
+
+    <section class="metrics" aria-label="Readiness summary — click to filter">
+      <div class="metric total" data-filter="all" role="button" tabindex="0" title="Show all services"><span>Services</span><strong id="totalCount">0</strong></div>
+      <div class="metric ready" data-filter="ready" role="button" tabindex="0" title="Filter to services ready to deliver"><span>Ready to Deliver</span><strong id="readyCount">0</strong></div>
+      <div class="metric partial" data-filter="partial" role="button" tabindex="0" title="Filter to partially covered services"><span>Partial</span><strong id="partialCount">0</strong></div>
+      <div class="metric blocked" data-filter="blocked" role="button" tabindex="0" title="Filter to services with no sub coverage"><span>Blocked (No Subs)</span><strong id="blockedCount">0</strong></div>
+    </section>
+
+    <section class="filter-bar" aria-label="Board filters">
+      <div class="grow">
+        <label for="searchInput">Search services or trades</label>
+        <input id="searchInput" placeholder="Kitchen, roofing, electrical, plumber..." />
+      </div>
+      <div class="filter-toggles">
+        <button type="button" class="toggle" id="gapsOnly">Show gaps only</button>
+      </div>
+    </section>
+
+    <p id="statusLine" class="status-line">Loading roster...</p>
+
+    <section id="board" class="board" aria-label="Services readiness board">
+      <div class="board-head">
+        <div>
+          <h2>Delivery readiness by service</h2>
+          <p id="resultCount" class="muted">Loading...</p>
+        </div>
+      </div>
+      <div class="col-head" aria-hidden="true">
+        <div>Service</div>
+        <div>Required sub-trades (vetted count)</div>
+        <div>Required suppliers</div>
+        <div>Status</div>
+      </div>
+      <div id="boardBody"></div>
+    </section>
+
+    <section class="legend" aria-label="Legend">
+      <span class="legend-title">Legend</span>
+      <span class="legend-item"><span class="mark ok">&#10003;</span> trade covered / supplier known</span>
+      <span class="legend-item"><span class="mark gap">&#10007;</span> no vetted sub / open gap</span>
+      <span class="legend-item"><span class="mark unknown">&#8226;</span> supplier data not connected</span>
+      <span class="legend-item"><span class="ready-pill ready">Ready</span> subs + suppliers</span>
+      <span class="legend-item"><span class="ready-pill partial">Partial</span> some gaps</span>
+      <span class="legend-item"><span class="ready-pill blocked">Blocked</span> no subs at all</span>
+    </section>
+  </main>
+
+  <footer>
+    <div><strong>Joon Development Group</strong><br />Services readiness board</div>
+    <div>Sources: <strong>subcontractors</strong> + <strong>suppliers</strong> collections</div>
+  </footer>
+
+  <script>
+    // ---- Config: Service -> required sub-trades -> required supplier categories ----
+    // Sub-trades are keyed to the roster's serviceCategory taxonomy so counts resolve
+    // against /api/subcontractors. Aliases catch older/looser category spellings.
+    // Supplier categories are matched loosely (keyword) against /api/suppliers.
+    // Matrix source: SUPPLIER_AND_SERVICE_PLAN.md sections 1-5.
+    const serviceMatrix = [
+      { service: "Kitchen Remodeling",
+        trades: ["Cabinetry and millwork", "Plumbing", "Electrical", "Tile and waterproofing", "Drywall and framing", "Painting"],
+        suppliers: ["Cabinets", "Countertops", "Plumbing", "Electrical", "Tile", "Drywall", "Paint"] },
+      { service: "Bathroom Renovations",
+        trades: ["Plumbing", "Tile and waterproofing", "Electrical", "Cabinetry and millwork", "Painting"],
+        suppliers: ["Plumbing", "Tile", "Windows and doors", "Paint"] },
+      { service: "Whole / Full Home Remodeling",
+        trades: ["Kitchen and bath remodels", "Plumbing", "Electrical", "HVAC", "Drywall and framing", "Tile and waterproofing", "Cabinetry and millwork", "Painting", "Roofing"],
+        suppliers: ["Lumber", "Plumbing", "Electrical", "HVAC", "Drywall", "Tile", "Cabinets", "Paint", "Roofing"] },
+      { service: "ADU & Home Additions",
+        trades: ["Drywall and framing", "Concrete and hardscape", "Plumbing", "Electrical", "HVAC", "Roofing", "Windows and doors", "Painting"],
+        suppliers: ["Lumber", "Concrete", "Plumbing", "Electrical", "HVAC", "Roofing", "Windows and doors", "Drywall"] },
+      { service: "Roofing",
+        trades: ["Roofing"],
+        suppliers: ["Roofing"] },
+      { service: "Solar Installations",
+        trades: ["Solar and electrical storage", "Electrical"],
+        suppliers: ["Solar", "Electrical"] },
+      { service: "Interior & Exterior Painting",
+        trades: ["Painting"],
+        suppliers: ["Paint"] },
+      { service: "Hardscaping",
+        trades: ["Concrete and hardscape"],
+        suppliers: ["Masonry", "Concrete"] },
+      { service: "Patio Builder",
+        trades: ["Concrete and hardscape", "Drywall and framing"],
+        suppliers: ["Concrete", "Lumber"] },
+      { service: "Pool Builder",
+        trades: ["Concrete and hardscape", "Plumbing"],
+        suppliers: ["Pool"] },
+      { service: "Outdoor Living / Landscaping",
+        trades: ["Landscape and drainage"],
+        suppliers: ["Landscape", "Irrigation"] },
+      { service: "Foundation Services",
+        trades: ["Concrete and hardscape"],
+        suppliers: ["Concrete"] },
+      { service: "Electrical Panel / Rewire",
+        trades: ["Electrical"],
+        suppliers: ["Electrical"] },
+      { service: "Fireplace Restoration",
+        trades: ["Concrete and hardscape", "Plumbing", "Tile and waterproofing"],
+        suppliers: ["Masonry", "Tile"] },
+      { service: "Mold Remediation",
+        trades: ["Drywall and framing"],
+        suppliers: ["Drywall", "Restoration"] },
+      { service: "Fire Damage Restoration",
+        trades: ["Drywall and framing", "Painting", "Electrical", "Plumbing"],
+        suppliers: ["Restoration", "Drywall", "Lumber"] },
+      { service: "Water Damage Restoration",
+        trades: ["Plumbing", "Drywall and framing"],
+        suppliers: ["Restoration", "Plumbing"] },
+      { service: "Handyman Services",
+        trades: ["Drywall and framing", "Painting", "Plumbing", "Electrical"],
+        suppliers: ["Lumber"] },
+      { service: "General Construction / Design-Build",
+        trades: ["Kitchen and bath remodels", "Concrete and hardscape", "Drywall and framing", "Electrical", "Plumbing", "Roofing", "Painting"],
+        suppliers: ["Lumber", "Concrete", "Electrical", "Plumbing", "Roofing", "Drywall", "Paint"] },
+      { service: "Windows & Doors",
+        trades: ["Windows and doors", "Drywall and framing"],
+        suppliers: ["Windows and doors"] }
+    ];
+
+    // Roster category aliases -> canonical trade key used above.
+    const tradeAliases = {
+      "kitchen and bath remodels": ["kitchen and bath remodels", "kitchen and bath", "full home renovations", "tenant improvements"],
+      "cabinetry and millwork": ["cabinetry and millwork", "cabinetry", "millwork", "cabinets"],
+      "tile and waterproofing": ["tile and waterproofing", "tile", "waterproofing", "flooring"],
+      "concrete and hardscape": ["concrete and hardscape", "concrete", "hardscape", "masonry", "foundation"],
+      "drywall and framing": ["drywall and framing", "drywall", "framing", "carpentry"],
+      "landscape and drainage": ["landscape and drainage", "landscape", "landscaping", "irrigation", "drainage"],
+      "solar and electrical storage": ["solar and electrical storage", "solar", "pv"],
+      "windows and doors": ["windows and doors", "windows", "doors"],
+      "electrical": ["electrical", "low voltage and security"],
+      "plumbing": ["plumbing"],
+      "hvac": ["hvac"],
+      "roofing": ["roofing"],
+      "painting": ["painting"]
+    };
+
+    // A record counts toward a service's readiness only when it is actually usable.
+    const VETTED_STATUSES = ["vetted", "outreach_ready", "contacted", "responded", "qualified", "active", "preferred"];
+
+    const apiBase = window.location.port === "4173" ? `http://${window.location.hostname}:4373` : "";
+    let subcontractors = [];
+    let suppliers = [];
+    let suppliersAvailable = false;
+    let activeFilter = "all";
+    let gapsOnly = false;
+
+    const els = {
+      totalCount: document.querySelector("#totalCount"),
+      readyCount: document.querySelector("#readyCount"),
+      partialCount: document.querySelector("#partialCount"),
+      blockedCount: document.querySelector("#blockedCount"),
+      searchInput: document.querySelector("#searchInput"),
+      gapsOnly: document.querySelector("#gapsOnly"),
+      statusLine: document.querySelector("#statusLine"),
+      resultCount: document.querySelector("#resultCount"),
+      boardBody: document.querySelector("#boardBody")
+    };
+
+    const clean = (value) => String(value || "").replace(/\s+/g, " ").trim();
+    const lower = (value) => clean(value).toLowerCase();
+    function escapeHtml(value) {
+      return clean(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" })[char]);
+    }
+
+    async function api(path) {
+      const response = await fetch(`${apiBase}${path}`, { headers: { "content-type": "application/json" } });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      if (response.status === 204) return null;
+      return response.json();
+    }
+
+    // Does a roster record satisfy the canonical trade key?
+    function recordMatchesTrade(record, tradeKey) {
+      const aliases = tradeAliases[lower(tradeKey)] || [lower(tradeKey)];
+      const cat = lower(record.serviceCategory);
+      const specialties = Array.isArray(record.specialties) ? record.specialties.map(lower).join(" ") : lower(record.specialties);
+      return aliases.some((alias) => cat === alias || cat.includes(alias) || specialties.includes(alias));
+    }
+
+    function isVetted(record) {
+      const status = lower(record.status || record.chaseState || record.vettingStatus);
+      return VETTED_STATUSES.some((s) => status.includes(s));
+    }
+
+    // Count subs for a trade: prefer vetted, but always report total so we never hide roster depth.
+    function tradeCoverage(tradeKey) {
+      const matches = subcontractors.filter((record) => recordMatchesTrade(record, tradeKey));
+      const vetted = matches.filter(isVetted);
+      return { total: matches.length, vetted: vetted.length, count: vetted.length || matches.length, vettedUsed: vetted.length > 0 };
+    }
+
+    // Supplier category coverage against the (optional) suppliers list.
+    function supplierCoverage(categoryKey) {
+      if (!suppliersAvailable) return { state: "unknown" };
+      const key = lower(categoryKey);
+      const hit = suppliers.find((s) => {
+        const hay = [s.category, s.name, ...(Array.isArray(s.brands) ? s.brands : []), ...(Array.isArray(s.suppliesServices) ? s.suppliesServices : [])].map(lower).join(" ");
+        return hay.includes(key);
+      });
+      if (!hit) return { state: "gap" };
+      const status = lower(hit.accountStatus);
+      // "known" = we have an open/active account; otherwise it's a known-but-not-open lead.
+      const open = /open|active|approved|net.?30|good/.test(status);
+      return { state: open ? "known" : "open", supplier: hit };
+    }
+
+    function evaluateService(entry) {
+      const trades = entry.trades.map((tradeKey) => ({ tradeKey, ...tradeCoverage(tradeKey) }));
+      const suppliersEval = entry.suppliers.map((cat) => ({ cat, ...supplierCoverage(cat) }));
+      const tradesCovered = trades.filter((t) => t.count > 0).length;
+      const anySub = tradesCovered > 0;
+      const allTrades = trades.every((t) => t.count > 0);
+      const supplierKnownCount = suppliersEval.filter((s) => s.state === "known" || s.state === "open").length;
+      const allSuppliersKnown = suppliersAvailable && suppliersEval.every((s) => s.state === "known" || s.state === "open");
+      let status;
+      if (!anySub) status = "blocked";
+      else if (allTrades && (allSuppliersKnown || !suppliersAvailable)) status = "ready";
+      else status = "partial";
+      return { ...entry, trades, suppliersEval, tradesCovered, tradesTotal: trades.length, supplierKnownCount, status };
+    }
+
+    function tradeChip(t) {
+      const covered = t.count > 0;
+      const cls = covered ? "ok" : "gap";
+      const mark = covered ? "&#10003;" : "&#10007;";
+      const badge = covered ? `<span class="count-badge">${t.count}</span>` : `<span class="count-badge">0</span>`;
+      const title = covered
+        ? `${t.vetted} vetted / ${t.total} total in roster`
+        : "No subcontractors in roster for this trade";
+      return `<span class="trade-chip ${cls}" title="${escapeHtml(title)}"><span class="mark ${cls}">${mark}</span>${escapeHtml(t.tradeKey)} ${badge}</span>`;
+    }
+
+    function supplierChip(s) {
+      if (s.state === "known") return `<span class="supplier-chip known" title="Account open/active"><span class="mark ok">&#10003;</span>${escapeHtml(s.cat)}</span>`;
+      if (s.state === "open") return `<span class="supplier-chip open" title="Supplier known — account not yet open"><span class="mark unknown">&#8226;</span>${escapeHtml(s.cat)}</span>`;
+      if (s.state === "gap") return `<span class="supplier-chip" title="No supplier on file"><span class="mark gap">&#10007;</span>${escapeHtml(s.cat)}</span>`;
+      return `<span class="supplier-chip" title="Suppliers data not connected"><span class="mark unknown">&#8226;</span>${escapeHtml(s.cat)}</span>`;
+    }
+
+    function readyPill(evalRow) {
+      if (evalRow.status === "ready") return `<span class="ready-pill ready" title="All trades covered and suppliers accounted for">&#10003; Ready</span>`;
+      if (evalRow.status === "blocked") return `<span class="ready-pill blocked" title="No vetted subs for any required trade">&#10007; Blocked</span>`;
+      return `<span class="ready-pill partial" title="Some trades or suppliers still missing">Partial</span>`;
+    }
+
+    function render() {
+      const evaluated = serviceMatrix.map(evaluateService);
+      const ready = evaluated.filter((e) => e.status === "ready").length;
+      const partial = evaluated.filter((e) => e.status === "partial").length;
+      const blocked = evaluated.filter((e) => e.status === "blocked").length;
+      els.totalCount.textContent = evaluated.length;
+      els.readyCount.textContent = ready;
+      els.partialCount.textContent = partial;
+      els.blockedCount.textContent = blocked;
+
+      document.querySelectorAll(".metric[data-filter]").forEach((card) => {
+        card.classList.toggle("active", card.dataset.filter === activeFilter);
+      });
+
+      const search = lower(els.searchInput.value);
+      let rows = evaluated;
+      if (activeFilter !== "all") rows = rows.filter((e) => e.status === activeFilter);
+      if (gapsOnly) rows = rows.filter((e) => e.status !== "ready");
+      if (search) {
+        rows = rows.filter((e) => {
+          const hay = [e.service, ...e.trades.map((t) => t.tradeKey), ...e.suppliersEval.map((s) => s.cat)].join(" ").toLowerCase();
+          return hay.includes(search);
+        });
+      }
+
+      els.resultCount.textContent = `${rows.length} of ${evaluated.length} services — ${ready} ready, ${partial} partial, ${blocked} blocked`;
+
+      if (!rows.length) {
+        els.boardBody.innerHTML = `<div class="empty">No services match the current filters.</div>`;
+        return;
+      }
+
+      els.boardBody.innerHTML = rows.map((e) => {
+        const note = `${e.tradesCovered}/${e.tradesTotal} trades covered` + (suppliersAvailable ? ` · ${e.supplierKnownCount}/${e.suppliers.length} suppliers` : "");
+        return `
+          <div class="svc-row">
+            <div class="svc-name">
+              <strong>${escapeHtml(e.service)}</strong>
+              <span class="svc-note">${escapeHtml(note)}</span>
+            </div>
+            <div class="chip-row">${e.trades.map(tradeChip).join("")}</div>
+            <div class="chip-row">${e.suppliersEval.map(supplierChip).join("")}</div>
+            <div class="ready-cell">${readyPill(e)}</div>
+          </div>`;
+      }).join("");
+    }
+
+    async function load() {
+      // Subcontractors — required. Fall back to local cache used by the roster page.
+      try {
+        const health = await api("/api/health");
+        if (!health || !health.mongoConfigured) throw new Error("Mongo not configured");
+        subcontractors = await api("/api/subcontractors");
+      } catch (_error) {
+        try {
+          subcontractors = JSON.parse(localStorage.getItem("joonSubcontractors") || "[]");
+        } catch (_e) { subcontractors = []; }
+      }
+
+      // Suppliers — optional; degrade gracefully if the API 404s or is empty.
+      try {
+        const data = await api("/api/suppliers");
+        suppliers = Array.isArray(data) ? data : [];
+        suppliersAvailable = suppliers.length > 0;
+      } catch (_error) {
+        suppliers = [];
+        suppliersAvailable = false;
+      }
+
+      if (!subcontractors.length) {
+        els.statusLine.textContent = "No subcontractor data reachable. Showing the service matrix with empty coverage — open the roster page to load data.";
+        els.statusLine.className = "status-line warn";
+      } else if (!suppliersAvailable) {
+        els.statusLine.textContent = `Loaded ${subcontractors.length} roster records. Suppliers list not connected yet — supplier columns show as "unknown" and readiness is based on sub coverage only.`;
+        els.statusLine.className = "status-line warn";
+      } else {
+        els.statusLine.textContent = `Loaded ${subcontractors.length} roster records and ${suppliers.length} suppliers.`;
+        els.statusLine.className = "status-line good";
+      }
+      render();
+    }
+
+    // ---- Events ----
+    els.searchInput.addEventListener("input", render);
+    els.gapsOnly.addEventListener("click", () => {
+      gapsOnly = !gapsOnly;
+      els.gapsOnly.classList.toggle("active", gapsOnly);
+      render();
+    });
+
+    function applyMetricFilter(filter) {
+      activeFilter = activeFilter === filter && filter !== "all" ? "all" : filter;
+      render();
+      document.querySelector("#board").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    const metricsBar = document.querySelector(".metrics");
+    metricsBar.addEventListener("click", (event) => {
+      const card = event.target.closest(".metric[data-filter]");
+      if (card) applyMetricFilter(card.dataset.filter);
+    });
+    metricsBar.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      const card = event.target.closest(".metric[data-filter]");
+      if (!card) return;
+      event.preventDefault();
+      applyMetricFilter(card.dataset.filter);
+    });
+
+    load();
+  </script>
+</body>
+</html>
