@@ -68,6 +68,16 @@ function daysUntilDate(value) {
   return Math.round((time - Date.now()) / 86400000);
 }
 
+function computeOwnerReachScore(doc) {
+  let s = 0;
+  if (cleanString(doc.ownerName)) s += 45;
+  if (cleanString(doc.email)) s += 25;
+  if (cleanString(doc.phone)) s += 20;
+  if (cleanString(doc.ownerTitle)) s += 5;
+  if (cleanString(doc.licenseNumber)) s += 5;
+  return clamp(Math.round(s), 0, 100);
+}
+
 function scoreSubcontractor(input) {
   const rating = Number(input.reviewRating || 0);
   const reviewCount = Number(input.reviewCount || 0);
@@ -104,6 +114,9 @@ function scoreSubcontractor(input) {
   if (sourceConfidence === "high") score += 8;
   if (sourceConfidence === "low") score -= 7;
   if (cleanArray(input.specialties).length >= 2) score += 4;
+  if (cleanString(input.ownerName)) score += 4;
+  if (cleanString(input.reachTier) === "owner") score += 10;
+  if (cleanString(input.ownerReachConfidence).toLowerCase() === "high") score += 4;
 
   return clamp(Math.round(score), 0, 100);
 }
@@ -116,6 +129,10 @@ function normalize(input) {
     email: cleanString(input.email).toLowerCase(),
     website: cleanString(input.website),
     linkedIn: cleanString(input.linkedIn),
+    ownerName: cleanString(input.ownerName || input.contactName),
+    ownerTitle: cleanString(input.ownerTitle),
+    ownerReachConfidence: cleanString(input.ownerReachConfidence || "").toLowerCase(),
+    ownerReachEvidence: cleanString(input.ownerReachEvidence),
     serviceCategory: cleanString(input.serviceCategory),
     specialties: cleanList(input.specialties),
     serviceArea: cleanString(input.serviceArea || "Southern California"),
@@ -177,6 +194,17 @@ function normalize(input) {
     status: cleanString(input.status || "researching"),
     lastResearchedAt: input.lastResearchedAt || new Date().toISOString()
   };
+  const hasChannel = Boolean(doc.phone || doc.email);
+  doc.reachTier = doc.ownerName && hasChannel ? "owner" : hasChannel ? "company" : "none";
+  const providedReach = Number(input.ownerReachScore);
+  doc.ownerReachScore = Number.isFinite(providedReach) && providedReach > 0
+    ? clamp(Math.round(providedReach), 0, 100)
+    : computeOwnerReachScore(doc);
+  if (!doc.ownerReachConfidence) {
+    if (doc.ownerReachScore >= 75) doc.ownerReachConfidence = "high";
+    else if (doc.ownerReachScore >= 45) doc.ownerReachConfidence = "medium";
+    else doc.ownerReachConfidence = "low";
+  }
   doc.fitScore = scoreSubcontractor(doc);
   return doc;
 }
@@ -318,6 +346,25 @@ function extractLicenseDetails(text) {
   };
 }
 
+function extractOwnerName(text) {
+  const clean = cleanString(text);
+  const patterns = [
+    /\b(?:owner|founder|co-?founder|president|principal|proprietor|owned\s+and\s+operated\s+by|founded\s+by|owned\s+by)\s*(?:&|and|\/|is|:|-)?\s*(?:owner|operator)?\s*[:\-]?\s*([A-Z][a-z]+(?:\s+[A-Z]\.?)?\s+[A-Z][a-z]+)/,
+    /\b([A-Z][a-z]+(?:\s+[A-Z]\.?)?\s+[A-Z][a-z]+),?\s+(?:the\s+)?(?:owner|founder|president|principal|proprietor)\b/
+  ];
+  for (const re of patterns) {
+    const m = clean.match(re);
+    if (m && m[1]) {
+      const name = cleanString(m[1]);
+      if (name.split(/\s+/).length >= 2 && name.length <= 40) {
+        const titleM = clean.match(/\b(owner|founder|co-?founder|president|principal|proprietor)\b/i);
+        return { name, title: titleM ? cleanString(titleM[1]) : "Owner" };
+      }
+    }
+  }
+  return { name: "", title: "" };
+}
+
 function parseResearchPage(url, html) {
   const title = cleanString((html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1]);
   const meta = cleanString((html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i) || [])[1]);
@@ -326,10 +373,15 @@ function parseResearchPage(url, html) {
   const emails = uniqueMatches(text, /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi);
   const rating = extractRating(text);
   const license = extractLicenseDetails(text);
+  const owner = extractOwnerName(text);
   const summary = cleanString(meta || text.slice(0, 260));
+  const reviewSource = sourceTypeForUrl(url);
+  const hasChannel = Boolean(phones[0] || emails[0]);
 
   return {
     companyName: title.replace(/\s*[-|].*$/, ""),
+    ownerName: owner.name,
+    ownerTitle: owner.title,
     phone: phones[0] || "",
     email: emails[0] || "",
     website: url,
@@ -340,12 +392,13 @@ function parseResearchPage(url, html) {
     bondedStatus: inferBondedStatus(text),
     reviewRating: rating.reviewRating,
     reviewCount: rating.reviewCount,
+    reviewSource,
     sentiment: inferSentiment(text),
     priceTier: inferPriceTier(text),
     summary,
     sourceUrls: [url],
-    sourceNotes: `Imported from public URL. Found ${phones.length} phone(s), ${emails.length} email(s), license ${license.licenseNumber || "not found"}, bonded status ${inferBondedStatus(text)}, rating ${rating.reviewRating || "not found"}, reviews ${rating.reviewCount || "not found"}.`,
-    sourceConfidence: license.found || phones.length || emails.length || rating.reviewRating ? "medium" : "low",
+    sourceNotes: `Imported from ${reviewSource}. Found ${phones.length} phone(s), ${emails.length} email(s), owner ${owner.name || "not found"}, license ${license.licenseNumber || "not found"}, rating ${rating.reviewRating || "not found"}, reviews ${rating.reviewCount || "not found"}.`,
+    sourceConfidence: (owner.name && hasChannel) || license.found ? "high" : (hasChannel || rating.reviewRating ? "medium" : "low"),
     pageTextSample: text.slice(0, 1800)
   };
 }
@@ -456,7 +509,6 @@ function isBlockedSubcontractorSource(url, title = "", snippet = "") {
     "monster.com",
     "jooble.org",
     "simplyhired.com",
-    "facebook.com",
     "arcgis.com",
     "clca.org",
     "clca-lasgv.org",
@@ -479,11 +531,12 @@ function isBlockedSubcontractorSource(url, title = "", snippet = "") {
   ];
   if (blockedHosts.some((blocked) => host === blocked || host.endsWith(`.${blocked}`))) return true;
   if (host.includes("linkedin.com") && !path.startsWith("/company/")) return true;
-  if (host.includes("yelp.com") && path.startsWith("/search")) return true;
-  if (host.includes("angi.com") && /companylist|search|category/.test(path)) return true;
-  if (host.includes("houzz.com") && /professionals|probr|photos|ideabooks/.test(path)) return true;
+  if (host.includes("yelp.com") && !path.startsWith("/biz")) return true;
+  if (host.includes("angi.com") && /\/search|category-/.test(path)) return true;
+  if (host.includes("houzz.com") && /(photos|ideabooks)/.test(path)) return true;
   if (host.includes("bbb.org") && /\/category\/|\/search/.test(path)) return true;
-  return /\b(top\s+10|best\s+15|best\s+los angeles|jobs?|employment|hiring|career|preferred vendors|vendors and bidders|permit portal|permit and inspection|supplier|landscape supply|building supplies|business group|buying group|association|local union|public works contractors|directory of|find .* remodelers|search .* contractors)\b/i.test(text);
+  if (host.includes("facebook.com") && /(marketplace|\/jobs|\/groups|\/events|category)/.test(path)) return true;
+  return /\b(top\s+10|best\s+15|jobs?\s+board|employment|now hiring|preferred vendors|vendors and bidders|permit portal|permit and inspection|landscape supply|building supplies|buying group|local union|public works contractors|directory of)\b/i.test(text);
 }
 
 function validateSubcontractorCandidate(result, enriched, serviceCategory, market) {
@@ -511,16 +564,23 @@ function validateSubcontractorCandidate(result, enriched, serviceCategory, marke
   const hasContractorEvidence = contractorTerms.test(searchable);
   const hasContactEvidence = Boolean(enriched.phone || enriched.email || enriched.licenseNumber);
   const isLinkedInCompany = host.includes("linkedin.com") && /\/company\//i.test(result.url);
+  const isPlatformProfile = isLinkedInCompany
+    || (host.includes("yelp.com") && /\/biz\//i.test(result.url))
+    || host.includes("angi.com")
+    || host.includes("bbb.org")
+    || host.includes("facebook.com")
+    || host.includes("instagram.com")
+    || host.includes("houzz.com");
   const marketWords = cleanString(market).toLowerCase().split(/[^a-z0-9]+/).filter((word) => word.length >= 3);
   const hasMarketEvidence = !marketWords.length || marketWords.some((word) => lower.includes(word)) || /southern california|los angeles|greater la|ventura|orange county|san fernando|pasadena|glendale|santa monica|beverly hills/i.test(searchable);
 
-  if (negativeTerms.test(searchable) && !isLinkedInCompany) {
+  if (negativeTerms.test(searchable) && !isPlatformProfile) {
     return { ok: false, reason: "Skipped page with directory/job/supplier language." };
   }
   if (!hasContractorEvidence || !hasTradeEvidence) {
     return { ok: false, reason: "Skipped because fetched page did not show contractor/trade evidence." };
   }
-  if (!hasContactEvidence && !isLinkedInCompany) {
+  if (!hasContactEvidence && !isPlatformProfile) {
     return { ok: false, reason: "Skipped because page did not expose phone, email, or license evidence." };
   }
   if (!hasMarketEvidence) {
@@ -667,27 +727,31 @@ async function upsertSourcedSubcontractor(coll, input) {
 function buildSubcontractorQueries(input) {
   const service = cleanString(input.serviceCategory || "general contractor subcontractor");
   const market = cleanString(input.market || "Los Angeles CA");
-  const sources = cleanArray(input.sources).length ? cleanArray(input.sources) : ["company websites", "LinkedIn", "CSLB"];
-  const exclusions = "-jobs -career -employment -directory -\"top 10\" -\"best 15\" -yelp -angi -houzz -homeadvisor -facebook";
+  const sources = cleanArray(input.sources).length
+    ? cleanArray(input.sources)
+    : ["Yelp", "Google", "Angi", "Instagram", "Facebook", "BBB", "CSLB", "company websites"];
+  // Owner-reach mindset: bias toward owner-named, reachable, reviewed profiles.
+  // Only job boards are excluded now — review/social platforms are where owner-operators live.
+  const exclusions = "-jobs -careers -hiring -\"apply now\" -\"top 10\" -\"best 15\"";
   const base = [
-    `${service} contractor ${market} licensed insured CSLB ${exclusions}`,
-    `${service} subcontractor ${market} contact license ${exclusions}`,
-    `"${service}" "${market}" "licensed" "insured" contractor ${exclusions}`,
-    `site:linkedin.com/company ${service} contractor ${market} -jobs`,
-    `"${service}" "${market}" "CSLB" contractor ${exclusions}`
+    `${service} contractor ${market} owner licensed insured phone ${exclusions}`,
+    `${service} subcontractor ${market} owner "family owned" license ${exclusions}`,
+    `"${service}" ${market} CSLB license owner ${exclusions}`
   ];
   const sourceQueries = sources.map((source) => {
-    if (/supplier/i.test(source)) return `${service} contractor ${market} licensed insured CSLB supplier recommended ${exclusions}`;
-    if (/job/i.test(source)) return `${service} contractor ${market} licensed insured active projects ${exclusions}`;
-    if (/permit|cslb|license/i.test(source)) return `${service} contractor ${market} CSLB license phone ${exclusions}`;
-    if (/subcontractor referral|sub referral/i.test(source)) return `${service} subcontractor ${market} licensed phone ${exclusions}`;
-    if (/association/i.test(source)) return `${service} contractor member ${market} licensed insured ${exclusions}`;
-    if (/platform|buildingconnected|smartbid|houzz|thumbtack/i.test(source)) return `${service} contractor ${market} company website license phone ${exclusions}`;
-    if (/public web|company/i.test(source)) return `${service} contractor ${market} licensed insured phone ${exclusions}`;
+    if (/yelp/i.test(source)) return `${service} ${market} site:yelp.com/biz`;
+    if (/google/i.test(source)) return `${service} contractor ${market} owner reviews phone ${exclusions}`;
+    if (/angi|angie/i.test(source)) return `${service} ${market} site:angi.com`;
+    if (/instagram|ig/i.test(source)) return `${service} contractor ${market} site:instagram.com`;
+    if (/facebook|fb|meta/i.test(source)) return `${service} contractor ${market} site:facebook.com`;
+    if (/bbb/i.test(source)) return `${service} ${market} owner site:bbb.org`;
+    if (/nextdoor/i.test(source)) return `${service} contractor ${market} site:nextdoor.com`;
     if (/linkedin/i.test(source)) return `site:linkedin.com/company ${service} contractor ${market}`;
-    return `${source} ${service} contractor ${market} licensed insured ${exclusions}`;
+    if (/permit|cslb|license/i.test(source)) return `${service} contractor ${market} CSLB license owner phone ${exclusions}`;
+    if (/supplier|referral/i.test(source)) return `${service} contractor ${market} owner licensed supplier recommended ${exclusions}`;
+    return `${source} ${service} contractor ${market} owner licensed insured ${exclusions}`;
   });
-  return [...new Set([...sourceQueries, ...base])].slice(0, Number(input.queryLimit || 8));
+  return [...new Set([...sourceQueries, ...base])].slice(0, Number(input.queryLimit || 10));
 }
 
 async function runSubcontractorAgent(input) {
