@@ -20,7 +20,6 @@
       --amber: #b45309;
       --red: #b42318;
       --plum: #7c3aed;
-      --rust: #b85c38;
       --shadow: 0 14px 36px rgba(16, 24, 40, 0.08);
     }
     html { scroll-behavior: smooth; }
@@ -91,7 +90,7 @@
       text-transform: uppercase;
     }
     .brand span:last-child {
-      color: var(--rust);
+      color: var(--blue);
       font-size: 0.72rem;
       font-weight: 900;
       letter-spacing: 0.14em;
@@ -122,7 +121,7 @@
     }
     nav a:hover,
     .nav-button:hover {
-      color: var(--rust);
+      color: var(--blue);
       border-color: var(--line);
       background: var(--soft);
     }
@@ -200,11 +199,11 @@
     label {
       display: block;
       color: var(--muted);
-      font-size: 0.72rem;
-      font-weight: 900;
-      letter-spacing: 0.08em;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
-      margin-bottom: 0.28rem;
+      margin-bottom: 0.3rem;
     }
     input,
     select,
@@ -243,7 +242,7 @@
       cursor: pointer;
     }
     button:hover,
-    .button-link:hover { background: var(--rust); }
+    .button-link:hover { background: var(--blue); }
     button:disabled { opacity: 0.58; cursor: wait; }
     button.secondary,
     .button-link.secondary {
@@ -253,8 +252,8 @@
     }
     button.secondary:hover,
     .button-link.secondary:hover {
-      color: var(--rust);
-      border-color: var(--rust);
+      color: var(--blue);
+      border-color: var(--blue);
       background: #fff;
     }
     .actions {
@@ -543,14 +542,15 @@
     .full { grid-column: 1 / -1; }
     .form-section {
       grid-column: 1 / -1;
-      margin-top: 0.55rem;
-      padding-bottom: 0.35rem;
-      border-bottom: 1px solid var(--line);
-      color: var(--ink);
-      font-size: 0.76rem;
-      font-weight: 900;
-      letter-spacing: 0.09em;
-      text-transform: uppercase;
+      margin-top: 0.75rem;
+      padding: 0.1rem 0 0.35rem 0.6rem;
+      border-left: 3px solid var(--soft);
+      border-bottom: none;
+      color: var(--steel);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: none;
     }
     .form-section:first-of-type { margin-top: 0; }
     .form-section small {
@@ -602,7 +602,7 @@
       font-size: 0.84rem;
       font-weight: 850;
     }
-    .source-grid a:hover { color: var(--rust); border-color: var(--rust); }
+    .source-grid a:hover { color: var(--blue); border-color: var(--blue); }
     .status-line {
       min-height: 24px;
       color: var(--muted);
@@ -701,6 +701,7 @@
       <a href="lead_generation.html">Lead Gen</a>
       <a href="bid_lab.html">Bid Lab</a>
       <a href="services_board.html">Readiness</a>
+      <a href="suppliers.html">Suppliers</a>
       <a href="http://localhost:4173/">Public Site</a>
     </div>
   </div>
@@ -855,6 +856,15 @@
                 <button id="importCsv" class="secondary" type="button">Import CSV</button>
               </div>
               <p id="csvStatus" class="status-line"></p>
+            </div>
+            <div>
+              <label for="jsonInput">JSON</label>
+              <textarea id="jsonInput" placeholder='[{"companyName":"Acme Roofing","phone":"555-0100","serviceCategory":"Roofing"}]'></textarea>
+              <div class="actions" style="margin-top:0.55rem;">
+                <input id="jsonFile" type="file" accept="application/json,.json" style="max-width:220px;" />
+                <button id="importJson" class="secondary" type="button">Import JSON</button>
+              </div>
+              <p id="jsonStatus" class="status-line"></p>
             </div>
           </div>
         </details>
@@ -1120,6 +1130,10 @@
       csvInput: document.querySelector("#csvInput"),
       importCsv: document.querySelector("#importCsv"),
       csvStatus: document.querySelector("#csvStatus"),
+      jsonInput: document.querySelector("#jsonInput"),
+      jsonFile: document.querySelector("#jsonFile"),
+      importJson: document.querySelector("#importJson"),
+      jsonStatus: document.querySelector("#jsonStatus"),
       chaseOutput: document.querySelector("#chaseOutput"),
       chaseStatus: document.querySelector("#chaseStatus"),
       form: document.querySelector("#subForm")
@@ -2104,6 +2118,61 @@
       } catch (error) {
         els.csvStatus.textContent = error.message;
         els.csvStatus.className = "status-line bad";
+      }
+    });
+
+    els.jsonFile.addEventListener("change", async () => {
+      const file = els.jsonFile.files && els.jsonFile.files[0];
+      if (!file) return;
+      els.jsonInput.value = await file.text();
+    });
+
+    els.importJson.addEventListener("click", async () => {
+      let parsed;
+      try {
+        parsed = JSON.parse(els.jsonInput.value);
+      } catch (error) {
+        els.jsonStatus.textContent = `Invalid JSON: ${error.message}`;
+        els.jsonStatus.className = "status-line bad";
+        return;
+      }
+      if (!Array.isArray(parsed)) {
+        els.jsonStatus.textContent = "JSON must be an array of records.";
+        els.jsonStatus.className = "status-line bad";
+        return;
+      }
+      const records = parsed.map((record) => normalize({
+        ...record,
+        sourceNotes: record.sourceNotes || "Imported from JSON. Verify before use.",
+        sourcingMethod: record.sourcingMethod || "json",
+        sourceChannel: record.sourceChannel || "json",
+        sourceConfidence: record.sourceConfidence || "low",
+        agentStatus: record.agentStatus || "needs_review",
+        status: record.status || "researching"
+      }));
+      if (!records.length) {
+        els.jsonStatus.textContent = "No JSON records found.";
+        els.jsonStatus.className = "status-line warn";
+        return;
+      }
+      try {
+        if (apiAvailable) {
+          const result = await api("/api/subcontractors/bulk", { method: "POST", body: JSON.stringify({ records }) });
+          const saved = Array.isArray(result.saved) ? result.saved : [];
+          const updated = saved.filter((row) => row.updatedExisting).length;
+          const created = saved.length - updated;
+          subcontractors = (await api("/api/subcontractors")).map(normalize);
+          els.jsonStatus.textContent = `Imported ${result.savedCount} record(s) — ${created} created, ${updated} updated.`;
+        } else {
+          subcontractors = subcontractors.concat(records);
+          saveLocal();
+          els.jsonStatus.textContent = `Imported ${records.length} record(s) locally (no server bulk endpoint available offline).`;
+        }
+        els.jsonStatus.className = "status-line good";
+        render();
+      } catch (error) {
+        els.jsonStatus.textContent = error.message;
+        els.jsonStatus.className = "status-line bad";
       }
     });
 

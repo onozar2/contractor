@@ -362,6 +362,8 @@
     }
     .legend .legend-item { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--steel); font-size: 0.82rem; font-weight: 700; }
     .empty { padding: 2.2rem 1rem; color: var(--muted); text-align: center; background: #fff; }
+    .empty-cta { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 0.9rem; }
+    .loading-state { padding: 2.2rem 1rem; color: var(--muted); text-align: center; background: #fff; }
     footer {
       padding: 1.5rem 4vw 2.5rem;
       color: rgba(255, 255, 255, 0.66);
@@ -394,6 +396,7 @@
       <a href="lead_generation.html">Lead Gen</a>
       <a href="bid_lab.html">Bid Lab</a>
       <a class="active" href="services_board.html">Readiness</a>
+      <a href="suppliers.html">Suppliers</a>
       <a href="http://localhost:4173/">Public Site</a>
     </div>
   </div>
@@ -412,8 +415,8 @@
 
   <main class="app-shell">
     <section class="intro">
-      <h1>Services &rarr; Subs &rarr; Suppliers readiness</h1>
-      <p>Each service we want to sell needs vetted subcontractor trades and open material-supplier accounts. A service is <strong>ready to deliver</strong> when every required trade has at least one vetted sub and every required supplier category is covered. Sub counts come from the roster; supplier coverage comes from the suppliers list (falls back to "unknown" until that data is connected).</p>
+      <h1>Readiness Board</h1>
+      <p>Services &rarr; Subs &rarr; Suppliers. Each service we want to sell needs vetted subcontractor trades and open material-supplier accounts. A service is <strong>ready to deliver</strong> when every required trade has at least one vetted sub and every required supplier category is covered. Sub counts come from the roster; supplier coverage comes from the suppliers list (falls back to "unknown" until that data is connected).</p>
     </section>
 
     <section class="metrics" aria-label="Readiness summary — click to filter">
@@ -448,7 +451,7 @@
         <div>Required suppliers</div>
         <div>Status</div>
       </div>
-      <div id="boardBody"></div>
+      <div id="boardBody"><div class="loading-state">Loading service readiness...</div></div>
     </section>
 
     <section class="legend" aria-label="Legend">
@@ -690,7 +693,14 @@
       els.resultCount.textContent = `${rows.length} of ${evaluated.length} services — ${ready} ready, ${partial} partial, ${blocked} blocked`;
 
       if (!rows.length) {
-        els.boardBody.innerHTML = `<div class="empty">No services match the current filters.</div>`;
+        els.boardBody.innerHTML = `
+          <div class="empty">
+            <strong style="display:block;color:var(--ink);">No services match these filters</strong>
+            Try a different status or search term.
+            <div class="empty-cta">
+              <button type="button" class="secondary" data-empty-action="clear">Clear filters</button>
+            </div>
+          </div>`;
         return;
       }
 
@@ -750,6 +760,16 @@
       gapsOnly = !gapsOnly;
       els.gapsOnly.classList.toggle("active", gapsOnly);
       render();
+    });
+    els.boardBody.addEventListener("click", (event) => {
+      const emptyAction = event.target.closest("[data-empty-action]")?.dataset.emptyAction;
+      if (emptyAction === "clear") {
+        els.searchInput.value = "";
+        gapsOnly = false;
+        els.gapsOnly.classList.remove("active");
+        activeFilter = "all";
+        render();
+      }
     });
 
     function applyMetricFilter(filter) {

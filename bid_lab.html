@@ -66,6 +66,19 @@
     .advanced-fields .grid { padding: 0 0.9rem 0.9rem; }
     .form-status { min-height: 22px; color: var(--green); font-size: 0.85rem; font-weight: 800; }
     .empty-state { color: var(--muted); }
+    .empty {
+      padding: 2.2rem 1rem;
+      color: var(--muted);
+      text-align: center;
+      background: var(--white);
+    }
+    .empty-cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 0.9rem;
+    }
     .project-list { display: grid; gap: 0.75rem; }
     .project-card header { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; align-items: start; }
     .badge { display: inline-flex; align-items: center; min-height: 26px; border-radius: 999px; padding: 0 0.65rem; font-size: 0.74rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; background: var(--mist); color: var(--steel); }
@@ -93,6 +106,7 @@
       <a href="lead_generation.html">Lead Gen</a>
       <a class="active" href="bid_lab.html">Bid Lab</a>
       <a href="services_board.html">Readiness</a>
+      <a href="suppliers.html">Suppliers</a>
       <a href="http://localhost:4173/">Public Site</a>
     </div>
   </div>
@@ -109,7 +123,7 @@
     <section class="hero">
       <div class="hero-copy">
         <div class="eyebrow">Budget range first, fixed bid second</div>
-        <h1>Bid tracker</h1>
+        <h1>Bid Tracker</h1>
         <p>Save the lead, project, rough range, and next action first. Add scope and validation detail only when the job is worth tightening.</p>
       </div>
       <aside class="metrics">
@@ -496,7 +510,21 @@
               <button class="secondary" data-delete="${project.id}" type="button">Delete</button>
             </div>
           </article>`;
-      }).join("") : `<div class="project-card empty-state">No saved bids match the current filters. Add the lead, project type, and rough range on the left.</div>`;
+      }).join("") : (projects.length === 0
+        ? `<div class="empty">
+            <strong style="display:block;font-size:1.05rem;color:var(--ink);">No bids yet</strong>
+            Add the lead, project type, and rough range on the left to start tracking your first bid.
+            <div class="empty-cta">
+              <button type="button" data-empty-action="add">Add a bid</button>
+            </div>
+          </div>`
+        : `<div class="empty">
+            <strong style="display:block;color:var(--ink);">No bids match these filters</strong>
+            Try a different status or search term.
+            <div class="empty-cta">
+              <button type="button" class="secondary" data-empty-action="clear">Clear filters</button>
+            </div>
+          </div>`);
     }
 
     function buildLocalQuoteRequest(project, trade) {
@@ -561,6 +589,18 @@
       const editId = event.target.dataset.edit;
       const quoteId = event.target.dataset.quote;
       const deleteId = event.target.dataset.delete;
+      const emptyAction = event.target.dataset.emptyAction;
+      if (emptyAction === "clear") {
+        $("#searchInput").value = "";
+        $("#statusFilter").value = "All statuses";
+        render();
+        return;
+      }
+      if (emptyAction === "add") {
+        clearForm();
+        $("#customerName").scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
       if (editId) fillForm(projects.find((project) => project.id === editId));
       if (quoteId) {
         $("#quoteProjectId").value = quoteId;

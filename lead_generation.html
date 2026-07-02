@@ -9,7 +9,7 @@
     :root {
       --ink: #172033; --steel: #3c4658; --muted: #687587; --mist: #eef2f6;
       --white: #ffffff; --line: #d8dee8; --charcoal: #101828;
-      --clay: #2563eb; --copper: #3b82f6;
+      --clay: #2563eb;
       --blue: #2563eb; --green: #0f766e; --amber: #b45309; --red: #b42318;
       --shadow: 0 14px 36px rgba(16, 24, 40, 0.08);
     }
@@ -55,10 +55,30 @@
     .metric, .panel, .lead-card, .source-card {
       border: 1px solid var(--line); border-radius: 8px; background: var(--white); box-shadow: 0 8px 22px rgba(16,24,40,0.05);
     }
-    .metric { padding: 0.85rem; border-top: 3px solid transparent; transition: border-color 0.15s, box-shadow 0.15s; }
+    .metric { padding: 0.85rem; border-top: 3px solid transparent; transition: border-color 0.15s, box-shadow 0.15s, transform 0.05s; }
     .metric:hover { border-top-color: var(--steel); box-shadow: 0 16px 38px rgba(16,24,40,0.1); }
     .metric strong { display: block; font-size: 1.75rem; line-height: 1; color: var(--ink); }
     .metric span { color: var(--muted); font-size: 0.74rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+    .status-metrics { grid-template-columns: repeat(5, minmax(0, 1fr)); margin-bottom: 0.85rem; }
+    .status-metrics .metric { cursor: pointer; }
+    .status-metrics .metric:active { transform: translateY(1px); }
+    .status-metrics .metric:focus-visible { outline: 2px solid rgba(37, 99, 235, 0.4); outline-offset: 2px; }
+    .status-metrics .metric.active { border-top-color: var(--ink); box-shadow: 0 0 0 1px var(--ink), 0 8px 22px rgba(16,24,40,0.05); }
+    .empty {
+      padding: 2.2rem 1rem;
+      color: var(--muted);
+      text-align: center;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .empty-cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 0.9rem;
+    }
     .tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
     .tabs a {
       min-height: 42px; border-radius: 6px; border: 1px solid var(--line); background: var(--white);
@@ -159,6 +179,7 @@
       <a class="active" href="lead_generation.html">Lead Gen</a>
       <a href="bid_lab.html">Bid Lab</a>
       <a href="services_board.html">Readiness</a>
+      <a href="suppliers.html">Suppliers</a>
       <a href="http://localhost:4173/">Public Site</a>
     </div>
   </div>
@@ -176,8 +197,8 @@
     <section class="hero">
       <div>
         <div class="eyebrow">Agent-first sales finder</div>
-        <h1>Let the lead agent fill MongoDB, then work the pipeline.</h1>
-        <p class="muted">The primary workflow is public source research into MongoDB. Manual entry remains the secondary path for incoming calls, referrals, and form fills.</p>
+        <h1>Lead Pipeline</h1>
+        <p class="muted">Let the lead agent fill MongoDB, then work the pipeline. The primary workflow is public source research into MongoDB. Manual entry remains the secondary path for incoming calls, referrals, and form fills.</p>
       </div>
       <aside class="metrics">
         <div class="metric"><strong id="leadCount">0</strong><span>Total leads</span></div>
@@ -334,6 +355,13 @@
       <section id="leads" class="panel">
         <h2>Lead tracker</h2>
         <p>Conversion rates update from saved statuses. Keep lost reasons and source quality notes so spend follows what works.</p>
+        <div class="metrics status-metrics" aria-label="Lead status — click a card to filter">
+          <div class="metric" data-status-filter="All statuses" role="button" tabindex="0" title="Show all leads"><span>All</span><strong id="statusAllCount">0</strong></div>
+          <div class="metric" data-status-filter="new" role="button" tabindex="0" title="Filter to new leads"><span>New</span><strong id="statusNewCount">0</strong></div>
+          <div class="metric" data-status-filter="contacted" role="button" tabindex="0" title="Filter to contacted leads"><span>Contacted</span><strong id="statusContactedCount">0</strong></div>
+          <div class="metric" data-status-filter="won" role="button" tabindex="0" title="Filter to won leads"><span>Won</span><strong id="statusWonCount">0</strong></div>
+          <div class="metric" data-status-filter="lost" role="button" tabindex="0" title="Filter to lost leads"><span>Lost</span><strong id="statusLostCount">0</strong></div>
+        </div>
         <div class="actions" style="margin-bottom:0.8rem;">
           <input id="leadSearch" placeholder="Search leads..." />
           <select id="leadFilter"><option>All statuses</option><option>new</option><option>contacted</option><option>estimate scheduled</option><option>bid sent</option><option>won</option><option>lost</option><option>nurture</option></select>
@@ -580,6 +608,17 @@
       $("#trafficRate").textContent = visits ? `${((trafficLeads / visits) * 100).toFixed(1)}%` : "0%";
       $("#adSpend").textContent = money(spend);
       $("#costPerLead").textContent = trafficLeads ? money(spend / trafficLeads) : "$0";
+
+      $("#statusAllCount").textContent = leads.length;
+      $("#statusNewCount").textContent = leads.filter((lead) => lead.status === "new").length;
+      $("#statusContactedCount").textContent = leads.filter((lead) => lead.status === "contacted").length;
+      $("#statusWonCount").textContent = won;
+      $("#statusLostCount").textContent = leads.filter((lead) => lead.status === "lost").length;
+
+      const activeFilter = $("#leadFilter").value;
+      document.querySelectorAll(".status-metrics .metric[data-status-filter]").forEach((card) => {
+        card.classList.toggle("active", card.dataset.statusFilter === activeFilter);
+      });
     }
 
     function renderLeads() {
@@ -612,7 +651,22 @@
           <div class="source-links">${lead.sourceUrl ? `<a href="${lead.sourceUrl}" target="_blank" rel="noopener">Source</a>` : ""}</div>
           <div class="actions" style="margin-top:0.7rem;"><button class="secondary" data-edit="${lead.id}" type="button">Edit</button><button class="secondary" data-delete="${lead.id}" type="button">Delete</button></div>
         </article>
-      `).join("") : `<div class="source-card"><p>No leads match the current filters.</p></div>`;
+      `).join("") : (leads.length === 0
+        ? `<div class="empty">
+            <strong style="display:block;font-size:1.05rem;color:var(--ink);">No leads yet</strong>
+            Run the lead agent, or add your first lead manually to start the pipeline.
+            <div class="empty-cta">
+              <button type="button" data-empty-action="add">Add a lead</button>
+              <button type="button" class="secondary" data-empty-action="agent">Run lead agent</button>
+            </div>
+          </div>`
+        : `<div class="empty">
+            <strong style="display:block;color:var(--ink);">No leads match these filters</strong>
+            Try a different status or search term.
+            <div class="empty-cta">
+              <button type="button" class="secondary" data-empty-action="clear">Clear filters</button>
+            </div>
+          </div>`);
     }
 
     function renderTraffic() {
@@ -692,7 +746,24 @@
     $("#buildQueue").addEventListener("click", buildQueue);
     $("#copyPrompt").addEventListener("click", async () => navigator.clipboard.writeText(agentPrompt()));
     $("#leadSearch").addEventListener("input", renderLeads);
-    $("#leadFilter").addEventListener("change", renderLeads);
+    $("#leadFilter").addEventListener("change", () => { renderLeads(); renderMetrics(); });
+    function applyStatusFilter(filter) {
+      $("#leadFilter").value = filter;
+      renderLeads();
+      renderMetrics();
+    }
+    const statusMetricsBar = document.querySelector(".status-metrics");
+    statusMetricsBar.addEventListener("click", (event) => {
+      const card = event.target.closest(".metric[data-status-filter]");
+      if (card) applyStatusFilter(card.dataset.statusFilter);
+    });
+    statusMetricsBar.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      const card = event.target.closest(".metric[data-status-filter]");
+      if (!card) return;
+      event.preventDefault();
+      applyStatusFilter(card.dataset.statusFilter);
+    });
     $("#clearLead").addEventListener("click", () => $("#leadForm").reset());
     $("#leadForm").addEventListener("submit", async (event) => { event.preventDefault(); await upsertLead(leadFromForm()); event.target.reset(); $("#leadId").value = ""; $("#probability").value = 25; });
     $("#trafficForm").addEventListener("submit", async (event) => {
@@ -723,6 +794,10 @@
     $("#leadList").addEventListener("click", async (event) => {
       const editId = event.target.dataset.edit;
       const deleteId = event.target.dataset.delete;
+      const emptyAction = event.target.dataset.emptyAction;
+      if (emptyAction === "clear") { $("#leadSearch").value = ""; applyStatusFilter("All statuses"); return; }
+      if (emptyAction === "agent") { $("#runLeadAgent").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+      if (emptyAction === "add") { $("#customerName").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
       if (editId) fillLead(leads.find((lead) => lead.id === editId));
       if (deleteId && confirm("Delete this customer lead?")) {
         if (apiAvailable && !deleteId.includes("-")) await api(`/api/customer-leads/${deleteId}`, { method: "DELETE" });

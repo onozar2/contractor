@@ -20,7 +20,6 @@
       --amber: #b45309;
       --red: #b42318;
       --plum: #7c3aed;
-      --rust: #b85c38;
       --shadow: 0 14px 36px rgba(16, 24, 40, 0.08);
     }
     html { scroll-behavior: smooth; }
@@ -91,7 +90,7 @@
       text-transform: uppercase;
     }
     .brand span:last-child {
-      color: var(--rust);
+      color: var(--blue);
       font-size: 0.72rem;
       font-weight: 900;
       letter-spacing: 0.14em;
@@ -122,7 +121,7 @@
     }
     nav a:hover,
     .nav-button:hover {
-      color: var(--rust);
+      color: var(--blue);
       border-color: var(--line);
       background: var(--soft);
     }
@@ -243,11 +242,11 @@
     label {
       display: block;
       color: var(--muted);
-      font-size: 0.72rem;
-      font-weight: 900;
-      letter-spacing: 0.08em;
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
-      margin-bottom: 0.28rem;
+      margin-bottom: 0.3rem;
     }
     input,
     select,
@@ -286,7 +285,7 @@
       cursor: pointer;
     }
     button:hover,
-    .button-link:hover { background: var(--rust); }
+    .button-link:hover { background: var(--blue); }
     button:disabled { opacity: 0.58; cursor: wait; }
     button.secondary,
     .button-link.secondary {
@@ -296,8 +295,8 @@
     }
     button.secondary:hover,
     .button-link.secondary:hover {
-      color: var(--rust);
-      border-color: var(--rust);
+      color: var(--blue);
+      border-color: var(--blue);
       background: #fff;
     }
     button.tiny {
@@ -560,14 +559,15 @@
     .full { grid-column: 1 / -1; }
     .form-section {
       grid-column: 1 / -1;
-      margin-top: 0.55rem;
-      padding-bottom: 0.35rem;
-      border-bottom: 1px solid var(--line);
-      color: var(--ink);
-      font-size: 0.76rem;
-      font-weight: 900;
-      letter-spacing: 0.09em;
-      text-transform: uppercase;
+      margin-top: 0.75rem;
+      padding: 0.1rem 0 0.35rem 0.6rem;
+      border-left: 3px solid var(--soft);
+      border-bottom: none;
+      color: var(--steel);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: none;
     }
     .form-section:first-of-type { margin-top: 0; }
     .status-line {
@@ -653,6 +653,7 @@
       <a href="subcontractor_finder.html">Subcontractors</a>
       <a href="lead_generation.html">Lead Gen</a>
       <a href="bid_lab.html">Bid Lab</a>
+      <a href="services_board.html">Readiness</a>
       <a class="active" href="suppliers.html">Suppliers</a>
       <a href="http://localhost:4173/">Public Site</a>
     </div>
@@ -674,7 +675,7 @@
     <section class="metrics" aria-label="Supplier metrics — click a card to filter">
       <div class="metric" data-filter="all" role="button" tabindex="0" title="Show all suppliers"><span>Total Suppliers</span><strong id="totalCount">0</strong></div>
       <div class="metric" data-filter="open" role="button" tabindex="0" title="Filter to open accounts"><span>Open Accounts</span><strong id="openCount">0</strong></div>
-      <div class="metric" data-filter="all" role="button" tabindex="0" title="Categories covered"><span>Categories Covered</span><strong id="categoryCount">0</strong></div>
+      <div class="metric"><span>Categories Covered</span><strong id="categoryCount">0</strong></div>
       <div class="metric attention" data-filter="not_started" role="button" tabindex="0" title="Filter to accounts not started"><span>Not Started</span><strong id="notStartedCount">0</strong></div>
     </section>
 
@@ -707,7 +708,7 @@
     <section id="roster" class="roster-section" aria-label="Supplier roster">
       <div class="section-head">
         <div>
-          <h1>Suppliers &amp; Manufacturers</h1>
+          <h1>Suppliers</h1>
           <p id="resultCount" class="muted">Loading suppliers...</p>
         </div>
         <div class="actions">
@@ -1038,14 +1039,21 @@
         + (activeCategory !== "All categories" ? ` · ${activeCategory}` : "");
 
       if (!filtered.length) {
-        els.supplierGroups.innerHTML = `
-          <div class="empty">
-            <p>No suppliers match the current filters.</p>
-            <div class="empty-cta">
-              <button id="resetFilters" class="secondary" type="button">Reset filters</button>
-              <button id="emptyAdd" type="button">Add a supplier</button>
-            </div>
-          </div>`;
+        els.supplierGroups.innerHTML = suppliers.length === 0
+          ? `<div class="empty">
+              <strong style="display:block;font-size:1.05rem;color:var(--ink);">No suppliers yet</strong>
+              Add your first supplier or manufacturer account to start tracking coverage.
+              <div class="empty-cta">
+                <button id="emptyAdd" type="button">Add a supplier</button>
+              </div>
+            </div>`
+          : `<div class="empty">
+              <strong style="display:block;color:var(--ink);">No suppliers match these filters</strong>
+              Try a different category, status, or search term.
+              <div class="empty-cta">
+                <button id="resetFilters" class="secondary" type="button">Clear filters</button>
+              </div>
+            </div>`;
         document.querySelector("#resetFilters")?.addEventListener("click", resetFilters);
         document.querySelector("#emptyAdd")?.addEventListener("click", () => { clearForm(); document.querySelector("#name").focus(); });
         return;
