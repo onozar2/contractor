@@ -651,6 +651,9 @@
     <div><strong>Suppliers &amp; manufacturers roster</strong></div>
     <div class="workspace-switcher" role="navigation" aria-label="Workspace switcher">
       <a href="subcontractor_finder.html">Subcontractors</a>
+      <a href="subs_database.html">Database</a>
+      <a href="audit.html">Audit</a>
+      <a href="research_chat.html">Research</a>
       <a href="lead_generation.html">Lead Gen</a>
       <a href="bid_lab.html">Bid Lab</a>
       <a href="services_board.html">Readiness</a>
@@ -764,6 +767,14 @@
               <label for="accountRequirements">Account requirements</label>
               <textarea id="accountRequirements" placeholder="Credit app, resale certificate, personal guaranty..."></textarea>
             </div>
+            <div>
+              <label for="minimumSpend">Minimum spend / opening order</label>
+              <input id="minimumSpend" placeholder="e.g. $2,500 min on LTL items" />
+            </div>
+            <div>
+              <label for="leadTime">Lead times</label>
+              <input id="leadTime" placeholder="e.g. stock 24-48hr, special order 4-6 wks" />
+            </div>
 
             <div class="form-section">Contact</div>
             <div>
@@ -839,7 +850,15 @@
       "Concrete & Masonry",
       "Lumber & Building Materials",
       "Cabinets & Countertops",
-      "Solar"
+      "Solar",
+      "Flooring",
+      "Turf & Landscape",
+      "Glass & Mirror",
+      "Wire & Cable",
+      "Appliances",
+      "Pool & Spa",
+      "Fireplace",
+      "Restoration Equipment"
     ];
     const accountTypes = ["distributor", "manufacturer-dealer", "big-box-pro", "supply-house"];
     const accountStatuses = ["not_started", "researching", "applied", "open"];
@@ -946,6 +965,8 @@
         accountStatus: pickEnum(record.accountStatus, accountStatuses, "not_started"),
         accountCostEstimate: clean(record.accountCostEstimate),
         accountRequirements: clean(record.accountRequirements),
+        minimumSpend: clean(record.minimumSpend),
+        leadTime: clean(record.leadTime),
         contactName: clean(record.contactName),
         phone: clean(record.phone),
         email: clean(record.email).toLowerCase(),
@@ -1131,6 +1152,8 @@
               <div class="detail-item"><span>Account type</span><strong>${escapeHtml(labelize(record.accountType))}</strong></div>
               <div class="detail-item"><span>Account status</span><strong>${escapeHtml(labelize(record.accountStatus))}</strong></div>
               <div class="detail-item"><span>Est. opening cost</span><strong>${escapeHtml(record.accountCostEstimate || "—")}</strong></div>
+              <div class="detail-item"><span>Minimum spend</span><strong>${escapeHtml(record.minimumSpend || "—")}</strong></div>
+              <div class="detail-item"><span>Lead times</span><strong>${escapeHtml(record.leadTime || "—")}</strong></div>
               <div class="detail-item"><span>Region</span><strong>${escapeHtml(record.region || "—")}</strong></div>
               <div class="detail-item"><span>Website</span>${websiteDetail}</div>
             </div>
@@ -1190,6 +1213,8 @@
         brands: document.querySelector("#brands").value,
         suppliesServices: document.querySelector("#suppliesServices").value,
         accountCostEstimate: document.querySelector("#accountCostEstimate").value,
+        minimumSpend: document.querySelector("#minimumSpend").value,
+        leadTime: document.querySelector("#leadTime").value,
         accountRequirements: document.querySelector("#accountRequirements").value,
         contactName: document.querySelector("#contactName").value,
         phone: document.querySelector("#phone").value,
@@ -1213,6 +1238,8 @@
       document.querySelector("#brands").value = normalized.brands.join(", ");
       document.querySelector("#suppliesServices").value = normalized.suppliesServices.join(", ");
       document.querySelector("#accountCostEstimate").value = normalized.accountCostEstimate || "";
+      document.querySelector("#minimumSpend").value = normalized.minimumSpend || "";
+      document.querySelector("#leadTime").value = normalized.leadTime || "";
       document.querySelector("#accountRequirements").value = normalized.accountRequirements || "";
       document.querySelector("#contactName").value = normalized.contactName || "";
       document.querySelector("#phone").value = normalized.phone || "";

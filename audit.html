@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finder Audit | Joon Development Group</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --ink:#172033; --steel:#3c4658; --muted:#687587; --line:#d8dee8; --soft:#f5f7fa; --paper:#fff; --charcoal:#101828; --blue:#2563eb; --green:#0f766e; --amber:#b45309; --red:#b42318; --plum:#7c3aed; }
+    body { color: var(--ink); background: #eef2f6; font-family: Inter, ui-sans-serif, system-ui, "Segoe UI", sans-serif; line-height: 1.45; }
+    .topbar { background: var(--charcoal); color: rgba(255,255,255,0.76); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: 0.5rem 2vw; font-size: 0.82rem; }
+    .topbar strong { color: #fff; }
+    .topbar a { text-decoration: none; min-height: 28px; border-radius: 6px; padding: 0.18rem 0.52rem; font-weight: 850; color: rgba(255,255,255,0.72); }
+    .topbar a:hover, .topbar a.active { color: #fff; background: rgba(255,255,255,0.12); }
+    .shell { width: min(1500px, 100%); margin: 0 auto; padding: 1rem 2vw 3rem; display: grid; gap: 1rem; }
+    .metrics { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.6rem; }
+    .metric { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 0.6rem 0.75rem; }
+    .metric b { display: block; font-size: 1.3rem; }
+    .metric span { color: var(--muted); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 0.9rem; }
+    .card h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.6rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    th { text-align: left; padding: 0.35rem 0.45rem; color: var(--muted); font-size: 0.68rem; text-transform: uppercase; border-bottom: 1px solid var(--line); }
+    td { padding: 0.35rem 0.45rem; border-bottom: 1px solid #eef1f6; }
+    .bar { height: 8px; background: var(--soft); border-radius: 4px; overflow: hidden; min-width: 80px; }
+    .bar i { display: block; height: 100%; background: var(--blue); }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }
+    .pill { display: inline-block; border-radius: 999px; padding: 0.03rem 0.5rem; font-size: 0.7rem; font-weight: 800; background: var(--soft); border: 1px solid var(--line); }
+    .pill.red { background: #fdecea; color: var(--red); }
+    .pill.green { background: #e7f6f4; color: var(--green); }
+    .btn { min-height: 32px; border: 1px solid var(--line); border-radius: 7px; padding: 0 0.7rem; background: var(--paper); font: inherit; font-size: 0.78rem; font-weight: 800; cursor: pointer; color: var(--steel); }
+    .btn:hover { color: var(--blue); background: var(--soft); }
+    .btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .sweep { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: end; }
+    .sweep label { display: grid; gap: 0.15rem; font-size: 0.7rem; font-weight: 800; color: var(--muted); text-transform: uppercase; }
+    .sweep select, .sweep input { min-height: 32px; border: 1px solid var(--line); border-radius: 7px; padding: 0 0.5rem; font: inherit; font-size: 0.82rem; background: var(--soft); }
+    #sweepOut { margin-top: 0.6rem; font-size: 0.78rem; white-space: pre-wrap; background: var(--charcoal); color: #e8eef8; border-radius: 8px; padding: 0.6rem; display: none; max-height: 260px; overflow-y: auto; }
+    .muted { color: var(--muted); }
+    @media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } .metrics { grid-template-columns: repeat(3, 1fr); } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <strong>JOON · Finder Audit</strong>
+    <div>
+      <a href="subcontractor_finder.html">Finder</a>
+      <a href="subs_database.html">Database</a>
+      <a href="audit.html" class="active">Audit</a>
+      <a href="research_chat.html">Research</a>
+      <a href="bid_lab.html">Bid Lab</a>
+      <a href="suppliers.html">Suppliers</a>
+    </div>
+  </div>
+  <div class="shell">
+    <div class="metrics" id="metrics"></div>
+
+    <div class="card">
+      <h2>Run a trade-specific sweep (tuned queries per trade)</h2>
+      <div class="sweep">
+        <label>Trade preset<select id="swTrade"></select></label>
+        <label>Market<input id="swMarket" value="Los Angeles CA" /></label>
+        <label>Max results<input id="swMax" type="number" value="10" min="1" max="30" style="width:70px" /></label>
+        <label>Min fit score<input id="swMin" type="number" value="45" min="0" max="100" style="width:70px" /></label>
+        <button class="btn primary" id="swRun">Run sweep</button>
+        <span class="muted" id="swStatus"></span>
+      </div>
+      <pre id="sweepOut"></pre>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h2>Coverage & data quality by trade</h2>
+        <table><thead><tr><th>Trade</th><th>#</th><th>Avg score</th><th>Phone</th><th>Email</th><th>Owner</th><th>Lic #</th><th>Contacted</th></tr></thead><tbody id="tradeRows"></tbody></table>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:1rem">
+          <h2>Trade gaps (fewer than 4 subs — source these next)</h2>
+          <div id="gaps"></div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <h2>Score distribution / pipeline / materials</h2>
+          <div id="dists" style="display:grid;gap:0.5rem;font-size:0.8rem"></div>
+        </div>
+        <div class="card">
+          <h2>Supplier database health</h2>
+          <div id="supStats" style="font-size:0.8rem"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h2>Finder runs — effectiveness</h2>
+        <table><thead><tr><th>When</th><th>Trade</th><th>Candidates</th><th>Saved</th><th>Skipped</th><th>Yield</th><th>Errors</th><th>Time</th></tr></thead><tbody id="runRows"></tbody></table>
+      </div>
+      <div class="card">
+        <h2>Why candidates get skipped (tune filters here)</h2>
+        <table><thead><tr><th>Reason</th><th>Count</th></tr></thead><tbody id="skipRows"></tbody></table>
+        <p class="muted" style="font-size:0.75rem;margin-top:0.5rem">High "blocked source" counts = queries hitting directories, tune query terms. High "no contact evidence" = pages fetched but thin — raise queryLimit or add sources. High "below threshold" = lower min fit score or improve enrichment.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const pct = (n, d) => d ? Math.round((n / d) * 100) + "%" : "-";
+    const bar = (n, d) => `<div class="bar" title="${pct(n,d)}"><i style="width:${d ? Math.round((n/d)*100) : 0}%"></i></div>`;
+
+    async function load() {
+      const [audit, presets] = await Promise.all([
+        fetch("/api/audit").then((r) => r.json()),
+        fetch("/api/trade-presets").then((r) => r.json())
+      ]);
+      const sel = document.getElementById("swTrade");
+      sel.innerHTML = presets.map((p) => `<option value="${esc(p.key)}">${esc(p.label)}</option>`).join("");
+
+      const s = audit.subs;
+      const contacted = s.byStage.filter((x) => !["not_contacted","queued"].includes(x._id)).reduce((a, b) => a + b.count, 0);
+      document.getElementById("metrics").innerHTML = [
+        [s.total, "Total subs"], [s.byTrade.length, "Trades covered"], [s.gaps.length, "Trade gaps"],
+        [contacted, "Contacted"], [audit.jobCount, "Jobs logged"], [audit.suppliers.total, "Suppliers"]
+      ].map(([v, l]) => `<div class="metric"><b>${v}</b><span>${l}</span></div>`).join("");
+
+      document.getElementById("tradeRows").innerHTML = s.byTrade.map((t) => `
+        <tr><td><b>${esc(t._id || "(none)")}</b></td><td>${t.count}</td>
+        <td>${Math.round(t.avgOverall || t.avgFit || 0)}</td>
+        <td>${bar(t.withPhone, t.count)}</td><td>${bar(t.withEmail, t.count)}</td>
+        <td>${bar(t.withOwner, t.count)}</td><td>${bar(t.withLicenseNum, t.count)}</td>
+        <td>${t.contacted}</td></tr>`).join("");
+
+      document.getElementById("gaps").innerHTML = s.gaps.length
+        ? s.gaps.map((g) => `<span class="pill ${g.count === 0 ? "red" : ""}" style="margin:0.15rem">${esc(g.trade)} (${g.count})</span>`).join(" ")
+        : '<span class="pill green">All target trades have 4+ subs</span>';
+
+      const distLine = (label, items, keyFn) => `<div><b style="font-size:0.72rem;text-transform:uppercase;color:var(--muted)">${label}</b><br />${items.map((i) => `<span class="pill" style="margin:0.1rem">${keyFn(i)}: ${i.count}</span>`).join(" ")}</div>`;
+      document.getElementById("dists").innerHTML = [
+        distLine("Score buckets", audit.subs.scoreBuckets, (i) => i._id === "other" ? "?" : `${i._id}+`),
+        distLine("Outreach pipeline", audit.subs.byStage, (i) => i._id.replace(/_/g, " ")),
+        distLine("Source confidence", audit.subs.byConfidence, (i) => i._id),
+        distLine("Brings own materials", audit.subs.byMaterials, (i) => i._id)
+      ].join("");
+
+      const sup = audit.suppliers;
+      document.getElementById("supStats").innerHTML = `
+        <p><b>${sup.total}</b> suppliers · min-spend known for <b>${sup.withMinSpend}</b> · lead time known for <b>${sup.withLeadTime}</b></p>
+        <p style="margin-top:0.4rem">${sup.byCategory.map((c) => `<span class="pill" style="margin:0.1rem">${esc(c._id)}: ${c.count}</span>`).join(" ")}</p>
+        <p style="margin-top:0.4rem">${sup.byStatus.map((c) => `<span class="pill" style="margin:0.1rem">${esc(c._id)}: ${c.count}</span>`).join(" ")}</p>`;
+
+      document.getElementById("runRows").innerHTML = audit.finder.runs.map((r) => `
+        <tr><td class="muted">${esc((r.createdAt || "").slice(0, 16).replace("T", " "))}</td>
+        <td>${esc(r.serviceCategory || "")}</td><td>${r.candidateCount || "-"}</td>
+        <td><b>${r.savedCount}</b></td><td>${r.skippedCount}</td>
+        <td>${r.yieldRate === null ? "-" : r.yieldRate + "%"}</td>
+        <td>${r.errorCount ? `<span class="pill red">${r.errorCount}</span>` : "0"}</td>
+        <td>${r.durationMs ? Math.round(r.durationMs / 1000) + "s" : "-"}</td></tr>`).join("") || '<tr><td colspan="8" class="muted">No runs yet.</td></tr>';
+
+      document.getElementById("skipRows").innerHTML = audit.finder.skipReasons.map((r) => `
+        <tr><td>${esc(r.reason)}</td><td><b>${r.count}</b></td></tr>`).join("") || '<tr><td colspan="2" class="muted">No skip data yet.</td></tr>';
+    }
+
+    document.getElementById("swRun").addEventListener("click", async () => {
+      const status = document.getElementById("swStatus");
+      const out = document.getElementById("sweepOut");
+      status.textContent = "Running... (30-90s, live web searches)";
+      out.style.display = "none";
+      try {
+        const res = await fetch("/api/subcontractors/agent-search", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
+          tradeKey: document.getElementById("swTrade").value,
+          market: document.getElementById("swMarket").value,
+          maxResults: Number(document.getElementById("swMax").value),
+          minFitScore: Number(document.getElementById("swMin").value)
+        }) });
+        const data = await res.json();
+        status.textContent = `Saved ${data.savedCount}, skipped ${data.skippedCount} of ${data.candidateCount} candidates in ${Math.round((data.durationMs || 0) / 1000)}s`;
+        out.style.display = "block";
+        out.textContent = "Saved:\n" + (data.saved || []).map((s) => `· ${s.companyName} (${s.fitScore}) ${s.phone || "no phone"}`).join("\n")
+          + "\n\nTop skips:\n" + (data.skipped || []).slice(0, 12).map((s) => `· ${s.title} — ${s.reason}`).join("\n");
+        await load();
+      } catch (error) {
+        status.textContent = "Error: " + error.message;
+      }
+    });
+    load();
+  </script>
+</body>
+</html>

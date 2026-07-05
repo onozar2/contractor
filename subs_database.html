@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Comprehensive subcontractor database for Joon Development Group." />
+  <title>Subs Database | Joon Development Group</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #172033; --steel: #3c4658; --muted: #687587; --line: #d8dee8;
+      --soft: #f5f7fa; --paper: #ffffff; --charcoal: #101828; --blue: #2563eb;
+      --green: #0f766e; --amber: #b45309; --red: #b42318; --plum: #7c3aed;
+      --shadow: 0 14px 36px rgba(16, 24, 40, 0.08);
+    }
+    body { min-width: 320px; color: var(--ink); background: #eef2f6; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.45; }
+    a { color: inherit; }
+    .topbar { background: var(--charcoal); color: rgba(255,255,255,0.76); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: 0.5rem 2vw; font-size: 0.82rem; }
+    .topbar strong { color: #fff; }
+    .topbar a { text-decoration: none; min-height: 28px; border-radius: 6px; padding: 0.18rem 0.52rem; font-weight: 850; color: rgba(255,255,255,0.72); }
+    .topbar a:hover, .topbar a.active { color: #fff; background: rgba(255,255,255,0.12); }
+    .shell { width: min(1720px, 100%); margin: 0 auto; padding: 1rem 1.5vw 3rem; display: grid; gap: 0.9rem; }
+    .metrics { display: grid; grid-template-columns: repeat(8, minmax(0,1fr)); gap: 0.6rem; }
+    .metric { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 0.55rem 0.7rem; }
+    .metric b { display: block; font-size: 1.25rem; }
+    .metric span { color: var(--muted); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .filters { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 0.7rem; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: end; }
+    .filters label { display: grid; gap: 0.15rem; font-size: 0.72rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .filters input, .filters select { min-height: 34px; border: 1px solid var(--line); border-radius: 7px; padding: 0 0.5rem; font: inherit; font-size: 0.85rem; background: var(--soft); }
+    .filters input[type="text"] { min-width: 220px; }
+    .btn { min-height: 34px; border: 1px solid var(--line); border-radius: 7px; padding: 0 0.8rem; background: var(--paper); font: inherit; font-size: 0.82rem; font-weight: 800; cursor: pointer; color: var(--steel); }
+    .btn:hover { color: var(--blue); background: var(--soft); }
+    .btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .tablewrap { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; box-shadow: var(--shadow); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    th { position: sticky; top: 0; background: var(--soft); text-align: left; padding: 0.5rem 0.55rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); border-bottom: 1px solid var(--line); cursor: pointer; white-space: nowrap; user-select: none; }
+    th:hover { color: var(--blue); }
+    td { padding: 0.48rem 0.55rem; border-bottom: 1px solid #eef1f6; vertical-align: top; }
+    tr.row { cursor: pointer; }
+    tr.row:hover { background: #f4f8ff; }
+    .score { display: inline-block; min-width: 34px; text-align: center; border-radius: 6px; padding: 0.1rem 0.3rem; font-weight: 900; color: #fff; font-size: 0.78rem; }
+    .s-hi { background: var(--green); } .s-mid { background: var(--amber); } .s-lo { background: var(--red); } .s-na { background: var(--muted); }
+    .pill { display: inline-block; border-radius: 999px; padding: 0.05rem 0.5rem; font-size: 0.7rem; font-weight: 800; background: var(--soft); color: var(--steel); border: 1px solid var(--line); white-space: nowrap; }
+    .pill.green { background: #e7f6f4; color: var(--green); border-color: #bfe6e1; }
+    .pill.amber { background: #fdf3e7; color: var(--amber); border-color: #f3ddc0; }
+    .pill.red { background: #fdecea; color: var(--red); border-color: #f5c9c4; }
+    .pill.plum { background: #f3ecfe; color: var(--plum); border-color: #ded0f7; }
+    .muted { color: var(--muted); }
+    .nowrap { white-space: nowrap; }
+    /* drawer */
+    #overlay { position: fixed; inset: 0; background: rgba(16,24,40,0.4); display: none; z-index: 40; }
+    #drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(680px, 96vw); background: var(--paper); z-index: 50; transform: translateX(105%); transition: transform 0.18s ease; overflow-y: auto; box-shadow: -18px 0 40px rgba(16,24,40,0.18); }
+    #drawer.open { transform: translateX(0); }
+    .dhead { position: sticky; top: 0; background: var(--paper); border-bottom: 1px solid var(--line); padding: 0.9rem 1.1rem; display: flex; justify-content: space-between; align-items: start; gap: 1rem; z-index: 2; }
+    .dbody { padding: 1rem 1.1rem 2rem; display: grid; gap: 0.9rem; }
+    .card { border: 1px solid var(--line); border-radius: 10px; padding: 0.75rem; display: grid; gap: 0.5rem; }
+    .card h3 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem 0.9rem; font-size: 0.84rem; }
+    .grid2 b { font-weight: 800; }
+    .kv span { color: var(--muted); font-size: 0.72rem; display: block; text-transform: uppercase; letter-spacing: 0.04em; }
+    .dbody select, .dbody input, .dbody textarea { width: 100%; min-height: 34px; border: 1px solid var(--line); border-radius: 7px; padding: 0.3rem 0.5rem; font: inherit; font-size: 0.84rem; background: var(--soft); }
+    .dbody textarea { min-height: 70px; resize: vertical; }
+    .actions { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    pre.out { background: var(--charcoal); color: #e8eef8; border-radius: 8px; padding: 0.7rem; font-size: 0.76rem; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
+    .jobrow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem; }
+    @media (max-width: 980px) { .metrics { grid-template-columns: repeat(4, 1fr); } .grid2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <strong>JOON · Subs Database</strong>
+    <div>
+      <a href="subcontractor_finder.html">Finder</a>
+      <a href="subs_database.html" class="active">Database</a>
+      <a href="audit.html">Audit</a>
+      <a href="research_chat.html">Research</a>
+      <a href="lead_generation.html">Leads</a>
+      <a href="bid_lab.html">Bid Lab</a>
+      <a href="suppliers.html">Suppliers</a>
+      <a href="services_board.html">Readiness</a>
+    </div>
+  </div>
+  <div class="shell">
+    <div class="metrics" id="metrics"></div>
+    <div class="filters">
+      <label>Search<input type="text" id="fSearch" placeholder="company, owner, phone, specialty..." /></label>
+      <label>Trade<select id="fTrade"><option value="">All trades</option></select></label>
+      <label>Min score<input type="number" id="fScore" min="0" max="100" step="5" style="width:80px" /></label>
+      <label>Contact<select id="fContact"><option value="">Any</option><option value="phone">Has phone</option><option value="email">Has email</option><option value="both">Phone + email</option><option value="owner">Owner reachable</option><option value="none">Missing contact</option></select></label>
+      <label>Stage<select id="fStage"><option value="">Any stage</option><option>not_contacted</option><option>queued</option><option>contacted</option><option>responded</option><option>pricing_received</option><option>vetted</option><option>preferred</option><option>rejected</option></select></label>
+      <label>Materials<select id="fMat"><option value="">Any</option><option value="yes">Brings own</option><option value="no">We supply</option><option value="partial">Partial</option><option value="unknown">Unknown</option></select></label>
+      <label>License<select id="fLic"><option value="">Any</option><option value="verified">Verified</option><option value="number">Has number</option><option value="missing">Missing</option></select></label>
+      <button class="btn" id="btnReset">Reset</button>
+      <button class="btn primary" id="btnCsv">Export CSV</button>
+      <span class="muted" id="countLabel" style="align-self:center;font-size:0.8rem"></span>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr id="headRow"></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="overlay"></div>
+  <aside id="drawer"></aside>
+
+  <script>
+    const API = "/api/subcontractors";
+    let all = [];
+    let sortKey = "overall"; let sortDir = -1;
+    let current = null;
+
+    const COLS = [
+      { key: "companyName", label: "Company" },
+      { key: "serviceCategory", label: "Trade" },
+      { key: "overall", label: "Score" },
+      { key: "jobCount", label: "Jobs" },
+      { key: "ownerName", label: "Owner" },
+      { key: "phone", label: "Phone" },
+      { key: "email", label: "Email" },
+      { key: "website", label: "Web" },
+      { key: "licenseNumber", label: "License" },
+      { key: "reviewRating", label: "Reviews" },
+      { key: "bringsOwnMaterials", label: "Materials" },
+      { key: "outreachStage", label: "Stage" },
+      { key: "priceTier", label: "Price" }
+    ];
+
+    const overall = (s) => Number(s.overallScore ?? s.fitScore ?? 0);
+    const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const scoreClass = (n) => n >= 80 ? "s-hi" : n >= 60 ? "s-mid" : n > 0 ? "s-lo" : "s-na";
+    const stagePill = (s) => {
+      const cls = { preferred: "green", vetted: "green", pricing_received: "plum", responded: "plum", contacted: "amber", queued: "amber", rejected: "red" }[s] || "";
+      return `<span class="pill ${cls}">${esc((s || "not_contacted").replace(/_/g, " "))}</span>`;
+    };
+    const matPill = (m) => {
+      const cls = { yes: "green", no: "amber", partial: "plum" }[m] || "";
+      const text = { yes: "brings own", no: "we supply", partial: "partial" }[m] || "unknown";
+      return `<span class="pill ${cls}">${text}</span>`;
+    };
+
+    async function load() {
+      const res = await fetch(API);
+      all = await res.json();
+      const trades = [...new Set(all.map((s) => s.serviceCategory).filter(Boolean))].sort();
+      const sel = document.getElementById("fTrade");
+      sel.innerHTML = '<option value="">All trades</option>' + trades.map((t) => `<option>${esc(t)}</option>`).join("");
+      render();
+    }
+
+    function filtered() {
+      const q = document.getElementById("fSearch").value.toLowerCase().trim();
+      const trade = document.getElementById("fTrade").value;
+      const minScore = Number(document.getElementById("fScore").value || 0);
+      const contact = document.getElementById("fContact").value;
+      const stage = document.getElementById("fStage").value;
+      const mat = document.getElementById("fMat").value;
+      const lic = document.getElementById("fLic").value;
+      return all.filter((s) => {
+        if (trade && s.serviceCategory !== trade) return false;
+        if (minScore && overall(s) < minScore) return false;
+        if (stage && (s.outreachStage || "not_contacted") !== stage) return false;
+        if (mat && (s.bringsOwnMaterials || "unknown") !== mat) return false;
+        if (contact === "phone" && !s.phone) return false;
+        if (contact === "email" && !s.email) return false;
+        if (contact === "both" && (!s.phone || !s.email)) return false;
+        if (contact === "owner" && s.reachTier !== "owner") return false;
+        if (contact === "none" && (s.phone || s.email)) return false;
+        if (lic === "verified" && !s.licenseVerified) return false;
+        if (lic === "number" && !s.licenseNumber) return false;
+        if (lic === "missing" && s.licenseNumber) return false;
+        if (q) {
+          const hay = [s.companyName, s.ownerName, s.contactName, s.phone, s.email, s.serviceCategory, (s.specialties || []).join(" "), s.summary, s.serviceArea].join(" ").toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      }).sort((a, b) => {
+        const va = sortKey === "overall" ? overall(a) : (a[sortKey] ?? "");
+        const vb = sortKey === "overall" ? overall(b) : (b[sortKey] ?? "");
+        if (typeof va === "number" || typeof vb === "number") return ((va || 0) - (vb || 0)) * sortDir;
+        return String(va).localeCompare(String(vb)) * sortDir;
+      });
+    }
+
+    function renderMetrics(rows) {
+      const total = all.length;
+      const withPhone = all.filter((s) => s.phone).length;
+      const withEmail = all.filter((s) => s.email).length;
+      const contacted = all.filter((s) => !["not_contacted", "queued", undefined, ""].includes(s.outreachStage)).length;
+      const preferred = all.filter((s) => ["preferred", "vetted"].includes(s.outreachStage)).length;
+      const jobs = all.reduce((sum, s) => sum + (s.jobCount || 0), 0);
+      const avg = total ? Math.round(all.reduce((sum, s) => sum + overall(s), 0) / total) : 0;
+      const trades = new Set(all.map((s) => s.serviceCategory)).size;
+      document.getElementById("metrics").innerHTML = [
+        [total, "Total subs"], [trades, "Trades"], [avg, "Avg score"],
+        [Math.round((withPhone / (total || 1)) * 100) + "%", "Have phone"],
+        [Math.round((withEmail / (total || 1)) * 100) + "%", "Have email"],
+        [contacted, "Contacted"], [preferred, "Vetted / preferred"], [jobs, "Jobs logged"]
+      ].map(([v, l]) => `<div class="metric"><b>${v}</b><span>${l}</span></div>`).join("");
+    }
+
+    function render() {
+      const rows = filtered();
+      renderMetrics(rows);
+      document.getElementById("countLabel").textContent = `${rows.length} of ${all.length} shown`;
+      document.getElementById("headRow").innerHTML = COLS.map((c) =>
+        `<th data-key="${c.key}">${c.label}${sortKey === c.key ? (sortDir < 0 ? " ▾" : " ▴") : ""}</th>`).join("");
+      document.getElementById("rows").innerHTML = rows.map((s) => `
+        <tr class="row" data-id="${s.id}">
+          <td><b>${esc(s.companyName)}</b><br /><span class="muted" style="font-size:0.72rem">${esc(s.serviceArea || "")}</span></td>
+          <td>${esc(s.serviceCategory)}</td>
+          <td><span class="score ${scoreClass(overall(s))}" title="fit ${s.fitScore || 0} / job ${s.jobScore || "-"}">${overall(s)}</span></td>
+          <td>${s.jobCount ? `<b>${s.jobCount}</b> <span class="muted">(${s.jobScore})</span>` : '<span class="muted">-</span>'}</td>
+          <td>${esc(s.ownerName || "")}</td>
+          <td class="nowrap">${esc(s.phone || "")}</td>
+          <td>${esc(s.email || "")}</td>
+          <td>${s.website ? `<a href="${esc(s.website)}" target="_blank" onclick="event.stopPropagation()">link</a>` : ""}</td>
+          <td>${s.licenseNumber ? `${esc(s.licenseNumber)}${s.licenseVerified ? ' <span class="pill green">ok</span>' : ""}` : '<span class="pill red">none</span>'}</td>
+          <td class="nowrap">${s.reviewRating ? `${s.reviewRating}★ <span class="muted">(${s.reviewCount || 0})</span>` : '<span class="muted">-</span>'}</td>
+          <td>${matPill(s.bringsOwnMaterials || "unknown")}</td>
+          <td>${stagePill(s.outreachStage)}</td>
+          <td>${esc(s.priceTier === "unknown" ? "" : s.priceTier || "")}</td>
+        </tr>`).join("");
+    }
+
+    // ── drawer ──
+    function openDrawer(sub) {
+      current = sub;
+      const d = document.getElementById("drawer");
+      d.innerHTML = `
+        <div class="dhead">
+          <div>
+            <h2 style="font-size:1.05rem">${esc(sub.companyName)}</h2>
+            <div class="muted" style="font-size:0.8rem">${esc(sub.serviceCategory)} · ${esc(sub.serviceArea || "")} · <span class="score ${scoreClass(overall(sub))}">${overall(sub)}</span> overall (fit ${sub.fitScore || 0}${sub.jobCount ? `, job ${sub.jobScore} over ${sub.jobCount} jobs` : ", no jobs yet"})</div>
+          </div>
+          <button class="btn" onclick="closeDrawer()">Close</button>
+        </div>
+        <div class="dbody">
+          <div class="card"><h3>Contact & pipeline</h3>
+            <div class="grid2">
+              <label class="kv"><span>Phone</span><input id="ePhone" value="${esc(sub.phone || "")}" /></label>
+              <label class="kv"><span>Email</span><input id="eEmail" value="${esc(sub.email || "")}" /></label>
+              <label class="kv"><span>Website</span><input id="eWebsite" value="${esc(sub.website || "")}" /></label>
+              <label class="kv"><span>Owner</span><input id="eOwner" value="${esc(sub.ownerName || "")}" /></label>
+              <label class="kv"><span>Outreach stage</span>
+                <select id="eStage">${["not_contacted","queued","contacted","responded","pricing_received","vetted","preferred","rejected"].map((s) => `<option ${s === (sub.outreachStage || "not_contacted") ? "selected" : ""}>${s}</option>`).join("")}</select></label>
+              <label class="kv"><span>Brings own materials</span>
+                <select id="eMat">${["unknown","yes","no","partial"].map((m) => `<option ${m === (sub.bringsOwnMaterials || "unknown") ? "selected" : ""}>${m}</option>`).join("")}</select></label>
+              <label class="kv"><span>Price tier</span>
+                <select id="eTier">${["unknown","$","$$","$$$"].map((t) => `<option ${t === (sub.priceTier || "unknown") ? "selected" : ""}>${t}</option>`).join("")}</select></label>
+              <label class="kv"><span>Next follow-up</span><input id="eFollow" type="date" value="${esc((sub.nextFollowUpAt || "").slice(0,10))}" /></label>
+            </div>
+            <label class="kv"><span>Chase / vetting notes (prices seen, quality, COI status...)</span><textarea id="eNotes">${esc(sub.chaseNotes || "")}</textarea></label>
+            <div class="actions">
+              <button class="btn primary" onclick="saveEdits()">Save</button>
+              <button class="btn" onclick="licenseSearch()">Find CSLB license</button>
+              <button class="btn" onclick="delSub()" style="color:var(--red)">Delete</button>
+            </div>
+          </div>
+          <div class="card"><h3>Outreach</h3>
+            <div class="actions">
+              <button class="btn" onclick="chase('email')">Draft email</button>
+              <button class="btn" onclick="chase('phone')">Phone script</button>
+              <button class="btn" onclick="copyOut()">Copy</button>
+              <button class="btn" onclick="logActivity('outbound_email')">Log email sent</button>
+              <button class="btn" onclick="logActivity('phone_call')">Log call made</button>
+              <button class="btn" onclick="logActivity('inbound_reply')">Log reply</button>
+            </div>
+            <pre class="out" id="chaseOut" style="display:none"></pre>
+          </div>
+          <div class="card"><h3>Log a completed job (drives the score)</h3>
+            <div class="jobrow">
+              <label class="kv"><span>Quality /10</span><input id="jQ" type="number" min="1" max="10" value="8" /></label>
+              <label class="kv"><span>On time /10</span><input id="jT" type="number" min="1" max="10" value="8" /></label>
+              <label class="kv"><span>Price fair /10</span><input id="jP" type="number" min="1" max="10" value="8" /></label>
+              <label class="kv"><span>Comms /10</span><input id="jC" type="number" min="1" max="10" value="8" /></label>
+            </div>
+            <div class="grid2">
+              <label class="kv"><span>Project name</span><input id="jName" placeholder="e.g. Sherman Oaks ADU" /></label>
+              <label class="kv"><span>Contract value $</span><input id="jVal" type="number" min="0" /></label>
+              <label class="kv"><span>Would rehire</span><select id="jRehire"><option value="true">yes</option><option value="false">no</option></select></label>
+              <label class="kv"><span>Supplied own materials</span><select id="jMat"><option>unknown</option><option>yes</option><option>no</option><option>partial</option></select></label>
+            </div>
+            <div class="actions"><button class="btn primary" onclick="logJob()">Save job</button></div>
+            <div id="jobList" class="muted" style="font-size:0.78rem"></div>
+          </div>
+          <div class="card"><h3>Research detail</h3>
+            <div class="grid2">
+              <div class="kv"><span>License</span><b>${esc(sub.licenseNumber || "none")} ${esc(sub.licenseClass || "")}</b> ${sub.licenseVerified ? '<span class="pill green">verified</span>' : '<span class="pill amber">unverified</span>'}</div>
+              <div class="kv"><span>Reviews</span><b>${sub.reviewRating || "-"}★ (${sub.reviewCount || 0}) ${esc(sub.reviewSource || "")}</b></div>
+              <div class="kv"><span>Sentiment</span><b>${esc(sub.sentiment || "unknown")}</b></div>
+              <div class="kv"><span>Source confidence</span><b>${esc(sub.sourceConfidence || "")}</b></div>
+              <div class="kv"><span>Specialties</span><b>${esc((sub.specialties || []).join(", "))}</b></div>
+              <div class="kv"><span>Sourcing</span><b>${esc(sub.sourcingMethod || "")} ${esc(sub.sourcingRunId || "")}</b></div>
+            </div>
+            <div class="kv"><span>Summary</span>${esc(sub.summary || "")}</div>
+            <div class="kv"><span>Source notes</span><span class="muted" style="font-size:0.76rem">${esc(sub.sourceNotes || "")}</span></div>
+            <div class="kv"><span>Sources</span>${(sub.sourceUrls || []).map((u) => `<a href="${esc(u)}" target="_blank" style="font-size:0.76rem;display:block">${esc(u)}</a>`).join("")}</div>
+          </div>
+        </div>`;
+      document.getElementById("overlay").style.display = "block";
+      d.classList.add("open");
+      loadJobs();
+    }
+    function closeDrawer() {
+      document.getElementById("drawer").classList.remove("open");
+      document.getElementById("overlay").style.display = "none";
+      current = null;
+    }
+    async function saveEdits() {
+      const body = { ...current,
+        phone: val("ePhone"), email: val("eEmail"), website: val("eWebsite"), ownerName: val("eOwner"),
+        outreachStage: val("eStage"), bringsOwnMaterials: val("eMat"), priceTier: val("eTier"),
+        nextFollowUpAt: val("eFollow"), chaseNotes: val("eNotes")
+      };
+      await fetch(`${API}/${current.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      closeDrawer(); await load();
+    }
+    async function delSub() {
+      if (!confirm(`Delete ${current.companyName}?`)) return;
+      await fetch(`${API}/${current.id}`, { method: "DELETE" });
+      closeDrawer(); await load();
+    }
+    async function chase(mode) {
+      const res = await fetch(`${API}/${current.id}/chase-task`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode }) });
+      const data = await res.json();
+      const out = document.getElementById("chaseOut");
+      out.style.display = "block";
+      out.textContent = mode === "phone" ? data.phoneScript : `Subject: ${data.subject}\n\n${data.emailBody}`;
+    }
+    async function copyOut() {
+      const out = document.getElementById("chaseOut");
+      if (out.textContent) await navigator.clipboard.writeText(out.textContent);
+    }
+    async function logActivity(type) {
+      const outcome = type === "inbound_reply" ? "responded" : prompt("Outcome? (logged / no_answer / bid_requested / meeting_scheduled)", "logged");
+      if (outcome === null) return;
+      await fetch(`${API}/${current.id}/activities`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type, outcome, notes: val("eNotes") }) });
+      const stageMap = { outbound_email: "contacted", phone_call: "contacted", inbound_reply: "responded" };
+      await fetch(`${API}/${current.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...current, outreachStage: stageMap[type] || current.outreachStage }) });
+      await load();
+      alert("Logged.");
+    }
+    async function licenseSearch() {
+      const res = await fetch(`${API}/${current.id}/license-search`, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+      const data = await res.json();
+      alert(data.found ? `Found license ${data.licenseNumber} (${data.licenseClass || "?"})` : "No license found. " + (data.licenseSourceNotes || ""));
+      await load();
+    }
+    async function logJob() {
+      await fetch(`${API}/${current.id}/jobs`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
+        projectName: val("jName"), contractValue: Number(val("jVal") || 0),
+        quality: Number(val("jQ")), timeliness: Number(val("jT")), priceFairness: Number(val("jP")), communication: Number(val("jC")),
+        wouldRehire: val("jRehire") === "true", suppliedOwnMaterials: val("jMat"), trade: current.serviceCategory
+      }) });
+      await load();
+      const updated = all.find((s) => s.id === current.id);
+      if (updated) openDrawer(updated);
+    }
+    async function loadJobs() {
+      const res = await fetch(`${API}/${current.id}/jobs`);
+      const jobs = await res.json();
+      document.getElementById("jobList").innerHTML = jobs.length
+        ? jobs.map((j) => `· ${esc(j.projectName || "job")} (${j.completedAt}) — score ${j.score}${j.contractValue ? ", $" + j.contractValue.toLocaleString() : ""}`).join("<br />")
+        : "No jobs logged yet — initial score is research-based.";
+    }
+    const val = (id) => document.getElementById(id).value.trim();
+
+    function exportCsv() {
+      const rows = filtered();
+      const cols = ["companyName","serviceCategory","overallScore","fitScore","jobScore","jobCount","ownerName","phone","email","website","licenseNumber","licenseClass","licenseVerified","reviewRating","reviewCount","reviewSource","priceTier","bringsOwnMaterials","outreachStage","serviceArea","summary"];
+      const csv = [cols.join(",")].concat(rows.map((s) => cols.map((c) => `"${String(s[c] ?? "").replace(/"/g, '""')}"`).join(","))).join("\n");
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+      a.download = `joon-subs-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+    }
+
+    document.addEventListener("input", (e) => { if (e.target.closest(".filters")) render(); });
+    document.addEventListener("change", (e) => { if (e.target.closest(".filters")) render(); });
+    document.getElementById("btnReset").addEventListener("click", () => {
+      for (const id of ["fSearch","fScore"]) document.getElementById(id).value = "";
+      for (const id of ["fTrade","fContact","fStage","fMat","fLic"]) document.getElementById(id).value = "";
+      render();
+    });
+    document.getElementById("btnCsv").addEventListener("click", exportCsv);
+    document.getElementById("headRow").addEventListener("click", () => {});
+    document.querySelector("thead").addEventListener("click", (e) => {
+      const th = e.target.closest("th"); if (!th) return;
+      const key = th.dataset.key;
+      if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = key === "companyName" || key === "serviceCategory" ? 1 : -1; }
+      render();
+    });
+    document.getElementById("rows").addEventListener("click", (e) => {
+      const tr = e.target.closest("tr.row"); if (!tr) return;
+      const sub = all.find((s) => s.id === tr.dataset.id);
+      if (sub) openDrawer(sub);
+    });
+    document.getElementById("overlay").addEventListener("click", closeDrawer);
+    load();
+  </script>
+</body>
+</html>

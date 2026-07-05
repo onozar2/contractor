@@ -19,7 +19,15 @@ const CATEGORIES = [
   "Concrete & Masonry",
   "Lumber & Building Materials",
   "Cabinets & Countertops",
-  "Solar"
+  "Solar",
+  "Flooring",
+  "Turf & Landscape",
+  "Glass & Mirror",
+  "Wire & Cable",
+  "Appliances",
+  "Pool & Spa",
+  "Fireplace",
+  "Restoration Equipment"
 ];
 const ACCOUNT_TYPES = ["distributor", "manufacturer-dealer", "big-box-pro", "supply-house"];
 const ACCOUNT_STATUSES = ["not_started", "researching", "applied", "open"];
@@ -53,6 +61,8 @@ function normalizeSupplier(input) {
     accountStatus: pickEnum(input.accountStatus, ACCOUNT_STATUSES, "not_started"),
     accountCostEstimate: cleanString(input.accountCostEstimate),
     accountRequirements: cleanString(input.accountRequirements),
+    minimumSpend: cleanString(input.minimumSpend),
+    leadTime: cleanString(input.leadTime),
     contactName: cleanString(input.contactName),
     phone: cleanString(input.phone),
     email: cleanString(input.email).toLowerCase(),

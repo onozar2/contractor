@@ -95,6 +95,9 @@ crmApp.get("/lead_generation.html", (_req, res) => res.sendFile(path.join(__dirn
 crmApp.get("/bid_lab.html", (_req, res) => res.sendFile(path.join(__dirname, "bid_lab.html")));
 crmApp.get("/suppliers.html", (_req, res) => res.sendFile(path.join(__dirname, "suppliers.html")));
 crmApp.get("/services_board.html", (_req, res) => res.sendFile(path.join(__dirname, "services_board.html")));
+crmApp.get("/subs_database.html", (_req, res) => res.sendFile(path.join(__dirname, "subs_database.html")));
+crmApp.get("/audit.html", (_req, res) => res.sendFile(path.join(__dirname, "audit.html")));
+crmApp.get("/research_chat.html", (_req, res) => res.sendFile(path.join(__dirname, "research_chat.html")));
 crmApp.use("/api/suppliers", require("./suppliers")(collection));
 crmApp.use("/assets", express.static(path.join(__dirname, "assets")));
 
@@ -138,6 +141,22 @@ function daysUntilDate(value) {
   if (Number.isNaN(time)) return null;
   return Math.round((time - Date.now()) / 86400000);
 }
+
+function pickEnum(value, allowed, fallback) {
+  const raw = cleanString(value).toLowerCase();
+  return allowed.includes(raw) ? raw : fallback;
+}
+
+// Blend the research-based initial score with observed job performance.
+// Weight of job history grows with completed-job count and dominates after ~4 jobs.
+function blendScores(fitScore, jobScore, jobCount) {
+  const jobs = Number(jobCount || 0);
+  if (!jobs || !Number.isFinite(Number(jobScore))) return clamp(Math.round(Number(fitScore || 0)), 0, 100);
+  const weight = Math.min(0.75, 0.25 + jobs * 0.125);
+  return clamp(Math.round(Number(fitScore || 0) * (1 - weight) + Number(jobScore) * weight), 0, 100);
+}
+
+const OUTREACH_STAGES = ["not_contacted", "queued", "contacted", "responded", "pricing_received", "vetted", "preferred", "rejected"];
 
 function computeOwnerReachScore(doc) {
   let s = 0;
@@ -215,6 +234,8 @@ function normalize(input) {
     permitReference: cleanString(input.permitReference),
     crewSize: cleanString(input.crewSize),
     fieldSupervisor: cleanString(input.fieldSupervisor),
+    bringsOwnMaterials: pickEnum(input.bringsOwnMaterials, ["yes", "no", "partial", "unknown"], "unknown"),
+    outreachStage: pickEnum(input.outreachStage, OUTREACH_STAGES, "not_contacted"),
     net30Status: cleanString(input.net30Status || "unknown"),
     unionStatus: cleanString(input.unionStatus || "unknown"),
     responsivenessScore: Number(input.responsivenessScore || 0),
@@ -278,6 +299,56 @@ function normalize(input) {
   }
   doc.fitScore = scoreSubcontractor(doc);
   return doc;
+}
+
+// ── Job history → performance score ──
+// Each logged job rates quality / timeliness / priceFairness / communication 1-10.
+// A job's score is the dimension average on a 0-100 scale, cut 30% on a no-rehire.
+function scoreJob(job) {
+  const dims = ["quality", "timeliness", "priceFairness", "communication"]
+    .map((key) => clamp(Number(job[key] || 0), 0, 10))
+    .filter((value) => value > 0);
+  if (!dims.length) return 0;
+  let score = (dims.reduce((sum, value) => sum + value, 0) / dims.length) * 10;
+  if (job.wouldRehire === false) score *= 0.7;
+  return clamp(Math.round(score), 0, 100);
+}
+
+function normalizeJob(input) {
+  return {
+    projectName: cleanString(input.projectName),
+    trade: cleanString(input.trade),
+    completedAt: cleanString(input.completedAt || new Date().toISOString().slice(0, 10)),
+    contractValue: Number(input.contractValue || 0),
+    quality: clamp(Number(input.quality || 0), 0, 10),
+    timeliness: clamp(Number(input.timeliness || 0), 0, 10),
+    priceFairness: clamp(Number(input.priceFairness || 0), 0, 10),
+    communication: clamp(Number(input.communication || 0), 0, 10),
+    wouldRehire: input.wouldRehire !== false,
+    suppliedOwnMaterials: pickEnum(input.suppliedOwnMaterials, ["yes", "no", "partial", "unknown"], "unknown"),
+    notes: cleanString(input.notes),
+    createdAt: new Date().toISOString()
+  };
+}
+
+async function recomputeJobScore(subId) {
+  const jobsColl = await collection("subcontractorJobs");
+  const subColl = await collection("subcontractors");
+  if (!jobsColl || !subColl) return null;
+  const record = await subColl.findOne({ _id: new ObjectId(subId) });
+  if (!record) return null;
+  const jobs = await jobsColl.find({ subcontractorId: subId }).toArray();
+  const scores = jobs.map(scoreJob).filter((score) => score > 0);
+  const jobScore = scores.length ? Math.round(scores.reduce((sum, value) => sum + value, 0) / scores.length) : 0;
+  const update = {
+    jobCount: jobs.length,
+    jobScore,
+    overallScore: blendScores(record.fitScore, jobScore, scores.length),
+    lastJobAt: jobs.map((job) => job.completedAt).sort().pop() || "",
+    updatedAt: new Date().toISOString()
+  };
+  await subColl.updateOne({ _id: record._id }, { $set: update });
+  return update;
 }
 
 function buildSubcontractorChaseTask(record, mode = "both") {
@@ -437,7 +508,7 @@ function extractOwnerName(text) {
 }
 
 function parseResearchPage(url, html) {
-  const title = cleanString((html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1]);
+  const title = decodeEntities(cleanString((html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1]).replace(/&#8211;|&#x2013;/g, "-"));
   const meta = cleanString((html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i) || [])[1]);
   const text = textFromHtml(html);
   const phones = uniqueMatches(text, /(?:\+?1[\s.-]?)?(?:\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}/g);
@@ -512,23 +583,29 @@ async function fetchHtml(url, timeoutMs = 10000) {
   }
 }
 
-async function searchWeb(query, limit = 6) {
-  const searchUrl = `https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
-  const html = await fetchHtml(searchUrl, 12000);
+// Decode Bing's /ck/a redirect links: real URL is base64url in the `u` param, prefixed "a1".
+function decodeBingUrl(url) {
+  try {
+    const parsed = new URL(url, "https://www.bing.com");
+    if (!/bing\.com$/i.test(parsed.hostname) || !parsed.pathname.startsWith("/ck")) return url;
+    const raw = parsed.searchParams.get("u") || "";
+    const b64 = raw.replace(/^a1/, "").replace(/-/g, "+").replace(/_/g, "/");
+    const decoded = Buffer.from(b64, "base64").toString("utf8");
+    return /^https?:\/\//i.test(decoded) ? decoded : url;
+  } catch (_error) {
+    return url;
+  }
+}
+
+function parseDuckHtml(html, searchUrl, limit) {
   const results = [];
   const resultRegex = /<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>[\s\S]*?<a[^>]+class="result__snippet"[^>]*>([\s\S]*?)<\/a>/gi;
   let match;
   while ((match = resultRegex.exec(html)) && results.length < limit) {
     const url = decodeDuckUrl(decodeEntities(match[1]));
     if (!/^https?:\/\//i.test(url)) continue;
-    results.push({
-      title: decodeEntities(textFromHtml(match[2])),
-      url,
-      snippet: decodeEntities(textFromHtml(match[3])),
-      searchUrl
-    });
+    results.push({ title: decodeEntities(textFromHtml(match[2])), url, snippet: decodeEntities(textFromHtml(match[3])), searchUrl });
   }
-
   if (!results.length) {
     const fallbackRegex = /<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
     while ((match = fallbackRegex.exec(html)) && results.length < limit) {
@@ -538,6 +615,121 @@ async function searchWeb(query, limit = 6) {
     }
   }
   return results;
+}
+
+function parseDuckLite(html, searchUrl, limit) {
+  const results = [];
+  const linkRegex = /<a[^>]+href="([^"]+)"[^>]*class=['"]result-link['"][^>]*>([\s\S]*?)<\/a>/gi;
+  const snippets = [];
+  const snippetRegex = /<td[^>]*class=['"]result-snippet['"][^>]*>([\s\S]*?)<\/td>/gi;
+  let snippetMatch;
+  while ((snippetMatch = snippetRegex.exec(html))) snippets.push(decodeEntities(textFromHtml(snippetMatch[1])));
+  let match;
+  while ((match = linkRegex.exec(html)) && results.length < limit) {
+    const url = decodeDuckUrl(decodeEntities(match[1]));
+    if (!/^https?:\/\//i.test(url)) continue;
+    results.push({ title: decodeEntities(textFromHtml(match[2])), url, snippet: snippets[results.length] || "", searchUrl });
+  }
+  return results;
+}
+
+function parseBingHtml(html, searchUrl, limit) {
+  const results = [];
+  const blockRegex = /<li class="b_algo"[\s\S]*?<h2[^>]*>\s*<a[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>\s*<\/h2>([\s\S]*?)<\/li>/gi;
+  let match;
+  while ((match = blockRegex.exec(html)) && results.length < limit) {
+    const url = decodeBingUrl(decodeEntities(match[1]));
+    if (!/^https?:\/\//i.test(url) || /bing\.com/i.test(hostname(url))) continue;
+    const snippetMatch = match[3].match(/<p[^>]*>([\s\S]*?)<\/p>/i);
+    results.push({ title: decodeEntities(textFromHtml(match[2])), url, snippet: snippetMatch ? decodeEntities(textFromHtml(snippetMatch[1])) : "", searchUrl });
+  }
+  return results;
+}
+
+// DuckDuckGo started serving bot challenges (HTTP 202 + anomaly page) to the old
+// scraper, so search now tries multiple engines with a browser UA until one yields.
+const SEARCH_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
+
+async function fetchSearchHtml(url, timeoutMs = 12000) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: { "user-agent": SEARCH_UA, "accept": "text/html,application/xhtml+xml", "accept-language": "en-US,en;q=0.9" }
+    });
+    return await response.text();
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Brave Search API (2,000 free queries/month) — most reliable path when a key
+// is configured via BRAVE_API_KEY in .env; scrapers below are the free fallback.
+async function searchBraveApi(query, limit) {
+  const key = process.env.BRAVE_API_KEY;
+  if (!key) return null;
+  const response = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(query)}&count=${Math.min(limit + 4, 20)}`, {
+    headers: { "X-Subscription-Token": key, "accept": "application/json" }
+  });
+  if (!response.ok) throw new Error(`Brave API HTTP ${response.status}`);
+  const data = await response.json();
+  return (data.web && data.web.results || []).slice(0, limit).map((result) => ({
+    title: cleanString(result.title),
+    url: result.url,
+    snippet: cleanString(textFromHtml(result.description || "")),
+    searchUrl: "brave-api"
+  }));
+}
+
+// Bing's no-JS SERP sometimes degrades to first-word matching (dictionary pages).
+// If most titles share no meaningful query term, treat the engine as failed.
+function bingLooksDegraded(results, query) {
+  const words = cleanString(query).toLowerCase().split(/\s+/).filter((word) => word.length >= 4 && !word.startsWith("-"));
+  if (!words.length || !results.length) return false;
+  const misses = results.filter((result) => {
+    const hay = `${result.title} ${result.snippet}`.toLowerCase();
+    return !words.some((word) => hay.includes(word));
+  });
+  return misses.length > results.length / 2;
+}
+
+async function searchWeb(query, limit = 6) {
+  const errors = [];
+  try {
+    const brave = await searchBraveApi(query, limit);
+    if (brave && brave.length) return brave;
+    if (brave) errors.push("brave-api: 0 results");
+  } catch (error) {
+    errors.push(`brave-api: ${error.message}`);
+  }
+
+  const engines = [
+    { url: `https://lite.duckduckgo.com/lite/?q=${encodeURIComponent(query)}`, parse: parseDuckLite, retryable: true },
+    { url: `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`, parse: parseDuckHtml, retryable: true },
+    { url: `https://www.bing.com/search?q=${encodeURIComponent(query)}&count=${Math.max(10, limit)}`, parse: parseBingHtml }
+  ];
+  for (const engine of engines) {
+    for (let attempt = 0; attempt < (engine.retryable ? 2 : 1); attempt++) {
+      if (attempt > 0) await sleep(2500);
+      try {
+        const html = await fetchSearchHtml(engine.url);
+        if (/anomaly|captcha|challenge-form|<title>\s*Captcha/i.test(html.slice(0, 4000))) { errors.push(`${hostname(engine.url)}: challenge page`); continue; }
+        const results = engine.parse(html, engine.url, limit);
+        if (results.length && engine.parse === parseBingHtml && bingLooksDegraded(results, query)) {
+          errors.push(`${hostname(engine.url)}: degraded first-word results`);
+          break;
+        }
+        if (results.length) return results;
+        errors.push(`${hostname(engine.url)}: 0 results`);
+      } catch (error) {
+        errors.push(`${hostname(engine.url)}: ${error.message}`);
+      }
+    }
+  }
+  throw new Error(`All search engines failed for "${query}": ${errors.join(" | ")}`);
 }
 
 function hostname(url) {
@@ -785,18 +977,92 @@ async function upsertSourcedSubcontractor(coll, input) {
       createdAt: existing.createdAt || now,
       sourceUrls: mergeUrls(existing.sourceUrls || [], doc.sourceUrls || []),
       sourceNotes: cleanString([existing.sourceNotes, doc.sourceNotes].filter(Boolean).join(" | ")),
-      sourcingMethod: existing.sourcingMethod === "manual" ? "manual" : doc.sourcingMethod
+      sourcingMethod: existing.sourcingMethod === "manual" ? "manual" : doc.sourcingMethod,
+      // Never let a re-seed regress human-entered pipeline state or job history.
+      outreachStage: existing.outreachStage && existing.outreachStage !== "not_contacted" ? existing.outreachStage : doc.outreachStage,
+      bringsOwnMaterials: doc.bringsOwnMaterials !== "unknown" ? doc.bringsOwnMaterials : (existing.bringsOwnMaterials || "unknown"),
+      overallScore: blendScores(doc.fitScore, existing.jobScore, existing.jobCount)
     };
     await coll.updateOne({ _id: existing._id }, { $set: merged });
     return { ...merged, id: existing._id.toString(), updatedExisting: true };
   }
 
-  const result = await coll.insertOne({ ...doc, createdAt: now });
+  const result = await coll.insertOne({ ...doc, overallScore: doc.fitScore, createdAt: now });
   return { ...doc, id: result.insertedId.toString(), updatedExisting: false };
 }
 
+// ── Trade presets: tuned search vocabulary per trade so one click runs a
+// trade-specific sweep (roofing, electrical, glass...) instead of generic terms.
+const TRADE_PRESETS = [
+  { key: "roofing", label: "Roofing", serviceCategory: "Roofing", search: "roofing contractor roofer", hints: "shingle tile TPO torch down C-39" },
+  { key: "electrical", label: "Electrical", serviceCategory: "Electrical", search: "electrical contractor electrician", hints: "C-10 panel upgrade rewire" },
+  { key: "glass", label: "Glass & Glazing", serviceCategory: "Glass & Glazing", search: "glazing contractor glass and mirror shower door installer", hints: "C-17 storefront IGU frameless" },
+  { key: "plumbing", label: "Plumbing", serviceCategory: "Plumbing", search: "plumbing contractor plumber", hints: "C-36 repipe sewer tankless" },
+  { key: "hvac", label: "HVAC", serviceCategory: "HVAC", search: "HVAC contractor heating air conditioning", hints: "C-20 mini split ducting" },
+  { key: "framing", label: "Framing & Carpentry", serviceCategory: "Framing & Carpentry", search: "framing contractor rough carpentry crew", hints: "ADU addition structural" },
+  { key: "drywall", label: "Drywall", serviceCategory: "Drywall and framing", search: "drywall contractor hanging taping", hints: "C-9 level 5 smooth" },
+  { key: "foundation", label: "Foundation & Retrofit", serviceCategory: "Foundation & Retrofit", search: "foundation repair contractor seismic retrofit", hints: "underpinning bolting cripple wall" },
+  { key: "concrete", label: "Concrete & Hardscape", serviceCategory: "Concrete and hardscape", search: "concrete contractor hardscape", hints: "C-8 driveway pavers" },
+  { key: "painting", label: "Painting", serviceCategory: "Painting", search: "painting contractor painter", hints: "C-33 interior exterior" },
+  { key: "flooring", label: "Flooring", serviceCategory: "Flooring", search: "flooring contractor installer", hints: "C-15 hardwood LVP refinishing" },
+  { key: "tile", label: "Tile & Waterproofing", serviceCategory: "Tile and waterproofing", search: "tile contractor tile setter", hints: "C-54 shower pan waterproofing" },
+  { key: "cabinets", label: "Cabinetry & Millwork", serviceCategory: "Cabinetry and millwork", search: "cabinet installer custom cabinetry millwork", hints: "C-6 shop kitchen" },
+  { key: "windows", label: "Windows & Doors", serviceCategory: "Windows and doors", search: "window and door installation contractor", hints: "retrofit replacement Milgard" },
+  { key: "landscape", label: "Landscape & Drainage", serviceCategory: "Landscape and drainage", search: "landscape contractor drainage", hints: "C-27 irrigation french drain" },
+  { key: "turf", label: "Turf & Synthetic Grass", serviceCategory: "Turf & Synthetic Grass", search: "artificial turf installer synthetic grass", hints: "putting green pet turf" },
+  { key: "pool", label: "Pool Construction", serviceCategory: "Pool Construction", search: "pool builder pool contractor", hints: "C-53 gunite remodel plaster" },
+  { key: "solar", label: "Solar", serviceCategory: "Solar and electrical storage", search: "solar installation contractor", hints: "C-46 battery storage panel" },
+  { key: "insulation", label: "Insulation", serviceCategory: "Insulation", search: "insulation contractor", hints: "C-2 spray foam blown-in" },
+  { key: "stucco", label: "Stucco & Plastering", serviceCategory: "Stucco & Plastering", search: "stucco contractor plastering", hints: "C-35 lath smooth finish" },
+  { key: "waterproofing", label: "Waterproofing & Deck Coating", serviceCategory: "Waterproofing & Deck Coating", search: "waterproofing deck coating contractor", hints: "C-39 balcony below grade SB-721" },
+  { key: "restoration", label: "Mold & Restoration", serviceCategory: "Mold & Restoration", search: "mold remediation water damage restoration", hints: "IICRC certified" },
+  { key: "demolition", label: "Demolition & Grading", serviceCategory: "Demolition & Grading", search: "demolition contractor grading", hints: "C-21 haul off excavation" },
+  { key: "steel", label: "Structural Steel & Welding", serviceCategory: "Structural Steel & Welding", search: "structural steel welding contractor", hints: "C-51 moment frame fabrication" },
+  { key: "masonry", label: "Masonry & Hardscape", serviceCategory: "Masonry & Hardscape", search: "masonry contractor mason", hints: "C-29 block retaining wall veneer" },
+  { key: "fencing", label: "Fencing & Gates", serviceCategory: "Fencing & Gates", search: "fence contractor gates", hints: "C-13 iron vinyl automatic" },
+  { key: "gutters", label: "Rain Gutters", serviceCategory: "Rain Gutters", search: "rain gutter installation contractor", hints: "seamless downspout" },
+  { key: "garage", label: "Garage Doors", serviceCategory: "Garage Doors", search: "garage door installation repair company", hints: "opener spring" },
+  { key: "lowvoltage", label: "Low Voltage & Security", serviceCategory: "Low voltage and security", search: "low voltage contractor security cameras", hints: "C-7 network AV" },
+  { key: "firesprinklers", label: "Fire Sprinklers", serviceCategory: "Fire Sprinklers", search: "fire sprinkler contractor", hints: "C-16 NFPA 13D residential" },
+  { key: "countertops", label: "Countertops & Stone", serviceCategory: "Countertops & Stone Fabrication", search: "countertop fabricator stone fabrication", hints: "quartz slab install" },
+  { key: "kitchenbath", label: "Kitchen & Bath", serviceCategory: "Kitchen and bath remodels", search: "kitchen bathroom remodel subcontractor", hints: "B license design build" },
+  { key: "architecture", label: "Architecture & Design", serviceCategory: "Architecture & Design", search: "residential architect ADU plans", hints: "permit ready plan sets" },
+  { key: "structural", label: "Structural Engineering", serviceCategory: "Structural Engineering", search: "structural engineer residential", hints: "PE SE calcs retrofit ADU" },
+  { key: "geotech", label: "Geotechnical & Soils", serviceCategory: "Geotechnical & Soils", search: "geotechnical engineer soils report", hints: "hillside ADU soil report" },
+  { key: "title24", label: "Title 24 & Energy", serviceCategory: "Title 24 & Energy", search: "Title 24 energy consultant", hints: "HERS CF1R residential" }
+];
+
+function findTradePreset(value) {
+  const raw = cleanString(value).toLowerCase();
+  if (!raw) return null;
+  return TRADE_PRESETS.find((preset) => preset.key === raw)
+    || TRADE_PRESETS.find((preset) => preset.serviceCategory.toLowerCase() === raw)
+    || TRADE_PRESETS.find((preset) => preset.label.toLowerCase() === raw)
+    || null;
+}
+
+// Run fn over items with at most `limit` in flight (finder fetches are IO-bound).
+async function mapLimit(items, limit, fn) {
+  const results = new Array(items.length);
+  let index = 0;
+  async function worker() {
+    while (index < items.length) {
+      const current = index++;
+      try {
+        results[current] = await fn(items[current], current);
+      } catch (error) {
+        results[current] = { __error: error.message };
+      }
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return results;
+}
+
 function buildSubcontractorQueries(input) {
-  const service = cleanString(input.serviceCategory || "general contractor subcontractor");
+  const preset = findTradePreset(input.tradeKey || input.serviceCategory);
+  const service = cleanString((preset && preset.search) || input.serviceCategory || "general contractor subcontractor");
+  const hints = preset ? cleanString(preset.hints) : "";
   const market = cleanString(input.market || "Los Angeles CA");
   const sources = cleanArray(input.sources).length
     ? cleanArray(input.sources)
@@ -805,9 +1071,9 @@ function buildSubcontractorQueries(input) {
   // Only job boards are excluded now — review/social platforms are where owner-operators live.
   const exclusions = "-jobs -careers -hiring -\"apply now\" -\"top 10\" -\"best 15\"";
   const base = [
-    `${service} contractor ${market} owner licensed insured phone ${exclusions}`,
-    `${service} subcontractor ${market} owner "family owned" license ${exclusions}`,
-    `"${service}" ${market} CSLB license owner ${exclusions}`
+    `${service} ${market} licensed insured phone ${exclusions}`,
+    `${service} ${market} "family owned" ${exclusions}`,
+    hints ? `${service} ${hints.split(/\s+/).slice(0, 3).join(" ")} ${market} ${exclusions}` : `${service} ${market} CSLB license ${exclusions}`
   ];
   const sourceQueries = sources.map((source) => {
     if (/yelp/i.test(source)) return `${service} ${market} site:yelp.com/biz`;
@@ -828,62 +1094,105 @@ function buildSubcontractorQueries(input) {
 async function runSubcontractorAgent(input) {
   const coll = await collection("subcontractors");
   if (!coll) throw new Error("MongoDB is not configured. Set MONGODB_URI to enable server persistence.");
-  const runId = `sub-agent-${Date.now()}`;
-  const serviceCategory = cleanString(input.serviceCategory || "General subcontractor");
+  const startedAt = Date.now();
+  const runId = `sub-agent-${startedAt}`;
+  const preset = findTradePreset(input.tradeKey || input.serviceCategory);
+  const serviceCategory = cleanString(input.serviceCategory || (preset && preset.serviceCategory) || "General subcontractor");
   const market = cleanString(input.market || "Los Angeles CA");
   const maxResults = clamp(Number(input.maxResults || 12), 1, 30);
-  const queries = buildSubcontractorQueries(input);
-  const seen = new Set();
-  const saved = [];
+  const minFitScore = clamp(Number(input.minFitScore || 0), 0, 100);
+  const queries = buildSubcontractorQueries({ ...input, serviceCategory });
   const errors = [];
   const skipped = [];
 
-  for (const query of queries) {
-    try {
-      const results = await searchWeb(query, Math.ceil(maxResults / queries.length) + 2);
-      for (const result of results) {
-        const key = result.url.toLowerCase().replace(/\/$/, "");
-        if (seen.has(key) || saved.length >= maxResults) continue;
-        seen.add(key);
-        const enriched = await enrichPublicResult(result);
-        const sourceType = sourceTypeForUrl(result.url);
-        const validation = validateSubcontractorCandidate(result, enriched, serviceCategory, market);
-        if (!validation.ok) {
-          skipped.push({
-            title: result.title,
-            url: result.url,
-            reason: validation.reason,
-            query
-          });
-          continue;
-        }
-        const savedDoc = await upsertSourcedSubcontractor(coll, {
-          ...enriched,
-          companyName: enriched.companyName || companyFromResult(result),
-          serviceCategory,
-          serviceArea: market,
-          specialties: [serviceCategory],
-          reviewSource: enriched.reviewSource || sourceType,
-          sourceUrls: mergeUrls(enriched.sourceUrls || [], [result.url, result.searchUrl]),
-          sourceNotes: cleanString([
-            `Agent run ${runId}. Query: "${query}". Source: ${sourceType}.`,
-            validation.method,
-            result.snippet ? `Snippet: ${result.snippet}` : "",
-            enriched.sourceNotes
-          ].filter(Boolean).join(" ")),
-          status: "researching",
-          sourcingMethod: "agent",
-          sourcingRunId: runId,
-          agentStatus: "needs_review",
-          sourceConfidence: enriched.licenseNumber ? "high" : (enriched.sourceConfidence || "medium")
-        });
-        saved.push(savedDoc);
-      }
-    } catch (error) {
-      errors.push({ query, error: error.message });
+  // 1. All search queries in parallel (bounded), then dedupe and pre-filter
+  //    before spending any page fetches.
+  // Search engines rate-limit aggressively: 2 concurrent with a stagger keeps DDG happy.
+  const searchBatches = await mapLimit(queries, 2, async (query, index) => {
+    await sleep(index * 700);
+    return searchWeb(query, Math.ceil(maxResults / queries.length) + 3);
+  });
+  const seen = new Set();
+  const candidates = [];
+  searchBatches.forEach((batch, i) => {
+    if (batch && batch.__error) {
+      errors.push({ query: queries[i], error: batch.__error });
+      return;
     }
+    for (const result of batch || []) {
+      const key = result.url.toLowerCase().replace(/\/$/, "");
+      if (seen.has(key)) continue;
+      seen.add(key);
+      if (isBlockedSubcontractorSource(result.url, result.title, result.snippet)) {
+        skipped.push({ title: result.title, url: result.url, reason: "Blocked source category (pre-fetch).", query: queries[i] });
+        continue;
+      }
+      candidates.push({ ...result, query: queries[i] });
+    }
+  });
+
+  // 2. Skip candidates whose host is already in the database (no wasted fetches, no dupes).
+  const existingSites = await coll.find({ website: { $ne: "" } }, { projection: { website: 1 } }).toArray();
+  const knownHosts = new Set(existingSites.map((row) => hostname(row.website)).filter(Boolean));
+  const fresh = candidates.filter((candidate) => {
+    const host = hostname(candidate.url);
+    const isDirectory = /yelp|angi|bbb|linkedin|facebook|instagram|houzz/.test(host);
+    if (!isDirectory && knownHosts.has(host)) {
+      skipped.push({ title: candidate.title, url: candidate.url, reason: "Already in database (matched website host).", query: candidate.query });
+      return false;
+    }
+    return true;
+  }).slice(0, maxResults * 3);
+
+  // 3. Enrich (fetch + parse) in parallel batches of 4.
+  const enrichedAll = await mapLimit(fresh, 4, (candidate) => enrichPublicResult(candidate));
+
+  // 4. Validate + score-gate + save.
+  const saved = [];
+  for (let i = 0; i < fresh.length && saved.length < maxResults; i++) {
+    const result = fresh[i];
+    const enriched = enrichedAll[i] && !enrichedAll[i].__error ? enrichedAll[i] : null;
+    if (!enriched) {
+      skipped.push({ title: result.title, url: result.url, reason: `Enrichment failed: ${enrichedAll[i] && enrichedAll[i].__error}`, query: result.query });
+      continue;
+    }
+    const sourceType = sourceTypeForUrl(result.url);
+    const validation = validateSubcontractorCandidate(result, enriched, serviceCategory, market);
+    if (!validation.ok) {
+      skipped.push({ title: result.title, url: result.url, reason: validation.reason, query: result.query });
+      continue;
+    }
+    const candidateDoc = {
+      ...enriched,
+      companyName: enriched.companyName || companyFromResult(result),
+      serviceCategory,
+      serviceArea: market,
+      specialties: [serviceCategory],
+      reviewSource: enriched.reviewSource || sourceType,
+      sourceUrls: mergeUrls(enriched.sourceUrls || [], [result.url, result.searchUrl]),
+      sourceNotes: cleanString([
+        `Agent run ${runId}. Query: "${result.query}". Source: ${sourceType}.`,
+        validation.method,
+        result.snippet ? `Snippet: ${result.snippet}` : "",
+        enriched.sourceNotes
+      ].filter(Boolean).join(" ")),
+      status: "researching",
+      sourcingMethod: "agent",
+      sourcingRunId: runId,
+      agentStatus: "needs_review",
+      sourceConfidence: enriched.licenseNumber ? "high" : (enriched.sourceConfidence || "medium")
+    };
+    if (minFitScore > 0) {
+      const projectedScore = scoreSubcontractor(normalize(candidateDoc));
+      if (projectedScore < minFitScore) {
+        skipped.push({ title: result.title, url: result.url, reason: `Fit score ${projectedScore} below threshold ${minFitScore}.`, query: result.query });
+        continue;
+      }
+    }
+    saved.push(await upsertSourcedSubcontractor(coll, candidateDoc));
   }
 
+  const durationMs = Date.now() - startedAt;
   const runs = await collection("sourcingRuns");
   if (runs) {
     await runs.insertOne({
@@ -892,15 +1201,18 @@ async function runSubcontractorAgent(input) {
       serviceCategory,
       market,
       queries,
+      minFitScore,
+      candidateCount: candidates.length,
       savedCount: saved.length,
       skippedCount: skipped.length,
-      skipped: skipped.slice(0, 50),
+      skipped: skipped.slice(0, 80),
       errors,
+      durationMs,
       createdAt: new Date().toISOString()
     });
   }
 
-  return { runId, serviceCategory, market, queries, savedCount: saved.length, skippedCount: skipped.length, skipped, saved, errors };
+  return { runId, serviceCategory, market, queries, minFitScore, candidateCount: candidates.length, savedCount: saved.length, skippedCount: skipped.length, skipped, saved, errors, durationMs };
 }
 
 app.get("/api/health", async (_req, res) => {
@@ -1004,6 +1316,249 @@ app.post("/api/subcontractors/:id/chase-task", async (req, res) => {
   res.json(buildSubcontractorChaseTask(record, cleanString(req.body.mode || "both")));
 });
 
+app.get("/api/trade-presets", (_req, res) => {
+  res.json(TRADE_PRESETS.map(({ key, label, serviceCategory }) => ({ key, label, serviceCategory })));
+});
+
+// ── Job history: log real jobs with a sub and blend into their score ──
+app.get("/api/subcontractors/:id/jobs", async (req, res) => {
+  const coll = await collection("subcontractorJobs");
+  if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  const rows = await coll.find({ subcontractorId: req.params.id }).sort({ completedAt: -1 }).toArray();
+  res.json(rows.map((row) => ({ ...row, id: row._id.toString(), _id: undefined, score: scoreJob(row) })));
+});
+
+app.post("/api/subcontractors/:id/jobs", async (req, res) => {
+  const coll = await collection("subcontractorJobs");
+  if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  const job = { subcontractorId: req.params.id, ...normalizeJob(req.body) };
+  const result = await coll.insertOne(job);
+  const scores = await recomputeJobScore(req.params.id);
+  res.status(201).json({ ...job, id: result.insertedId.toString(), score: scoreJob(job), subcontractorScores: scores });
+});
+
+app.delete("/api/subcontractors/:id/jobs/:jobId", async (req, res) => {
+  const coll = await collection("subcontractorJobs");
+  if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  await coll.deleteOne({ _id: new ObjectId(req.params.jobId), subcontractorId: req.params.id });
+  const scores = await recomputeJobScore(req.params.id);
+  res.json({ deleted: true, subcontractorScores: scores });
+});
+
+// ── Audit: how effective is the finder + how healthy is the database ──
+const TARGET_TRADES = TRADE_PRESETS.map((preset) => preset.serviceCategory);
+
+app.get("/api/audit", async (_req, res) => {
+  const subs = await collection("subcontractors");
+  if (!subs) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  const [byTrade, scoreBuckets, byStage, byConfidence, byMaterials] = await Promise.all([
+    subs.aggregate([{ $group: {
+      _id: "$serviceCategory", count: { $sum: 1 },
+      avgFit: { $avg: "$fitScore" }, avgOverall: { $avg: { $ifNull: ["$overallScore", "$fitScore"] } },
+      withPhone: { $sum: { $cond: [{ $ne: ["$phone", ""] }, 1, 0] } },
+      withEmail: { $sum: { $cond: [{ $ne: ["$email", ""] }, 1, 0] } },
+      withWebsite: { $sum: { $cond: [{ $ne: ["$website", ""] }, 1, 0] } },
+      withOwner: { $sum: { $cond: [{ $ne: ["$ownerName", ""] }, 1, 0] } },
+      licenseVerified: { $sum: { $cond: ["$licenseVerified", 1, 0] } },
+      withLicenseNum: { $sum: { $cond: [{ $ne: [{ $ifNull: ["$licenseNumber", ""] }, ""] }, 1, 0] } },
+      contacted: { $sum: { $cond: [{ $in: [{ $ifNull: ["$outreachStage", "not_contacted"] }, ["contacted", "responded", "pricing_received", "vetted", "preferred"]] }, 1, 0] } },
+      jobsLogged: { $sum: { $ifNull: ["$jobCount", 0] } }
+    } }, { $sort: { count: -1 } }]).toArray(),
+    subs.aggregate([{ $bucket: {
+      groupBy: { $ifNull: ["$overallScore", "$fitScore"] },
+      boundaries: [0, 40, 55, 70, 85, 101], default: "other",
+      output: { count: { $sum: 1 } }
+    } }]).toArray(),
+    subs.aggregate([{ $group: { _id: { $ifNull: ["$outreachStage", "not_contacted"] }, count: { $sum: 1 } } }]).toArray(),
+    subs.aggregate([{ $group: { _id: { $ifNull: ["$sourceConfidence", "unknown"] }, count: { $sum: 1 } } }]).toArray(),
+    subs.aggregate([{ $group: { _id: { $ifNull: ["$bringsOwnMaterials", "unknown"] }, count: { $sum: 1 } } }]).toArray()
+  ]);
+
+  const total = byTrade.reduce((sum, trade) => sum + trade.count, 0);
+  const presentTrades = new Map(byTrade.map((trade) => [cleanString(trade._id).toLowerCase(), trade.count]));
+  const gaps = TARGET_TRADES
+    .map((trade) => ({ trade, count: presentTrades.get(trade.toLowerCase()) || 0 }))
+    .filter((gap) => gap.count < 4)
+    .sort((a, b) => a.count - b.count);
+
+  const runsColl = await collection("sourcingRuns");
+  let runs = [];
+  let skipReasons = [];
+  if (runsColl) {
+    runs = await runsColl.find({}).sort({ createdAt: -1 }).limit(40).toArray();
+    const reasonCounts = new Map();
+    for (const run of runs) {
+      for (const skip of run.skipped || []) {
+        const reason = cleanString(skip.reason).replace(/\d+/g, "#");
+        reasonCounts.set(reason, (reasonCounts.get(reason) || 0) + 1);
+      }
+    }
+    skipReasons = [...reasonCounts.entries()].map(([reason, count]) => ({ reason, count })).sort((a, b) => b.count - a.count).slice(0, 12);
+  }
+
+  const suppliersColl = await collection("suppliers");
+  let suppliers = { total: 0, byCategory: [], byStatus: [], withMinSpend: 0, withLeadTime: 0 };
+  if (suppliersColl) {
+    const [byCategory, byStatus, meta] = await Promise.all([
+      suppliersColl.aggregate([{ $group: { _id: "$category", count: { $sum: 1 } } }, { $sort: { count: -1 } }]).toArray(),
+      suppliersColl.aggregate([{ $group: { _id: { $ifNull: ["$accountStatus", "not_started"] }, count: { $sum: 1 } } }]).toArray(),
+      suppliersColl.aggregate([{ $group: {
+        _id: null, total: { $sum: 1 },
+        withMinSpend: { $sum: { $cond: [{ $ne: [{ $ifNull: ["$minimumSpend", ""] }, ""] }, 1, 0] } },
+        withLeadTime: { $sum: { $cond: [{ $ne: [{ $ifNull: ["$leadTime", ""] }, ""] }, 1, 0] } }
+      } }]).toArray()
+    ]);
+    suppliers = { total: meta[0]?.total || 0, byCategory, byStatus, withMinSpend: meta[0]?.withMinSpend || 0, withLeadTime: meta[0]?.withLeadTime || 0 };
+  }
+
+  const activities = await collection("subcontractorActivities");
+  const jobs = await collection("subcontractorJobs");
+  res.json({
+    generatedAt: new Date().toISOString(),
+    subs: { total, byTrade, scoreBuckets, byStage, byConfidence, byMaterials, gaps },
+    finder: {
+      runs: runs.map((run) => ({
+        runId: run.runId, type: run.type, serviceCategory: run.serviceCategory || run.projectType,
+        market: run.market, savedCount: run.savedCount || 0, skippedCount: run.skippedCount || 0,
+        candidateCount: run.candidateCount || 0, errorCount: (run.errors || []).length,
+        minFitScore: run.minFitScore || 0, durationMs: run.durationMs || null, createdAt: run.createdAt,
+        yieldRate: run.candidateCount ? Math.round(((run.savedCount || 0) / run.candidateCount) * 100) : null
+      })),
+      skipReasons
+    },
+    suppliers,
+    activityCount: activities ? await activities.countDocuments() : 0,
+    jobCount: jobs ? await jobs.countDocuments() : 0
+  });
+});
+
+// ── Research chat: RAG over subs + suppliers + optional live web, answered by
+// a locally spawned claude CLI (haiku tier) — same pattern as the oriRM runner.
+const { spawn } = require("child_process");
+
+function runClaudeCli(prompt, timeoutMs = 150000) {
+  return new Promise((resolve, reject) => {
+    const child = spawn("claude", ["-p", "--model", "claude-haiku-4-5-20251001", "--output-format", "text"], {
+      shell: true,
+      windowsHide: true,
+      env: { ...process.env }
+    });
+    let out = "";
+    let err = "";
+    const timer = setTimeout(() => { child.kill(); reject(new Error("Claude CLI timed out.")); }, timeoutMs);
+    child.stdout.on("data", (data) => { out += data; });
+    child.stderr.on("data", (data) => { err += data; });
+    child.on("close", (code) => {
+      clearTimeout(timer);
+      if (code === 0 && out.trim()) resolve(out.trim());
+      else reject(new Error(err.trim() || `Claude CLI exited ${code}`));
+    });
+    child.stdin.write(prompt);
+    child.stdin.end();
+  });
+}
+
+function keywordsFromQuestion(question) {
+  const stop = new Set(["should", "would", "could", "from", "with", "that", "this", "what", "which", "where", "their", "there", "about", "them", "have", "does", "were", "will", "your", "ours", "them", "than", "then", "better", "best", "worth", "buying"]);
+  return cleanString(question).toLowerCase().split(/[^a-z0-9]+/)
+    .filter((word) => word.length >= 4 && !/^\d+$/.test(word) && !stop.has(word));
+}
+
+async function gatherResearchContext(question) {
+  const words = keywordsFromQuestion(question);
+  const regexes = words.map((word) => new RegExp(word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"));
+  const subsColl = await collection("subcontractors");
+  const suppliersColl = await collection("suppliers");
+  const lines = [];
+  if (subsColl && regexes.length) {
+    const subs = await subsColl.find({ $or: [
+      { serviceCategory: { $in: regexes } },
+      { specialties: { $in: regexes } },
+      { companyName: { $in: regexes } },
+      { summary: { $in: regexes } }
+    ] }).sort({ fitScore: -1 }).limit(12).toArray();
+    for (const sub of subs) {
+      lines.push(`SUB: ${sub.companyName} | ${sub.serviceCategory} | score ${sub.overallScore || sub.fitScore} | ${sub.phone || "no phone"} | ${sub.email || "no email"} | materials: ${sub.bringsOwnMaterials || "unknown"} | ${sub.priceTier || ""} | ${cleanString(sub.summary).slice(0, 140)}`);
+    }
+  }
+  if (suppliersColl && regexes.length) {
+    const sups = await suppliersColl.find({ $or: [
+      { category: { $in: regexes } },
+      { name: { $in: regexes } },
+      { brands: { $in: regexes } },
+      { suppliesServices: { $in: regexes } },
+      { notes: { $in: regexes } }
+    ] }).limit(12).toArray();
+    for (const sup of sups) {
+      lines.push(`SUPPLIER: ${sup.name} | ${sup.category} | ${sup.accountType} | account: ${sup.accountStatus} | min spend: ${sup.minimumSpend || "unknown"} | lead time: ${sup.leadTime || "unknown"} | ${sup.phone || "no phone"} | ${cleanString(sup.notes).slice(0, 140)}`);
+    }
+  }
+  return lines;
+}
+
+app.get("/api/research-chat", async (_req, res) => {
+  const coll = await collection("researchChats");
+  if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  const rows = await coll.find({}).sort({ createdAt: -1 }).limit(50).toArray();
+  res.json(rows.reverse().map((row) => ({ ...row, id: row._id.toString(), _id: undefined })));
+});
+
+app.post("/api/research-chat", async (req, res) => {
+  const question = cleanString(req.body.question);
+  if (!question) return res.status(400).json({ error: "Provide a question." });
+  const useWeb = req.body.useWeb !== false;
+  try {
+    const internalLines = await gatherResearchContext(question);
+    let webLines = [];
+    if (useWeb) {
+      try {
+        const results = await searchWeb(`${question} construction materials sourcing Los Angeles`, 4);
+        webLines = results.map((result) => `WEB: ${result.title} | ${result.url} | ${result.snippet}`);
+      } catch (error) {
+        webLines = [`WEB: search unavailable (${error.message})`];
+      }
+    }
+    const prompt = [
+      "You are the sourcing analyst for Joon Development Group, a Los Angeles general contractor.",
+      "Answer the question using the INTERNAL CONTEXT (our vetted subcontractor roster and supplier trade accounts) plus the WEB SNIPPETS.",
+      "When the question is about buying materials, explicitly weigh the four channels: (1) local wholesale distributor trade account, (2) direct manufacturer/dealer program, (3) big-box pro desk (Home Depot Pro Xtra / Lowe's Pro), (4) let the subcontractor supply materials (check the sub's 'materials:' flag).",
+      "Give a clear recommendation first, then reasoning, then concrete next steps with names/phones from context when available. Keep it under 350 words. If context is thin, say what is missing.",
+      "",
+      "INTERNAL CONTEXT:",
+      internalLines.length ? internalLines.join("\n") : "(no matching internal records)",
+      "",
+      "WEB SNIPPETS:",
+      webLines.length ? webLines.join("\n") : "(web disabled)",
+      "",
+      `QUESTION: ${question}`
+    ].join("\n");
+
+    let answer;
+    let engine = "claude-haiku";
+    try {
+      answer = await runClaudeCli(prompt);
+    } catch (cliError) {
+      engine = "context-only";
+      answer = [
+        "(Claude CLI unavailable - returning raw research context. CLI error: " + cliError.message + ")",
+        "",
+        "Internal matches:",
+        internalLines.length ? internalLines.join("\n") : "none",
+        "",
+        "Web results:",
+        webLines.join("\n") || "none"
+      ].join("\n");
+    }
+
+    const coll = await collection("researchChats");
+    const doc = { question, answer, engine, internalMatches: internalLines.length, webMatches: webLines.length, createdAt: new Date().toISOString() };
+    if (coll) await coll.insertOne(doc);
+    res.json(doc);
+  } catch (error) {
+    res.status(502).json({ error: error.message });
+  }
+});
+
 app.post("/api/subcontractors/license-search-missing", async (req, res) => {
   try {
     const coll = await collection("subcontractors");
@@ -1032,7 +1587,9 @@ app.post("/api/subcontractors/license-search-missing", async (req, res) => {
 app.put("/api/subcontractors/:id", async (req, res) => {
   const coll = await collection();
   if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  const existing = await coll.findOne({ _id: new ObjectId(req.params.id) });
   const update = { ...normalize(req.body), updatedAt: new Date().toISOString() };
+  update.overallScore = blendScores(update.fitScore, existing && existing.jobScore, existing && existing.jobCount);
   await coll.updateOne({ _id: new ObjectId(req.params.id) }, { $set: update });
   res.json({ ...update, id: req.params.id });
 });

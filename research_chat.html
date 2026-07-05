@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sourcing Research | Joon Development Group</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --ink:#172033; --muted:#687587; --line:#d8dee8; --soft:#f5f7fa; --paper:#fff; --charcoal:#101828; --blue:#2563eb; --green:#0f766e; }
+    body { color: var(--ink); background: #eef2f6; font-family: Inter, ui-sans-serif, system-ui, "Segoe UI", sans-serif; line-height: 1.5; }
+    .topbar { background: var(--charcoal); color: rgba(255,255,255,0.76); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: 0.5rem 2vw; font-size: 0.82rem; }
+    .topbar strong { color: #fff; }
+    .topbar a { text-decoration: none; border-radius: 6px; padding: 0.18rem 0.52rem; font-weight: 850; color: rgba(255,255,255,0.72); }
+    .topbar a:hover, .topbar a.active { color: #fff; background: rgba(255,255,255,0.12); }
+    .shell { width: min(920px, 100%); margin: 0 auto; padding: 1rem 2vw 8rem; display: grid; gap: 0.8rem; }
+    .msg { border-radius: 12px; padding: 0.8rem 1rem; max-width: 92%; font-size: 0.9rem; white-space: pre-wrap; }
+    .q { background: var(--blue); color: #fff; justify-self: end; }
+    .a { background: var(--paper); border: 1px solid var(--line); justify-self: start; }
+    .a .meta { color: var(--muted); font-size: 0.7rem; margin-top: 0.5rem; }
+    .composer { position: fixed; bottom: 0; left: 0; right: 0; background: var(--paper); border-top: 1px solid var(--line); padding: 0.7rem 2vw; }
+    .composer .inner { width: min(920px, 100%); margin: 0 auto; display: flex; gap: 0.5rem; align-items: end; }
+    textarea { flex: 1; min-height: 46px; max-height: 140px; border: 1px solid var(--line); border-radius: 10px; padding: 0.6rem 0.8rem; font: inherit; font-size: 0.9rem; background: var(--soft); resize: vertical; }
+    button { min-height: 46px; border: 0; border-radius: 10px; padding: 0 1.1rem; background: var(--blue); color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
+    button:disabled { opacity: 0.5; }
+    label.web { display: flex; align-items: center; gap: 0.3rem; font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+    .hint { background: var(--paper); border: 1px dashed var(--line); border-radius: 10px; padding: 0.8rem 1rem; font-size: 0.82rem; color: var(--muted); }
+    .hint b { color: var(--ink); }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <strong>JOON · Sourcing Research</strong>
+    <div>
+      <a href="subcontractor_finder.html">Finder</a>
+      <a href="subs_database.html">Database</a>
+      <a href="audit.html">Audit</a>
+      <a href="research_chat.html" class="active">Research</a>
+      <a href="suppliers.html">Suppliers</a>
+    </div>
+  </div>
+  <div class="shell" id="chat">
+    <div class="hint"><b>Ask sourcing questions grounded in your own database + live web.</b><br />
+      Examples: "Should I buy shower glass from a distributor or let the glass sub supply it?" ·
+      "Best way to source LVP flooring for a 2,000 sqft remodel — Galleher, Cali direct, or Home Depot Pro?" ·
+      "Who are my top 3 electricians with owner contact info?" ·
+      "Is it worth becoming a Fabuwood trade partner vs buying RTA from Fontana?"</div>
+  </div>
+  <div class="composer">
+    <div class="inner">
+      <textarea id="q" placeholder="Ask a sourcing / vendor / sub question..."></textarea>
+      <label class="web"><input type="checkbox" id="useWeb" checked />live web</label>
+      <button id="send">Ask</button>
+    </div>
+  </div>
+  <script>
+    const chat = document.getElementById("chat");
+    const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    function add(cls, text, meta) {
+      const div = document.createElement("div");
+      div.className = "msg " + cls;
+      div.innerHTML = esc(text) + (meta ? `<div class="meta">${esc(meta)}</div>` : "");
+      chat.appendChild(div);
+      div.scrollIntoView({ behavior: "smooth", block: "end" });
+      return div;
+    }
+    async function history() {
+      try {
+        const rows = await fetch("/api/research-chat").then((r) => r.json());
+        for (const row of rows) {
+          add("q", row.question);
+          add("a", row.answer, `${row.engine} · ${row.internalMatches} internal / ${row.webMatches} web matches · ${(row.createdAt || "").slice(0, 16).replace("T", " ")}`);
+        }
+      } catch (_e) {}
+    }
+    async function send() {
+      const q = document.getElementById("q").value.trim();
+      if (!q) return;
+      document.getElementById("q").value = "";
+      document.getElementById("send").disabled = true;
+      add("q", q);
+      const pending = add("a", "Researching... (pulls your database + web, then runs the model — can take 1-2 min)");
+      try {
+        const res = await fetch("/api/research-chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question: q, useWeb: document.getElementById("useWeb").checked }) });
+        const data = await res.json();
+        pending.innerHTML = esc(data.answer || data.error) + `<div class="meta">${esc(data.engine || "error")} · ${data.internalMatches ?? 0} internal / ${data.webMatches ?? 0} web matches</div>`;
+      } catch (error) {
+        pending.textContent = "Error: " + error.message;
+      }
+      document.getElementById("send").disabled = false;
+    }
+    document.getElementById("send").addEventListener("click", send);
+    document.getElementById("q").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } });
+    history();
+  </script>
+</body>
+</html>
