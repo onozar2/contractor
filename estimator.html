@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estimator | Joon Development Group</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --ink:#172033; --steel:#3c4658; --muted:#687587; --line:#d8dee8; --soft:#f5f7fa; --paper:#fff; --charcoal:#101828; --blue:#2563eb; --green:#0f766e; --amber:#b45309; --red:#b42318; }
+    body { color: var(--ink); background: #eef2f6; font-family: Inter, ui-sans-serif, system-ui, "Segoe UI", sans-serif; line-height: 1.45; }
+    .topbar { background: var(--charcoal); color: rgba(255,255,255,0.76); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: 0.5rem 2vw; font-size: 0.82rem; }
+    .topbar strong { color: #fff; }
+    .topbar a { text-decoration: none; border-radius: 6px; padding: 0.18rem 0.52rem; font-weight: 850; color: rgba(255,255,255,0.72); }
+    .topbar a:hover, .topbar a.active { color: #fff; background: rgba(255,255,255,0.12); }
+    .shell { width: min(1500px, 100%); margin: 0 auto; padding: 1rem 2vw 3rem; display: grid; grid-template-columns: 1fr 320px; gap: 1rem; align-items: start; }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 0.9rem; margin-bottom: 1rem; }
+    .card h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.6rem; }
+    label.f { display: grid; gap: 0.15rem; font-size: 0.7rem; font-weight: 800; color: var(--muted); text-transform: uppercase; }
+    input, select, textarea { min-height: 34px; border: 1px solid var(--line); border-radius: 7px; padding: 0.3rem 0.5rem; font: inherit; font-size: 0.85rem; background: var(--soft); width: 100%; }
+    textarea { min-height: 64px; resize: vertical; }
+    .btn { min-height: 34px; border: 1px solid var(--line); border-radius: 7px; padding: 0 0.8rem; background: var(--paper); font: inherit; font-size: 0.8rem; font-weight: 800; cursor: pointer; color: var(--steel); }
+    .btn:hover { color: var(--blue); background: var(--soft); }
+    .btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: end; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    th { text-align: left; padding: 0.35rem 0.4rem; color: var(--muted); font-size: 0.68rem; text-transform: uppercase; border-bottom: 1px solid var(--line); }
+    td { padding: 0.3rem 0.4rem; border-bottom: 1px solid #eef1f6; vertical-align: middle; }
+    td input, td select { min-height: 30px; font-size: 0.8rem; padding: 0.15rem 0.35rem; }
+    .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .totals { font-size: 0.9rem; display: grid; gap: 0.4rem; }
+    .totals .line { display: flex; justify-content: space-between; }
+    .totals .grand { font-size: 1.15rem; font-weight: 900; border-top: 2px solid var(--ink); padding-top: 0.4rem; }
+    .muted { color: var(--muted); }
+    .del { color: var(--red); cursor: pointer; font-weight: 900; padding: 0 0.4rem; }
+    #assumptions { font-size: 0.78rem; color: var(--steel); }
+    .pill { display: inline-block; border-radius: 999px; padding: 0.03rem 0.5rem; font-size: 0.7rem; font-weight: 800; background: var(--soft); border: 1px solid var(--line); }
+    /* print = the proposal */
+    #proposal { display: none; }
+    @media print {
+      body * { visibility: hidden; }
+      #proposal, #proposal * { visibility: visible; }
+      #proposal { display: block; position: absolute; left: 0; top: 0; width: 100%; padding: 2rem; background: #fff; }
+      #proposal h1 { font-size: 1.4rem; }
+      #proposal table { font-size: 0.8rem; }
+      #proposal th, #proposal td { border-bottom: 1px solid #ccc; padding: 0.3rem 0.4rem; }
+    }
+    @media (max-width: 980px) { .shell { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <strong>JOON · Estimator</strong>
+    <div>
+      <a href="subcontractor_finder.html">Finder</a>
+      <a href="subs_database.html">Database</a>
+      <a href="estimator.html" class="active">Estimator</a>
+      <a href="bid_lab.html">Bid Lab</a>
+      <a href="audit.html">Audit</a>
+      <a href="research_chat.html">Research</a>
+      <a href="suppliers.html">Suppliers</a>
+    </div>
+  </div>
+  <div class="shell">
+    <div>
+      <div class="card">
+        <h2>Project</h2>
+        <div class="row" style="margin-bottom:0.5rem">
+          <label class="f" style="flex:2">Title / client<input id="pTitle" placeholder="Kitchen remodel - Smith, Sherman Oaks" /></label>
+          <label class="f" style="flex:1.4">Address<input id="pAddress" placeholder="street, city" /></label>
+          <label class="f" style="width:110px">Sqft<input id="pSqft" type="number" min="0" /></label>
+        </div>
+        <div class="row">
+          <label class="f" style="flex:1">Start from template<select id="tplSelect"><option value="">- pick assembly -</option></select></label>
+          <button class="btn" id="tplLoad">Load template</button>
+          <label class="f" style="flex:1">Saved estimates<select id="savedSelect"><option value="">- open saved -</option></select></label>
+          <button class="btn" id="btnNew">New</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>AI draft (describe the scope, get line items)</h2>
+        <textarea id="aiDesc" placeholder="e.g. Full hall bath remodel in Encino: new shower with frameless glass, floor tile, new vanity + toilet, move the sink 2 feet, exhaust fan, repaint. House built 1962."></textarea>
+        <div class="row" style="margin-top:0.5rem">
+          <button class="btn primary" id="btnAi">Draft with AI</button>
+          <span class="muted" id="aiStatus" style="align-self:center;font-size:0.78rem"></span>
+        </div>
+        <div id="assumptions" style="margin-top:0.5rem"></div>
+      </div>
+
+      <div class="card">
+        <h2>Line items <span class="pill" id="lineCount">0</span></h2>
+        <table>
+          <thead><tr><th style="width:19%">Trade</th><th>Description</th><th style="width:70px">Qty</th><th style="width:90px">Unit</th><th style="width:90px">$ low</th><th style="width:90px">$ high</th><th class="num">Low</th><th class="num">High</th><th></th></tr></thead>
+          <tbody id="lineRows"></tbody>
+        </table>
+        <div class="row" style="margin-top:0.6rem">
+          <label class="f" style="flex:1">Add from cost book<select id="cbSelect"></select></label>
+          <button class="btn" id="cbAdd">Add item</button>
+          <button class="btn" id="blankAdd">Add blank line</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h2>Totals</h2>
+        <div class="totals" id="totals"></div>
+        <div class="row" style="margin-top:0.7rem">
+          <label class="f" style="width:47%">Contingency %<input id="pCont" type="number" value="12" min="0" /></label>
+          <label class="f" style="width:47%">Markup %<input id="pMarkup" type="number" value="25" min="0" /></label>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Actions</h2>
+        <div class="row">
+          <button class="btn primary" id="btnSave">Save estimate</button>
+          <button class="btn" id="btnBid">Send to Bid Lab</button>
+          <button class="btn" id="btnPrint">Print proposal</button>
+          <button class="btn" id="btnDelete" style="color:var(--red)">Delete</button>
+        </div>
+        <p class="muted" style="font-size:0.74rem;margin-top:0.6rem">Proposal prints as a client-facing planning range. Fixed bids only after sub validation in Bid Lab (readiness gate applies).</p>
+      </div>
+      <div class="card">
+        <h2>Cost book</h2>
+        <p class="muted" style="font-size:0.76rem" id="cbMeta"></p>
+      </div>
+    </div>
+  </div>
+
+  <div id="proposal"></div>
+
+  <script>
+    let book = { items: [], assemblies: [] };
+    let lines = [];
+    let currentId = null;
+    const $ = (id) => document.getElementById(id);
+    const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const money = (n) => "$" + Math.round(n).toLocaleString();
+
+    async function init() {
+      book = await fetch("/api/estimator/costbook").then((r) => r.json());
+      $("tplSelect").innerHTML = '<option value="">- pick assembly -</option>' + book.assemblies.map((a) => `<option value="${a.key}">${esc(a.label)}</option>`).join("");
+      $("cbSelect").innerHTML = book.items.map((i) => `<option value="${i.id}">${esc(i.description)} (${i.unit}: $${i.low}-${i.high})</option>`).join("");
+      $("cbMeta").textContent = `${book.items.length} items · ${book.region} · updated ${book.updated}. Edit costbook.json to tune. ${book.disclaimer}`;
+      await refreshSaved();
+      render();
+    }
+    async function refreshSaved() {
+      const rows = await fetch("/api/estimates").then((r) => r.json());
+      $("savedSelect").innerHTML = '<option value="">- open saved -</option>' + rows.map((r) => `<option value="${r.id}">${esc(r.title)} (${(r.updatedAt || "").slice(0, 10)})</option>`).join("");
+      $("savedSelect").dataset.rows = JSON.stringify(rows);
+    }
+
+    function lineFromBook(id, qty = 1) {
+      const item = book.items.find((i) => i.id === id);
+      if (!item) return null;
+      if (item.unit === "pct-of-subtotal") {
+        const sub = subtotal();
+        return { id: crypto.randomUUID(), trade: item.trade, description: item.description, qty: 1, unit: "job", unitLow: sub.low * item.low / 100, unitHigh: sub.high * item.high / 100, notes: `${item.low}-${item.high}% of subtotal` };
+      }
+      return { id: crypto.randomUUID(), trade: item.trade, description: item.description, qty, unit: item.unit, unitLow: item.low, unitHigh: item.high, notes: "" };
+    }
+    function subtotal() {
+      return lines.reduce((acc, l) => ({ low: acc.low + l.qty * l.unitLow, high: acc.high + l.qty * l.unitHigh }), { low: 0, high: 0 });
+    }
+
+    function render() {
+      $("lineCount").textContent = lines.length;
+      $("lineRows").innerHTML = lines.map((l, i) => `
+        <tr data-i="${i}">
+          <td><input data-k="trade" value="${esc(l.trade)}" /></td>
+          <td><input data-k="description" value="${esc(l.description)}" title="${esc(l.notes)}" /></td>
+          <td><input data-k="qty" type="number" step="any" value="${l.qty}" /></td>
+          <td><input data-k="unit" value="${esc(l.unit)}" /></td>
+          <td><input data-k="unitLow" type="number" step="any" value="${l.unitLow}" /></td>
+          <td><input data-k="unitHigh" type="number" step="any" value="${l.unitHigh}" /></td>
+          <td class="num">${money(l.qty * l.unitLow)}</td>
+          <td class="num">${money(l.qty * l.unitHigh)}</td>
+          <td><span class="del" data-del="${i}">×</span></td>
+        </tr>`).join("");
+      const sub = subtotal();
+      const cont = Number($("pCont").value || 0) / 100;
+      const markup = Number($("pMarkup").value || 0) / 100;
+      const lowAll = sub.low * (1 + cont) * (1 + markup);
+      const highAll = sub.high * (1 + cont) * (1 + markup);
+      const sqft = Number($("pSqft").value || 0);
+      $("totals").innerHTML = `
+        <div class="line"><span>Direct cost subtotal</span><b>${money(sub.low)} - ${money(sub.high)}</b></div>
+        <div class="line"><span>+ Contingency ${$("pCont").value}%</span><b>${money(sub.low * cont)} - ${money(sub.high * cont)}</b></div>
+        <div class="line"><span>+ Markup ${$("pMarkup").value}%</span><b>${money(sub.low * (1 + cont) * markup)} - ${money(sub.high * (1 + cont) * markup)}</b></div>
+        <div class="line grand"><span>Client planning range</span><span>${money(lowAll)} - ${money(highAll)}</span></div>
+        ${sqft ? `<div class="line muted"><span>Per sqft</span><span>${money(lowAll / sqft)} - ${money(highAll / sqft)}</span></div>` : ""}`;
+    }
+
+    // events
+    $("lineRows").addEventListener("input", (e) => {
+      const tr = e.target.closest("tr"); if (!tr) return;
+      const line = lines[Number(tr.dataset.i)];
+      const key = e.target.dataset.k;
+      line[key] = ["qty", "unitLow", "unitHigh"].includes(key) ? Number(e.target.value || 0) : e.target.value;
+      render();
+    });
+    $("lineRows").addEventListener("click", (e) => {
+      if (e.target.dataset.del !== undefined) { lines.splice(Number(e.target.dataset.del), 1); render(); }
+    });
+    ["pCont", "pMarkup", "pSqft"].forEach((id) => $(id).addEventListener("input", render));
+    $("tplLoad").addEventListener("click", () => {
+      const a = book.assemblies.find((x) => x.key === $("tplSelect").value);
+      if (!a) return;
+      lines = a.items.map((ref) => lineFromBook(ref.id, ref.qty)).filter(Boolean);
+      if (!$("pTitle").value) $("pTitle").value = a.label;
+      render();
+    });
+    $("cbAdd").addEventListener("click", () => { const l = lineFromBook($("cbSelect").value); if (l) { lines.push(l); render(); } });
+    $("blankAdd").addEventListener("click", () => { lines.push({ id: crypto.randomUUID(), trade: "", description: "", qty: 1, unit: "job", unitLow: 0, unitHigh: 0, notes: "" }); render(); });
+    $("btnNew").addEventListener("click", () => { currentId = null; lines = []; ["pTitle","pAddress","pSqft","aiDesc"].forEach((id) => $(id).value = ""); $("assumptions").innerHTML = ""; render(); });
+
+    $("savedSelect").addEventListener("change", () => {
+      const rows = JSON.parse($("savedSelect").dataset.rows || "[]");
+      const est = rows.find((r) => r.id === $("savedSelect").value);
+      if (!est) return;
+      currentId = est.id;
+      lines = est.lines || [];
+      $("pTitle").value = est.title; $("pAddress").value = est.address || ""; $("pSqft").value = est.sqft || "";
+      $("pCont").value = est.contingencyPercent; $("pMarkup").value = est.markupPercent; $("aiDesc").value = est.description || "";
+      render();
+    });
+
+    function currentEstimate() {
+      return {
+        title: $("pTitle").value || "Untitled estimate", clientName: $("pTitle").value.split("-")[1] || "",
+        address: $("pAddress").value, sqft: Number($("pSqft").value || 0),
+        description: $("aiDesc").value, lines,
+        contingencyPercent: Number($("pCont").value || 0), markupPercent: Number($("pMarkup").value || 0),
+        projectType: $("tplSelect").selectedOptions[0] ? $("tplSelect").selectedOptions[0].textContent : ""
+      };
+    }
+    $("btnSave").addEventListener("click", async () => {
+      const body = JSON.stringify(currentEstimate());
+      const opts = { headers: { "Content-Type": "application/json" }, body };
+      const res = currentId
+        ? await fetch(`/api/estimates/${currentId}`, { method: "PUT", ...opts })
+        : await fetch("/api/estimates", { method: "POST", ...opts });
+      const data = await res.json();
+      currentId = data.id || currentId;
+      await refreshSaved();
+      alert("Saved.");
+    });
+    $("btnDelete").addEventListener("click", async () => {
+      if (!currentId || !confirm("Delete this estimate?")) return;
+      await fetch(`/api/estimates/${currentId}`, { method: "DELETE" });
+      $("btnNew").click(); await refreshSaved();
+    });
+    $("btnBid").addEventListener("click", async () => {
+      if (!currentId) { alert("Save first."); return; }
+      const res = await fetch(`/api/estimates/${currentId}/to-bid-project`, { method: "POST" });
+      const data = await res.json();
+      if (data.bidProjectId) window.location.href = "bid_lab.html";
+      else alert(data.error || "Failed");
+    });
+
+    $("btnAi").addEventListener("click", async () => {
+      const desc = $("aiDesc").value.trim();
+      if (!desc) { alert("Describe the project first."); return; }
+      $("aiStatus").textContent = "Drafting... (runs the model, 1-2 min)";
+      $("btnAi").disabled = true;
+      try {
+        const res = await fetch("/api/estimator/ai-draft", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ description: desc, sqft: Number($("pSqft").value || 0) }) });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        lines = data.lines;
+        $("assumptions").innerHTML =
+          (data.assumptions.length ? `<b>Assumptions:</b> ${data.assumptions.map(esc).join(" · ")}<br />` : "") +
+          (data.questions.length ? `<b>Confirm on walkthrough:</b> ${data.questions.map(esc).join(" · ")}` : "");
+        $("aiStatus").textContent = `Drafted ${lines.length} lines — review every number.`;
+        render();
+      } catch (error) {
+        $("aiStatus").textContent = error.message;
+      }
+      $("btnAi").disabled = false;
+    });
+
+    $("btnPrint").addEventListener("click", () => {
+      const est = currentEstimate();
+      const sub = subtotal();
+      const cont = est.contingencyPercent / 100, markup = est.markupPercent / 100;
+      const low = sub.low * (1 + cont) * (1 + markup), high = sub.high * (1 + cont) * (1 + markup);
+      $("proposal").innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:start;border-bottom:3px solid #172033;padding-bottom:0.8rem;margin-bottom:1rem">
+          <div><h1>Joon Development Group</h1><div style="color:#555">Los Angeles, CA · (818) 371-0334</div></div>
+          <div style="text-align:right"><b>PLANNING ESTIMATE</b><br />${new Date().toLocaleDateString()}</div>
+        </div>
+        <h2 style="margin-bottom:0.2rem">${esc(est.title)}</h2>
+        <div style="color:#555;margin-bottom:1rem">${esc(est.address)}${est.sqft ? " · ~" + est.sqft + " sqft" : ""}</div>
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr><th style="text-align:left">Scope item</th><th style="text-align:left">Trade</th><th style="text-align:right">Qty</th><th style="text-align:right">Range</th></tr></thead>
+          <tbody>${lines.map((l) => `<tr><td>${esc(l.description)}</td><td>${esc(l.trade)}</td><td style="text-align:right">${l.qty} ${esc(l.unit)}</td><td style="text-align:right">${money(l.qty * l.unitLow)} - ${money(l.qty * l.unitHigh)}</td></tr>`).join("")}</tbody>
+        </table>
+        <div style="margin-top:1rem;text-align:right;font-size:1.1rem"><b>Planning range: ${money(low)} - ${money(high)}</b></div>
+        <p style="margin-top:1.5rem;font-size:0.78rem;color:#555">This is a planning-range estimate, not a fixed bid. Final pricing follows an on-site walkthrough, scope confirmation, and material selections. Range includes ${est.contingencyPercent}% contingency and overhead. Valid 30 days.</p>`;
+      window.print();
+    });
+
+    init();
+  </script>
+</body>
+</html>

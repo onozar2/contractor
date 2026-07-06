@@ -98,6 +98,7 @@ crmApp.get("/services_board.html", (_req, res) => res.sendFile(path.join(__dirna
 crmApp.get("/subs_database.html", (_req, res) => res.sendFile(path.join(__dirname, "subs_database.html")));
 crmApp.get("/audit.html", (_req, res) => res.sendFile(path.join(__dirname, "audit.html")));
 crmApp.get("/research_chat.html", (_req, res) => res.sendFile(path.join(__dirname, "research_chat.html")));
+crmApp.get("/estimator.html", (_req, res) => res.sendFile(path.join(__dirname, "estimator.html")));
 crmApp.use("/api/suppliers", require("./suppliers")(collection));
 crmApp.use("/assets", express.static(path.join(__dirname, "assets")));
 
@@ -1481,10 +1482,30 @@ app.get("/api/audit", async (_req, res) => {
     suppliers = { total: meta[0]?.total || 0, byCategory, byStatus, withMinSpend: meta[0]?.withMinSpend || 0, withLeadTime: meta[0]?.withLeadTime || 0 };
   }
 
+  // Docs/licenses/insurance expiring within 45 days or already expired.
+  const allSubs = await subs.find({}, { projection: { companyName: 1, serviceCategory: 1, phone: 1, licenseExpiresAt: 1, insuranceExpiresAt: 1, docChecklist: 1, outreachStage: 1 } }).toArray();
+  const expiring = [];
+  for (const sub of allSubs) {
+    const checks = [
+      ["CSLB license", sub.licenseExpiresAt],
+      ["Insurance", sub.insuranceExpiresAt],
+      ["COI", sub.docChecklist?.coi?.expiresAt],
+      ["Workers comp cert", sub.docChecklist?.workersCompCert?.expiresAt]
+    ];
+    for (const [label, date] of checks) {
+      const days = daysUntilDate(date);
+      if (days !== null && days <= 45) {
+        expiring.push({ id: sub._id.toString(), companyName: sub.companyName, trade: sub.serviceCategory, phone: sub.phone, doc: label, expiresAt: cleanString(date), days });
+      }
+    }
+  }
+  expiring.sort((a, b) => a.days - b.days);
+
   const activities = await collection("subcontractorActivities");
   const jobs = await collection("subcontractorJobs");
   res.json({
     generatedAt: new Date().toISOString(),
+    expiring: expiring.slice(0, 50),
     subs: { total, byTrade, scoreBuckets, byStage, byConfidence, byMaterials, gaps },
     finder: {
       runs: runs.map((run) => ({
@@ -1626,6 +1647,173 @@ app.post("/api/research-chat", async (req, res) => {
     res.json(doc);
   } catch (error) {
     res.status(502).json({ error: error.message });
+  }
+});
+
+// ── Estimator: LA cost book + estimates + AI draft ──
+const COSTBOOK_PATH = path.join(__dirname, "costbook.json");
+let costbookCache = null;
+function loadCostbook() {
+  if (!costbookCache) costbookCache = JSON.parse(fs.readFileSync(COSTBOOK_PATH, "utf8"));
+  return costbookCache;
+}
+
+app.get("/api/estimator/costbook", (_req, res) => {
+  try {
+    costbookCache = null; // always fresh so the file stays hand-editable
+    res.json(loadCostbook());
+  } catch (error) {
+    res.status(500).json({ error: `costbook.json unreadable: ${error.message}` });
+  }
+});
+
+function normalizeEstimateLine(input) {
+  return {
+    id: cleanString(input.id || cryptoId()),
+    trade: cleanString(input.trade),
+    description: cleanString(input.description),
+    qty: Number(input.qty || 1),
+    unit: cleanString(input.unit || "job"),
+    unitLow: Number(input.unitLow || 0),
+    unitHigh: Number(input.unitHigh || 0),
+    notes: cleanString(input.notes)
+  };
+}
+
+function normalizeEstimate(input) {
+  const lines = Array.isArray(input.lines) ? input.lines.map(normalizeEstimateLine) : [];
+  return {
+    title: cleanString(input.title || "Untitled estimate"),
+    clientName: cleanString(input.clientName),
+    address: cleanString(input.address),
+    projectType: cleanString(input.projectType),
+    sqft: Number(input.sqft || 0),
+    description: cleanString(input.description),
+    lines,
+    contingencyPercent: Number(input.contingencyPercent ?? 12),
+    markupPercent: Number(input.markupPercent ?? 25),
+    status: pickEnum(input.status, ["draft", "sent", "accepted", "dead"], "draft"),
+    notes: cleanString(input.notes),
+    updatedAt: new Date().toISOString()
+  };
+}
+
+app.get("/api/estimates", async (_req, res) => {
+  const coll = await collection("estimates");
+  if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  const rows = await coll.find({}).sort({ updatedAt: -1 }).limit(200).toArray();
+  res.json(rows.map((row) => ({ ...row, id: row._id.toString(), _id: undefined })));
+});
+
+app.post("/api/estimates", async (req, res) => {
+  const coll = await collection("estimates");
+  if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  const doc = { ...normalizeEstimate(req.body), createdAt: new Date().toISOString() };
+  const result = await coll.insertOne(doc);
+  res.status(201).json({ ...doc, id: result.insertedId.toString() });
+});
+
+app.put("/api/estimates/:id", async (req, res) => {
+  const coll = await collection("estimates");
+  if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  const update = normalizeEstimate(req.body);
+  await coll.updateOne({ _id: new ObjectId(req.params.id) }, { $set: update });
+  res.json({ ...update, id: req.params.id });
+});
+
+app.delete("/api/estimates/:id", async (req, res) => {
+  const coll = await collection("estimates");
+  if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  await coll.deleteOne({ _id: new ObjectId(req.params.id) });
+  res.status(204).end();
+});
+
+// Bridge: estimate -> Bid Lab project (line items carry the ranges over).
+app.post("/api/estimates/:id/to-bid-project", async (req, res) => {
+  const estimates = await collection("estimates");
+  const bids = await collection("bidProjects");
+  if (!estimates || !bids) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  const est = await estimates.findOne({ _id: new ObjectId(req.params.id) });
+  if (!est) return res.status(404).json({ error: "Estimate not found." });
+  const now = new Date().toISOString();
+  const doc = {
+    ...normalizeBidProject({
+      customerName: est.clientName || est.title,
+      projectType: est.projectType,
+      city: est.address,
+      status: "intake",
+      scopeDraft: est.description,
+      budgetLow: Math.round((est.lines || []).reduce((sum, line) => sum + line.qty * line.unitLow, 0)),
+      budgetHigh: Math.round((est.lines || []).reduce((sum, line) => sum + line.qty * line.unitHigh, 0)),
+      contingencyPercent: est.contingencyPercent,
+      markupPercent: est.markupPercent,
+      lineItems: (est.lines || []).map((line) => ({
+        trade: line.trade,
+        description: line.description,
+        quantity: String(line.qty),
+        unit: line.unit,
+        lowCost: Math.round(line.qty * line.unitLow),
+        highCost: Math.round(line.qty * line.unitHigh)
+      }))
+    }),
+    createdAt: now
+  };
+  const result = await bids.insertOne(doc);
+  res.status(201).json({ bidProjectId: result.insertedId.toString() });
+});
+
+// AI draft: scope description -> line items grounded in the cost book + our subs' pricing notes.
+app.post("/api/estimator/ai-draft", async (req, res) => {
+  const description = cleanString(req.body.description);
+  if (!description) return res.status(400).json({ error: "Describe the project first." });
+  try {
+    const book = loadCostbook();
+    const bookLines = book.items.map((item) => `${item.id} | ${item.description} | ${item.unit} | ${item.low}-${item.high}`).join("\n");
+    const prompt = [
+      "You are the estimator for Joon Development Group, a Los Angeles general contractor.",
+      "Draft a line-item planning estimate for the project described below.",
+      "Use ONLY line items grounded in the COST BOOK where possible (reference by id); you may add custom lines for scope the book lacks, with realistic LA unit ranges.",
+      "Quantities must follow from the description (measure, count, infer conservatively).",
+      "Return STRICT JSON only - no markdown, no commentary - shaped exactly:",
+      '{"lines":[{"costbookId":"kit-demo or null","trade":"","description":"","qty":1,"unit":"job","unitLow":0,"unitHigh":0,"notes":"assumption made"}],"assumptions":["..."],"questions":["what to confirm on walkthrough"]}',
+      "",
+      "COST BOOK (id | description | unit | low-high $):",
+      bookLines,
+      "",
+      `PROJECT DESCRIPTION: ${description}`,
+      req.body.sqft ? `Approx sqft: ${req.body.sqft}` : ""
+    ].join("\n");
+    const raw = await runClaudeCli(prompt, 180000);
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("Model did not return JSON.");
+    const parsed = JSON.parse(jsonMatch[0]);
+    const byId = new Map(book.items.map((item) => [item.id, item]));
+    const lines = (parsed.lines || []).map((line) => {
+      const ref = line.costbookId && byId.get(line.costbookId);
+      return normalizeEstimateLine({
+        trade: line.trade || (ref && ref.trade) || "",
+        description: line.description || (ref && ref.description) || "",
+        qty: line.qty,
+        unit: line.unit || (ref && ref.unit) || "job",
+        unitLow: Number(line.unitLow) || (ref ? ref.low : 0),
+        unitHigh: Number(line.unitHigh) || (ref ? ref.high : 0),
+        notes: line.notes
+      });
+    });
+    // Convert any percent-of-subtotal lines (e.g. PM fee) into dollars against the other lines.
+    const dollarLines = lines.filter((line) => line.unit !== "pct-of-subtotal");
+    const base = dollarLines.reduce((acc, line) => ({ low: acc.low + line.qty * line.unitLow, high: acc.high + line.qty * line.unitHigh }), { low: 0, high: 0 });
+    for (const line of lines) {
+      if (line.unit === "pct-of-subtotal") {
+        line.notes = cleanString(`${line.unitLow}-${line.unitHigh}% of subtotal. ${line.notes}`);
+        line.unitLow = Math.round(base.low * line.unitLow / 100);
+        line.unitHigh = Math.round(base.high * line.unitHigh / 100);
+        line.unit = "job";
+      }
+    }
+    res.json({ lines, assumptions: parsed.assumptions || [], questions: parsed.questions || [], engine: "claude-haiku" });
+  } catch (error) {
+    res.status(502).json({ error: `AI draft failed: ${error.message}. Use a template and edit manually.` });
   }
 });
 
