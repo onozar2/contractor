@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Actuals | Joon Development Group</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --ink:#172033; --steel:#3c4658; --muted:#687587; --line:#d8dee8; --soft:#f5f7fa; --paper:#fff; --charcoal:#101828; --blue:#2563eb; --green:#0f766e; --amber:#b45309; --red:#b42318; }
+    body { color: var(--ink); background: #eef2f6; font-family: Inter, ui-sans-serif, system-ui, "Segoe UI", sans-serif; line-height: 1.45; }
+    .topbar { background: var(--charcoal); color: rgba(255,255,255,0.76); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: 0.5rem 2vw; font-size: 0.82rem; }
+    .topbar strong { color: #fff; }
+    .topbar a { text-decoration: none; border-radius: 6px; padding: 0.18rem 0.52rem; font-weight: 850; color: rgba(255,255,255,0.72); }
+    .topbar a:hover, .topbar a.active { color: #fff; background: rgba(255,255,255,0.12); }
+    .shell { width: min(1500px, 100%); margin: 0 auto; padding: 1rem 2vw 3rem; display: grid; gap: 1rem; }
+    .metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.6rem; }
+    .metric { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 0.6rem 0.75rem; }
+    .metric b { display: block; font-size: 1.25rem; }
+    .metric span { color: var(--muted); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 0.9rem; }
+    .card h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.6rem; }
+    label.f { display: grid; gap: 0.15rem; font-size: 0.7rem; font-weight: 800; color: var(--muted); text-transform: uppercase; }
+    input, select, textarea { min-height: 34px; border: 1px solid var(--line); border-radius: 7px; padding: 0.3rem 0.5rem; font: inherit; font-size: 0.84rem; background: var(--soft); width: 100%; }
+    .btn { min-height: 34px; border: 1px solid var(--line); border-radius: 7px; padding: 0 0.8rem; background: var(--paper); font: inherit; font-size: 0.8rem; font-weight: 800; cursor: pointer; color: var(--steel); }
+    .btn:hover { color: var(--blue); background: var(--soft); }
+    .btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: end; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    th { text-align: left; padding: 0.35rem 0.4rem; color: var(--muted); font-size: 0.66rem; text-transform: uppercase; border-bottom: 1px solid var(--line); }
+    td { padding: 0.3rem 0.4rem; border-bottom: 1px solid #eef1f6; vertical-align: middle; }
+    td input, td select { min-height: 30px; font-size: 0.78rem; padding: 0.15rem 0.35rem; }
+    .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; border-radius: 999px; padding: 0.03rem 0.5rem; font-size: 0.7rem; font-weight: 800; background: var(--soft); border: 1px solid var(--line); }
+    .pill.green { background: #e7f6f4; color: var(--green); }
+    .pill.red { background: #fdecea; color: var(--red); }
+    .pill.amber { background: #fdf3e7; color: var(--amber); }
+    .del { color: var(--red); cursor: pointer; font-weight: 900; padding: 0 0.4rem; }
+    .muted { color: var(--muted); }
+    details.proj { border: 1px solid var(--line); border-radius: 10px; margin-bottom: 0.5rem; background: var(--paper); }
+    details.proj summary { display: flex; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; padding: 0.6rem 0.8rem; cursor: pointer; font-size: 0.86rem; align-items: center; }
+    details.proj .body { padding: 0 0.8rem 0.8rem; }
+    .grid2 { display: grid; grid-template-columns: 1.3fr 1fr; gap: 1rem; align-items: start; }
+    @media (max-width: 1000px) { .grid2 { grid-template-columns: 1fr; } .metrics { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <strong>JOON · Project Actuals</strong>
+    <div>
+      <a href="subcontractor_finder.html">Finder</a>
+      <a href="subs_database.html">Database</a>
+      <a href="estimator.html">Estimator</a>
+      <a href="actuals.html" class="active">Actuals</a>
+      <a href="bid_lab.html">Bid Lab</a>
+      <a href="audit.html">Audit</a>
+      <a href="suppliers.html">Suppliers</a>
+    </div>
+  </div>
+  <div class="shell">
+    <div class="metrics" id="metrics"></div>
+    <div class="grid2">
+      <div>
+        <div class="card" style="margin-bottom:1rem">
+          <h2 id="formTitle">Log a completed project</h2>
+          <div class="row" style="margin-bottom:0.5rem">
+            <label class="f" style="flex:1.6">Project name<input id="aName" placeholder="Kitchen remodel - Smith, Sherman Oaks" /></label>
+            <label class="f" style="flex:1">Type<input id="aType" list="typeList" placeholder="Kitchen remodel" /><datalist id="typeList"></datalist></label>
+            <label class="f" style="width:130px">Completed<input id="aDate" type="date" /></label>
+          </div>
+          <div class="row" style="margin-bottom:0.7rem">
+            <label class="f" style="flex:1">City<input id="aCity" /></label>
+            <label class="f" style="width:100px">Sqft<input id="aSqft" type="number" min="0" /></label>
+            <label class="f" style="width:150px">Contract price $<input id="aPrice" type="number" min="0" /></label>
+            <label class="f" style="flex:1">Import lines from estimate<select id="aEstimate"><option value="">- optional -</option></select></label>
+          </div>
+          <table>
+            <thead><tr><th style="width:26%">Cost-book link</th><th>What it was</th><th style="width:64px">Qty</th><th style="width:70px">Unit</th><th style="width:100px">Actual $ total</th><th style="width:14%">Sub used</th><th class="num">$/unit</th><th></th></tr></thead>
+            <tbody id="aLines"></tbody>
+          </table>
+          <div class="row" style="margin-top:0.6rem">
+            <button class="btn" id="addLine">Add line</button>
+            <span class="muted" style="align-self:center;font-size:0.78rem">Link lines to cost-book items so they calibrate the estimator. Actual cost so far: <b id="aTotal">$0</b></span>
+          </div>
+          <div class="row" style="margin-top:0.7rem">
+            <button class="btn primary" id="aSave">Save project</button>
+            <button class="btn" id="aNew">Clear</button>
+            <span class="muted" id="aStatus" style="align-self:center;font-size:0.78rem"></span>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Logged projects</h2>
+          <div id="projList" class="muted">Loading...</div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Cost-book calibration (bake actuals into the estimator)</h2>
+        <p class="muted" style="font-size:0.76rem;margin-bottom:0.6rem">Items with logged observations show a suggested range: a blend of the book and your real numbers (weight grows 30% per observation, capped 80%). Applying rewrites costbook.json — a backup is saved first. The internal estimator, AI drafts, and the public widget all inherit the new ranges.</p>
+        <table>
+          <thead><tr><th></th><th>Item</th><th class="num">Book</th><th class="num">Observed (n)</th><th class="num">Suggested</th></tr></thead>
+          <tbody id="calRows"></tbody>
+        </table>
+        <div class="row" style="margin-top:0.7rem">
+          <button class="btn primary" id="calApply">Apply selected to cost book</button>
+          <span class="muted" id="calStatus" style="align-self:center;font-size:0.78rem"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let book = { items: [] };
+    let estimates = [];
+    let projects = [];
+    let lines = [];
+    let editId = null;
+    const $ = (id) => document.getElementById(id);
+    const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const money = (n) => "$" + Math.round(n || 0).toLocaleString();
+
+    async function init() {
+      book = await fetch("/api/estimator/costbook").then((r) => r.json());
+      const cfg = book.publicEstimator || { projectTypes: [] };
+      $("typeList").innerHTML = cfg.projectTypes.map((p) => `<option value="${esc(p.label)}">`).join("");
+      estimates = await fetch("/api/estimates").then((r) => r.json());
+      $("aEstimate").innerHTML = '<option value="">- optional -</option>' + estimates.map((e) => `<option value="${e.id}">${esc(e.title)}</option>`).join("");
+      $("aDate").value = new Date().toISOString().slice(0, 10);
+      if (!lines.length) addLine();
+      await refresh();
+    }
+
+    async function refresh() {
+      projects = await fetch("/api/actuals").then((r) => r.json());
+      const totalContract = projects.reduce((s, p) => s + (p.contractPrice || 0), 0);
+      const totalCost = projects.reduce((s, p) => s + (p.actualCost || 0), 0);
+      const calibrated = book.items.filter((i) => i.calibration).length;
+      $("metrics").innerHTML = [
+        [projects.length, "Projects logged"],
+        [money(totalContract), "Contract value"],
+        [money(totalContract - totalCost), "Gross margin"],
+        [(totalContract ? Math.round(((totalContract - totalCost) / totalContract) * 100) : 0) + "%", "Avg margin"],
+        [calibrated, "Book items calibrated"]
+      ].map(([v, l]) => `<div class="metric"><b>${v}</b><span>${l}</span></div>`).join("");
+
+      $("projList").innerHTML = projects.length ? projects.map((p) => `
+        <details class="proj">
+          <summary>
+            <span><b>${esc(p.projectName)}</b> <span class="muted">${esc(p.projectType)} · ${esc(p.completedAt)}</span></span>
+            <span>${money(p.contractPrice)} <span class="muted">-</span> ${money(p.actualCost)} <span class="muted">cost =</span>
+              <span class="pill ${p.marginPercent >= 25 ? "green" : p.marginPercent >= 12 ? "amber" : "red"}">${p.marginPercent}% GM</span></span>
+          </summary>
+          <div class="body">
+            <table><thead><tr><th>Line</th><th class="num">Qty</th><th class="num">Actual</th><th class="num">$/unit</th><th>Sub</th></tr></thead><tbody>
+              ${(p.lines || []).map((l) => `<tr><td>${esc(l.description)}${l.costbookId ? ' <span class="pill green" title="calibrates the book">linked</span>' : ""}</td><td class="num">${l.qty} ${esc(l.unit)}</td><td class="num">${money(l.actualTotal)}</td><td class="num">${money(l.actualUnit)}</td><td>${esc(l.subName)}</td></tr>`).join("")}
+            </tbody></table>
+            <div class="row" style="margin-top:0.5rem">
+              <button class="btn" onclick="editProject('${p.id}')">Edit</button>
+              <button class="btn" style="color:var(--red)" onclick="delProject('${p.id}')">Delete</button>
+              ${p.notes ? `<span class="muted" style="align-self:center;font-size:0.76rem">${esc(p.notes)}</span>` : ""}
+            </div>
+          </div>
+        </details>`).join("") : "No projects yet. Log the first one after closeout - it takes 2 minutes and makes every future estimate smarter.";
+
+      const cal = await fetch("/api/estimator/calibration").then((r) => r.json());
+      const withObs = (cal.items || []).filter((i) => i.count > 0);
+      $("calRows").innerHTML = withObs.length ? withObs.map((i) => `
+        <tr>
+          <td><input type="checkbox" data-cal="${i.id}" ${i.changed ? "checked" : ""} style="min-height:auto;width:auto" /></td>
+          <td>${esc(i.description)}${i.calibration ? ` <span class="pill green">cal n=${i.calibration.n}</span>` : ""}<br /><span class="muted" style="font-size:0.7rem">${esc((i.projects || []).join(", "))}</span></td>
+          <td class="num">${money(i.bookLow)}-${money(i.bookHigh)}<br /><span class="muted">/${esc(i.unit)}</span></td>
+          <td class="num">${money(i.obsMin)}-${money(i.obsMax)}<br /><span class="muted">med ${money(i.obsMedian)} (n=${i.count})</span></td>
+          <td class="num"><b>${money(i.suggestedLow)}-${money(i.suggestedHigh)}</b>${i.changed ? "" : '<br /><span class="muted">no change</span>'}</td>
+        </tr>`).join("") : '<tr><td colspan="5" class="muted">No linked observations yet - log projects with cost-book-linked lines and suggestions appear here.</td></tr>';
+    }
+
+    // line editor
+    function addLine(preset = {}) {
+      lines.push({ id: crypto.randomUUID(), costbookId: preset.costbookId || "", description: preset.description || "", qty: preset.qty || 1, unit: preset.unit || "job", actualTotal: preset.actualTotal || 0, subName: preset.subName || "" });
+      renderLines();
+    }
+    function renderLines() {
+      $("aLines").innerHTML = lines.map((l, i) => `
+        <tr data-i="${i}">
+          <td><select data-k="costbookId"><option value="">- unlinked -</option>${book.items.map((b) => `<option value="${b.id}" ${l.costbookId === b.id ? "selected" : ""}>${esc(b.description)}</option>`).join("")}</select></td>
+          <td><input data-k="description" value="${esc(l.description)}" placeholder="what was done" /></td>
+          <td><input data-k="qty" type="number" step="any" value="${l.qty}" /></td>
+          <td><input data-k="unit" value="${esc(l.unit)}" /></td>
+          <td><input data-k="actualTotal" type="number" step="any" value="${l.actualTotal}" /></td>
+          <td><input data-k="subName" value="${esc(l.subName)}" placeholder="who did it" /></td>
+          <td class="num">${l.qty ? money(l.actualTotal / l.qty) : "-"}</td>
+          <td><span class="del" data-del="${i}">×</span></td>
+        </tr>`).join("");
+      $("aTotal").textContent = money(lines.reduce((s, l) => s + Number(l.actualTotal || 0), 0));
+    }
+    $("aLines").addEventListener("input", (e) => {
+      const tr = e.target.closest("tr"); if (!tr) return;
+      const line = lines[Number(tr.dataset.i)];
+      const key = e.target.dataset.k;
+      line[key] = ["qty", "actualTotal"].includes(key) ? Number(e.target.value || 0) : e.target.value;
+      if (key === "costbookId" && line.costbookId) {
+        const b = book.items.find((x) => x.id === line.costbookId);
+        if (b) { if (!line.description) line.description = b.description; line.unit = b.unit; }
+      }
+      renderLines();
+    });
+    $("aLines").addEventListener("click", (e) => { if (e.target.dataset.del !== undefined) { lines.splice(Number(e.target.dataset.del), 1); renderLines(); } });
+    $("addLine").addEventListener("click", () => addLine());
+
+    $("aEstimate").addEventListener("change", () => {
+      const est = estimates.find((x) => x.id === $("aEstimate").value);
+      if (!est) return;
+      lines = (est.lines || []).map((l) => ({ id: crypto.randomUUID(), costbookId: l.costbookId || "", description: l.description, qty: l.qty, unit: l.unit, actualTotal: 0, subName: "" }));
+      if (!$("aName").value) $("aName").value = est.title;
+      renderLines();
+    });
+
+    $("aSave").addEventListener("click", async () => {
+      const body = JSON.stringify({
+        projectName: $("aName").value, projectType: $("aType").value, city: $("aCity").value,
+        completedAt: $("aDate").value, sqft: Number($("aSqft").value || 0), contractPrice: Number($("aPrice").value || 0),
+        estimateId: $("aEstimate").value, lines: lines.filter((l) => l.description || l.actualTotal)
+      });
+      const opts = { headers: { "Content-Type": "application/json" }, body };
+      const res = editId ? await fetch(`/api/actuals/${editId}`, { method: "PUT", ...opts }) : await fetch("/api/actuals", { method: "POST", ...opts });
+      const data = await res.json();
+      $("aStatus").textContent = data.error || `Saved - ${data.marginPercent}% gross margin.`;
+      if (!data.error) { clearForm(); await refresh(); }
+    });
+    function clearForm() {
+      editId = null; lines = []; addLine();
+      ["aName","aType","aCity","aSqft","aPrice"].forEach((id) => $(id).value = "");
+      $("aEstimate").value = ""; $("aDate").value = new Date().toISOString().slice(0, 10);
+      $("formTitle").textContent = "Log a completed project";
+    }
+    $("aNew").addEventListener("click", clearForm);
+
+    window.editProject = (id) => {
+      const p = projects.find((x) => x.id === id); if (!p) return;
+      editId = id;
+      $("formTitle").textContent = `Editing: ${p.projectName}`;
+      $("aName").value = p.projectName; $("aType").value = p.projectType; $("aCity").value = p.city;
+      $("aDate").value = p.completedAt; $("aSqft").value = p.sqft || ""; $("aPrice").value = p.contractPrice || "";
+      lines = (p.lines || []).map((l) => ({ ...l }));
+      renderLines();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+    window.delProject = async (id) => {
+      if (!confirm("Delete this project record?")) return;
+      await fetch(`/api/actuals/${id}`, { method: "DELETE" });
+      await refresh();
+    };
+
+    $("calApply").addEventListener("click", async () => {
+      const ids = [...document.querySelectorAll("[data-cal]:checked")].map((el) => el.dataset.cal);
+      if (!ids.length) { $("calStatus").textContent = "Nothing selected."; return; }
+      if (!confirm(`Rewrite ${ids.length} cost-book range(s) with your actuals? A backup is saved to costbook.backup.json.`)) return;
+      const res = await fetch("/api/estimator/calibrate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ itemIds: ids }) });
+      const data = await res.json();
+      $("calStatus").textContent = data.error || `Applied ${data.applied.length} item(s). Estimator + public widget now use the new ranges.`;
+      book = await fetch("/api/estimator/costbook").then((r) => r.json());
+      await refresh();
+    });
+
+    init();
+  </script>
+</body>
+</html>

@@ -3,158 +3,1260 @@
   "region": "Los Angeles / SoCal",
   "disclaimer": "Planning ranges for LA market, contractor all-in (labor+material) unless noted. All figures [EST] - validate against sub quotes before fixed bids. Edit this file to tune the book.",
   "items": [
-    { "id": "kit-demo", "service": "Kitchen Remodeling", "trade": "Demolition & Grading", "description": "Kitchen demo + haul-off (cabinets, counters, flooring)", "unit": "job", "low": 1500, "high": 3500 },
-    { "id": "kit-cab-supply", "service": "Kitchen Remodeling", "trade": "Cabinetry and millwork", "description": "Cabinets - RTA/semi-custom supply (10x12 kitchen)", "unit": "job", "low": 6000, "high": 15000 },
-    { "id": "kit-cab-install", "service": "Kitchen Remodeling", "trade": "Cabinetry and millwork", "description": "Cabinet installation", "unit": "job", "low": 2000, "high": 4500 },
-    { "id": "kit-counter", "service": "Kitchen Remodeling", "trade": "Countertops & Stone Fabrication", "description": "Quartz countertops fabricated + installed", "unit": "sqft", "low": 70, "high": 120 },
-    { "id": "kit-backsplash", "service": "Kitchen Remodeling", "trade": "Tile and waterproofing", "description": "Backsplash tile installed", "unit": "sqft", "low": 18, "high": 40 },
-    { "id": "kit-plumb", "service": "Kitchen Remodeling", "trade": "Plumbing", "description": "Plumbing relocation + rough (sink/DW/fridge lines)", "unit": "job", "low": 2500, "high": 6000 },
-    { "id": "kit-sink", "service": "Kitchen Remodeling", "trade": "Plumbing", "description": "Sink + faucet + disposal install (fixtures excluded)", "unit": "job", "low": 450, "high": 900 },
-    { "id": "kit-elec", "service": "Kitchen Remodeling", "trade": "Electrical", "description": "Kitchen electrical (recessed cans, dedicated circuits, under-cabinet)", "unit": "job", "low": 2500, "high": 5500 },
-    { "id": "kit-drywall", "service": "Kitchen Remodeling", "trade": "Drywall and framing", "description": "Drywall patch + texture + paint (kitchen)", "unit": "job", "low": 1200, "high": 2800 },
-    { "id": "appl-install", "service": "Kitchen Remodeling", "trade": "Kitchen and bath remodels", "description": "Appliance installation (range/hood/DW/fridge set)", "unit": "job", "low": 500, "high": 1200 },
-    { "id": "bath-demo", "service": "Bathroom Renovations", "trade": "Demolition & Grading", "description": "Bathroom demo + haul-off", "unit": "job", "low": 1000, "high": 2200 },
-    { "id": "bath-pan", "service": "Bathroom Renovations", "trade": "Tile and waterproofing", "description": "Shower pan + waterproofing (Schluter/hot mop)", "unit": "job", "low": 1800, "high": 3500 },
-    { "id": "bath-tile", "service": "Bathroom Renovations", "trade": "Tile and waterproofing", "description": "Shower walls + niche tile installed", "unit": "job", "low": 2500, "high": 6000 },
-    { "id": "bath-glass", "service": "Bathroom Renovations", "trade": "Glass & Glazing", "description": "Frameless glass shower enclosure", "unit": "job", "low": 1200, "high": 2800 },
-    { "id": "bath-vanity", "service": "Bathroom Renovations", "trade": "Cabinetry and millwork", "description": "Vanity + top supply and install", "unit": "job", "low": 1200, "high": 3500 },
-    { "id": "bath-plumb", "service": "Bathroom Renovations", "trade": "Plumbing", "description": "Bath plumbing - valves, trim, relocation", "unit": "job", "low": 1800, "high": 4000 },
-    { "id": "bath-toilet", "service": "Bathroom Renovations", "trade": "Plumbing", "description": "Toilet supplied + installed", "unit": "ea", "low": 350, "high": 700 },
-    { "id": "bath-elec", "service": "Bathroom Renovations", "trade": "Electrical", "description": "Bath electrical (fan, GFCI, vanity lighting)", "unit": "job", "low": 900, "high": 2000 },
-    { "id": "bath-floor", "service": "Bathroom Renovations", "trade": "Tile and waterproofing", "description": "Bathroom floor tile installed", "unit": "job", "low": 1000, "high": 2500 },
-    { "id": "bath-paint", "service": "Bathroom Renovations", "trade": "Painting", "description": "Bathroom paint", "unit": "job", "low": 400, "high": 900 },
-    { "id": "adu-garage", "service": "ADU & Home Additions", "trade": "Full home renovations", "description": "Garage conversion ADU - full build", "unit": "sqft", "low": 95, "high": 160 },
-    { "id": "adu-detached", "service": "ADU & Home Additions", "trade": "Full home renovations", "description": "Detached new-build ADU", "unit": "sqft", "low": 280, "high": 420 },
-    { "id": "adu-addition", "service": "ADU & Home Additions", "trade": "Full home renovations", "description": "Attached room addition", "unit": "sqft", "low": 320, "high": 500 },
-    { "id": "adu-plans", "service": "ADU & Home Additions", "trade": "Architecture & Design", "description": "Plans + engineering + city fees allowance (ADU)", "unit": "job", "low": 15000, "high": 35000 },
-    { "id": "roof-comp", "service": "Roofing", "trade": "Roofing", "description": "Tear-off + comp shingle reroof", "unit": "square", "low": 450, "high": 700 },
-    { "id": "roof-tile-relay", "service": "Roofing", "trade": "Roofing", "description": "Tile lift + relay w/ new underlayment", "unit": "square", "low": 800, "high": 1400 },
-    { "id": "roof-flat", "service": "Roofing", "trade": "Roofing", "description": "Flat roof TPO/torch-down", "unit": "square", "low": 700, "high": 1100 },
-    { "id": "roof-sheath", "service": "Roofing", "trade": "Roofing", "description": "Plywood re-sheathing (add)", "unit": "sheet", "low": 90, "high": 160 },
-    { "id": "paint-int", "service": "Interior & Exterior Painting", "trade": "Painting", "description": "Interior repaint (walls/ceilings/trim)", "unit": "sqft floor", "low": 2.5, "high": 4.5 },
-    { "id": "paint-ext", "service": "Interior & Exterior Painting", "trade": "Painting", "description": "Exterior repaint (stucco/wood, prep incl.)", "unit": "sqft floor", "low": 3, "high": 5 },
-    { "id": "elec-panel", "service": "Electrical Panel Upgrades", "trade": "Electrical", "description": "200A panel upgrade incl. permit", "unit": "job", "low": 3200, "high": 6000 },
-    { "id": "elec-rewire", "service": "Electrical Panel Upgrades", "trade": "Electrical", "description": "Whole-house rewire", "unit": "sqft", "low": 8, "high": 13 },
-    { "id": "elec-can", "service": "Electrical Panel Upgrades", "trade": "Electrical", "description": "Recessed LED light installed", "unit": "ea", "low": 150, "high": 250 },
-    { "id": "elec-ev", "service": "Electrical Panel Upgrades", "trade": "Electrical", "description": "EV charger circuit + install", "unit": "job", "low": 900, "high": 2200 },
-    { "id": "plumb-repipe", "service": "Plumbing", "trade": "Plumbing", "description": "PEX whole-house repipe (2-bath house)", "unit": "job", "low": 6500, "high": 12000 },
-    { "id": "plumb-wh", "service": "Plumbing", "trade": "Plumbing", "description": "Water heater replacement (tank)", "unit": "job", "low": 1800, "high": 3200 },
-    { "id": "plumb-tankless", "service": "Plumbing", "trade": "Plumbing", "description": "Tankless water heater conversion", "unit": "job", "low": 3500, "high": 6500 },
-    { "id": "plumb-sewer", "service": "Plumbing", "trade": "Plumbing", "description": "Sewer line spot repair", "unit": "job", "low": 3000, "high": 8000 },
-    { "id": "hvac-split", "service": "HVAC", "trade": "HVAC", "description": "Ducted split system replacement (3-4 ton)", "unit": "job", "low": 9000, "high": 16000 },
-    { "id": "hvac-mini", "service": "HVAC", "trade": "HVAC", "description": "Mini-split single zone installed", "unit": "job", "low": 4000, "high": 7000 },
-    { "id": "hvac-duct", "service": "HVAC", "trade": "HVAC", "description": "Full ductwork replacement", "unit": "job", "low": 4000, "high": 8000 },
-    { "id": "floor-lvp", "service": "Flooring", "trade": "Flooring", "description": "LVP supplied + installed", "unit": "sqft", "low": 5.5, "high": 9 },
-    { "id": "floor-hw", "service": "Flooring", "trade": "Flooring", "description": "Engineered hardwood supplied + installed", "unit": "sqft", "low": 9, "high": 16 },
-    { "id": "floor-refinish", "service": "Flooring", "trade": "Flooring", "description": "Hardwood sand + refinish", "unit": "sqft", "low": 4, "high": 7 },
-    { "id": "floor-tile", "service": "Flooring", "trade": "Tile and waterproofing", "description": "Floor tile supplied + installed", "unit": "sqft", "low": 10, "high": 18 },
-    { "id": "drywall-new", "service": "Whole Home Remodeling", "trade": "Drywall and framing", "description": "Drywall hang + tape + texture", "unit": "sqft wall", "low": 2.8, "high": 4.5 },
-    { "id": "window-retrofit", "service": "Windows & Doors", "trade": "Windows and doors", "description": "Retrofit vinyl window installed", "unit": "opening", "low": 650, "high": 1100 },
-    { "id": "door-patio", "service": "Windows & Doors", "trade": "Windows and doors", "description": "Sliding patio door replaced", "unit": "job", "low": 1800, "high": 3500 },
-    { "id": "stucco-patch", "service": "Whole Home Remodeling", "trade": "Stucco & Plastering", "description": "Stucco patch + color match", "unit": "sqft", "low": 8, "high": 15 },
-    { "id": "concrete-flat", "service": "Hardscaping", "trade": "Concrete and hardscape", "description": "Concrete flatwork (driveway/patio)", "unit": "sqft", "low": 9, "high": 15 },
-    { "id": "wall-retaining", "service": "Hardscaping", "trade": "Masonry & Hardscape", "description": "CMU retaining wall (~3ft)", "unit": "LF", "low": 250, "high": 450 },
-    { "id": "turf-install", "service": "Outdoor Living", "trade": "Turf & Synthetic Grass", "description": "Artificial turf supplied + installed", "unit": "sqft", "low": 9, "high": 14 },
-    { "id": "fence-wood", "service": "Outdoor Living", "trade": "Fencing & Gates", "description": "Wood fence installed", "unit": "LF", "low": 45, "high": 75 },
-    { "id": "fence-vinyl", "service": "Outdoor Living", "trade": "Fencing & Gates", "description": "Vinyl fence installed", "unit": "LF", "low": 55, "high": 90 },
-    { "id": "found-bolt", "service": "Foundation Services", "trade": "Foundation & Retrofit", "description": "Earthquake brace + bolt (EBB scope)", "unit": "job", "low": 3500, "high": 7000 },
-    { "id": "found-cripple", "service": "Foundation Services", "trade": "Foundation & Retrofit", "description": "Cripple wall bracing + bolting", "unit": "job", "low": 5000, "high": 12000 },
-    { "id": "deck-coat", "service": "Whole Home Remodeling", "trade": "Waterproofing & Deck Coating", "description": "Deck/balcony waterproof coating system", "unit": "sqft", "low": 14, "high": 25 },
-    { "id": "demo-int", "service": "Whole Home Remodeling", "trade": "Demolition & Grading", "description": "Interior non-structural demo", "unit": "sqft", "low": 4, "high": 8 },
-    { "id": "dumpster", "service": "Whole Home Remodeling", "trade": "Demolition & Grading", "description": "Dumpster / haul-off", "unit": "ea", "low": 450, "high": 700 },
-    { "id": "insul-attic", "service": "Whole Home Remodeling", "trade": "Insulation", "description": "Attic insulation blow-in R-38", "unit": "sqft", "low": 1.8, "high": 3 },
-    { "id": "garage-door", "service": "Whole Home Remodeling", "trade": "Garage Doors", "description": "2-car garage door replaced + opener", "unit": "job", "low": 1800, "high": 3800 },
-    { "id": "gutters", "service": "Roofing", "trade": "Rain Gutters", "description": "Seamless aluminum gutters + downspouts", "unit": "LF", "low": 12, "high": 20 },
-    { "id": "solar-pv", "service": "Solar Installations", "trade": "Solar and electrical storage", "description": "Rooftop solar PV installed", "unit": "watt", "low": 2.6, "high": 3.4 },
-    { "id": "pool-replaster", "service": "Pool Builder", "trade": "Pool Construction", "description": "Pool replaster (quartz/pebble)", "unit": "job", "low": 12000, "high": 18000 },
-    { "id": "permits-minor", "service": "Whole Home Remodeling", "trade": "Architecture & Design", "description": "Permits + plan check allowance (minor remodel)", "unit": "job", "low": 800, "high": 2500 },
-    { "id": "final-clean", "service": "Whole Home Remodeling", "trade": "Handyman Services", "description": "Final construction clean", "unit": "job", "low": 400, "high": 800 },
-    { "id": "pm-fee", "service": "Whole Home Remodeling", "trade": "General", "description": "Supervision / project management", "unit": "pct-of-subtotal", "low": 8, "high": 12 }
+    {
+      "id": "kit-demo",
+      "service": "Kitchen Remodeling",
+      "trade": "Demolition & Grading",
+      "description": "Kitchen demo + haul-off (cabinets, counters, flooring)",
+      "unit": "job",
+      "low": 1500,
+      "high": 3500
+    },
+    {
+      "id": "kit-cab-supply",
+      "service": "Kitchen Remodeling",
+      "trade": "Cabinetry and millwork",
+      "description": "Cabinets - RTA/semi-custom supply (10x12 kitchen)",
+      "unit": "job",
+      "low": 6000,
+      "high": 15000
+    },
+    {
+      "id": "kit-cab-install",
+      "service": "Kitchen Remodeling",
+      "trade": "Cabinetry and millwork",
+      "description": "Cabinet installation",
+      "unit": "job",
+      "low": 2000,
+      "high": 4500
+    },
+    {
+      "id": "kit-counter",
+      "service": "Kitchen Remodeling",
+      "trade": "Countertops & Stone Fabrication",
+      "description": "Quartz countertops fabricated + installed",
+      "unit": "sqft",
+      "low": 70,
+      "high": 120
+    },
+    {
+      "id": "kit-backsplash",
+      "service": "Kitchen Remodeling",
+      "trade": "Tile and waterproofing",
+      "description": "Backsplash tile installed",
+      "unit": "sqft",
+      "low": 18,
+      "high": 40
+    },
+    {
+      "id": "kit-plumb",
+      "service": "Kitchen Remodeling",
+      "trade": "Plumbing",
+      "description": "Plumbing relocation + rough (sink/DW/fridge lines)",
+      "unit": "job",
+      "low": 2500,
+      "high": 6000
+    },
+    {
+      "id": "kit-sink",
+      "service": "Kitchen Remodeling",
+      "trade": "Plumbing",
+      "description": "Sink + faucet + disposal install (fixtures excluded)",
+      "unit": "job",
+      "low": 450,
+      "high": 900
+    },
+    {
+      "id": "kit-elec",
+      "service": "Kitchen Remodeling",
+      "trade": "Electrical",
+      "description": "Kitchen electrical (recessed cans, dedicated circuits, under-cabinet)",
+      "unit": "job",
+      "low": 2500,
+      "high": 5500
+    },
+    {
+      "id": "kit-drywall",
+      "service": "Kitchen Remodeling",
+      "trade": "Drywall and framing",
+      "description": "Drywall patch + texture + paint (kitchen)",
+      "unit": "job",
+      "low": 1200,
+      "high": 2800
+    },
+    {
+      "id": "appl-install",
+      "service": "Kitchen Remodeling",
+      "trade": "Kitchen and bath remodels",
+      "description": "Appliance installation (range/hood/DW/fridge set)",
+      "unit": "job",
+      "low": 500,
+      "high": 1200
+    },
+    {
+      "id": "bath-demo",
+      "service": "Bathroom Renovations",
+      "trade": "Demolition & Grading",
+      "description": "Bathroom demo + haul-off",
+      "unit": "job",
+      "low": 1000,
+      "high": 2200
+    },
+    {
+      "id": "bath-pan",
+      "service": "Bathroom Renovations",
+      "trade": "Tile and waterproofing",
+      "description": "Shower pan + waterproofing (Schluter/hot mop)",
+      "unit": "job",
+      "low": 1800,
+      "high": 3500
+    },
+    {
+      "id": "bath-tile",
+      "service": "Bathroom Renovations",
+      "trade": "Tile and waterproofing",
+      "description": "Shower walls + niche tile installed",
+      "unit": "job",
+      "low": 2500,
+      "high": 6000
+    },
+    {
+      "id": "bath-glass",
+      "service": "Bathroom Renovations",
+      "trade": "Glass & Glazing",
+      "description": "Frameless glass shower enclosure",
+      "unit": "job",
+      "low": 1200,
+      "high": 2800
+    },
+    {
+      "id": "bath-vanity",
+      "service": "Bathroom Renovations",
+      "trade": "Cabinetry and millwork",
+      "description": "Vanity + top supply and install",
+      "unit": "job",
+      "low": 1200,
+      "high": 3500
+    },
+    {
+      "id": "bath-plumb",
+      "service": "Bathroom Renovations",
+      "trade": "Plumbing",
+      "description": "Bath plumbing - valves, trim, relocation",
+      "unit": "job",
+      "low": 1800,
+      "high": 4000
+    },
+    {
+      "id": "bath-toilet",
+      "service": "Bathroom Renovations",
+      "trade": "Plumbing",
+      "description": "Toilet supplied + installed",
+      "unit": "ea",
+      "low": 350,
+      "high": 700
+    },
+    {
+      "id": "bath-elec",
+      "service": "Bathroom Renovations",
+      "trade": "Electrical",
+      "description": "Bath electrical (fan, GFCI, vanity lighting)",
+      "unit": "job",
+      "low": 900,
+      "high": 2000
+    },
+    {
+      "id": "bath-floor",
+      "service": "Bathroom Renovations",
+      "trade": "Tile and waterproofing",
+      "description": "Bathroom floor tile installed",
+      "unit": "job",
+      "low": 1000,
+      "high": 2500
+    },
+    {
+      "id": "bath-paint",
+      "service": "Bathroom Renovations",
+      "trade": "Painting",
+      "description": "Bathroom paint",
+      "unit": "job",
+      "low": 400,
+      "high": 900
+    },
+    {
+      "id": "adu-garage",
+      "service": "ADU & Home Additions",
+      "trade": "Full home renovations",
+      "description": "Garage conversion ADU - full build",
+      "unit": "sqft",
+      "low": 95,
+      "high": 160
+    },
+    {
+      "id": "adu-detached",
+      "service": "ADU & Home Additions",
+      "trade": "Full home renovations",
+      "description": "Detached new-build ADU",
+      "unit": "sqft",
+      "low": 280,
+      "high": 420
+    },
+    {
+      "id": "adu-addition",
+      "service": "ADU & Home Additions",
+      "trade": "Full home renovations",
+      "description": "Attached room addition",
+      "unit": "sqft",
+      "low": 320,
+      "high": 500
+    },
+    {
+      "id": "adu-plans",
+      "service": "ADU & Home Additions",
+      "trade": "Architecture & Design",
+      "description": "Plans + engineering + city fees allowance (ADU)",
+      "unit": "job",
+      "low": 15000,
+      "high": 35000
+    },
+    {
+      "id": "roof-comp",
+      "service": "Roofing",
+      "trade": "Roofing",
+      "description": "Tear-off + comp shingle reroof",
+      "unit": "square",
+      "low": 450,
+      "high": 700
+    },
+    {
+      "id": "roof-tile-relay",
+      "service": "Roofing",
+      "trade": "Roofing",
+      "description": "Tile lift + relay w/ new underlayment",
+      "unit": "square",
+      "low": 800,
+      "high": 1400
+    },
+    {
+      "id": "roof-flat",
+      "service": "Roofing",
+      "trade": "Roofing",
+      "description": "Flat roof TPO/torch-down",
+      "unit": "square",
+      "low": 700,
+      "high": 1100
+    },
+    {
+      "id": "roof-sheath",
+      "service": "Roofing",
+      "trade": "Roofing",
+      "description": "Plywood re-sheathing (add)",
+      "unit": "sheet",
+      "low": 90,
+      "high": 160
+    },
+    {
+      "id": "paint-int",
+      "service": "Interior & Exterior Painting",
+      "trade": "Painting",
+      "description": "Interior repaint (walls/ceilings/trim)",
+      "unit": "sqft floor",
+      "low": 2.5,
+      "high": 4.5
+    },
+    {
+      "id": "paint-ext",
+      "service": "Interior & Exterior Painting",
+      "trade": "Painting",
+      "description": "Exterior repaint (stucco/wood, prep incl.)",
+      "unit": "sqft floor",
+      "low": 3,
+      "high": 5
+    },
+    {
+      "id": "elec-panel",
+      "service": "Electrical Panel Upgrades",
+      "trade": "Electrical",
+      "description": "200A panel upgrade incl. permit",
+      "unit": "job",
+      "low": 3200,
+      "high": 6000
+    },
+    {
+      "id": "elec-rewire",
+      "service": "Electrical Panel Upgrades",
+      "trade": "Electrical",
+      "description": "Whole-house rewire",
+      "unit": "sqft",
+      "low": 8,
+      "high": 13
+    },
+    {
+      "id": "elec-can",
+      "service": "Electrical Panel Upgrades",
+      "trade": "Electrical",
+      "description": "Recessed LED light installed",
+      "unit": "ea",
+      "low": 150,
+      "high": 250
+    },
+    {
+      "id": "elec-ev",
+      "service": "Electrical Panel Upgrades",
+      "trade": "Electrical",
+      "description": "EV charger circuit + install",
+      "unit": "job",
+      "low": 900,
+      "high": 2200
+    },
+    {
+      "id": "plumb-repipe",
+      "service": "Plumbing",
+      "trade": "Plumbing",
+      "description": "PEX whole-house repipe (2-bath house)",
+      "unit": "job",
+      "low": 6500,
+      "high": 12000
+    },
+    {
+      "id": "plumb-wh",
+      "service": "Plumbing",
+      "trade": "Plumbing",
+      "description": "Water heater replacement (tank)",
+      "unit": "job",
+      "low": 1800,
+      "high": 3200
+    },
+    {
+      "id": "plumb-tankless",
+      "service": "Plumbing",
+      "trade": "Plumbing",
+      "description": "Tankless water heater conversion",
+      "unit": "job",
+      "low": 3500,
+      "high": 6500
+    },
+    {
+      "id": "plumb-sewer",
+      "service": "Plumbing",
+      "trade": "Plumbing",
+      "description": "Sewer line spot repair",
+      "unit": "job",
+      "low": 3000,
+      "high": 8000
+    },
+    {
+      "id": "hvac-split",
+      "service": "HVAC",
+      "trade": "HVAC",
+      "description": "Ducted split system replacement (3-4 ton)",
+      "unit": "job",
+      "low": 9000,
+      "high": 16000
+    },
+    {
+      "id": "hvac-mini",
+      "service": "HVAC",
+      "trade": "HVAC",
+      "description": "Mini-split single zone installed",
+      "unit": "job",
+      "low": 4000,
+      "high": 7000
+    },
+    {
+      "id": "hvac-duct",
+      "service": "HVAC",
+      "trade": "HVAC",
+      "description": "Full ductwork replacement",
+      "unit": "job",
+      "low": 4000,
+      "high": 8000
+    },
+    {
+      "id": "floor-lvp",
+      "service": "Flooring",
+      "trade": "Flooring",
+      "description": "LVP supplied + installed",
+      "unit": "sqft",
+      "low": 5.5,
+      "high": 9
+    },
+    {
+      "id": "floor-hw",
+      "service": "Flooring",
+      "trade": "Flooring",
+      "description": "Engineered hardwood supplied + installed",
+      "unit": "sqft",
+      "low": 9,
+      "high": 16
+    },
+    {
+      "id": "floor-refinish",
+      "service": "Flooring",
+      "trade": "Flooring",
+      "description": "Hardwood sand + refinish",
+      "unit": "sqft",
+      "low": 4,
+      "high": 7
+    },
+    {
+      "id": "floor-tile",
+      "service": "Flooring",
+      "trade": "Tile and waterproofing",
+      "description": "Floor tile supplied + installed",
+      "unit": "sqft",
+      "low": 10,
+      "high": 18
+    },
+    {
+      "id": "drywall-new",
+      "service": "Whole Home Remodeling",
+      "trade": "Drywall and framing",
+      "description": "Drywall hang + tape + texture",
+      "unit": "sqft wall",
+      "low": 2.8,
+      "high": 4.5
+    },
+    {
+      "id": "window-retrofit",
+      "service": "Windows & Doors",
+      "trade": "Windows and doors",
+      "description": "Retrofit vinyl window installed",
+      "unit": "opening",
+      "low": 650,
+      "high": 1100
+    },
+    {
+      "id": "door-patio",
+      "service": "Windows & Doors",
+      "trade": "Windows and doors",
+      "description": "Sliding patio door replaced",
+      "unit": "job",
+      "low": 1800,
+      "high": 3500
+    },
+    {
+      "id": "stucco-patch",
+      "service": "Whole Home Remodeling",
+      "trade": "Stucco & Plastering",
+      "description": "Stucco patch + color match",
+      "unit": "sqft",
+      "low": 8,
+      "high": 15
+    },
+    {
+      "id": "concrete-flat",
+      "service": "Hardscaping",
+      "trade": "Concrete and hardscape",
+      "description": "Concrete flatwork (driveway/patio)",
+      "unit": "sqft",
+      "low": 9,
+      "high": 15
+    },
+    {
+      "id": "wall-retaining",
+      "service": "Hardscaping",
+      "trade": "Masonry & Hardscape",
+      "description": "CMU retaining wall (~3ft)",
+      "unit": "LF",
+      "low": 250,
+      "high": 450
+    },
+    {
+      "id": "turf-install",
+      "service": "Outdoor Living",
+      "trade": "Turf & Synthetic Grass",
+      "description": "Artificial turf supplied + installed",
+      "unit": "sqft",
+      "low": 9,
+      "high": 14
+    },
+    {
+      "id": "fence-wood",
+      "service": "Outdoor Living",
+      "trade": "Fencing & Gates",
+      "description": "Wood fence installed",
+      "unit": "LF",
+      "low": 45,
+      "high": 75
+    },
+    {
+      "id": "fence-vinyl",
+      "service": "Outdoor Living",
+      "trade": "Fencing & Gates",
+      "description": "Vinyl fence installed",
+      "unit": "LF",
+      "low": 55,
+      "high": 90
+    },
+    {
+      "id": "found-bolt",
+      "service": "Foundation Services",
+      "trade": "Foundation & Retrofit",
+      "description": "Earthquake brace + bolt (EBB scope)",
+      "unit": "job",
+      "low": 3500,
+      "high": 7000
+    },
+    {
+      "id": "found-cripple",
+      "service": "Foundation Services",
+      "trade": "Foundation & Retrofit",
+      "description": "Cripple wall bracing + bolting",
+      "unit": "job",
+      "low": 5000,
+      "high": 12000
+    },
+    {
+      "id": "deck-coat",
+      "service": "Whole Home Remodeling",
+      "trade": "Waterproofing & Deck Coating",
+      "description": "Deck/balcony waterproof coating system",
+      "unit": "sqft",
+      "low": 14,
+      "high": 25
+    },
+    {
+      "id": "demo-int",
+      "service": "Whole Home Remodeling",
+      "trade": "Demolition & Grading",
+      "description": "Interior non-structural demo",
+      "unit": "sqft",
+      "low": 4,
+      "high": 8
+    },
+    {
+      "id": "dumpster",
+      "service": "Whole Home Remodeling",
+      "trade": "Demolition & Grading",
+      "description": "Dumpster / haul-off",
+      "unit": "ea",
+      "low": 450,
+      "high": 700
+    },
+    {
+      "id": "insul-attic",
+      "service": "Whole Home Remodeling",
+      "trade": "Insulation",
+      "description": "Attic insulation blow-in R-38",
+      "unit": "sqft",
+      "low": 1.8,
+      "high": 3
+    },
+    {
+      "id": "garage-door",
+      "service": "Whole Home Remodeling",
+      "trade": "Garage Doors",
+      "description": "2-car garage door replaced + opener",
+      "unit": "job",
+      "low": 1800,
+      "high": 3800
+    },
+    {
+      "id": "gutters",
+      "service": "Roofing",
+      "trade": "Rain Gutters",
+      "description": "Seamless aluminum gutters + downspouts",
+      "unit": "LF",
+      "low": 12,
+      "high": 20
+    },
+    {
+      "id": "solar-pv",
+      "service": "Solar Installations",
+      "trade": "Solar and electrical storage",
+      "description": "Rooftop solar PV installed",
+      "unit": "watt",
+      "low": 2.6,
+      "high": 3.4
+    },
+    {
+      "id": "pool-replaster",
+      "service": "Pool Builder",
+      "trade": "Pool Construction",
+      "description": "Pool replaster (quartz/pebble)",
+      "unit": "job",
+      "low": 12000,
+      "high": 18000
+    },
+    {
+      "id": "permits-minor",
+      "service": "Whole Home Remodeling",
+      "trade": "Architecture & Design",
+      "description": "Permits + plan check allowance (minor remodel)",
+      "unit": "job",
+      "low": 800,
+      "high": 2500
+    },
+    {
+      "id": "final-clean",
+      "service": "Whole Home Remodeling",
+      "trade": "Handyman Services",
+      "description": "Final construction clean",
+      "unit": "job",
+      "low": 400,
+      "high": 800
+    },
+    {
+      "id": "pm-fee",
+      "service": "Whole Home Remodeling",
+      "trade": "General",
+      "description": "Supervision / project management",
+      "unit": "pct-of-subtotal",
+      "low": 8,
+      "high": 12
+    }
   ],
   "publicEstimator": {
     "finishLevels": [
-      { "key": "basic", "label": "Basic / builder-grade", "factor": 0.85 },
-      { "key": "mid", "label": "Mid-range", "factor": 1.0 },
-      { "key": "premium", "label": "Premium / designer", "factor": 1.35 }
+      {
+        "key": "basic",
+        "label": "Basic / builder-grade",
+        "factor": 0.85
+      },
+      {
+        "key": "mid",
+        "label": "Mid-range",
+        "factor": 1
+      },
+      {
+        "key": "premium",
+        "label": "Premium / designer",
+        "factor": 1.35
+      }
     ],
     "timelines": [
-      { "key": "asap", "label": "Ready to start (0-3 months)", "score": 20 },
-      { "key": "soon", "label": "3-6 months out", "score": 10 },
-      { "key": "research", "label": "Just researching", "score": 0 }
+      {
+        "key": "asap",
+        "label": "Ready to start (0-3 months)",
+        "score": 20
+      },
+      {
+        "key": "soon",
+        "label": "3-6 months out",
+        "score": 10
+      },
+      {
+        "key": "research",
+        "label": "Just researching",
+        "score": 0
+      }
     ],
     "projectTypes": [
-      { "key": "bath-full", "label": "Full bathroom remodel", "typicalDuration": "2-4 weeks", "base": { "low": 14000, "high": 27000 },
-        "sizes": [ { "key": "powder", "label": "Powder room / half bath", "factor": 0.55 }, { "key": "hall", "label": "Hall bath (5x8-ish)", "factor": 1.0 }, { "key": "primary", "label": "Primary / large bath", "factor": 1.45 } ],
-        "options": [
-          { "key": "tub2shower", "label": "Convert tub to walk-in shower", "low": 1500, "high": 3500 },
-          { "key": "doubleVanity", "label": "Double vanity", "low": 900, "high": 2200 },
-          { "key": "movePlumbing", "label": "Move plumbing fixtures around", "low": 1800, "high": 4500 },
-          { "key": "heatedFloor", "label": "Heated floors", "low": 1200, "high": 2600 },
-          { "key": "freestandingTub", "label": "Freestanding soaking tub", "low": 1800, "high": 4500 }
+      {
+        "key": "bath-full",
+        "label": "Full bathroom remodel",
+        "typicalDuration": "2-4 weeks",
+        "base": {
+          "low": 14000,
+          "high": 27000
+        },
+        "sizes": [
+          {
+            "key": "powder",
+            "label": "Powder room / half bath",
+            "factor": 0.55
+          },
+          {
+            "key": "hall",
+            "label": "Hall bath (5x8-ish)",
+            "factor": 1
+          },
+          {
+            "key": "primary",
+            "label": "Primary / large bath",
+            "factor": 1.45
+          }
         ],
-        "drivers": ["Tile & waterproofing", "Vanity & fixtures", "Plumbing", "Glass enclosure"] },
-      { "key": "tub-to-shower", "label": "Tub-to-shower conversion", "typicalDuration": "3-7 days", "base": { "low": 7000, "high": 14000 },
-        "sizes": [ { "key": "standard", "label": "Standard alcove (60 inch)", "factor": 1.0 }, { "key": "custom", "label": "Custom size / curbless", "factor": 1.3 } ],
         "options": [
-          { "key": "glassDoor", "label": "Frameless glass door", "low": 1200, "high": 2800 },
-          { "key": "tileWalls", "label": "Full tile walls (vs acrylic surround)", "low": 1500, "high": 3500 },
-          { "key": "niche", "label": "Built-in niche + bench", "low": 500, "high": 1400 }
+          {
+            "key": "tub2shower",
+            "label": "Convert tub to walk-in shower",
+            "low": 1500,
+            "high": 3500
+          },
+          {
+            "key": "doubleVanity",
+            "label": "Double vanity",
+            "low": 900,
+            "high": 2200
+          },
+          {
+            "key": "movePlumbing",
+            "label": "Move plumbing fixtures around",
+            "low": 1800,
+            "high": 4500
+          },
+          {
+            "key": "heatedFloor",
+            "label": "Heated floors",
+            "low": 1200,
+            "high": 2600
+          },
+          {
+            "key": "freestandingTub",
+            "label": "Freestanding soaking tub",
+            "low": 1800,
+            "high": 4500
+          }
         ],
-        "drivers": ["Shower pan & waterproofing", "Tile or surround", "Glass", "Plumbing valve"] },
-      { "key": "kitchen", "label": "Kitchen remodel", "typicalDuration": "4-8 weeks", "base": { "low": 32000, "high": 62000 },
-        "sizes": [ { "key": "small", "label": "Small / galley", "factor": 0.75 }, { "key": "medium", "label": "Medium (10x12-ish)", "factor": 1.0 }, { "key": "large", "label": "Large / open concept", "factor": 1.4 } ],
+        "drivers": [
+          "Tile & waterproofing",
+          "Vanity & fixtures",
+          "Plumbing",
+          "Glass enclosure"
+        ]
+      },
+      {
+        "key": "tub-to-shower",
+        "label": "Tub-to-shower conversion",
+        "typicalDuration": "3-7 days",
+        "base": {
+          "low": 7000,
+          "high": 14000
+        },
+        "sizes": [
+          {
+            "key": "standard",
+            "label": "Standard alcove (60 inch)",
+            "factor": 1
+          },
+          {
+            "key": "custom",
+            "label": "Custom size / curbless",
+            "factor": 1.3
+          }
+        ],
         "options": [
-          { "key": "layout", "label": "Change the layout (move sink/stove)", "low": 4000, "high": 10000 },
-          { "key": "island", "label": "Add or enlarge island", "low": 2500, "high": 7000 },
-          { "key": "wallRemoval", "label": "Remove a wall (open it up)", "low": 4000, "high": 12000 },
-          { "key": "appliances", "label": "New appliance package installed", "low": 4000, "high": 12000 }
+          {
+            "key": "glassDoor",
+            "label": "Frameless glass door",
+            "low": 1200,
+            "high": 2800
+          },
+          {
+            "key": "tileWalls",
+            "label": "Full tile walls (vs acrylic surround)",
+            "low": 1500,
+            "high": 3500
+          },
+          {
+            "key": "niche",
+            "label": "Built-in niche + bench",
+            "low": 500,
+            "high": 1400
+          }
         ],
-        "drivers": ["Cabinets", "Countertops", "Electrical & lighting", "Plumbing"] },
-      { "key": "adu", "label": "ADU / garage conversion", "typicalDuration": "4-8 months", "base": { "low": 55000, "high": 100000 },
-        "sizes": [ { "key": "garage", "label": "Garage conversion (~400 sqft)", "factor": 1.0 }, { "key": "detached-small", "label": "New detached ADU (~500-600 sqft)", "factor": 2.6 }, { "key": "detached-large", "label": "New detached ADU (~900-1200 sqft)", "factor": 4.2 } ],
+        "drivers": [
+          "Shower pan & waterproofing",
+          "Tile or surround",
+          "Glass",
+          "Plumbing valve"
+        ]
+      },
+      {
+        "key": "kitchen",
+        "label": "Kitchen remodel",
+        "typicalDuration": "4-8 weeks",
+        "base": {
+          "low": 32000,
+          "high": 62000
+        },
+        "sizes": [
+          {
+            "key": "small",
+            "label": "Small / galley",
+            "factor": 0.75
+          },
+          {
+            "key": "medium",
+            "label": "Medium (10x12-ish)",
+            "factor": 1
+          },
+          {
+            "key": "large",
+            "label": "Large / open concept",
+            "factor": 1.4
+          }
+        ],
         "options": [
-          { "key": "kitchenette", "label": "Full kitchen (vs kitchenette)", "low": 8000, "high": 18000 },
-          { "key": "laundry", "label": "In-unit laundry", "low": 2000, "high": 5000 },
-          { "key": "separateMeter", "label": "Separate electrical meter", "low": 3000, "high": 8000 }
+          {
+            "key": "layout",
+            "label": "Change the layout (move sink/stove)",
+            "low": 4000,
+            "high": 10000
+          },
+          {
+            "key": "island",
+            "label": "Add or enlarge island",
+            "low": 2500,
+            "high": 7000
+          },
+          {
+            "key": "wallRemoval",
+            "label": "Remove a wall (open it up)",
+            "low": 4000,
+            "high": 12000
+          },
+          {
+            "key": "appliances",
+            "label": "New appliance package installed",
+            "low": 4000,
+            "high": 12000
+          }
         ],
-        "drivers": ["Construction $/sqft", "Plans & city fees", "Kitchen & bath buildout", "Utilities"] },
-      { "key": "flooring", "label": "New flooring", "typicalDuration": "3-7 days", "base": { "low": 6000, "high": 10500 },
-        "sizes": [ { "key": "rooms", "label": "A few rooms (~500 sqft)", "factor": 0.55 }, { "key": "most", "label": "Most of the house (~1,000 sqft)", "factor": 1.0 }, { "key": "whole", "label": "Whole house (~1,800 sqft)", "factor": 1.7 } ],
+        "drivers": [
+          "Cabinets",
+          "Countertops",
+          "Electrical & lighting",
+          "Plumbing"
+        ]
+      },
+      {
+        "key": "adu",
+        "label": "ADU / garage conversion",
+        "typicalDuration": "4-8 months",
+        "base": {
+          "low": 55000,
+          "high": 100000
+        },
+        "sizes": [
+          {
+            "key": "garage",
+            "label": "Garage conversion (~400 sqft)",
+            "factor": 1
+          },
+          {
+            "key": "detached-small",
+            "label": "New detached ADU (~500-600 sqft)",
+            "factor": 2.6
+          },
+          {
+            "key": "detached-large",
+            "label": "New detached ADU (~900-1200 sqft)",
+            "factor": 4.2
+          }
+        ],
         "options": [
-          { "key": "hardwood", "label": "Engineered hardwood (vs LVP)", "low": 3500, "high": 7000 },
-          { "key": "demo", "label": "Remove existing tile/hardwood", "low": 1000, "high": 3000 },
-          { "key": "baseboards", "label": "New baseboards throughout", "low": 1200, "high": 3000 }
+          {
+            "key": "kitchenette",
+            "label": "Full kitchen (vs kitchenette)",
+            "low": 8000,
+            "high": 18000
+          },
+          {
+            "key": "laundry",
+            "label": "In-unit laundry",
+            "low": 2000,
+            "high": 5000
+          },
+          {
+            "key": "separateMeter",
+            "label": "Separate electrical meter",
+            "low": 3000,
+            "high": 8000
+          }
         ],
-        "drivers": ["Material grade", "Demo & prep", "Square footage"] },
-      { "key": "roofing", "label": "Roof replacement", "typicalDuration": "2-5 days", "base": { "low": 9000, "high": 14000 },
-        "sizes": [ { "key": "small", "label": "Smaller home (~15 squares)", "factor": 0.8 }, { "key": "medium", "label": "Average home (~20 squares)", "factor": 1.0 }, { "key": "large", "label": "Large home (~30+ squares)", "factor": 1.5 } ],
+        "drivers": [
+          "Construction $/sqft",
+          "Plans & city fees",
+          "Kitchen & bath buildout",
+          "Utilities"
+        ]
+      },
+      {
+        "key": "flooring",
+        "label": "New flooring",
+        "typicalDuration": "3-7 days",
+        "base": {
+          "low": 6000,
+          "high": 10500
+        },
+        "sizes": [
+          {
+            "key": "rooms",
+            "label": "A few rooms (~500 sqft)",
+            "factor": 0.55
+          },
+          {
+            "key": "most",
+            "label": "Most of the house (~1,000 sqft)",
+            "factor": 1
+          },
+          {
+            "key": "whole",
+            "label": "Whole house (~1,800 sqft)",
+            "factor": 1.7
+          }
+        ],
         "options": [
-          { "key": "tile", "label": "Tile roof (vs comp shingle)", "low": 7000, "high": 16000 },
-          { "key": "sheathing", "label": "Replace plywood sheathing", "low": 900, "high": 2500 },
-          { "key": "gutters", "label": "New seamless gutters", "low": 1400, "high": 2600 }
+          {
+            "key": "hardwood",
+            "label": "Engineered hardwood (vs LVP)",
+            "low": 3500,
+            "high": 7000
+          },
+          {
+            "key": "demo",
+            "label": "Remove existing tile/hardwood",
+            "low": 1000,
+            "high": 3000
+          },
+          {
+            "key": "baseboards",
+            "label": "New baseboards throughout",
+            "low": 1200,
+            "high": 3000
+          }
         ],
-        "drivers": ["Roof size", "Material type", "Sheathing condition"] },
-      { "key": "paint", "label": "Interior / exterior painting", "typicalDuration": "3-7 days", "base": { "low": 3800, "high": 6800 },
-        "sizes": [ { "key": "interior", "label": "Interior (~1,500 sqft)", "factor": 1.0 }, { "key": "exterior", "label": "Exterior", "factor": 1.15 }, { "key": "both", "label": "Interior + exterior", "factor": 2.0 } ],
+        "drivers": [
+          "Material grade",
+          "Demo & prep",
+          "Square footage"
+        ]
+      },
+      {
+        "key": "roofing",
+        "label": "Roof replacement",
+        "typicalDuration": "2-5 days",
+        "base": {
+          "low": 9000,
+          "high": 14000
+        },
+        "sizes": [
+          {
+            "key": "small",
+            "label": "Smaller home (~15 squares)",
+            "factor": 0.8
+          },
+          {
+            "key": "medium",
+            "label": "Average home (~20 squares)",
+            "factor": 1
+          },
+          {
+            "key": "large",
+            "label": "Large home (~30+ squares)",
+            "factor": 1.5
+          }
+        ],
         "options": [
-          { "key": "ceilings", "label": "Ceilings + trim + doors", "low": 800, "high": 2000 },
-          { "key": "repairs", "label": "Drywall/stucco repairs first", "low": 600, "high": 2200 }
+          {
+            "key": "tile",
+            "label": "Tile roof (vs comp shingle)",
+            "low": 7000,
+            "high": 16000
+          },
+          {
+            "key": "sheathing",
+            "label": "Replace plywood sheathing",
+            "low": 900,
+            "high": 2500
+          },
+          {
+            "key": "gutters",
+            "label": "New seamless gutters",
+            "low": 1400,
+            "high": 2600
+          }
         ],
-        "drivers": ["Surface area", "Prep & repairs", "Paint grade"] }
+        "drivers": [
+          "Roof size",
+          "Material type",
+          "Sheathing condition"
+        ]
+      },
+      {
+        "key": "paint",
+        "label": "Interior / exterior painting",
+        "typicalDuration": "3-7 days",
+        "base": {
+          "low": 3800,
+          "high": 6800
+        },
+        "sizes": [
+          {
+            "key": "interior",
+            "label": "Interior (~1,500 sqft)",
+            "factor": 1
+          },
+          {
+            "key": "exterior",
+            "label": "Exterior",
+            "factor": 1.15
+          },
+          {
+            "key": "both",
+            "label": "Interior + exterior",
+            "factor": 2
+          }
+        ],
+        "options": [
+          {
+            "key": "ceilings",
+            "label": "Ceilings + trim + doors",
+            "low": 800,
+            "high": 2000
+          },
+          {
+            "key": "repairs",
+            "label": "Drywall/stucco repairs first",
+            "low": 600,
+            "high": 2200
+          }
+        ],
+        "drivers": [
+          "Surface area",
+          "Prep & repairs",
+          "Paint grade"
+        ]
+      }
     ]
   },
   "assemblies": [
-    { "key": "kitchen-mid", "label": "Kitchen remodel - mid-range (10x12)", "items": [ {"id":"kit-demo","qty":1}, {"id":"kit-cab-supply","qty":1}, {"id":"kit-cab-install","qty":1}, {"id":"kit-counter","qty":40}, {"id":"kit-backsplash","qty":30}, {"id":"kit-plumb","qty":1}, {"id":"kit-sink","qty":1}, {"id":"kit-elec","qty":1}, {"id":"kit-drywall","qty":1}, {"id":"floor-lvp","qty":150}, {"id":"appl-install","qty":1}, {"id":"permits-minor","qty":1}, {"id":"dumpster","qty":1}, {"id":"final-clean","qty":1} ] },
-    { "key": "bath-hall", "label": "Hall bathroom remodel", "items": [ {"id":"bath-demo","qty":1}, {"id":"bath-pan","qty":1}, {"id":"bath-tile","qty":1}, {"id":"bath-glass","qty":1}, {"id":"bath-vanity","qty":1}, {"id":"bath-plumb","qty":1}, {"id":"bath-toilet","qty":1}, {"id":"bath-elec","qty":1}, {"id":"bath-floor","qty":1}, {"id":"bath-paint","qty":1}, {"id":"permits-minor","qty":1} ] },
-    { "key": "adu-garage-400", "label": "Garage conversion ADU (~400 sqft)", "items": [ {"id":"adu-garage","qty":400}, {"id":"adu-plans","qty":1} ] },
-    { "key": "adu-detached-600", "label": "Detached ADU new build (~600 sqft)", "items": [ {"id":"adu-detached","qty":600}, {"id":"adu-plans","qty":1} ] },
-    { "key": "roof-comp-20", "label": "Comp shingle reroof (~20 squares)", "items": [ {"id":"roof-comp","qty":20}, {"id":"roof-sheath","qty":10}, {"id":"gutters","qty":120} ] },
-    { "key": "paint-int-1500", "label": "Interior repaint (~1,500 sqft house)", "items": [ {"id":"paint-int","qty":1500} ] },
-    { "key": "floor-lvp-1000", "label": "LVP flooring (~1,000 sqft)", "items": [ {"id":"floor-lvp","qty":1000}, {"id":"demo-int","qty":1000} ] },
-    { "key": "panel-200a", "label": "200A panel upgrade", "items": [ {"id":"elec-panel","qty":1} ] },
-    { "key": "repipe-2ba", "label": "Whole-house PEX repipe (2 bath)", "items": [ {"id":"plumb-repipe","qty":1}, {"id":"kit-drywall","qty":1} ] },
-    { "key": "hvac-replace", "label": "HVAC system + duct replacement", "items": [ {"id":"hvac-split","qty":1}, {"id":"hvac-duct","qty":1} ] },
-    { "key": "turf-500", "label": "Artificial turf (~500 sqft yard)", "items": [ {"id":"turf-install","qty":500} ] },
-    { "key": "windows-10", "label": "Window replacement (10 openings)", "items": [ {"id":"window-retrofit","qty":10}, {"id":"stucco-patch","qty":50} ] }
+    {
+      "key": "kitchen-mid",
+      "label": "Kitchen remodel - mid-range (10x12)",
+      "items": [
+        {
+          "id": "kit-demo",
+          "qty": 1
+        },
+        {
+          "id": "kit-cab-supply",
+          "qty": 1
+        },
+        {
+          "id": "kit-cab-install",
+          "qty": 1
+        },
+        {
+          "id": "kit-counter",
+          "qty": 40
+        },
+        {
+          "id": "kit-backsplash",
+          "qty": 30
+        },
+        {
+          "id": "kit-plumb",
+          "qty": 1
+        },
+        {
+          "id": "kit-sink",
+          "qty": 1
+        },
+        {
+          "id": "kit-elec",
+          "qty": 1
+        },
+        {
+          "id": "kit-drywall",
+          "qty": 1
+        },
+        {
+          "id": "floor-lvp",
+          "qty": 150
+        },
+        {
+          "id": "appl-install",
+          "qty": 1
+        },
+        {
+          "id": "permits-minor",
+          "qty": 1
+        },
+        {
+          "id": "dumpster",
+          "qty": 1
+        },
+        {
+          "id": "final-clean",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "key": "bath-hall",
+      "label": "Hall bathroom remodel",
+      "items": [
+        {
+          "id": "bath-demo",
+          "qty": 1
+        },
+        {
+          "id": "bath-pan",
+          "qty": 1
+        },
+        {
+          "id": "bath-tile",
+          "qty": 1
+        },
+        {
+          "id": "bath-glass",
+          "qty": 1
+        },
+        {
+          "id": "bath-vanity",
+          "qty": 1
+        },
+        {
+          "id": "bath-plumb",
+          "qty": 1
+        },
+        {
+          "id": "bath-toilet",
+          "qty": 1
+        },
+        {
+          "id": "bath-elec",
+          "qty": 1
+        },
+        {
+          "id": "bath-floor",
+          "qty": 1
+        },
+        {
+          "id": "bath-paint",
+          "qty": 1
+        },
+        {
+          "id": "permits-minor",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "key": "adu-garage-400",
+      "label": "Garage conversion ADU (~400 sqft)",
+      "items": [
+        {
+          "id": "adu-garage",
+          "qty": 400
+        },
+        {
+          "id": "adu-plans",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "key": "adu-detached-600",
+      "label": "Detached ADU new build (~600 sqft)",
+      "items": [
+        {
+          "id": "adu-detached",
+          "qty": 600
+        },
+        {
+          "id": "adu-plans",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "key": "roof-comp-20",
+      "label": "Comp shingle reroof (~20 squares)",
+      "items": [
+        {
+          "id": "roof-comp",
+          "qty": 20
+        },
+        {
+          "id": "roof-sheath",
+          "qty": 10
+        },
+        {
+          "id": "gutters",
+          "qty": 120
+        }
+      ]
+    },
+    {
+      "key": "paint-int-1500",
+      "label": "Interior repaint (~1,500 sqft house)",
+      "items": [
+        {
+          "id": "paint-int",
+          "qty": 1500
+        }
+      ]
+    },
+    {
+      "key": "floor-lvp-1000",
+      "label": "LVP flooring (~1,000 sqft)",
+      "items": [
+        {
+          "id": "floor-lvp",
+          "qty": 1000
+        },
+        {
+          "id": "demo-int",
+          "qty": 1000
+        }
+      ]
+    },
+    {
+      "key": "panel-200a",
+      "label": "200A panel upgrade",
+      "items": [
+        {
+          "id": "elec-panel",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "key": "repipe-2ba",
+      "label": "Whole-house PEX repipe (2 bath)",
+      "items": [
+        {
+          "id": "plumb-repipe",
+          "qty": 1
+        },
+        {
+          "id": "kit-drywall",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "key": "hvac-replace",
+      "label": "HVAC system + duct replacement",
+      "items": [
+        {
+          "id": "hvac-split",
+          "qty": 1
+        },
+        {
+          "id": "hvac-duct",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "key": "turf-500",
+      "label": "Artificial turf (~500 sqft yard)",
+      "items": [
+        {
+          "id": "turf-install",
+          "qty": 500
+        }
+      ]
+    },
+    {
+      "key": "windows-10",
+      "label": "Window replacement (10 openings)",
+      "items": [
+        {
+          "id": "window-retrofit",
+          "qty": 10
+        },
+        {
+          "id": "stucco-patch",
+          "qty": 50
+        }
+      ]
+    }
   ]
 }

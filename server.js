@@ -186,6 +186,7 @@ crmApp.get("/subs_database.html", (_req, res) => res.sendFile(path.join(__dirnam
 crmApp.get("/audit.html", (_req, res) => res.sendFile(path.join(__dirname, "audit.html")));
 crmApp.get("/research_chat.html", (_req, res) => res.sendFile(path.join(__dirname, "research_chat.html")));
 crmApp.get("/estimator.html", (_req, res) => res.sendFile(path.join(__dirname, "estimator.html")));
+crmApp.get("/actuals.html", (_req, res) => res.sendFile(path.join(__dirname, "actuals.html")));
 crmApp.use("/api/suppliers", require("./suppliers")(collection));
 crmApp.use("/assets", express.static(path.join(__dirname, "assets")));
 
@@ -1757,6 +1758,7 @@ app.get("/api/estimator/costbook", (_req, res) => {
 function normalizeEstimateLine(input) {
   return {
     id: cleanString(input.id || cryptoId()),
+    costbookId: cleanString(input.costbookId),
     trade: cleanString(input.trade),
     description: cleanString(input.description),
     qty: Number(input.qty || 1),
@@ -1765,6 +1767,94 @@ function normalizeEstimateLine(input) {
     unitHigh: Number(input.unitHigh || 0),
     notes: cleanString(input.notes)
   };
+}
+
+// ── Project actuals: real completed-job costs that calibrate the cost book ──
+function normalizeActualLine(input) {
+  const qty = Number(input.qty || 1) || 1;
+  const actualTotal = Number(input.actualTotal || 0);
+  return {
+    id: cleanString(input.id || cryptoId()),
+    costbookId: cleanString(input.costbookId),
+    trade: cleanString(input.trade),
+    description: cleanString(input.description),
+    qty,
+    unit: cleanString(input.unit || "job"),
+    actualTotal,
+    actualUnit: qty ? Math.round((actualTotal / qty) * 100) / 100 : actualTotal,
+    subName: cleanString(input.subName),
+    notes: cleanString(input.notes)
+  };
+}
+
+function normalizeActual(input) {
+  const lines = Array.isArray(input.lines) ? input.lines.map(normalizeActualLine) : [];
+  const actualCost = lines.reduce((sum, line) => sum + line.actualTotal, 0);
+  const contractPrice = Number(input.contractPrice || 0);
+  return {
+    projectName: cleanString(input.projectName || "Untitled project"),
+    projectType: cleanString(input.projectType),
+    city: cleanString(input.city),
+    completedAt: cleanString(input.completedAt || new Date().toISOString().slice(0, 10)),
+    sqft: Number(input.sqft || 0),
+    contractPrice,
+    actualCost: Math.round(actualCost),
+    grossMargin: Math.round(contractPrice - actualCost),
+    marginPercent: contractPrice ? Math.round(((contractPrice - actualCost) / contractPrice) * 100) : 0,
+    estimateId: cleanString(input.estimateId),
+    notes: cleanString(input.notes),
+    lines,
+    updatedAt: new Date().toISOString()
+  };
+}
+
+function quantile(sorted, q) {
+  if (!sorted.length) return 0;
+  const pos = (sorted.length - 1) * q;
+  const base = Math.floor(pos);
+  const rest = pos - base;
+  return sorted[base + 1] !== undefined ? sorted[base] + rest * (sorted[base + 1] - sorted[base]) : sorted[base];
+}
+
+// Compare book ranges against observed unit costs; blend weight grows with
+// observation count (30%/observation, capped 80%) so one weird job can't
+// swing the book, but 3+ real jobs mostly become the book.
+async function buildCalibration() {
+  const coll = await collection("projectActuals");
+  const book = loadCostbook();
+  const observations = new Map();
+  if (coll) {
+    const rows = await coll.find({}).toArray();
+    for (const row of rows) {
+      for (const line of row.lines || []) {
+        if (!line.costbookId || !line.actualUnit) continue;
+        if (!observations.has(line.costbookId)) observations.set(line.costbookId, []);
+        observations.get(line.costbookId).push({ unit: line.actualUnit, project: row.projectName, at: row.completedAt });
+      }
+    }
+  }
+  const rounder = (item) => (item.low >= 100 ? 50 : item.low >= 10 ? 5 : 0.25);
+  return book.items.map((item) => {
+    const obs = (observations.get(item.id) || []).sort((a, b) => a.unit - b.unit);
+    if (!obs.length) return { id: item.id, description: item.description, unit: item.unit, bookLow: item.low, bookHigh: item.high, count: 0, calibration: item.calibration || null };
+    const units = obs.map((o) => o.unit);
+    const q25 = quantile(units, 0.25);
+    const q75 = quantile(units, 0.75);
+    const weight = Math.min(0.8, 0.3 * obs.length);
+    const step = rounder(item);
+    const suggestedLow = Math.round((item.low * (1 - weight) + Math.min(q25, item.low * 1.5) * weight) / step) * step;
+    const suggestedHigh = Math.round((item.high * (1 - weight) + Math.max(q75, suggestedLow * 1.1) * weight) / step) * step;
+    return {
+      id: item.id, description: item.description, unit: item.unit,
+      bookLow: item.low, bookHigh: item.high,
+      count: obs.length,
+      obsMin: units[0], obsMedian: Math.round(quantile(units, 0.5) * 100) / 100, obsMax: units[units.length - 1],
+      suggestedLow, suggestedHigh,
+      changed: suggestedLow !== item.low || suggestedHigh !== item.high,
+      projects: obs.map((o) => o.project).slice(0, 6),
+      calibration: item.calibration || null
+    };
+  });
 }
 
 function normalizeEstimate(input) {
@@ -1849,6 +1939,72 @@ app.post("/api/estimates/:id/to-bid-project", async (req, res) => {
   res.status(201).json({ bidProjectId: result.insertedId.toString() });
 });
 
+app.get("/api/actuals", async (_req, res) => {
+  const coll = await collection("projectActuals");
+  if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  const rows = await coll.find({}).sort({ completedAt: -1 }).limit(300).toArray();
+  res.json(rows.map((row) => ({ ...row, id: row._id.toString(), _id: undefined })));
+});
+
+app.post("/api/actuals", async (req, res) => {
+  const coll = await collection("projectActuals");
+  if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  const doc = { ...normalizeActual(req.body), createdAt: new Date().toISOString() };
+  const result = await coll.insertOne(doc);
+  res.status(201).json({ ...doc, id: result.insertedId.toString() });
+});
+
+app.put("/api/actuals/:id", async (req, res) => {
+  const coll = await collection("projectActuals");
+  if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  const update = normalizeActual(req.body);
+  await coll.updateOne({ _id: new ObjectId(req.params.id) }, { $set: update });
+  res.json({ ...update, id: req.params.id });
+});
+
+app.delete("/api/actuals/:id", async (req, res) => {
+  const coll = await collection("projectActuals");
+  if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  await coll.deleteOne({ _id: new ObjectId(req.params.id) });
+  res.status(204).end();
+});
+
+app.get("/api/estimator/calibration", async (_req, res) => {
+  try {
+    costbookCache = null;
+    res.json({ items: await buildCalibration() });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Apply observed actuals into costbook.json (with a backup written first).
+app.post("/api/estimator/calibrate", async (req, res) => {
+  try {
+    costbookCache = null;
+    const ids = Array.isArray(req.body.itemIds) ? req.body.itemIds.map(cleanString) : [];
+    if (!ids.length) return res.status(400).json({ error: "Pick at least one item to calibrate." });
+    const calibration = await buildCalibration();
+    const byId = new Map(calibration.map((c) => [c.id, c]));
+    const book = loadCostbook();
+    fs.writeFileSync(path.join(__dirname, "costbook.backup.json"), JSON.stringify(book, null, 2));
+    const applied = [];
+    for (const item of book.items) {
+      const cal = byId.get(item.id);
+      if (!ids.includes(item.id) || !cal || !cal.count) continue;
+      item.low = cal.suggestedLow;
+      item.high = cal.suggestedHigh;
+      item.calibration = { n: cal.count, appliedAt: new Date().toISOString().slice(0, 10) };
+      applied.push({ id: item.id, low: item.low, high: item.high, n: cal.count });
+    }
+    fs.writeFileSync(COSTBOOK_PATH, JSON.stringify(book, null, 2));
+    costbookCache = null;
+    res.json({ applied, backup: "costbook.backup.json" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // AI draft: scope description -> line items grounded in the cost book + our subs' pricing notes.
 app.post("/api/estimator/ai-draft", async (req, res) => {
   const description = cleanString(req.body.description);
@@ -1878,6 +2034,7 @@ app.post("/api/estimator/ai-draft", async (req, res) => {
     const lines = (parsed.lines || []).map((line) => {
       const ref = line.costbookId && byId.get(line.costbookId);
       return normalizeEstimateLine({
+        costbookId: ref ? ref.id : "",
         trade: line.trade || (ref && ref.trade) || "",
         description: line.description || (ref && ref.description) || "",
         qty: line.qty,

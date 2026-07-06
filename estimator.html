@@ -54,6 +54,7 @@
       <a href="subcontractor_finder.html">Finder</a>
       <a href="subs_database.html">Database</a>
       <a href="estimator.html" class="active">Estimator</a>
+      <a href="actuals.html">Actuals</a>
       <a href="bid_lab.html">Bid Lab</a>
       <a href="audit.html">Audit</a>
       <a href="research_chat.html">Research</a>
@@ -156,9 +157,9 @@
       if (!item) return null;
       if (item.unit === "pct-of-subtotal") {
         const sub = subtotal();
-        return { id: crypto.randomUUID(), trade: item.trade, description: item.description, qty: 1, unit: "job", unitLow: sub.low * item.low / 100, unitHigh: sub.high * item.high / 100, notes: `${item.low}-${item.high}% of subtotal` };
+        return { id: crypto.randomUUID(), costbookId: item.id, trade: item.trade, description: item.description, qty: 1, unit: "job", unitLow: sub.low * item.low / 100, unitHigh: sub.high * item.high / 100, notes: `${item.low}-${item.high}% of subtotal` };
       }
-      return { id: crypto.randomUUID(), trade: item.trade, description: item.description, qty, unit: item.unit, unitLow: item.low, unitHigh: item.high, notes: "" };
+      return { id: crypto.randomUUID(), costbookId: item.id, trade: item.trade, description: item.description, qty, unit: item.unit, unitLow: item.low, unitHigh: item.high, notes: "" };
     }
     function subtotal() {
       return lines.reduce((acc, l) => ({ low: acc.low + l.qty * l.unitLow, high: acc.high + l.qty * l.unitHigh }), { low: 0, high: 0 });
