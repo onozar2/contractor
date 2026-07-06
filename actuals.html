@@ -61,6 +61,15 @@
     <div class="grid2">
       <div>
         <div class="card" style="margin-bottom:1rem">
+          <h2>Describe it - AI fills the form</h2>
+          <textarea id="aiText" style="min-height:70px" placeholder="e.g. Fireplace redo in Chino Hills - removed brick for tile, added an outlet box, lowered the shelf. Subs cost $2,500 total, client paid $5,800, overhead is 20% of the project. Tile guys supplied their own tile."></textarea>
+          <div class="row" style="margin-top:0.5rem">
+            <button class="btn primary" id="aiFill">Fill form with AI</button>
+            <span class="muted" id="aiFillStatus" style="align-self:center;font-size:0.78rem"></span>
+          </div>
+          <div class="muted" id="aiAssumptions" style="font-size:0.76rem;margin-top:0.4rem"></div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
           <h2 id="formTitle">Log a completed project</h2>
           <div class="row" style="margin-bottom:0.5rem">
             <label class="f" style="flex:1.6">Project name<input id="aName" placeholder="Kitchen remodel - Smith, Sherman Oaks" /></label>
@@ -152,8 +161,14 @@
             <table><thead><tr><th>Line</th><th class="num">Qty</th><th class="num">Actual</th><th class="num">$/unit</th><th>Sub</th></tr></thead><tbody>
               ${(p.lines || []).map((l) => `<tr><td>${esc(l.description)}${l.costbookId ? ' <span class="pill green" title="calibrates the book">linked</span>' : ""}</td><td class="num">${l.qty} ${esc(l.unit)}</td><td class="num">${money(l.actualTotal)}</td><td class="num">${money(l.actualUnit)}</td><td>${esc(l.subName)}</td></tr>`).join("")}
             </tbody></table>
+            ${(p.photos || []).length ? `<div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.5rem">${p.photos.map((ph) => `
+              <span style="position:relative;display:inline-block">
+                <a href="${esc(ph.url)}" target="_blank"><img src="${esc(ph.url)}" alt="${esc(ph.name)}" style="height:74px;border-radius:8px;border:1px solid var(--line);object-fit:cover" /></a>
+                <span class="del" style="position:absolute;top:-6px;right:-2px;background:#fff;border-radius:50%;line-height:1" onclick="delPhoto('${p.id}','${esc(ph.file)}')">×</span>
+              </span>`).join("")}</div>` : ""}
             <div class="row" style="margin-top:0.5rem">
               <button class="btn" onclick="editProject('${p.id}')">Edit</button>
+              <label class="btn" style="display:inline-flex;align-items:center;cursor:pointer">Add photos<input type="file" accept="image/*" multiple style="display:none" onchange="uploadPhotos('${p.id}', this)" /></label>
               <button class="btn" style="color:var(--red)" onclick="delProject('${p.id}')">Delete</button>
               ${p.notes ? `<span class="muted" style="align-self:center;font-size:0.76rem">${esc(p.notes)}</span>` : ""}
             </div>
@@ -217,7 +232,8 @@
       const body = JSON.stringify({
         projectName: $("aName").value, projectType: $("aType").value, city: $("aCity").value,
         completedAt: $("aDate").value, sqft: Number($("aSqft").value || 0), contractPrice: Number($("aPrice").value || 0),
-        estimateId: $("aEstimate").value, lines: lines.filter((l) => l.description || l.actualTotal)
+        estimateId: $("aEstimate").value, notes: window._aiNotes || "",
+        lines: lines.filter((l) => l.description || l.actualTotal)
       });
       const opts = { headers: { "Content-Type": "application/json" }, body };
       const res = editId ? await fetch(`/api/actuals/${editId}`, { method: "PUT", ...opts }) : await fetch("/api/actuals", { method: "POST", ...opts });
@@ -226,7 +242,7 @@
       if (!data.error) { clearForm(); await refresh(); }
     });
     function clearForm() {
-      editId = null; lines = []; addLine();
+      editId = null; lines = []; window._aiNotes = ""; addLine();
       ["aName","aType","aCity","aSqft","aPrice"].forEach((id) => $(id).value = "");
       $("aEstimate").value = ""; $("aDate").value = new Date().toISOString().slice(0, 10);
       $("formTitle").textContent = "Log a completed project";
@@ -239,6 +255,7 @@
       $("formTitle").textContent = `Editing: ${p.projectName}`;
       $("aName").value = p.projectName; $("aType").value = p.projectType; $("aCity").value = p.city;
       $("aDate").value = p.completedAt; $("aSqft").value = p.sqft || ""; $("aPrice").value = p.contractPrice || "";
+      window._aiNotes = p.notes || "";
       lines = (p.lines || []).map((l) => ({ ...l }));
       renderLines();
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -246,6 +263,47 @@
     window.delProject = async (id) => {
       if (!confirm("Delete this project record?")) return;
       await fetch(`/api/actuals/${id}`, { method: "DELETE" });
+      await refresh();
+    };
+
+    // AI fill
+    $("aiFill").addEventListener("click", async () => {
+      const description = $("aiText").value.trim();
+      if (!description) { $("aiFillStatus").textContent = "Type a description first."; return; }
+      $("aiFillStatus").textContent = "Parsing... (runs the model, ~1 min)";
+      $("aiFill").disabled = true;
+      try {
+        const res = await fetch("/api/actuals/ai-parse", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ description }) });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        editId = null;
+        $("formTitle").textContent = "Log a completed project (review the AI fill, then save)";
+        $("aName").value = data.projectName; $("aType").value = data.projectType; $("aCity").value = data.city;
+        if (data.completedAt) $("aDate").value = data.completedAt.slice(0, 10);
+        $("aSqft").value = data.sqft || ""; $("aPrice").value = data.contractPrice || "";
+        lines = (data.lines || []).map((l) => ({ ...l, id: crypto.randomUUID() }));
+        renderLines();
+        $("aiFillStatus").textContent = `Filled ${lines.length} cost lines - review every number, then Save.`;
+        $("aiAssumptions").innerHTML = (data.assumptions || []).length ? "<b>Assumptions:</b> " + data.assumptions.map(esc).join(" · ") : "";
+        if (data.notes) $("aiAssumptions").innerHTML += `<br /><b>Notes captured:</b> ${esc(data.notes)}`;
+        window._aiNotes = data.notes || "";
+      } catch (error) {
+        $("aiFillStatus").textContent = error.message;
+      }
+      $("aiFill").disabled = false;
+    });
+
+    // photos
+    window.uploadPhotos = async (id, input) => {
+      for (const file of input.files) {
+        await fetch(`/api/actuals/${id}/photos?name=${encodeURIComponent(file.name)}`, { method: "POST", headers: { "Content-Type": file.type || "image/jpeg" }, body: file });
+      }
+      input.value = "";
+      await refresh();
+    };
+    window.delPhoto = async (id, file) => {
+      if (!confirm("Remove this photo?")) return;
+      await fetch(`/api/actuals/${id}/photos/${file}`, { method: "DELETE" });
       await refresh();
     };
 

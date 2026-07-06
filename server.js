@@ -1969,6 +1969,81 @@ app.delete("/api/actuals/:id", async (req, res) => {
   res.status(204).end();
 });
 
+// AI parse: free-text project description -> pre-filled actuals form fields.
+app.post("/api/actuals/ai-parse", async (req, res) => {
+  const description = cleanString(req.body.description);
+  if (!description) return res.status(400).json({ error: "Describe the project first." });
+  try {
+    const book = loadCostbook();
+    const bookLines = book.items.map((item) => `${item.id} | ${item.description} | ${item.unit}`).join("\n");
+    const prompt = [
+      "You are the bookkeeper for Joon Development Group, a Los Angeles general contractor.",
+      "Parse the completed-project description below into a structured cost record.",
+      "Rules:",
+      "- contractPrice = what the CLIENT paid us in total.",
+      "- lines = OUR costs only (sub payments, materials we bought, overhead allocations). Client-supplied materials are NOT cost lines - mention them in notes.",
+      "- If the description gives a percentage for overhead/marketing, compute it in dollars as its own line (description 'Marketing & overhead (X%)').",
+      "- If one lump sum covers several scopes, split it into sensible lines and say so in each line's notes ('split estimated from $X total').",
+      "- Link a line to a cost-book id ONLY when it clearly matches; otherwise costbookId null.",
+      "- completedAt: ISO date if stated, else null. qty defaults 1, unit 'job'.",
+      "Return STRICT JSON only - no markdown - shaped exactly:",
+      '{"projectName":"","projectType":"","city":"","completedAt":null,"sqft":0,"contractPrice":0,"notes":"","assumptions":["..."],"lines":[{"costbookId":null,"description":"","qty":1,"unit":"job","actualTotal":0,"subName":"","notes":""}]}',
+      "",
+      "COST BOOK IDS (id | description | unit):",
+      bookLines,
+      "",
+      `PROJECT DESCRIPTION: ${description}`
+    ].join("\n");
+    const raw = await runClaudeCli(prompt, 180000);
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("Model did not return JSON.");
+    const parsed = JSON.parse(jsonMatch[0]);
+    res.json({
+      projectName: cleanString(parsed.projectName),
+      projectType: cleanString(parsed.projectType),
+      city: cleanString(parsed.city),
+      completedAt: cleanString(parsed.completedAt || ""),
+      sqft: Number(parsed.sqft || 0),
+      contractPrice: Number(parsed.contractPrice || 0),
+      notes: cleanString(parsed.notes),
+      assumptions: Array.isArray(parsed.assumptions) ? parsed.assumptions.map(cleanString) : [],
+      lines: (parsed.lines || []).map(normalizeActualLine)
+    });
+  } catch (error) {
+    res.status(502).json({ error: `AI parse failed: ${error.message}. Fill the form manually.` });
+  }
+});
+
+// Photos: raw image upload per project, served from /uploads.
+const UPLOADS_DIR = path.join(__dirname, "uploads");
+crmApp.use("/uploads", express.static(UPLOADS_DIR));
+
+app.post("/api/actuals/:id/photos", express.raw({ type: ["image/*"], limit: "10mb" }), async (req, res) => {
+  const coll = await collection("projectActuals");
+  if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  if (!req.body || !req.body.length) return res.status(400).json({ error: "No image data received." });
+  const record = await coll.findOne({ _id: new ObjectId(req.params.id) });
+  if (!record) return res.status(404).json({ error: "Project not found." });
+  const ext = ({ "image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp", "image/heic": ".heic", "image/gif": ".gif" })[cleanString(req.headers["content-type"]).split(";")[0]] || ".jpg";
+  const safeName = cleanString(req.query.name || "photo").replace(/[^a-z0-9._-]/gi, "_").replace(/\.[a-z0-9]+$/i, "").slice(0, 60);
+  const file = `${Date.now().toString(36)}-${safeName}${ext}`;
+  const dir = path.join(UPLOADS_DIR, "actuals", req.params.id);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, file), req.body);
+  const photo = { file, url: `/uploads/actuals/${req.params.id}/${file}`, name: safeName, uploadedAt: new Date().toISOString() };
+  await coll.updateOne({ _id: record._id }, { $push: { photos: photo }, $set: { updatedAt: new Date().toISOString() } });
+  res.status(201).json(photo);
+});
+
+app.delete("/api/actuals/:id/photos/:file", async (req, res) => {
+  const coll = await collection("projectActuals");
+  if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  const file = cleanString(req.params.file).replace(/[^a-z0-9._-]/gi, "");
+  try { fs.unlinkSync(path.join(UPLOADS_DIR, "actuals", req.params.id, file)); } catch (_error) { /* already gone */ }
+  await coll.updateOne({ _id: new ObjectId(req.params.id) }, { $pull: { photos: { file } } });
+  res.json({ deleted: file });
+});
+
 app.get("/api/estimator/calibration", async (_req, res) => {
   try {
     costbookCache = null;
