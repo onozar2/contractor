@@ -4,3 +4,4 @@ node_modules/
 *.log
 tmp/*.json
 costbook.backup.json
+uploads/
