@@ -90,6 +90,7 @@
       <label>Stage<select id="fStage"><option value="">Any stage</option><option>not_contacted</option><option>queued</option><option>contacted</option><option>responded</option><option>pricing_received</option><option>vetted</option><option>preferred</option><option>rejected</option></select></label>
       <label>Materials<select id="fMat"><option value="">Any</option><option value="yes">Brings own</option><option value="no">We supply</option><option value="partial">Partial</option><option value="unknown">Unknown</option></select></label>
       <label>License<select id="fLic"><option value="">Any</option><option value="verified">Verified</option><option value="number">Has number</option><option value="missing">Missing</option></select></label>
+      <label>Docs<select id="fDocs"><option value="">Any</option><option value="complete">Packet complete</option><option value="partial">Partial</option><option value="none">None on file</option><option value="nocoi">Missing COI</option></select></label>
       <button class="btn" id="btnReset">Reset</button>
       <button class="btn primary" id="btnCsv">Export CSV</button>
       <span class="muted" id="countLabel" style="align-self:center;font-size:0.8rem"></span>
@@ -123,6 +124,7 @@
       { key: "licenseNumber", label: "License" },
       { key: "reviewRating", label: "Reviews" },
       { key: "bringsOwnMaterials", label: "Materials" },
+      { key: "docs", label: "Docs" },
       { key: "outreachStage", label: "Stage" },
       { key: "priceTier", label: "Price" }
     ];
@@ -138,6 +140,26 @@
       const cls = { yes: "green", no: "amber", partial: "plum" }[m] || "";
       const text = { yes: "brings own", no: "we supply", partial: "partial" }[m] || "unknown";
       return `<span class="pill ${cls}">${text}</span>`;
+    };
+
+    const DOC_KEYS = ["coi", "w9", "agreement", "workersCompCert"];
+    const DOC_LABELS = { coi: "COI (additional insured)", w9: "W-9", agreement: "Signed sub agreement", workersCompCert: "Workers comp cert" };
+    function docsSummary(s) {
+      const checklist = s.docChecklist || {};
+      let received = 0;
+      const missing = [];
+      for (const key of DOC_KEYS) {
+        const item = checklist[key] || {};
+        const expired = item.expiresAt && new Date(item.expiresAt) < new Date();
+        if ((item.status === "received" && !expired) || item.status === "exempt") received++;
+        else missing.push(key);
+      }
+      return { received, total: DOC_KEYS.length, missing, complete: missing.length === 0 };
+    }
+    const docsPill = (s) => {
+      const d = docsSummary(s);
+      const cls = d.complete ? "green" : d.received > 0 ? "amber" : "red";
+      return `<span class="pill ${cls}" title="missing: ${d.missing.join(", ") || "none"}">${d.received}/${d.total}</span>`;
     };
 
     async function load() {
@@ -170,6 +192,14 @@
         if (lic === "verified" && !s.licenseVerified) return false;
         if (lic === "number" && !s.licenseNumber) return false;
         if (lic === "missing" && s.licenseNumber) return false;
+        const docsF = document.getElementById("fDocs").value;
+        if (docsF) {
+          const d = docsSummary(s);
+          if (docsF === "complete" && !d.complete) return false;
+          if (docsF === "partial" && (d.complete || d.received === 0)) return false;
+          if (docsF === "none" && d.received !== 0) return false;
+          if (docsF === "nocoi" && !d.missing.includes("coi")) return false;
+        }
         if (q) {
           const hay = [s.companyName, s.ownerName, s.contactName, s.phone, s.email, s.serviceCategory, (s.specialties || []).join(" "), s.summary, s.serviceArea].join(" ").toLowerCase();
           if (!hay.includes(q)) return false;
@@ -219,6 +249,7 @@
           <td>${s.licenseNumber ? `${esc(s.licenseNumber)}${s.licenseVerified ? ' <span class="pill green">ok</span>' : ""}` : '<span class="pill red">none</span>'}</td>
           <td class="nowrap">${s.reviewRating ? `${s.reviewRating}★ <span class="muted">(${s.reviewCount || 0})</span>` : '<span class="muted">-</span>'}</td>
           <td>${matPill(s.bringsOwnMaterials || "unknown")}</td>
+          <td>${docsPill(s)}</td>
           <td>${stagePill(s.outreachStage)}</td>
           <td>${esc(s.priceTier === "unknown" ? "" : s.priceTier || "")}</td>
         </tr>`).join("");
@@ -256,6 +287,21 @@
               <button class="btn primary" onclick="saveEdits()">Save</button>
               <button class="btn" onclick="licenseSearch()">Find CSLB license</button>
               <button class="btn" onclick="delSub()" style="color:var(--red)">Delete</button>
+            </div>
+          </div>
+          <div class="card"><h3>Compliance packet ${(() => { const d = docsSummary(sub); return `<span class="pill ${d.complete ? "green" : d.received ? "amber" : "red"}">${d.received}/${d.total}</span>`; })()}</h3>
+            ${DOC_KEYS.map((key) => {
+              const item = (sub.docChecklist || {})[key] || { status: "missing", expiresAt: "" };
+              const hasExpiry = key === "coi" || key === "workersCompCert";
+              return `<div class="grid2" style="grid-template-columns: 1.4fr 1fr ${hasExpiry ? "1fr" : ""}; align-items:center">
+                <b style="font-size:0.82rem">${DOC_LABELS[key]}</b>
+                <select id="eDoc_${key}">${["missing","requested","received","exempt"].map((st) => `<option ${st === item.status ? "selected" : ""}>${st}</option>`).join("")}</select>
+                ${hasExpiry ? `<input id="eDocExp_${key}" type="date" value="${esc((item.expiresAt || "").slice(0, 10))}" title="expires" />` : ""}
+              </div>`;
+            }).join("")}
+            <div class="actions">
+              <button class="btn" onclick="chase('docs')">Docs request email</button>
+              <span class="muted" style="align-self:center;font-size:0.74rem">Save after changing statuses. Packet complete = ready to mark vetted.</span>
             </div>
           </div>
           <div class="card"><h3>Outreach</h3>
@@ -309,10 +355,19 @@
       current = null;
     }
     async function saveEdits() {
+      const docChecklist = {};
+      for (const key of DOC_KEYS) {
+        const expEl = document.getElementById(`eDocExp_${key}`);
+        docChecklist[key] = {
+          status: val(`eDoc_${key}`),
+          expiresAt: expEl ? expEl.value : ((current.docChecklist || {})[key] || {}).expiresAt || "",
+          note: ((current.docChecklist || {})[key] || {}).note || ""
+        };
+      }
       const body = { ...current,
         phone: val("ePhone"), email: val("eEmail"), website: val("eWebsite"), ownerName: val("eOwner"),
         outreachStage: val("eStage"), bringsOwnMaterials: val("eMat"), priceTier: val("eTier"),
-        nextFollowUpAt: val("eFollow"), chaseNotes: val("eNotes")
+        nextFollowUpAt: val("eFollow"), chaseNotes: val("eNotes"), docChecklist
       };
       await fetch(`${API}/${current.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       closeDrawer(); await load();
@@ -381,7 +436,7 @@
     document.addEventListener("change", (e) => { if (e.target.closest(".filters")) render(); });
     document.getElementById("btnReset").addEventListener("click", () => {
       for (const id of ["fSearch","fScore"]) document.getElementById(id).value = "";
-      for (const id of ["fTrade","fContact","fStage","fMat","fLic"]) document.getElementById(id).value = "";
+      for (const id of ["fTrade","fContact","fStage","fMat","fLic","fDocs"]) document.getElementById(id).value = "";
       render();
     });
     document.getElementById("btnCsv").addEventListener("click", exportCsv);

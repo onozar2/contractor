@@ -158,6 +158,39 @@ function blendScores(fitScore, jobScore, jobCount) {
 
 const OUTREACH_STAGES = ["not_contacted", "queued", "contacted", "responded", "pricing_received", "vetted", "preferred", "rejected"];
 
+// ── Compliance packet (in-house HeyPros-style doc tracking) ──
+// Four docs gate a sub from "responded" to "vetted": COI naming us additional
+// insured, W-9, signed sub agreement, workers-comp cert (or exemption).
+const DOC_KEYS = ["coi", "w9", "agreement", "workersCompCert"];
+const DOC_LABELS = { coi: "COI (additional insured)", w9: "W-9", agreement: "Signed sub agreement", workersCompCert: "Workers comp cert" };
+
+function normalizeDocChecklist(input) {
+  const src = input && typeof input === "object" ? input : {};
+  const out = {};
+  for (const key of DOC_KEYS) {
+    const item = src[key] || {};
+    out[key] = {
+      status: pickEnum(item.status, ["missing", "requested", "received", "exempt", "expired"], "missing"),
+      expiresAt: cleanString(item.expiresAt),
+      note: cleanString(item.note)
+    };
+  }
+  return out;
+}
+
+function complianceSummary(record) {
+  const checklist = record.docChecklist || {};
+  const missing = [];
+  for (const key of DOC_KEYS) {
+    const item = checklist[key] || {};
+    const days = daysUntilDate(item.expiresAt);
+    const expired = days !== null && days < 0;
+    const ok = (item.status === "received" && !expired) || item.status === "exempt";
+    if (!ok) missing.push(key);
+  }
+  return { complete: missing.length === 0, missing, received: DOC_KEYS.length - missing.length, total: DOC_KEYS.length };
+}
+
 function computeOwnerReachScore(doc) {
   let s = 0;
   if (cleanString(doc.ownerName)) s += 45;
@@ -235,6 +268,7 @@ function normalize(input) {
     crewSize: cleanString(input.crewSize),
     fieldSupervisor: cleanString(input.fieldSupervisor),
     bringsOwnMaterials: pickEnum(input.bringsOwnMaterials, ["yes", "no", "partial", "unknown"], "unknown"),
+    docChecklist: normalizeDocChecklist(input.docChecklist),
     outreachStage: pickEnum(input.outreachStage, OUTREACH_STAGES, "not_contacted"),
     net30Status: cleanString(input.net30Status || "unknown"),
     unionStatus: cleanString(input.unionStatus || "unknown"),
@@ -405,6 +439,39 @@ function buildSubcontractorChaseTask(record, mode = "both") {
     phoneScript,
     followUpPlan: "If no response, follow up in 5 business days. If they answer, mark responded and request license/COI plus preferred bid email.",
     sourceContext
+  };
+}
+
+function buildDocsRequestTask(record) {
+  const first = cleanString(record.contactName || record.ownerName || "there").split(/\s+/)[0] || "there";
+  const company = record.companyName || "your company";
+  const summary = complianceSummary(record);
+  const stillNeeded = summary.missing.map((key) => DOC_LABELS[key]);
+  const subject = `Paperwork to get ${company} on our approved roster`;
+  const emailBody = [
+    `Hi ${first},`,
+    "",
+    `Great connecting. To add ${company} to our approved subcontractor roster and start sending you work, I just need the standard packet:`,
+    "",
+    ...stillNeeded.map((label, i) => `${i + 1}. ${label}${label.startsWith("COI") ? " - certificate holder + additional insured: Joon Development Group" : ""}`),
+    "",
+    "Reply with PDFs whenever convenient - photos of the originals work too. If workers comp does not apply to you (owner-operator, no employees), just say so and I will mark you exempt.",
+    "",
+    "Once these are in you are first call for your trade.",
+    "",
+    "Best,",
+    "Ori Nozar",
+    "Joon Development Group",
+    "(818) 371-0334"
+  ].join("\n");
+  return {
+    subcontractorId: record._id?.toString?.() || record.id || "",
+    mode: "docs",
+    subject,
+    emailBody,
+    phoneScript: `Hi ${first}, Ori with Joon Development Group. Quick one - to get ${company} on our approved roster I need ${stillNeeded.join(", ") || "nothing, you're complete"}. What's the best email to send the checklist to?`,
+    stillNeeded,
+    followUpPlan: "If docs not received in 5 business days, follow up once by phone. Mark each doc received/exempt in the compliance card; sub flips to vetted when the packet is complete."
   };
 }
 
@@ -981,6 +1048,7 @@ async function upsertSourcedSubcontractor(coll, input) {
       // Never let a re-seed regress human-entered pipeline state or job history.
       outreachStage: existing.outreachStage && existing.outreachStage !== "not_contacted" ? existing.outreachStage : doc.outreachStage,
       bringsOwnMaterials: doc.bringsOwnMaterials !== "unknown" ? doc.bringsOwnMaterials : (existing.bringsOwnMaterials || "unknown"),
+      docChecklist: existing.docChecklist && Object.values(existing.docChecklist).some((item) => item && item.status !== "missing") ? existing.docChecklist : doc.docChecklist,
       overallScore: blendScores(doc.fitScore, existing.jobScore, existing.jobCount)
     };
     await coll.updateOne({ _id: existing._id }, { $set: merged });
@@ -1313,7 +1381,9 @@ app.post("/api/subcontractors/:id/chase-task", async (req, res) => {
   if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
   const record = await coll.findOne({ _id: new ObjectId(req.params.id) });
   if (!record) return res.status(404).json({ error: "Subcontractor not found." });
-  res.json(buildSubcontractorChaseTask(record, cleanString(req.body.mode || "both")));
+  const mode = cleanString(req.body.mode || "both");
+  if (mode === "docs") return res.json(buildDocsRequestTask(record));
+  res.json(buildSubcontractorChaseTask(record, mode));
 });
 
 app.get("/api/trade-presets", (_req, res) => {
