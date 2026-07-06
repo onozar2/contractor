@@ -71,6 +71,78 @@
     { "id": "final-clean", "service": "Whole Home Remodeling", "trade": "Handyman Services", "description": "Final construction clean", "unit": "job", "low": 400, "high": 800 },
     { "id": "pm-fee", "service": "Whole Home Remodeling", "trade": "General", "description": "Supervision / project management", "unit": "pct-of-subtotal", "low": 8, "high": 12 }
   ],
+  "publicEstimator": {
+    "finishLevels": [
+      { "key": "basic", "label": "Basic / builder-grade", "factor": 0.85 },
+      { "key": "mid", "label": "Mid-range", "factor": 1.0 },
+      { "key": "premium", "label": "Premium / designer", "factor": 1.35 }
+    ],
+    "timelines": [
+      { "key": "asap", "label": "Ready to start (0-3 months)", "score": 20 },
+      { "key": "soon", "label": "3-6 months out", "score": 10 },
+      { "key": "research", "label": "Just researching", "score": 0 }
+    ],
+    "projectTypes": [
+      { "key": "bath-full", "label": "Full bathroom remodel", "typicalDuration": "2-4 weeks", "base": { "low": 14000, "high": 27000 },
+        "sizes": [ { "key": "powder", "label": "Powder room / half bath", "factor": 0.55 }, { "key": "hall", "label": "Hall bath (5x8-ish)", "factor": 1.0 }, { "key": "primary", "label": "Primary / large bath", "factor": 1.45 } ],
+        "options": [
+          { "key": "tub2shower", "label": "Convert tub to walk-in shower", "low": 1500, "high": 3500 },
+          { "key": "doubleVanity", "label": "Double vanity", "low": 900, "high": 2200 },
+          { "key": "movePlumbing", "label": "Move plumbing fixtures around", "low": 1800, "high": 4500 },
+          { "key": "heatedFloor", "label": "Heated floors", "low": 1200, "high": 2600 },
+          { "key": "freestandingTub", "label": "Freestanding soaking tub", "low": 1800, "high": 4500 }
+        ],
+        "drivers": ["Tile & waterproofing", "Vanity & fixtures", "Plumbing", "Glass enclosure"] },
+      { "key": "tub-to-shower", "label": "Tub-to-shower conversion", "typicalDuration": "3-7 days", "base": { "low": 7000, "high": 14000 },
+        "sizes": [ { "key": "standard", "label": "Standard alcove (60 inch)", "factor": 1.0 }, { "key": "custom", "label": "Custom size / curbless", "factor": 1.3 } ],
+        "options": [
+          { "key": "glassDoor", "label": "Frameless glass door", "low": 1200, "high": 2800 },
+          { "key": "tileWalls", "label": "Full tile walls (vs acrylic surround)", "low": 1500, "high": 3500 },
+          { "key": "niche", "label": "Built-in niche + bench", "low": 500, "high": 1400 }
+        ],
+        "drivers": ["Shower pan & waterproofing", "Tile or surround", "Glass", "Plumbing valve"] },
+      { "key": "kitchen", "label": "Kitchen remodel", "typicalDuration": "4-8 weeks", "base": { "low": 32000, "high": 62000 },
+        "sizes": [ { "key": "small", "label": "Small / galley", "factor": 0.75 }, { "key": "medium", "label": "Medium (10x12-ish)", "factor": 1.0 }, { "key": "large", "label": "Large / open concept", "factor": 1.4 } ],
+        "options": [
+          { "key": "layout", "label": "Change the layout (move sink/stove)", "low": 4000, "high": 10000 },
+          { "key": "island", "label": "Add or enlarge island", "low": 2500, "high": 7000 },
+          { "key": "wallRemoval", "label": "Remove a wall (open it up)", "low": 4000, "high": 12000 },
+          { "key": "appliances", "label": "New appliance package installed", "low": 4000, "high": 12000 }
+        ],
+        "drivers": ["Cabinets", "Countertops", "Electrical & lighting", "Plumbing"] },
+      { "key": "adu", "label": "ADU / garage conversion", "typicalDuration": "4-8 months", "base": { "low": 55000, "high": 100000 },
+        "sizes": [ { "key": "garage", "label": "Garage conversion (~400 sqft)", "factor": 1.0 }, { "key": "detached-small", "label": "New detached ADU (~500-600 sqft)", "factor": 2.6 }, { "key": "detached-large", "label": "New detached ADU (~900-1200 sqft)", "factor": 4.2 } ],
+        "options": [
+          { "key": "kitchenette", "label": "Full kitchen (vs kitchenette)", "low": 8000, "high": 18000 },
+          { "key": "laundry", "label": "In-unit laundry", "low": 2000, "high": 5000 },
+          { "key": "separateMeter", "label": "Separate electrical meter", "low": 3000, "high": 8000 }
+        ],
+        "drivers": ["Construction $/sqft", "Plans & city fees", "Kitchen & bath buildout", "Utilities"] },
+      { "key": "flooring", "label": "New flooring", "typicalDuration": "3-7 days", "base": { "low": 6000, "high": 10500 },
+        "sizes": [ { "key": "rooms", "label": "A few rooms (~500 sqft)", "factor": 0.55 }, { "key": "most", "label": "Most of the house (~1,000 sqft)", "factor": 1.0 }, { "key": "whole", "label": "Whole house (~1,800 sqft)", "factor": 1.7 } ],
+        "options": [
+          { "key": "hardwood", "label": "Engineered hardwood (vs LVP)", "low": 3500, "high": 7000 },
+          { "key": "demo", "label": "Remove existing tile/hardwood", "low": 1000, "high": 3000 },
+          { "key": "baseboards", "label": "New baseboards throughout", "low": 1200, "high": 3000 }
+        ],
+        "drivers": ["Material grade", "Demo & prep", "Square footage"] },
+      { "key": "roofing", "label": "Roof replacement", "typicalDuration": "2-5 days", "base": { "low": 9000, "high": 14000 },
+        "sizes": [ { "key": "small", "label": "Smaller home (~15 squares)", "factor": 0.8 }, { "key": "medium", "label": "Average home (~20 squares)", "factor": 1.0 }, { "key": "large", "label": "Large home (~30+ squares)", "factor": 1.5 } ],
+        "options": [
+          { "key": "tile", "label": "Tile roof (vs comp shingle)", "low": 7000, "high": 16000 },
+          { "key": "sheathing", "label": "Replace plywood sheathing", "low": 900, "high": 2500 },
+          { "key": "gutters", "label": "New seamless gutters", "low": 1400, "high": 2600 }
+        ],
+        "drivers": ["Roof size", "Material type", "Sheathing condition"] },
+      { "key": "paint", "label": "Interior / exterior painting", "typicalDuration": "3-7 days", "base": { "low": 3800, "high": 6800 },
+        "sizes": [ { "key": "interior", "label": "Interior (~1,500 sqft)", "factor": 1.0 }, { "key": "exterior", "label": "Exterior", "factor": 1.15 }, { "key": "both", "label": "Interior + exterior", "factor": 2.0 } ],
+        "options": [
+          { "key": "ceilings", "label": "Ceilings + trim + doors", "low": 800, "high": 2000 },
+          { "key": "repairs", "label": "Drywall/stucco repairs first", "low": 600, "high": 2200 }
+        ],
+        "drivers": ["Surface area", "Prep & repairs", "Paint grade"] }
+    ]
+  },
   "assemblies": [
     { "key": "kitchen-mid", "label": "Kitchen remodel - mid-range (10x12)", "items": [ {"id":"kit-demo","qty":1}, {"id":"kit-cab-supply","qty":1}, {"id":"kit-cab-install","qty":1}, {"id":"kit-counter","qty":40}, {"id":"kit-backsplash","qty":30}, {"id":"kit-plumb","qty":1}, {"id":"kit-sink","qty":1}, {"id":"kit-elec","qty":1}, {"id":"kit-drywall","qty":1}, {"id":"floor-lvp","qty":150}, {"id":"appl-install","qty":1}, {"id":"permits-minor","qty":1}, {"id":"dumpster","qty":1}, {"id":"final-clean","qty":1} ] },
     { "key": "bath-hall", "label": "Hall bathroom remodel", "items": [ {"id":"bath-demo","qty":1}, {"id":"bath-pan","qty":1}, {"id":"bath-tile","qty":1}, {"id":"bath-glass","qty":1}, {"id":"bath-vanity","qty":1}, {"id":"bath-plumb","qty":1}, {"id":"bath-toilet","qty":1}, {"id":"bath-elec","qty":1}, {"id":"bath-floor","qty":1}, {"id":"bath-paint","qty":1}, {"id":"permits-minor","qty":1} ] },

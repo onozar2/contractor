@@ -88,6 +88,93 @@ publicApp.get("/flyer_commercial.html", (_req, res) => res.sendFile(path.join(__
 publicApp.get("/market_report.html", (_req, res) => res.sendFile(path.join(__dirname, "market_report.html")));
 publicApp.use("/assets", express.static(path.join(__dirname, "assets")));
 
+// ── Public instant-estimate widget (BathMath-style, lead-gated) ──
+publicApp.use(express.json({ limit: "200kb" }));
+publicApp.get("/estimate.html", (_req, res) => res.sendFile(path.join(__dirname, "estimate.html")));
+
+publicApp.get("/api/estimate-config", (_req, res) => {
+  try {
+    costbookCache = null;
+    const book = loadCostbook();
+    res.json(book.publicEstimator || { projectTypes: [] });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+function computePublicEstimate(config, input) {
+  const ptype = (config.projectTypes || []).find((p) => p.key === cleanString(input.projectType));
+  if (!ptype) return null;
+  const size = (ptype.sizes || []).find((s) => s.key === cleanString(input.size)) || { factor: 1, label: "" };
+  const finish = (config.finishLevels || []).find((f) => f.key === cleanString(input.finish)) || { factor: 1, label: "Mid-range" };
+  const chosen = (ptype.options || []).filter((o) => Array.isArray(input.options) && input.options.includes(o.key));
+  let low = ptype.base.low * size.factor + chosen.reduce((sum, o) => sum + o.low, 0);
+  let high = ptype.base.high * size.factor + chosen.reduce((sum, o) => sum + o.high, 0);
+  low = Math.round(low * finish.factor / 500) * 500;
+  high = Math.round(high * finish.factor / 500) * 500;
+  const typical = Math.round((low + (high - low) * 0.45) / 500) * 500;
+  return { low, high, typical, duration: ptype.typicalDuration, drivers: ptype.drivers || [], label: ptype.label, sizeLabel: size.label, finishLabel: finish.label, optionLabels: chosen.map((o) => o.label) };
+}
+
+function scorePublicLead(config, input, estimate) {
+  let score = 45;
+  const timeline = (config.timelines || []).find((t) => t.key === cleanString(input.timeline));
+  score += timeline ? timeline.score : 0;
+  if (cleanString(input.ownerStatus) === "owner") score += 10;
+  if (cleanString(input.ownerStatus) === "renter") score -= 25;
+  const budget = Number(input.budgetMax || 0);
+  if (budget && estimate) score += budget >= estimate.low * 0.8 ? 15 : -10;
+  if (cleanString(input.phone)) score += 5;
+  if (cleanString(input.notes).length > 20) score += 5;
+  return clamp(Math.round(score), 0, 100);
+}
+
+publicApp.post("/api/estimate-lead", async (req, res) => {
+  try {
+    costbookCache = null;
+    const config = loadCostbook().publicEstimator || {};
+    const input = req.body || {};
+    const estimate = computePublicEstimate(config, input);
+    if (!estimate) return res.status(400).json({ error: "Pick a project type." });
+    const name = cleanString(input.name);
+    const email = cleanString(input.email).toLowerCase();
+    const phone = cleanString(input.phone);
+    if (!name || (!email && !phone)) return res.status(400).json({ error: "Name plus an email or phone are required to see your estimate." });
+
+    const score = scorePublicLead(config, input, estimate);
+    const leadId = `web-${Date.now().toString(36)}`;
+    const coll = await collection("customerLeads");
+    if (coll) {
+      await coll.insertOne(normalizeLead({
+        customerName: name,
+        phone,
+        email,
+        city: cleanString(input.zip),
+        projectType: estimate.label,
+        source: "Website Estimator",
+        status: "new",
+        priority: score >= 70 ? "high" : score >= 50 ? "medium" : "low",
+        estimatedValue: estimate.typical,
+        probability: clamp(Math.round(score / 3), 5, 40),
+        nextAction: score >= 70 ? "Hot web lead - call within 1 business day." : "Web lead - email planning range recap + qualify.",
+        summary: `${estimate.label} | ${estimate.sizeLabel} | ${estimate.finishLabel} | range $${estimate.low.toLocaleString()}-$${estimate.high.toLocaleString()}`,
+        notes: [
+          `Lead ${leadId} · score ${score}/100`,
+          `Options: ${estimate.optionLabels.join(", ") || "none"}`,
+          `Timeline: ${cleanString(input.timeline)} · Budget max: ${input.budgetMax || "n/a"} · ${cleanString(input.ownerStatus) || "?"}`,
+          cleanString(input.notes) ? `Homeowner notes: ${cleanString(input.notes)}` : ""
+        ].filter(Boolean).join(" | "),
+        sourcingMethod: "widget",
+        agentStatus: "needs_review",
+        sourceConfidence: "high"
+      }));
+    }
+    res.json({ leadId, score, ...estimate });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 crmApp.use(express.json({ limit: "1mb" }));
 crmApp.get("/", (_req, res) => res.redirect("/subcontractor_finder.html"));
 crmApp.get("/subcontractor_finder.html", (_req, res) => res.sendFile(path.join(__dirname, "subcontractor_finder.html")));
