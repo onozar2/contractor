@@ -2082,6 +2082,97 @@ app.post("/api/subcontractors/research-url", async (req, res) => {
   }
 });
 
+// ── Autosweep: adaptive background trade sweeps (Option B scheduler) ──
+// Runs the finder on the least-covered trades. Starts hourly; when the search
+// engines throttle us (zero candidates / mass engine failures) the interval
+// escalates x3 (60m -> 180m -> 540m -> 720m cap) and halves back on success.
+const AUTOSWEEP_MIN = 60;
+const AUTOSWEEP_MAX = 720;
+
+async function getAutosweepState() {
+  const coll = await collection("settings");
+  if (!coll) return null;
+  let doc = await coll.findOne({ _id: "autosweep" });
+  if (!doc) {
+    doc = { _id: "autosweep", enabled: true, intervalMinutes: AUTOSWEEP_MIN, nextRunAt: new Date(Date.now() + 5 * 60000).toISOString(), history: [], rotation: 0 };
+    await coll.insertOne(doc);
+  }
+  return doc;
+}
+
+async function pickAutosweepTrade(rotation) {
+  const subs = await collection("subcontractors");
+  const counts = await subs.aggregate([{ $group: { _id: "$serviceCategory", n: { $sum: 1 } } }]).toArray();
+  const countMap = new Map(counts.map((c) => [cleanString(c._id).toLowerCase(), c.n]));
+  const ranked = TRADE_PRESETS
+    .map((preset) => ({ preset, count: countMap.get(preset.serviceCategory.toLowerCase()) || 0 }))
+    .sort((a, b) => a.count - b.count);
+  const pool = ranked.slice(0, 8); // rotate through the 8 thinnest trades
+  return pool[(rotation || 0) % pool.length].preset;
+}
+
+let autosweepRunning = false;
+async function runAutosweepTick() {
+  if (autosweepRunning) return;
+  autosweepRunning = true;
+  try {
+    const coll = await collection("settings");
+    if (!coll) return;
+    const state = await getAutosweepState();
+    if (!state.enabled || new Date(state.nextRunAt).getTime() > Date.now()) return;
+    const preset = await pickAutosweepTrade(state.rotation);
+    let outcome = "error";
+    let result = {};
+    try {
+      result = await runSubcontractorAgent({ tradeKey: preset.key, maxResults: 6, minFitScore: 45 });
+      const engineFails = (result.errors || []).filter((e) => /All search engines failed/i.test(e.error || "")).length;
+      const throttled = (result.candidateCount || 0) === 0 || engineFails >= Math.ceil((result.queries || []).length / 2);
+      outcome = throttled ? "throttled" : "ok";
+    } catch (error) {
+      result = { error: error.message };
+    }
+    let interval = Number(state.intervalMinutes || AUTOSWEEP_MIN);
+    interval = outcome === "ok" ? Math.max(AUTOSWEEP_MIN, Math.round(interval / 2)) : Math.min(AUTOSWEEP_MAX, interval * 3);
+    const entry = {
+      at: new Date().toISOString(),
+      trade: preset.serviceCategory,
+      outcome,
+      saved: result.savedCount || 0,
+      candidates: result.candidateCount || 0,
+      errors: (result.errors || []).length,
+      nextIntervalMinutes: interval
+    };
+    await coll.updateOne({ _id: "autosweep" }, {
+      $set: { intervalMinutes: interval, nextRunAt: new Date(Date.now() + interval * 60000).toISOString(), lastRun: entry, rotation: (state.rotation || 0) + 1 },
+      $push: { history: { $each: [entry], $slice: -30 } }
+    });
+    console.log(`[autosweep] ${preset.serviceCategory}: ${outcome}, saved ${entry.saved}/${entry.candidates}, next in ${interval}min`);
+  } catch (error) {
+    console.error("[autosweep] tick failed:", error.message);
+  } finally {
+    autosweepRunning = false;
+  }
+}
+setInterval(runAutosweepTick, 60000);
+
+app.get("/api/autosweep", async (_req, res) => {
+  const state = await getAutosweepState();
+  if (!state) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  res.json(state);
+});
+
+app.post("/api/autosweep", async (req, res) => {
+  const coll = await collection("settings");
+  if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  await getAutosweepState();
+  const update = {};
+  if (typeof req.body.enabled === "boolean") update.enabled = req.body.enabled;
+  if (Number(req.body.intervalMinutes) >= AUTOSWEEP_MIN) update.intervalMinutes = clamp(Number(req.body.intervalMinutes), AUTOSWEEP_MIN, AUTOSWEEP_MAX);
+  if (req.body.runNow) update.nextRunAt = new Date().toISOString();
+  if (Object.keys(update).length) await coll.updateOne({ _id: "autosweep" }, { $set: update });
+  res.json(await getAutosweepState());
+});
+
 publicApp.listen(publicPort, () => {
   console.log(`Joon public website running at http://localhost:${publicPort}`);
 });

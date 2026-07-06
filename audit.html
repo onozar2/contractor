@@ -81,6 +81,15 @@
           <h2>Score distribution / pipeline / materials</h2>
           <div id="dists" style="display:grid;gap:0.5rem;font-size:0.8rem"></div>
         </div>
+        <div class="card" style="margin-bottom:1rem">
+          <h2>Autosweep (adaptive scheduler)</h2>
+          <div id="asStatus" style="font-size:0.8rem;margin-bottom:0.5rem">Loading...</div>
+          <div class="sweep" style="margin-bottom:0.5rem">
+            <button class="btn" id="asToggle">...</button>
+            <button class="btn" id="asRunNow">Run next now</button>
+          </div>
+          <div id="asHistory" class="muted" style="font-size:0.74rem"></div>
+        </div>
         <div class="card">
           <h2>Supplier database health</h2>
           <div id="supStats" style="font-size:0.8rem"></div>
@@ -157,6 +166,27 @@
       document.getElementById("skipRows").innerHTML = audit.finder.skipReasons.map((r) => `
         <tr><td>${esc(r.reason)}</td><td><b>${r.count}</b></td></tr>`).join("") || '<tr><td colspan="2" class="muted">No skip data yet.</td></tr>';
     }
+
+    async function loadAutosweep() {
+      const s = await fetch("/api/autosweep").then((r) => r.json());
+      const next = s.nextRunAt ? new Date(s.nextRunAt).toLocaleString() : "-";
+      document.getElementById("asStatus").innerHTML =
+        `<span class="pill ${s.enabled ? "green" : "red"}">${s.enabled ? "ON" : "OFF"}</span> ` +
+        `interval <b>${Math.round(s.intervalMinutes / 60 * 10) / 10}h</b> · next run <b>${next}</b>` +
+        (s.lastRun ? `<br />last: ${esc(s.lastRun.trade)} — ${esc(s.lastRun.outcome)} (saved ${s.lastRun.saved}/${s.lastRun.candidates})` : "");
+      document.getElementById("asToggle").textContent = s.enabled ? "Pause" : "Enable";
+      document.getElementById("asToggle").onclick = async () => {
+        await fetch("/api/autosweep", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ enabled: !s.enabled }) });
+        loadAutosweep();
+      };
+      document.getElementById("asRunNow").onclick = async () => {
+        await fetch("/api/autosweep", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ runNow: true }) });
+        document.getElementById("asStatus").innerHTML += "<br />Queued — runs within a minute; refresh after.";
+      };
+      document.getElementById("asHistory").innerHTML = (s.history || []).slice(-6).reverse()
+        .map((h) => `${esc((h.at || "").slice(5, 16).replace("T", " "))} · ${esc(h.trade)} · ${esc(h.outcome)} · saved ${h.saved} · next ${Math.round(h.nextIntervalMinutes / 60 * 10) / 10}h`).join("<br />") || "No runs yet.";
+    }
+    loadAutosweep();
 
     document.getElementById("swRun").addEventListener("click", async () => {
       const status = document.getElementById("swStatus");
