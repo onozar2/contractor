@@ -2292,7 +2292,10 @@ app.put("/api/subcontractors/:id", async (req, res) => {
   const coll = await collection();
   if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
   const existing = await coll.findOne({ _id: new ObjectId(req.params.id) });
-  const update = { ...normalize(req.body), updatedAt: new Date().toISOString() };
+  // Merge onto the stored doc before normalizing so a partial PUT body can't
+  // blank out fields it didn't mention (normalize() fills absent fields with "").
+  const merged = existing ? { ...existing, ...req.body } : req.body;
+  const update = { ...normalize(merged), updatedAt: new Date().toISOString() };
   update.overallScore = blendScores(update.fitScore, existing && existing.jobScore, existing && existing.jobCount);
   await coll.updateOne({ _id: new ObjectId(req.params.id) }, { $set: update });
   res.json({ ...update, id: req.params.id });
