@@ -267,7 +267,7 @@
     const projectTypes = ["Kitchen remodel", "Bathroom remodel", "Outdoor living", "Concrete and hardscape", "Landscape and drainage", "Flooring", "Exterior repair", "Painting", "Full home renovation", "Water damage repair"];
     const trades = ["Demo / haul-off", "Concrete and hardscape", "Landscape and drainage", "Electrical", "Plumbing", "Tile and waterproofing", "Cabinetry and millwork", "Counters", "Flooring", "Painting", "Drywall and framing", "Designer / drafting"];
     const localKey = "joonBidProjects";
-    const apiBase = window.location.port === "4173" ? `http://${window.location.hostname}:4373` : "";
+    const apiBase = ""; // single-port since 2026-07-07: /api is same-origin
     let projects = [];
     let apiAvailable = false;
 

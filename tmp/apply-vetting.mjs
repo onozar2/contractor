@@ -8,7 +8,7 @@ let total = 0;
 for (const file of files) {
   const raw = JSON.parse(fs.readFileSync(file, "utf8"));
   const records = Array.isArray(raw) ? raw : raw.records || [];
-  const res = await fetch("http://localhost:4373/api/vetting/apply", {
+  const res = await fetch("http://localhost:4173/api/vetting/apply", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ records }),

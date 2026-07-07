@@ -3028,11 +3028,15 @@ app.post("/api/autosweep", async (req, res) => {
   res.json(await getAutosweepState());
 });
 
-publicApp.listen(publicPort, () => {
-  console.log(`Joon public website running at http://localhost:${publicPort}`);
-});
+// Single-port consolidation (2026-07-07): the CRM app is mounted INSIDE the
+// public app instead of listening on its own port. Public routes are registered
+// first, so "/" stays the marketing homepage; CRM pages + /api live at the same
+// origin (http://localhost:4173/subs_database.html etc). NOTE: before exposing
+// :4173 on a public domain, the CRM paths need auth or an IP allowlist.
+publicApp.use(crmApp);
 
-crmApp.listen(crmPort, () => {
-  console.log(`Joon subcontractor CRM running at http://localhost:${crmPort}`);
+publicApp.listen(publicPort, () => {
+  console.log(`Joon site + CRM running single-port at http://localhost:${publicPort}`);
   console.log(mongoUri ? `Mongo persistence enabled: ${dbName}.subcontractors` : "Mongo persistence disabled. Set MONGODB_URI to enable it.");
+  if (process.env.CRM_PORT) console.log("CRM_PORT is set but ignored - the CRM now serves from the public port.");
 });

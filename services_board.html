@@ -561,7 +561,7 @@
     // A record counts toward a service's readiness only when it is actually usable.
     const VETTED_STATUSES = ["vetted", "outreach_ready", "contacted", "responded", "qualified", "active", "preferred"];
 
-    const apiBase = window.location.port === "4173" ? `http://${window.location.hostname}:4373` : "";
+    const apiBase = ""; // single-port since 2026-07-07: /api is same-origin
     let subcontractors = [];
     let suppliers = [];
     let suppliersAvailable = false;

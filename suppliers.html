@@ -870,7 +870,7 @@
     const statusTone = { not_started: "warn", researching: "blue", applied: "plum", open: "good" };
 
     const storageKey = "joonSuppliers";
-    const apiBase = window.location.port === "4173" ? `http://${window.location.hostname}:4373` : "";
+    const apiBase = ""; // single-port since 2026-07-07: /api is same-origin
     let suppliers = [];
     let apiAvailable = false;
     let activeStatus = "all";
