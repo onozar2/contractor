@@ -77,6 +77,8 @@
       <a href="lead_generation.html">Leads</a>
       <a href="estimator.html">Estimator</a>
       <a href="actuals.html">Actuals</a>
+      <a href="change_orders.html">COs</a>
+      <a href="photo_feed.html">Photos</a>
       <a href="bid_lab.html">Bid Lab</a>
       <a href="suppliers.html">Suppliers</a>
       <a href="services_board.html">Readiness</a>
@@ -92,6 +94,7 @@
       <label>Stage<select id="fStage"><option value="">Any stage</option><option>not_contacted</option><option>queued</option><option>contacted</option><option>responded</option><option>pricing_received</option><option>vetted</option><option>preferred</option><option>rejected</option></select></label>
       <label>Materials<select id="fMat"><option value="">Any</option><option value="yes">Brings own</option><option value="no">We supply</option><option value="partial">Partial</option><option value="unknown">Unknown</option></select></label>
       <label>License<select id="fLic"><option value="">Any</option><option value="verified">Verified</option><option value="number">Has number</option><option value="missing">Missing</option></select></label>
+      <label>Vetting<select id="fVet"><option value="">Any</option><option value="verified">Verified (75+)</option><option value="credible">Credible (55+)</option><option value="unverified">Unverified</option><option value="risky">Risky</option><option value="flagged">Red-flagged</option><option value="deep">Deep-vetted</option><option value="deadsite">Dead website</option></select></label>
       <label>Docs<select id="fDocs"><option value="">Any</option><option value="complete">Packet complete</option><option value="partial">Partial</option><option value="none">None on file</option><option value="nocoi">Missing COI</option></select></label>
       <button class="btn" id="btnReset">Reset</button>
       <button class="btn primary" id="btnCsv">Export CSV</button>
@@ -117,6 +120,8 @@
     const COLS = [
       { key: "companyName", label: "Company" },
       { key: "serviceCategory", label: "Trade" },
+      { key: "legitScore", label: "Legit" },
+      { key: "completenessScore", label: "Complete" },
       { key: "overall", label: "Score" },
       { key: "jobCount", label: "Jobs" },
       { key: "ownerName", label: "Owner" },
@@ -137,6 +142,14 @@
     const stagePill = (s) => {
       const cls = { preferred: "green", vetted: "green", pricing_received: "plum", responded: "plum", contacted: "amber", queued: "amber", rejected: "red" }[s] || "";
       return `<span class="pill ${cls}">${esc((s || "not_contacted").replace(/_/g, " "))}</span>`;
+    };
+    const TIER_CLS = { verified: "green", credible: "plum", unverified: "amber", risky: "red", flagged: "red" };
+    const legitCell = (s) => {
+      const tier = s.legitTier || "unverified";
+      const flags = (s.redFlags || []).length;
+      return `<span class="score ${scoreClass(s.legitScore || 0)}" title="${esc(tier)}${flags ? ` · ${flags} red flag(s)` : ""}${s.vettingStatus === "deep_vetted" ? " · deep-vetted" : ""}">${s.legitScore ?? "-"}</span>` +
+        (flags ? ' <span class="pill red" title="' + esc((s.redFlags || []).join("; ")) + '">⚑</span>' : "") +
+        (s.vettingStatus === "deep_vetted" ? ' <span class="pill green" title="deep-vetted">✓</span>' : "");
     };
     const matPill = (m) => {
       const cls = { yes: "green", no: "amber", partial: "plum" }[m] || "";
@@ -194,6 +207,11 @@
         if (lic === "verified" && !s.licenseVerified) return false;
         if (lic === "number" && !s.licenseNumber) return false;
         if (lic === "missing" && s.licenseNumber) return false;
+        const vet = document.getElementById("fVet").value;
+        if (vet === "flagged" && !(s.redFlags || []).length) return false;
+        else if (vet === "deep" && s.vettingStatus !== "deep_vetted") return false;
+        else if (vet === "deadsite" && s.websiteAlive !== false) return false;
+        else if (["verified", "credible", "unverified", "risky"].includes(vet) && (s.legitTier || "unverified") !== vet) return false;
         const docsF = document.getElementById("fDocs").value;
         if (docsF) {
           const d = docsSummary(s);
@@ -217,18 +235,18 @@
 
     function renderMetrics(rows) {
       const total = all.length;
-      const withPhone = all.filter((s) => s.phone).length;
-      const withEmail = all.filter((s) => s.email).length;
       const contacted = all.filter((s) => !["not_contacted", "queued", undefined, ""].includes(s.outreachStage)).length;
-      const preferred = all.filter((s) => ["preferred", "vetted"].includes(s.outreachStage)).length;
       const jobs = all.reduce((sum, s) => sum + (s.jobCount || 0), 0);
-      const avg = total ? Math.round(all.reduce((sum, s) => sum + overall(s), 0) / total) : 0;
       const trades = new Set(all.map((s) => s.serviceCategory)).size;
+      const avgLegit = total ? Math.round(all.reduce((sum, s) => sum + (s.legitScore || 0), 0) / total) : 0;
+      const avgComplete = total ? Math.round(all.reduce((sum, s) => sum + (s.completenessScore || 0), 0) / total) : 0;
+      const deepVetted = all.filter((s) => s.vettingStatus === "deep_vetted").length;
+      const flagged = all.filter((s) => (s.redFlags || []).length).length;
       document.getElementById("metrics").innerHTML = [
-        [total, "Total subs"], [trades, "Trades"], [avg, "Avg score"],
-        [Math.round((withPhone / (total || 1)) * 100) + "%", "Have phone"],
-        [Math.round((withEmail / (total || 1)) * 100) + "%", "Have email"],
-        [contacted, "Contacted"], [preferred, "Vetted / preferred"], [jobs, "Jobs logged"]
+        [total, "Total subs"], [trades, "Trades"],
+        [avgLegit, "Avg legit"], [avgComplete, "Avg complete"],
+        [deepVetted, "Deep vetted"], [flagged, "Red-flagged"],
+        [contacted, "Contacted"], [jobs, "Jobs logged"]
       ].map(([v, l]) => `<div class="metric"><b>${v}</b><span>${l}</span></div>`).join("");
     }
 
@@ -242,6 +260,8 @@
         <tr class="row" data-id="${s.id}">
           <td><b>${esc(s.companyName)}</b><br /><span class="muted" style="font-size:0.72rem">${esc(s.serviceArea || "")}</span></td>
           <td>${esc(s.serviceCategory)}</td>
+          <td>${legitCell(s)}</td>
+          <td><span class="score ${scoreClass(s.completenessScore || 0)}" title="record completeness">${s.completenessScore ?? "-"}</span></td>
           <td><span class="score ${scoreClass(overall(s))}" title="fit ${s.fitScore || 0} / job ${s.jobScore || "-"}">${overall(s)}</span></td>
           <td>${s.jobCount ? `<b>${s.jobCount}</b> <span class="muted">(${s.jobScore})</span>` : '<span class="muted">-</span>'}</td>
           <td>${esc(s.ownerName || "")}</td>
@@ -332,6 +352,17 @@
             </div>
             <div class="actions"><button class="btn primary" onclick="logJob()">Save job</button></div>
             <div id="jobList" class="muted" style="font-size:0.78rem"></div>
+          </div>
+          <div class="card"><h3>Vetting ${(() => { const t = sub.legitTier || "unverified"; return `<span class="pill ${TIER_CLS[t] || ""}">${t}</span>`; })()}</h3>
+            <div class="grid2">
+              <div class="kv"><span>Legit score</span><b><span class="score ${scoreClass(sub.legitScore || 0)}">${sub.legitScore ?? "-"}</span></b></div>
+              <div class="kv"><span>Record completeness</span><b><span class="score ${scoreClass(sub.completenessScore || 0)}">${sub.completenessScore ?? "-"}</span></b></div>
+              <div class="kv"><span>CSLB status</span><b>${esc(sub.licenseStatus || "unchecked")}</b></div>
+              <div class="kv"><span>Website</span><b>${sub.websiteAlive === true ? '<span class="pill green">alive</span>' : sub.websiteAlive === false ? '<span class="pill red">dead</span>' : '<span class="pill">unchecked</span>'}</b></div>
+              <div class="kv"><span>Deep vetted</span><b>${sub.vettingStatus === "deep_vetted" ? esc((sub.lastVettedAt || "").slice(0, 10)) : "no"}</b></div>
+              <div class="kv"><span>Red flags</span><b>${(sub.redFlags || []).length ? (sub.redFlags || []).map((f) => `<span class="pill red">${esc(f)}</span>`).join(" ") : '<span class="muted">none</span>'}</b></div>
+            </div>
+            ${sub.vettingNotes ? `<div class="kv"><span>Vetting notes</span><span style="font-size:0.8rem">${esc(sub.vettingNotes)}</span></div>` : ""}
           </div>
           <div class="card"><h3>Research detail</h3>
             <div class="grid2">
@@ -426,8 +457,8 @@
 
     function exportCsv() {
       const rows = filtered();
-      const cols = ["companyName","serviceCategory","overallScore","fitScore","jobScore","jobCount","ownerName","phone","email","website","licenseNumber","licenseClass","licenseVerified","reviewRating","reviewCount","reviewSource","priceTier","bringsOwnMaterials","outreachStage","serviceArea","summary"];
-      const csv = [cols.join(",")].concat(rows.map((s) => cols.map((c) => `"${String(s[c] ?? "").replace(/"/g, '""')}"`).join(","))).join("\n");
+      const cols = ["companyName","serviceCategory","legitScore","legitTier","completenessScore","licenseStatus","websiteAlive","vettingStatus","redFlags","overallScore","fitScore","jobScore","jobCount","ownerName","phone","email","website","licenseNumber","licenseClass","licenseVerified","reviewRating","reviewCount","reviewSource","priceTier","bringsOwnMaterials","outreachStage","serviceArea","summary","vettingNotes"];
+      const csv = [cols.join(",")].concat(rows.map((s) => cols.map((c) => `"${String(Array.isArray(s[c]) ? s[c].join("; ") : s[c] ?? "").replace(/"/g, '""')}"`).join(","))).join("\n");
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
       a.download = `joon-subs-${new Date().toISOString().slice(0,10)}.csv`;
@@ -438,7 +469,7 @@
     document.addEventListener("change", (e) => { if (e.target.closest(".filters")) render(); });
     document.getElementById("btnReset").addEventListener("click", () => {
       for (const id of ["fSearch","fScore"]) document.getElementById(id).value = "";
-      for (const id of ["fTrade","fContact","fStage","fMat","fLic","fDocs"]) document.getElementById(id).value = "";
+      for (const id of ["fTrade","fContact","fStage","fMat","fLic","fDocs","fVet"]) document.getElementById(id).value = "";
       render();
     });
     document.getElementById("btnCsv").addEventListener("click", exportCsv);

@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="CompanyCam-style project photo documentation for Joon Development Group." />
+  <title>Photo Feed | Joon Development Group</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #172033; --steel: #3c4658; --muted: #687587; --line: #d8dee8;
+      --soft: #f5f7fa; --paper: #ffffff; --charcoal: #101828; --blue: #2563eb;
+      --green: #0f766e; --amber: #b45309; --red: #b42318; --plum: #7c3aed;
+      --shadow: 0 14px 36px rgba(16, 24, 40, 0.08);
+    }
+    body { min-width: 320px; color: var(--ink); background: #eef2f6; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.45; }
+    a { color: inherit; }
+    .topbar { background: var(--charcoal); color: rgba(255,255,255,0.76); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: 0.5rem 2vw; font-size: 0.82rem; }
+    .topbar strong { color: #fff; }
+    .topbar a { text-decoration: none; min-height: 28px; border-radius: 6px; padding: 0.18rem 0.52rem; font-weight: 850; color: rgba(255,255,255,0.72); }
+    .topbar a:hover, .topbar a.active { color: #fff; background: rgba(255,255,255,0.12); }
+    .shell { width: min(1480px, 100%); margin: 0 auto; padding: 1rem 1.5vw 3rem; display: grid; gap: 0.9rem; }
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 0.6rem; }
+    .metric { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 0.55rem 0.7rem; }
+    .metric b { display: block; font-size: 1.25rem; }
+    .metric span { color: var(--muted); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 0.9rem; align-items: start; }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 0.85rem; box-shadow: var(--shadow); }
+    .card h2 { font-size: 1.02rem; font-weight: 900; margin-bottom: 0.6rem; }
+    .controls { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: end; }
+    .controls label { display: grid; gap: 0.15rem; font-size: 0.72rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .controls select { min-height: 34px; min-width: 220px; border: 1px solid var(--line); border-radius: 7px; padding: 0 0.5rem; font: inherit; font-size: 0.85rem; background: var(--soft); }
+    .btn { min-height: 34px; border: 1px solid var(--line); border-radius: 7px; padding: 0 0.8rem; background: var(--paper); font: inherit; font-size: 0.82rem; font-weight: 800; cursor: pointer; color: var(--steel); }
+    .btn:hover { color: var(--blue); background: var(--soft); }
+    .btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .btn.primary:hover { color: #fff; background: #1d4fd8; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.6rem; }
+    .chip { border: 1px solid var(--line); background: var(--soft); color: var(--steel); border-radius: 999px; padding: 0.15rem 0.65rem; font-size: 0.74rem; font-weight: 800; cursor: pointer; }
+    .chip:hover { color: var(--blue); }
+    .chip.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .chip.tagchip.on { background: var(--plum); border-color: var(--plum); }
+    /* feed */
+    .day h3 { font-size: 0.9rem; padding-bottom: 0.35rem; border-bottom: 2px solid var(--line); margin: 0.9rem 0 0.6rem; }
+    .day:first-of-type h3 { margin-top: 0; }
+    .day .count { color: var(--muted); font-weight: 700; font-size: 0.72rem; margin-left: 0.4rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr)); gap: 0.7rem; }
+    .entry { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--paper); display: grid; align-content: start; }
+    .entry img { display: block; width: 100%; height: 180px; object-fit: cover; background: var(--soft); }
+    .pair { display: grid; grid-template-columns: 1fr 1fr; }
+    .pair figure { position: relative; }
+    .pair img { height: 180px; }
+    .pairlabel { position: absolute; top: 0.4rem; left: 0.4rem; background: rgba(16,24,40,0.78); color: #fff; font-size: 0.62rem; font-weight: 850; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.12rem 0.45rem; border-radius: 999px; }
+    .pairlabel.after { background: var(--blue); }
+    .entry .body { padding: 0.5rem 0.6rem 0.6rem; display: grid; gap: 0.35rem; }
+    .entry .meta { display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; }
+    .pill { display: inline-block; border-radius: 999px; padding: 0.05rem 0.5rem; font-size: 0.68rem; font-weight: 800; background: var(--soft); color: var(--steel); border: 1px solid var(--line); white-space: nowrap; }
+    .pill.p-demo { background: #fdecea; color: var(--red); border-color: #f5c9c4; }
+    .pill.p-rough-in { background: #fdf3e7; color: var(--amber); border-color: #f3ddc0; }
+    .pill.p-inspection { background: #f3ecfe; color: var(--plum); border-color: #ded0f7; }
+    .pill.p-finish, .pill.p-final { background: #e7f6f4; color: var(--green); border-color: #bfe6e1; }
+    .entry .time { color: var(--muted); font-size: 0.7rem; font-weight: 700; }
+    .entry .caption { font-size: 0.82rem; }
+    .entry .proj { color: var(--muted); font-size: 0.7rem; font-weight: 700; }
+    .entry .tags { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+    .tag { font-size: 0.66rem; font-weight: 800; color: var(--muted); background: var(--soft); border: 1px solid var(--line); border-radius: 999px; padding: 0.03rem 0.45rem; }
+    .entry .rowactions { display: flex; gap: 0.35rem; justify-content: end; }
+    .mini { border: none; background: none; font: inherit; font-size: 0.72rem; font-weight: 800; color: var(--muted); cursor: pointer; padding: 0.1rem 0.3rem; }
+    .mini:hover { color: var(--blue); }
+    .mini.danger:hover { color: var(--red); }
+    /* form */
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem; }
+    .full { grid-column: 1 / -1; }
+    .form-section { grid-column: 1 / -1; margin-top: 0.75rem; padding: 0.1rem 0 0.35rem 0.6rem; border-left: 3px solid var(--soft); color: var(--steel); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; }
+    .form-section:first-of-type { margin-top: 0; }
+    .form-grid label { display: grid; gap: 0.15rem; font-size: 0.72rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .form-grid input, .form-grid select, .form-grid textarea { min-height: 34px; border: 1px solid var(--line); border-radius: 7px; padding: 0.3rem 0.5rem; font: inherit; font-size: 0.84rem; background: var(--soft); width: 100%; }
+    .form-grid textarea { min-height: 60px; resize: vertical; }
+    .form-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.7rem; }
+    .status-line { min-height: 22px; color: var(--muted); font-size: 0.82rem; margin-top: 0.5rem; word-break: break-all; }
+    .status-line.good { color: var(--green); }
+    .status-line.bad { color: var(--red); }
+    .empty { padding: 2.2rem 1rem; color: var(--muted); text-align: center; }
+    .empty b { display: block; color: var(--steel); font-size: 0.95rem; margin-bottom: 0.3rem; }
+    .empty-cta { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 0.9rem; }
+    .muted { color: var(--muted); }
+    /* toasts */
+    .toast-host { position: fixed; right: 1.2rem; bottom: 1.2rem; z-index: 60; display: grid; gap: 0.5rem; max-width: min(360px, 90vw); }
+    .toast { border-left: 4px solid var(--steel); border-radius: 8px; background: var(--charcoal); color: #fff; padding: 0.7rem 0.9rem; font-size: 0.86rem; font-weight: 700; box-shadow: 0 18px 40px rgba(16, 24, 40, 0.28); animation: toastIn 0.18s ease-out; }
+    .toast.good { border-left-color: #34d399; }
+    .toast.bad { border-left-color: #f87171; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    /* print = the photo report (same approach as the estimator proposal) */
+    #report { display: none; }
+    @media print {
+      body * { visibility: hidden; }
+      #report, #report * { visibility: visible; }
+      #report { display: block; position: absolute; left: 0; top: 0; width: 100%; padding: 1.5rem 2rem; background: #fff; }
+      #report .cover { border-bottom: 3px solid #101828; padding-bottom: 1rem; margin-bottom: 1rem; }
+      #report .cover .brand { font-size: 0.8rem; font-weight: 850; letter-spacing: 0.08em; text-transform: uppercase; color: #3c4658; }
+      #report .cover h1 { font-size: 1.5rem; margin-top: 0.25rem; }
+      #report .cover .range { color: #687587; font-size: 0.9rem; margin-top: 0.2rem; }
+      #report .cover .totals { display: flex; gap: 1.5rem; margin-top: 0.6rem; font-size: 0.82rem; color: #3c4658; }
+      #report .cover .totals b { font-size: 1rem; color: #101828; }
+      #report h2.rday { font-size: 0.95rem; margin: 0.9rem 0 0.5rem; border-bottom: 1px solid #d8dee8; padding-bottom: 0.25rem; break-after: avoid; page-break-after: avoid; }
+      #report .rgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+      #report .rentry { break-inside: avoid; page-break-inside: avoid; border: 1px solid #d8dee8; border-radius: 8px; overflow: hidden; }
+      #report .rentry img { display: block; width: 100%; height: 200px; object-fit: cover; }
+      #report .rpair { display: grid; grid-template-columns: 1fr 1fr; }
+      #report .rpair img { height: 200px; }
+      #report .rpair .lbl { font-size: 0.62rem; font-weight: 850; text-transform: uppercase; letter-spacing: 0.06em; color: #687587; padding: 0.15rem 0.4rem 0; }
+      #report .rcap { padding: 0.35rem 0.5rem 0.45rem; font-size: 0.78rem; }
+      #report .rcap .rtime { color: #687587; font-size: 0.68rem; font-weight: 700; display: block; }
+      #report .rfoot { margin-top: 1.2rem; padding-top: 0.5rem; border-top: 1px solid #d8dee8; color: #687587; font-size: 0.72rem; }
+    }
+    @media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 720px) { .metrics { grid-template-columns: repeat(2, 1fr); } .form-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <strong>JOON · Photo Feed</strong>
+    <div>
+      <a href="subcontractor_finder.html">Finder</a>
+      <a href="subs_database.html">Database</a>
+      <a href="audit.html">Audit</a>
+      <a href="research_chat.html">Research</a>
+      <a href="lead_generation.html">Leads</a>
+      <a href="estimator.html">Estimator</a>
+      <a href="actuals.html">Actuals</a>
+      <a href="bid_lab.html">Bid Lab</a>
+      <a href="suppliers.html">Suppliers</a>
+      <a href="services_board.html">Readiness</a>
+      <a href="photo_feed.html" class="active">Photos</a>
+    </div>
+  </div>
+
+  <div class="shell">
+    <div class="metrics" id="metrics"></div>
+
+    <div class="card">
+      <div class="controls">
+        <label>Project
+          <select id="projectSelect"><option value="">All projects</option></select>
+        </label>
+        <button class="btn" id="btnReport" disabled>Generate photo report</button>
+        <button class="btn primary" id="btnShare" disabled>Create share link</button>
+        <span class="muted" id="countLabel" style="align-self:center;font-size:0.8rem"></span>
+      </div>
+      <div class="chips" id="phaseChips"></div>
+      <div class="chips" id="tagChips"></div>
+      <div class="status-line" id="shareStatus"></div>
+    </div>
+
+    <div class="layout">
+      <div class="card" id="feedCard">
+        <h2>Timeline</h2>
+        <div id="feed"></div>
+      </div>
+
+      <div class="card">
+        <h2 id="formTitle">Add photo entry</h2>
+        <form id="entryForm" class="form-grid" autocomplete="off">
+          <div class="form-section">Project</div>
+          <label class="full">Project name
+            <input id="fProject" list="projectNames" placeholder="Kitchen remodel - Smith, Sherman Oaks" required />
+          </label>
+          <datalist id="projectNames"></datalist>
+
+          <div class="form-section">Photo</div>
+          <label class="full">Photo URL (existing /uploads path or full URL)
+            <input id="fPhotoUrl" list="knownUploads" placeholder="/uploads/actuals/... or https://..." />
+          </label>
+          <datalist id="knownUploads"></datalist>
+          <label class="full">Or upload a new photo
+            <input id="fFile" type="file" accept="image/*" />
+          </label>
+
+          <div class="form-section">Details</div>
+          <label class="full">Caption
+            <textarea id="fCaption" placeholder="What does this photo document?"></textarea>
+          </label>
+          <label>Phase
+            <select id="fPhase">
+              <option value="pre-work">Pre-work</option>
+              <option value="demo">Demo</option>
+              <option value="rough-in">Rough-in</option>
+              <option value="inspection">Inspection</option>
+              <option value="finish">Finish</option>
+              <option value="final">Final</option>
+              <option value="other" selected>Other</option>
+            </select>
+          </label>
+          <label>Taken at
+            <input id="fTakenAt" type="datetime-local" />
+          </label>
+          <label class="full">Tags (comma separated)
+            <input id="fTags" placeholder="plumbing, punch list, unit 2" />
+          </label>
+
+          <div class="form-section">Before / after pair (optional)</div>
+          <label>Before URL
+            <input id="fBefore" list="knownUploads" placeholder="/uploads/..." />
+          </label>
+          <label>After URL
+            <input id="fAfter" list="knownUploads" placeholder="/uploads/..." />
+          </label>
+        </form>
+        <div class="form-actions">
+          <button class="btn primary" id="btnSave">Save entry</button>
+          <button class="btn" id="btnClear">Clear</button>
+        </div>
+        <div class="status-line" id="formStatus"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="report"></div>
+  <div class="toast-host" id="toasts"></div>
+
+  <script>
+    const API = "/api/photofeed";
+    const PHASES = ["pre-work", "demo", "rough-in", "inspection", "finish", "final", "other"];
+    const PHASE_LABELS = { "pre-work": "Pre-work", "demo": "Demo", "rough-in": "Rough-in", "inspection": "Inspection", "finish": "Finish", "final": "Final", "other": "Other" };
+
+    let all = [];
+    let shares = [];
+    let phaseFilter = new Set();
+    let tagFilter = new Set();
+    let editingId = null;
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const slugify = (v) => String(v || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
+    const fmtTime = (iso) => iso ? new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "";
+    const fmtDay = (day) => day === "undated" ? "Undated" : new Date(day + "T12:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+
+    function toast(message, cls) {
+      const el = document.createElement("div");
+      el.className = "toast " + (cls || "");
+      el.textContent = message;
+      $("#toasts").appendChild(el);
+      setTimeout(() => el.remove(), 4200);
+    }
+
+    async function jsonFetch(url, options) {
+      const res = await fetch(url, options);
+      if (res.status === 204) return null;
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error || ("Request failed (" + res.status + ")"));
+      return body;
+    }
+
+    async function load() {
+      try {
+        all = await jsonFetch(API);
+      } catch (error) {
+        all = [];
+        toast(error.message, "bad");
+      }
+      try {
+        shares = await jsonFetch(API + "/shares");
+      } catch (_error) {
+        shares = [];
+      }
+      await loadSuggestions();
+      renderProjectSelect();
+      render();
+    }
+
+    // Project-name + known-upload suggestions from the actuals module.
+    async function loadSuggestions() {
+      const names = new Set(all.map((e) => e.projectName).filter(Boolean));
+      const urls = new Set(all.flatMap((e) => [e.photoUrl, e.beforeAfterPair?.beforeUrl, e.beforeAfterPair?.afterUrl]).filter(Boolean));
+      try {
+        const actuals = await jsonFetch("/api/actuals");
+        for (const a of actuals) {
+          if (a.projectName) names.add(a.projectName);
+          for (const p of a.photos || []) if (p.url) urls.add(p.url);
+        }
+      } catch (_error) { /* actuals unavailable - suggestions just come from the feed */ }
+      $("#projectNames").innerHTML = [...names].sort().map((n) => `<option value="${esc(n)}"></option>`).join("");
+      $("#knownUploads").innerHTML = [...urls].sort().map((u) => `<option value="${esc(u)}"></option>`).join("");
+    }
+
+    function projects() {
+      const map = new Map();
+      for (const e of all) if (e.projectId && !map.has(e.projectId)) map.set(e.projectId, e.projectName || e.projectId);
+      return [...map.entries()].sort((a, b) => a[1].localeCompare(b[1]));
+    }
+
+    function renderProjectSelect() {
+      const current = $("#projectSelect").value;
+      $("#projectSelect").innerHTML = '<option value="">All projects</option>' +
+        projects().map(([id, name]) => `<option value="${esc(id)}">${esc(name)}</option>`).join("");
+      if ([...$("#projectSelect").options].some((o) => o.value === current)) $("#projectSelect").value = current;
+    }
+
+    function filtered() {
+      const projectId = $("#projectSelect").value;
+      return all.filter((e) => {
+        if (projectId && e.projectId !== projectId) return false;
+        if (phaseFilter.size && !phaseFilter.has(e.phase)) return false;
+        if (tagFilter.size && ![...tagFilter].every((t) => (e.tags || []).includes(t))) return false;
+        return true;
+      });
+    }
+
+    function renderMetrics() {
+      const weekAgo = Date.now() - 7 * 24 * 3600 * 1000;
+      const thisWeek = all.filter((e) => e.takenAt && new Date(e.takenAt).getTime() >= weekAgo).length;
+      $("#metrics").innerHTML = [
+        [all.length, "Total photos"],
+        [projects().length, "Projects documented"],
+        [thisWeek, "Photos this week"],
+        [shares.length, "Share links active"]
+      ].map(([v, l]) => `<div class="metric"><b>${v}</b><span>${l}</span></div>`).join("");
+    }
+
+    function renderChips() {
+      const activePhases = new Set(all.map((e) => e.phase));
+      $("#phaseChips").innerHTML = PHASES.filter((p) => activePhases.has(p)).map((p) =>
+        `<button type="button" class="chip ${phaseFilter.has(p) ? "on" : ""}" data-phase="${p}">${PHASE_LABELS[p]}</button>`).join("");
+      const tags = [...new Set(all.flatMap((e) => e.tags || []))].sort();
+      $("#tagChips").innerHTML = tags.map((t) =>
+        `<button type="button" class="chip tagchip ${tagFilter.has(t) ? "on" : ""}" data-tag="${esc(t)}">#${esc(t)}</button>`).join("");
+    }
+
+    function entryCard(e) {
+      const pair = e.beforeAfterPair;
+      const media = pair
+        ? `<div class="pair">
+            <figure><span class="pairlabel">Before</span><img src="${esc(pair.beforeUrl)}" alt="Before" loading="lazy" /></figure>
+            <figure><span class="pairlabel after">After</span><img src="${esc(pair.afterUrl)}" alt="After" loading="lazy" /></figure>
+          </div>`
+        : `<img src="${esc(e.photoUrl)}" alt="${esc(e.caption || "Project photo")}" loading="lazy" />`;
+      const showProject = !$("#projectSelect").value;
+      return `<div class="entry" data-id="${esc(e.id)}">
+        ${media}
+        <div class="body">
+          <div class="meta"><span class="pill p-${esc(e.phase)}">${esc(PHASE_LABELS[e.phase] || e.phase)}</span><span class="time">${esc(fmtTime(e.takenAt))}</span></div>
+          ${showProject ? `<div class="proj">${esc(e.projectName || e.projectId)}</div>` : ""}
+          ${e.caption ? `<div class="caption">${esc(e.caption)}</div>` : ""}
+          ${(e.tags || []).length ? `<div class="tags">${e.tags.map((t) => `<span class="tag">#${esc(t)}</span>`).join("")}</div>` : ""}
+          <div class="rowactions">
+            <button type="button" class="mini" data-edit="${esc(e.id)}">Edit</button>
+            <button type="button" class="mini danger" data-del="${esc(e.id)}">Delete</button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function render() {
+      renderMetrics();
+      renderChips();
+      const rows = filtered();
+      $("#countLabel").textContent = `${rows.length} of ${all.length} shown`;
+      const projectPicked = Boolean($("#projectSelect").value);
+      $("#btnReport").disabled = !projectPicked;
+      $("#btnShare").disabled = !projectPicked;
+
+      if (!all.length) {
+        $("#feed").innerHTML = `<div class="empty">
+          <b>No photos documented yet</b>
+          Every job gets easier to defend, invoice, and market when the work is photographed daily.
+          <div class="empty-cta"><button class="btn primary" id="emptyAdd" type="button">Add your first photo</button></div>
+        </div>`;
+        $("#emptyAdd")?.addEventListener("click", () => { $("#fProject").focus(); });
+        return;
+      }
+      if (!rows.length) {
+        $("#feed").innerHTML = `<div class="empty">
+          <b>No photos match these filters</b>
+          Try another project, phase, or tag combination.
+          <div class="empty-cta"><button class="btn" id="emptyClear" type="button">Clear filters</button></div>
+        </div>`;
+        $("#emptyClear")?.addEventListener("click", () => {
+          phaseFilter.clear(); tagFilter.clear(); $("#projectSelect").value = "";
+          render();
+        });
+        return;
+      }
+
+      // Newest day first; chronological within the day.
+      const days = new Map();
+      for (const e of rows) {
+        const day = String(e.takenAt || "").slice(0, 10) || "undated";
+        if (!days.has(day)) days.set(day, []);
+        days.get(day).push(e);
+      }
+      $("#feed").innerHTML = [...days.entries()]
+        .sort((a, b) => b[0].localeCompare(a[0]))
+        .map(([day, entries]) => `<div class="day">
+          <h3>${esc(fmtDay(day))}<span class="count">${entries.length} photo${entries.length === 1 ? "" : "s"}</span></h3>
+          <div class="grid">${entries.map(entryCard).join("")}</div>
+        </div>`).join("");
+    }
+
+    // ── form ──
+    function clearForm() {
+      editingId = null;
+      $("#formTitle").textContent = "Add photo entry";
+      $("#btnSave").textContent = "Save entry";
+      $("#entryForm").reset();
+      $("#formStatus").textContent = "";
+      $("#formStatus").className = "status-line";
+    }
+
+    function fillForm(e) {
+      editingId = e.id;
+      $("#formTitle").textContent = "Edit photo entry";
+      $("#btnSave").textContent = "Update entry";
+      $("#fProject").value = e.projectName || e.projectId;
+      $("#fPhotoUrl").value = e.photoUrl || "";
+      $("#fCaption").value = e.caption || "";
+      $("#fPhase").value = e.phase || "other";
+      $("#fTags").value = (e.tags || []).join(", ");
+      $("#fTakenAt").value = e.takenAt ? new Date(new Date(e.takenAt).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : "";
+      $("#fBefore").value = e.beforeAfterPair?.beforeUrl || "";
+      $("#fAfter").value = e.beforeAfterPair?.afterUrl || "";
+      $("#fFile").value = "";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    async function uploadFileIfAny(projectId) {
+      const file = $("#fFile").files[0];
+      if (!file) return null;
+      const res = await fetch(`${API}/upload?projectId=${encodeURIComponent(projectId)}&name=${encodeURIComponent(file.name)}`, {
+        method: "POST",
+        headers: { "Content-Type": file.type || "image/jpeg" },
+        body: file
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error || "Upload failed.");
+      return body.url;
+    }
+
+    async function saveEntry() {
+      const projectName = $("#fProject").value.trim();
+      if (!projectName) { toast("Project name is required.", "bad"); return; }
+      const projectId = slugify(projectName);
+      const status = $("#formStatus");
+      status.className = "status-line";
+      try {
+        status.textContent = $("#fFile").files[0] ? "Uploading photo..." : "Saving...";
+        const uploadedUrl = await uploadFileIfAny(projectId);
+        const beforeUrl = $("#fBefore").value.trim();
+        const afterUrl = $("#fAfter").value.trim();
+        const payload = {
+          projectId,
+          projectName,
+          photoUrl: uploadedUrl || $("#fPhotoUrl").value.trim(),
+          caption: $("#fCaption").value.trim(),
+          tags: $("#fTags").value,
+          phase: $("#fPhase").value,
+          takenAt: $("#fTakenAt").value ? new Date($("#fTakenAt").value).toISOString() : (editingId ? undefined : new Date().toISOString()),
+          beforeAfterPair: beforeUrl || afterUrl ? { beforeUrl, afterUrl } : null
+        };
+        if (editingId) {
+          await jsonFetch(`${API}/${editingId}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+          toast("Entry updated.", "good");
+        } else {
+          await jsonFetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+          toast("Photo logged.", "good");
+        }
+        clearForm();
+        await load();
+      } catch (error) {
+        status.textContent = error.message;
+        status.className = "status-line bad";
+      }
+    }
+
+    // ── report (print, same visibility trick as estimator.html) ──
+    async function generateReport() {
+      const projectId = $("#projectSelect").value;
+      if (!projectId) return;
+      try {
+        const bundle = await jsonFetch(`${API}/report/${encodeURIComponent(projectId)}`);
+        const range = [bundle.dateRange.from, bundle.dateRange.to].filter(Boolean).map((d) => String(d).slice(0, 10));
+        const rEntry = (e) => {
+          const pair = e.beforeAfterPair;
+          const media = pair
+            ? `<div class="rpair">
+                <div><span class="lbl">Before</span><img src="${esc(pair.beforeUrl)}" alt="Before" /></div>
+                <div><span class="lbl">After</span><img src="${esc(pair.afterUrl)}" alt="After" /></div>
+              </div>`
+            : `<img src="${esc(e.photoUrl)}" alt="${esc(e.caption || "Project photo")}" />`;
+          return `<div class="rentry">${media}
+            <div class="rcap"><span class="rtime">${esc(String(e.takenAt || "").slice(0, 10))} ${esc(fmtTime(e.takenAt))} · ${esc(PHASE_LABELS[e.phase] || e.phase)}</span>${esc(e.caption || "")}</div>
+          </div>`;
+        };
+        $("#report").innerHTML = `
+          <div class="cover">
+            <div class="brand">Joon Development Group · Project Photo Report</div>
+            <h1>${esc(bundle.projectName)}</h1>
+            <div class="range">${range.length ? esc(range[0]) + (range[1] && range[1] !== range[0] ? " to " + esc(range[1]) : "") : ""} · Generated ${esc(new Date(bundle.generatedAt).toLocaleDateString("en-US"))}</div>
+            <div class="totals">
+              <span><b>${bundle.totals.photos}</b> photos</span>
+              <span><b>${bundle.totals.days}</b> days documented</span>
+              <span><b>${bundle.totals.beforeAfterPairs}</b> before/after pairs</span>
+            </div>
+          </div>
+          ${bundle.days.map((day) => `
+            <h2 class="rday">${esc(fmtDay(day.date))}</h2>
+            <div class="rgrid">${day.entries.map(rEntry).join("")}</div>`).join("")}
+          <div class="rfoot">Prepared by Joon Development Group. Photos are unedited site documentation captured during the course of work.</div>`;
+        // Wait for the report images to load so print output is complete.
+        const images = [...document.querySelectorAll("#report img")];
+        await Promise.all(images.map((img) => img.complete ? null : new Promise((resolve) => { img.onload = img.onerror = resolve; })));
+        window.print();
+      } catch (error) {
+        toast(error.message, "bad");
+      }
+    }
+
+    async function createShareLink() {
+      const projectId = $("#projectSelect").value;
+      if (!projectId) return;
+      const status = $("#shareStatus");
+      try {
+        const share = await jsonFetch(`${API}/share/${encodeURIComponent(projectId)}`, { method: "POST" });
+        status.className = "status-line good";
+        status.innerHTML = `Public gallery for <b>${esc(share.projectName)}</b>: <a href="${esc(share.url)}" target="_blank">${esc(share.url)}</a>`;
+        try {
+          await navigator.clipboard.writeText(share.url);
+          toast("Share link copied to clipboard.", "good");
+        } catch (_error) {
+          toast("Share link created.", "good");
+        }
+        shares = await jsonFetch(API + "/shares").catch(() => shares);
+        renderMetrics();
+      } catch (error) {
+        status.className = "status-line bad";
+        status.textContent = error.message;
+        toast(error.message, "bad");
+      }
+    }
+
+    // ── events ──
+    $("#projectSelect").addEventListener("change", () => { $("#shareStatus").textContent = ""; render(); });
+    $("#phaseChips").addEventListener("click", (event) => {
+      const phase = event.target.dataset?.phase;
+      if (!phase) return;
+      phaseFilter.has(phase) ? phaseFilter.delete(phase) : phaseFilter.add(phase);
+      render();
+    });
+    $("#tagChips").addEventListener("click", (event) => {
+      const tag = event.target.dataset?.tag;
+      if (!tag) return;
+      tagFilter.has(tag) ? tagFilter.delete(tag) : tagFilter.add(tag);
+      render();
+    });
+    $("#feed").addEventListener("click", async (event) => {
+      const editId = event.target.dataset?.edit;
+      const delId = event.target.dataset?.del;
+      if (editId) {
+        const entry = all.find((e) => e.id === editId);
+        if (entry) fillForm(entry);
+      }
+      if (delId && confirm("Delete this photo entry? (The file stays in /uploads.)")) {
+        try {
+          await jsonFetch(`${API}/${delId}`, { method: "DELETE" });
+          toast("Entry deleted.", "good");
+          await load();
+        } catch (error) {
+          toast(error.message, "bad");
+        }
+      }
+    });
+    $("#btnSave").addEventListener("click", saveEntry);
+    $("#btnClear").addEventListener("click", clearForm);
+    $("#btnReport").addEventListener("click", generateReport);
+    $("#btnShare").addEventListener("click", createShareLink);
+    $("#entryForm").addEventListener("submit", (event) => { event.preventDefault(); saveEntry(); });
+
+    load();
+  </script>
+</body>
+</html>

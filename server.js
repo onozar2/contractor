@@ -90,6 +90,10 @@ publicApp.use("/assets", express.static(path.join(__dirname, "assets")));
 
 // ── Public instant-estimate widget (BathMath-style, lead-gated) ──
 publicApp.use(express.json({ limit: "200kb" }));
+// Client-facing change-order approval + photo galleries + sub quote forms (token-gated)
+publicApp.use("/co", require("./changeorders").publicRouter(collection));
+publicApp.use("/gallery", require("./photofeed").publicRouter(collection));
+publicApp.use("/rfq", require("./rfq").publicRouter(collection));
 publicApp.get("/estimate.html", (_req, res) => res.sendFile(path.join(__dirname, "estimate.html")));
 
 publicApp.get("/api/estimate-config", (_req, res) => {
@@ -187,7 +191,12 @@ crmApp.get("/audit.html", (_req, res) => res.sendFile(path.join(__dirname, "audi
 crmApp.get("/research_chat.html", (_req, res) => res.sendFile(path.join(__dirname, "research_chat.html")));
 crmApp.get("/estimator.html", (_req, res) => res.sendFile(path.join(__dirname, "estimator.html")));
 crmApp.get("/actuals.html", (_req, res) => res.sendFile(path.join(__dirname, "actuals.html")));
+crmApp.get("/change_orders.html", (_req, res) => res.sendFile(path.join(__dirname, "change_orders.html")));
+crmApp.get("/photo_feed.html", (_req, res) => res.sendFile(path.join(__dirname, "photo_feed.html")));
 crmApp.use("/api/suppliers", require("./suppliers")(collection));
+crmApp.use("/api/changeorders", require("./changeorders")(collection));
+crmApp.use("/api/photofeed", require("./photofeed")(collection));
+crmApp.use("/api/rfq", require("./rfq")(collection));
 crmApp.use("/assets", express.static(path.join(__dirname, "assets")));
 
 function getClient() {
@@ -333,6 +342,106 @@ function scoreSubcontractor(input) {
   return clamp(Math.round(score), 0, 100);
 }
 
+// ── Dedupe keys ──
+// Aggregator profile URLs (yelp.com/biz/x) keep their path so two different
+// profiles never collide; real company domains collapse to the bare host.
+const AGGREGATOR_HOSTS = /(yelp|bbb|facebook|instagram|google|angi|houzz|homeadvisor|thumbtack|nextdoor)\./i;
+function dedupeNameKey(name) {
+  return cleanString(name).toLowerCase()
+    .replace(/\b(inc|llc|corp|corporation|co|company|the|and|&)\b/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+function dedupeSiteKey(url) {
+  let w = cleanString(url).toLowerCase().replace(/^https?:\/\/(www\.)?/, "").replace(/\/+$/, "");
+  if (!w) return "";
+  return AGGREGATOR_HOSTS.test(w) ? w : w.replace(/\/.*$/, "");
+}
+function dedupePhoneKey(phone) {
+  const digits = cleanString(phone).replace(/\D/g, "").slice(-10);
+  return digits.length === 10 ? digits : "";
+}
+
+// ── Vetting: record completeness (0-100) ──
+// Weighted share of the fields that matter for outreach + hiring decisions.
+function computeCompletenessScore(doc) {
+  const has = (v) => Boolean(cleanString(typeof v === "string" ? v : v ? String(v) : ""));
+  let score = 0;
+  // identity + reach (40)
+  if (has(doc.companyName)) score += 4;
+  if (has(doc.serviceCategory)) score += 4;
+  if (has(doc.phone)) score += 8;
+  if (has(doc.email)) score += 8;
+  if (has(doc.website)) score += 6;
+  if (has(doc.ownerName)) score += 6;
+  if (has(doc.ownerTitle)) score += 2;
+  if (has(doc.linkedIn)) score += 2;
+  // compliance (30)
+  if (has(doc.licenseNumber)) score += 10;
+  if (doc.licenseVerified) score += 5;
+  if (has(doc.generalLiabilityStatus)) score += 4;
+  if (has(doc.workersCompStatus)) score += 3;
+  if (has(doc.insuranceExpiresAt)) score += 2;
+  if (has(doc.licenseExpiresAt)) score += 2;
+  if (doc.docChecklist && Object.values(doc.docChecklist).some((item) => item && item.status && item.status !== "missing")) score += 4;
+  // reputation (21)
+  if (Number(doc.reviewRating) > 0) score += 6;
+  if (Number(doc.reviewCount) > 0) score += 3;
+  if (has(doc.sentiment) && doc.sentiment !== "unknown") score += 2;
+  if (has(doc.summary)) score += 4;
+  if (cleanArray(doc.sourceUrls).length) score += 3;
+  if (has(doc.recentProjects)) score += 3;
+  // operational detail (9)
+  if (has(doc.crewSize)) score += 2;
+  if (has(doc.serviceArea)) score += 1;
+  if (cleanArray(doc.specialties).length) score += 2;
+  if (has(doc.priceTier) && doc.priceTier !== "unknown") score += 1;
+  if (has(doc.minimumJobSize)) score += 1;
+  if (doc.bringsOwnMaterials && doc.bringsOwnMaterials !== "unknown") score += 2;
+  return clamp(Math.round(score), 0, 100);
+}
+
+// ── Vetting: legitimacy/reputation (0-100) ──
+// Evidence the business is real, licensed, and reputable. Distinct from fitScore
+// (which mixes in outreach-pipeline signals); this is pure "would you trust them
+// on a job site" evidence. Our own logged jobs are the strongest signal.
+function computeLegitScore(doc) {
+  let score = 20;
+  const licStatus = cleanString(doc.licenseStatus).toLowerCase();
+  if (doc.licenseVerified) score += 25;
+  else if (cleanString(doc.licenseNumber)) score += 12;
+  if (licStatus === "active") score += 10;
+  else if (/expired|suspended|revoked/.test(licStatus)) score -= 25;
+  else if (licStatus === "not_found") score -= 20;
+  if (doc.websiteAlive === true) score += 8;
+  else if (doc.websiteAlive === false) score -= 10;
+  const rating = Number(doc.reviewRating || 0);
+  if (rating >= 4.5) score += 15;
+  else if (rating >= 4) score += 10;
+  else if (rating >= 3.5) score += 5;
+  else if (rating > 0 && rating < 3) score -= 10;
+  const reviews = Number(doc.reviewCount || 0);
+  if (reviews >= 100) score += 10;
+  else if (reviews >= 25) score += 7;
+  else if (reviews >= 5) score += 4;
+  if (cleanString(doc.ownerName)) score += 5;
+  if (cleanString(doc.reachTier) === "owner") score += 5;
+  if (doc.insuranceVerified) score += 5;
+  if (/active|verified|current/i.test(doc.workersCompStatus || "")) score += 4;
+  if (/bonded|verified|active|yes/i.test(doc.bondedStatus || "")) score += 3;
+  if (cleanString(doc.sourceConfidence).toLowerCase() === "high") score += 5;
+  if (cleanString(doc.sourceConfidence).toLowerCase() === "low") score -= 5;
+  if (Number(doc.jobCount) > 0) score += Number(doc.jobScore) >= 70 ? 12 : 6;
+  score -= cleanArray(doc.redFlags).length * 15;
+  return clamp(Math.round(score), 0, 100);
+}
+function legitTierFor(score, redFlags) {
+  if (cleanArray(redFlags).length && score < 45) return "flagged";
+  if (score >= 75) return "verified";
+  if (score >= 55) return "credible";
+  if (score >= 35) return "unverified";
+  return "risky";
+}
+
 function normalize(input) {
   const doc = {
     companyName: cleanString(input.companyName),
@@ -407,7 +516,14 @@ function normalize(input) {
     lastContactedAt: cleanString(input.lastContactedAt),
     chaseNotes: cleanString(input.chaseNotes),
     status: cleanString(input.status || "researching"),
-    lastResearchedAt: input.lastResearchedAt || new Date().toISOString()
+    lastResearchedAt: input.lastResearchedAt || new Date().toISOString(),
+    // vetting layer
+    licenseStatus: cleanString(input.licenseStatus || "unchecked").toLowerCase(),
+    websiteAlive: typeof input.websiteAlive === "boolean" ? input.websiteAlive : null,
+    websiteCheckedAt: cleanString(input.websiteCheckedAt),
+    redFlags: cleanList(input.redFlags),
+    vettingNotes: cleanString(input.vettingNotes),
+    lastVettedAt: cleanString(input.lastVettedAt)
   };
   const hasChannel = Boolean(doc.phone || doc.email);
   doc.reachTier = doc.ownerName && hasChannel ? "owner" : hasChannel ? "company" : "none";
@@ -421,6 +537,12 @@ function normalize(input) {
     else doc.ownerReachConfidence = "low";
   }
   doc.fitScore = scoreSubcontractor(doc);
+  doc.nameKey = dedupeNameKey(doc.companyName);
+  doc.siteKey = dedupeSiteKey(doc.website);
+  doc.phoneKey = dedupePhoneKey(doc.phone);
+  doc.completenessScore = computeCompletenessScore(doc);
+  doc.legitScore = computeLegitScore({ ...doc, jobCount: input.jobCount, jobScore: input.jobScore });
+  doc.legitTier = legitTierFor(doc.legitScore, doc.redFlags);
   return doc;
 }
 
@@ -1120,12 +1242,17 @@ async function enrichLicenseForSubcontractor(id) {
 async function upsertSourcedSubcontractor(coll, input) {
   const now = new Date().toISOString();
   const doc = { ...normalize(input), updatedAt: now };
-  const existing = await coll.findOne({
-    $or: [
-      ...(doc.website ? [{ website: doc.website }] : []),
-      ...(doc.companyName ? [{ companyName: doc.companyName, serviceCategory: doc.serviceCategory }] : [])
-    ]
-  });
+  // Match on normalized keys so "Foo Inc."/"Foo, INC" or http/https/www variants
+  // of the same company can't create duplicates. Phone alone is NOT a match key
+  // by itself across trades (one owner can run two businesses on one line).
+  const orClauses = [
+    ...(doc.website ? [{ website: doc.website }] : []),
+    ...(doc.siteKey ? [{ siteKey: doc.siteKey }] : []),
+    ...(doc.companyName ? [{ companyName: doc.companyName, serviceCategory: doc.serviceCategory }] : []),
+    ...(doc.nameKey ? [{ nameKey: doc.nameKey }] : []),
+    ...(doc.phoneKey ? [{ phoneKey: doc.phoneKey, serviceCategory: doc.serviceCategory }] : [])
+  ];
+  const existing = await coll.findOne({ $or: orClauses });
 
   if (existing) {
     const merged = {
@@ -2176,6 +2303,157 @@ app.delete("/api/subcontractors/:id", async (req, res) => {
   if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
   await coll.deleteOne({ _id: new ObjectId(req.params.id) });
   res.status(204).end();
+});
+
+// ── Vetting layer ──
+// Recompute dedupe keys + completeness/legit scores for every record from
+// stored data only (no web calls, never touches human-entered fields).
+function vettingFieldsFor(doc) {
+  const enriched = {
+    ...doc,
+    reachTier: doc.reachTier || "",
+    redFlags: doc.redFlags || [],
+    licenseStatus: doc.licenseStatus || "unchecked"
+  };
+  const legitScore = computeLegitScore(enriched);
+  return {
+    nameKey: dedupeNameKey(doc.companyName),
+    siteKey: dedupeSiteKey(doc.website),
+    phoneKey: dedupePhoneKey(doc.phone),
+    completenessScore: computeCompletenessScore(enriched),
+    legitScore,
+    legitTier: legitTierFor(legitScore, doc.redFlags)
+  };
+}
+
+app.post("/api/vetting/recompute", async (_req, res) => {
+  try {
+    const coll = await collection();
+    if (!coll) return res.status(503).json({ error: "MongoDB is not configured." });
+    const rows = await coll.find({}).toArray();
+    const ops = rows.map((row) => ({
+      updateOne: { filter: { _id: row._id }, update: { $set: vettingFieldsFor(row) } }
+    }));
+    for (let i = 0; i < ops.length; i += 500) await coll.bulkWrite(ops.slice(i, i + 500));
+    res.json({ recomputed: ops.length });
+  } catch (error) {
+    res.status(502).json({ error: error.message });
+  }
+});
+
+// Website liveness: any HTTP response counts as alive (403/500 still means the
+// domain resolves and serves); only network failures / timeouts count as dead.
+async function checkWebsiteAlive(url) {
+  const target = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+  try {
+    const response = await fetch(target, { method: "HEAD", redirect: "follow", signal: AbortSignal.timeout(8000) });
+    if (response.status === 405 || response.status === 501) {
+      const getResponse = await fetch(target, { method: "GET", redirect: "follow", signal: AbortSignal.timeout(8000) });
+      return getResponse.status < 600;
+    }
+    return response.status < 600;
+  } catch {
+    return false;
+  }
+}
+
+app.post("/api/vetting/website-check", async (req, res) => {
+  try {
+    const coll = await collection();
+    if (!coll) return res.status(503).json({ error: "MongoDB is not configured." });
+    const limit = clamp(Number(req.body.limit || 300), 1, 3000);
+    const force = Boolean(req.body.force);
+    const query = { website: { $nin: ["", null] } };
+    if (!force) query.websiteAlive = { $in: [null, undefined] };
+    const rows = await coll.find(query).limit(limit).toArray();
+    const now = new Date().toISOString();
+    let alive = 0;
+    await mapLimit(rows, 12, async (row) => {
+      const isAlive = await checkWebsiteAlive(row.website);
+      if (isAlive) alive += 1;
+      const patch = vettingFieldsFor({ ...row, websiteAlive: isAlive });
+      await coll.updateOne({ _id: row._id }, { $set: { websiteAlive: isAlive, websiteCheckedAt: now, ...patch } });
+    });
+    res.json({ checked: rows.length, alive, dead: rows.length - alive });
+  } catch (error) {
+    res.status(502).json({ error: error.message });
+  }
+});
+
+// Merge deep-vetting research (agent output). Only provided fields are written;
+// scores recompute after merge; record is stamped deep_vetted.
+const VETTING_PATCH_FIELDS = [
+  "licenseNumber", "licenseClass", "licenseType", "licenseStatus", "licenseExpiresAt",
+  "licenseSourceUrl", "licenseVerified", "workersCompStatus", "bondedStatus",
+  "reviewRating", "reviewCount", "reviewSource", "sentiment", "websiteAlive",
+  "redFlags", "ownerName", "ownerTitle", "email", "phone", "yearsInBusiness"
+];
+app.post("/api/vetting/apply", async (req, res) => {
+  try {
+    const coll = await collection();
+    if (!coll) return res.status(503).json({ error: "MongoDB is not configured." });
+    const records = Array.isArray(req.body.records) ? req.body.records : [];
+    const now = new Date().toISOString();
+    let applied = 0;
+    const misses = [];
+    for (const patch of records) {
+      if (!patch || !patch.id) continue;
+      let existing = null;
+      try { existing = await coll.findOne({ _id: new ObjectId(String(patch.id)) }); } catch { /* bad id */ }
+      if (!existing) { misses.push(patch.id); continue; }
+      const update = {};
+      for (const field of VETTING_PATCH_FIELDS) {
+        if (patch[field] !== undefined && patch[field] !== null && patch[field] !== "") update[field] = patch[field];
+      }
+      if (patch.vettingNotes) {
+        update.vettingNotes = cleanString([existing.vettingNotes, patch.vettingNotes].filter(Boolean).join(" | "));
+      }
+      if (Array.isArray(patch.sourceUrls) && patch.sourceUrls.length) {
+        update.sourceUrls = mergeUrls(existing.sourceUrls || [], patch.sourceUrls);
+      }
+      update.lastVettedAt = now;
+      update.vettingStatus = "deep_vetted";
+      update.updatedAt = now;
+      const merged = { ...existing, ...update };
+      Object.assign(update, vettingFieldsFor(merged));
+      await coll.updateOne({ _id: existing._id }, { $set: update });
+      applied += 1;
+    }
+    res.json({ applied, misses });
+  } catch (error) {
+    res.status(502).json({ error: error.message });
+  }
+});
+
+app.get("/api/vetting/summary", async (_req, res) => {
+  try {
+    const coll = await collection();
+    if (!coll) return res.status(503).json({ error: "MongoDB is not configured." });
+    const [tiers, licenses, stats, top] = await Promise.all([
+      coll.aggregate([{ $group: { _id: { $ifNull: ["$legitTier", "unscored"] }, count: { $sum: 1 } } }]).toArray(),
+      coll.aggregate([{ $group: { _id: { $ifNull: ["$licenseStatus", "unchecked"] }, count: { $sum: 1 } } }]).toArray(),
+      coll.aggregate([{ $group: {
+        _id: null,
+        avgLegit: { $avg: "$legitScore" }, avgComplete: { $avg: "$completenessScore" },
+        deepVetted: { $sum: { $cond: [{ $eq: ["$vettingStatus", "deep_vetted"] }, 1, 0] } },
+        websiteAlive: { $sum: { $cond: [{ $eq: ["$websiteAlive", true] }, 1, 0] } },
+        websiteDead: { $sum: { $cond: [{ $eq: ["$websiteAlive", false] }, 1, 0] } },
+        flagged: { $sum: { $cond: [{ $gt: [{ $size: { $ifNull: ["$redFlags", []] } }, 0] }, 1, 0] } },
+        total: { $sum: 1 }
+      } }]).toArray(),
+      coll.find({}).sort({ legitScore: -1, completenessScore: -1 })
+        .project({ companyName: 1, serviceCategory: 1, legitScore: 1, legitTier: 1, completenessScore: 1, licenseStatus: 1, reviewRating: 1, reviewCount: 1, sourcingMethod: 1 })
+        .limit(25).toArray()
+    ]);
+    res.json({
+      tiers: Object.fromEntries(tiers.map((t) => [t._id, t.count])),
+      licenseStatuses: Object.fromEntries(licenses.map((l) => [l._id, l.count])),
+      stats: stats[0] || {},
+      top: top.map((row) => ({ ...row, id: row._id.toString(), _id: undefined }))
+    });
+  } catch (error) {
+    res.status(502).json({ error: error.message });
+  }
 });
 
 function normalizeLead(input) {

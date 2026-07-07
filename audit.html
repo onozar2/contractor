@@ -49,6 +49,8 @@
       <a href="research_chat.html">Research</a>
       <a href="estimator.html">Estimator</a>
       <a href="actuals.html">Actuals</a>
+      <a href="change_orders.html">COs</a>
+      <a href="photo_feed.html">Photos</a>
       <a href="bid_lab.html">Bid Lab</a>
       <a href="suppliers.html">Suppliers</a>
     </div>
@@ -86,6 +88,10 @@
         <div class="card" style="margin-bottom:1rem">
           <h2>Expiring docs & licenses (45 days)</h2>
           <div id="expiring" style="font-size:0.8rem">Loading...</div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <h2>Vetting health (legitimacy & completeness)</h2>
+          <div id="vetStats" style="font-size:0.8rem">Loading...</div>
         </div>
         <div class="card" style="margin-bottom:1rem">
           <h2>Autosweep (adaptive scheduler)</h2>
@@ -160,6 +166,19 @@
           audit.expiring.map((e) => `<tr><td><b>${esc(e.companyName)}</b> <span class="muted">${esc(e.trade)}</span></td><td>${esc(e.doc)}</td><td>${esc(e.expiresAt)}</td><td>${e.days < 0 ? `<span class="pill red">expired ${-e.days}d</span>` : `<span class="pill ${e.days <= 14 ? "red" : ""}">${e.days}d</span>`}</td></tr>`).join("") +
           `</tbody></table>`
         : '<span class="pill green">Nothing expiring in the next 45 days</span> <span class="muted">(expiry dates come from license/COI/workers-comp fields — fill them as docs arrive)</span>';
+
+      try {
+        const vet = await fetch("/api/vetting/summary").then((r) => r.json());
+        const tierPill = { verified: "green", credible: "", unverified: "", risky: "red", flagged: "red" };
+        document.getElementById("vetStats").innerHTML = `
+          <p>avg legit <b>${Math.round(vet.stats.avgLegit || 0)}</b> · avg completeness <b>${Math.round(vet.stats.avgComplete || 0)}</b> ·
+             deep-vetted <b>${vet.stats.deepVetted}</b>/${vet.stats.total} · websites <span class="pill green">${vet.stats.websiteAlive} alive</span> <span class="pill red">${vet.stats.websiteDead} dead</span> ·
+             red-flagged <b>${vet.stats.flagged}</b></p>
+          <p style="margin-top:0.4rem">${Object.entries(vet.tiers).map(([t, c]) => `<span class="pill ${tierPill[t] || ""}" style="margin:0.1rem">${esc(t)}: ${c}</span>`).join(" ")}</p>
+          <p style="margin-top:0.4rem"><b style="font-size:0.72rem;text-transform:uppercase;color:var(--muted)">CSLB status</b><br />${Object.entries(vet.licenseStatuses).map(([t, c]) => `<span class="pill ${t === "active" ? "green" : /expired|suspended|revoked|not_found/.test(t) ? "red" : ""}" style="margin:0.1rem">${esc(t)}: ${c}</span>`).join(" ")}</p>`;
+      } catch {
+        document.getElementById("vetStats").textContent = "Vetting summary unavailable.";
+      }
 
       const sup = audit.suppliers;
       document.getElementById("supStats").innerHTML = `

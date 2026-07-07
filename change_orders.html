@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Change order (variation) tracking and client approvals for Joon Development Group." />
+  <title>Change Orders | Joon Development Group</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #172033; --steel: #3c4658; --muted: #687587; --line: #d8dee8;
+      --soft: #f5f7fa; --paper: #ffffff; --charcoal: #101828; --blue: #2563eb;
+      --green: #0f766e; --amber: #b45309; --red: #b42318; --plum: #7c3aed;
+      --shadow: 0 14px 36px rgba(16, 24, 40, 0.08);
+    }
+    body { min-width: 320px; color: var(--ink); background: #eef2f6; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.45; }
+    a { color: inherit; }
+    .topbar { background: var(--charcoal); color: rgba(255,255,255,0.76); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: 0.5rem 2vw; font-size: 0.82rem; }
+    .topbar strong { color: #fff; }
+    .topbar a { text-decoration: none; min-height: 28px; border-radius: 6px; padding: 0.18rem 0.52rem; font-weight: 850; color: rgba(255,255,255,0.72); }
+    .topbar a:hover, .topbar a.active { color: #fff; background: rgba(255,255,255,0.12); }
+    .shell { width: min(1480px, 100%); margin: 0 auto; padding: 1rem 1.5vw 3rem; display: grid; gap: 0.9rem; }
+    .metrics { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 0.6rem; }
+    .metric { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 0.55rem 0.7rem; }
+    .metric b { display: block; font-size: 1.25rem; }
+    .metric span { color: var(--muted); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .metric.money b { color: var(--green); }
+    .filters { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 0.7rem; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: end; }
+    .filters label { display: grid; gap: 0.15rem; font-size: 0.72rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .filters input, .filters select { min-height: 34px; border: 1px solid var(--line); border-radius: 7px; padding: 0 0.5rem; font: inherit; font-size: 0.85rem; background: var(--soft); }
+    .filters input[type="text"] { min-width: 220px; }
+    .btn { min-height: 34px; border: 1px solid var(--line); border-radius: 7px; padding: 0 0.8rem; background: var(--paper); font: inherit; font-size: 0.82rem; font-weight: 800; cursor: pointer; color: var(--steel); }
+    .btn:hover { color: var(--blue); background: var(--soft); }
+    .btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .btn.primary:hover { background: #1d4fd7; color: #fff; }
+    .btn.danger { color: var(--red); }
+    .btn:disabled { opacity: 0.55; cursor: wait; }
+    .tablewrap { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; box-shadow: var(--shadow); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    th { position: sticky; top: 0; background: var(--soft); text-align: left; padding: 0.5rem 0.55rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); border-bottom: 1px solid var(--line); white-space: nowrap; }
+    td { padding: 0.48rem 0.55rem; border-bottom: 1px solid #eef1f6; vertical-align: top; }
+    th.num, td.num { text-align: right; white-space: nowrap; }
+    tr.row { cursor: pointer; }
+    tr.row:hover { background: #f4f8ff; }
+    .pill { display: inline-block; border-radius: 999px; padding: 0.05rem 0.5rem; font-size: 0.7rem; font-weight: 800; background: var(--soft); color: var(--steel); border: 1px solid var(--line); white-space: nowrap; }
+    .pill.green { background: #e7f6f4; color: var(--green); border-color: #bfe6e1; }
+    .pill.amber { background: #fdf3e7; color: var(--amber); border-color: #f3ddc0; }
+    .pill.red { background: #fdecea; color: var(--red); border-color: #f5c9c4; }
+    .pill.plum { background: #f3ecfe; color: var(--plum); border-color: #ded0f7; }
+    .muted { color: var(--muted); }
+    .nowrap { white-space: nowrap; }
+    .empty { padding: 2.2rem 1rem; color: var(--muted); text-align: center; background: #fff; }
+    .empty strong { display: block; font-size: 1.05rem; color: var(--ink); }
+    .empty-cta { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 0.9rem; }
+    /* drawer */
+    #overlay { position: fixed; inset: 0; background: rgba(16,24,40,0.4); display: none; z-index: 40; }
+    #drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(720px, 96vw); background: var(--paper); z-index: 50; transform: translateX(105%); transition: transform 0.18s ease; overflow-y: auto; box-shadow: -18px 0 40px rgba(16,24,40,0.18); }
+    #drawer.open { transform: translateX(0); }
+    .dhead { position: sticky; top: 0; background: var(--paper); border-bottom: 1px solid var(--line); padding: 0.9rem 1.1rem; display: flex; justify-content: space-between; align-items: start; gap: 1rem; z-index: 2; }
+    .dbody { padding: 1rem 1.1rem 2rem; display: grid; gap: 0.9rem; }
+    .card { border: 1px solid var(--line); border-radius: 10px; padding: 0.75rem; display: grid; gap: 0.5rem; }
+    .form-section { padding: 0.1rem 0 0.35rem 0.6rem; border-left: 3px solid var(--soft); color: var(--steel); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem 0.9rem; font-size: 0.84rem; }
+    .kv span { color: var(--muted); font-size: 0.72rem; display: block; text-transform: uppercase; letter-spacing: 0.04em; }
+    .dbody select, .dbody input, .dbody textarea { width: 100%; min-height: 34px; border: 1px solid var(--line); border-radius: 7px; padding: 0.3rem 0.5rem; font: inherit; font-size: 0.84rem; background: var(--soft); }
+    .dbody textarea { min-height: 64px; resize: vertical; }
+    .actions { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .lines-table td { padding: 0.25rem 0.25rem; border-bottom: none; }
+    .lines-table th { position: static; cursor: default; }
+    .lines-table input { min-height: 32px; }
+    .lines-table .num input { text-align: right; }
+    .line-total { font-weight: 800; white-space: nowrap; text-align: right; padding-right: 0.3rem; }
+    .totalsbox { display: grid; gap: 0.2rem; justify-items: end; font-size: 0.88rem; padding: 0.4rem 0.3rem 0; }
+    .totalsbox .grand { font-size: 1.1rem; font-weight: 900; color: var(--blue); }
+    .linkbox { background: #eff4ff; border: 1px solid #c7d7fb; border-radius: 8px; padding: 0.6rem; display: grid; gap: 0.45rem; }
+    .linkbox input { background: #fff; font-size: 0.78rem; }
+    .status-line { min-height: 20px; color: var(--muted); font-size: 0.82rem; }
+    .status-line.good { color: var(--green); }
+    .status-line.bad { color: var(--red); }
+    /* print view */
+    #printSheet { display: none; }
+    @media print {
+      body > *:not(#printSheet) { display: none !important; }
+      body { background: #fff; }
+      #printSheet { display: block; padding: 0; color: #111; }
+      #printSheet .phead { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 3px solid var(--blue); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+      #printSheet h1 { font-size: 1.3rem; }
+      #printSheet table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 0.8rem 0; }
+      #printSheet th, #printSheet td { border: 1px solid #cbd3de; padding: 0.4rem 0.5rem; text-align: left; }
+      #printSheet th.num, #printSheet td.num { text-align: right; }
+      #printSheet .ptotals { text-align: right; font-size: 0.95rem; }
+      #printSheet .ptotals .grand { font-size: 1.2rem; font-weight: 900; }
+      #printSheet .psign { margin-top: 2.2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+      #printSheet .psign div { border-top: 1px solid #111; padding-top: 0.3rem; font-size: 0.8rem; }
+    }
+    @media (max-width: 980px) { .metrics { grid-template-columns: repeat(2, 1fr); } .grid2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <strong>JOON · Change Orders</strong>
+    <div>
+      <a href="subcontractor_finder.html">Finder</a>
+      <a href="subs_database.html">Database</a>
+      <a href="audit.html">Audit</a>
+      <a href="research_chat.html">Research</a>
+      <a href="lead_generation.html">Leads</a>
+      <a href="estimator.html">Estimator</a>
+      <a href="actuals.html">Actuals</a>
+      <a href="bid_lab.html">Bid Lab</a>
+      <a href="suppliers.html">Suppliers</a>
+      <a href="services_board.html">Readiness</a>
+      <a href="change_orders.html" class="active">Change Orders</a>
+    </div>
+  </div>
+  <div class="shell">
+    <div class="metrics" id="metrics"></div>
+    <div class="filters">
+      <label>Search<input type="text" id="fSearch" placeholder="title, project, client..." /></label>
+      <label>Project<select id="fProject"><option value="">All projects</option></select></label>
+      <label>Status<select id="fStatus"><option value="">Any status</option><option>draft</option><option>sent</option><option>approved</option><option>declined</option><option>void</option></select></label>
+      <button class="btn" id="btnReset">Reset</button>
+      <button class="btn primary" id="btnNew">New change order</button>
+      <span class="muted" id="countLabel" style="align-self:center;font-size:0.8rem"></span>
+    </div>
+    <div class="tablewrap">
+      <table id="coTable">
+        <thead>
+          <tr>
+            <th>CO #</th><th>Title</th><th>Project</th><th>Status</th>
+            <th class="num">Total</th><th class="num">Days</th><th>Client</th><th class="nowrap">Sent</th><th class="nowrap">Decided</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div id="emptyHost"></div>
+    </div>
+  </div>
+
+  <div id="overlay"></div>
+  <aside id="drawer"></aside>
+  <div id="printSheet"></div>
+
+  <script>
+    const API = "/api/changeorders";
+    const STATUSES = ["draft", "sent", "approved", "declined", "void"];
+    let all = [];
+    let projects = [];
+    let current = null;      // CO being edited (null = drawer closed)
+    let draftLines = [];     // line items in the open editor
+
+    const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const money = (n) => "$" + (Number(n) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const shortDate = (iso) => iso ? String(iso).slice(0, 10) : "";
+    const val = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ""; };
+    const statusPill = (s) => {
+      const cls = { approved: "green", sent: "amber", declined: "red", void: "", draft: "plum" }[s] || "";
+      return `<span class="pill ${cls}">${esc(s || "draft")}</span>`;
+    };
+    // Stable CO numbers: position in the createdAt-ascending list (server returns newest first).
+    function coNumber(co) {
+      const ordered = all.slice().sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)));
+      const idx = ordered.findIndex((row) => row.id === co.id);
+      return "CO-" + String(idx + 1).padStart(3, "0");
+    }
+
+    async function load() {
+      const [coRes, actualsRes] = await Promise.all([fetch(API), fetch("/api/actuals")]);
+      all = coRes.ok ? await coRes.json() : [];
+      const actuals = actualsRes.ok ? await actualsRes.json() : [];
+      projects = actuals.map((row) => ({ id: row.id, name: row.projectName || "Untitled project" }));
+      const opts = projects.map((p) => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("");
+      document.getElementById("fProject").innerHTML = '<option value="">All projects</option>' + opts;
+      render();
+    }
+
+    function filtered() {
+      const q = val("fSearch").toLowerCase();
+      const projectId = val("fProject");
+      const status = val("fStatus");
+      return all.filter((co) => {
+        if (projectId && co.projectId !== projectId) return false;
+        if (status && co.status !== status) return false;
+        if (q) {
+          const hay = [co.title, co.projectName, co.clientName, co.clientEmail, co.description, co.reason].join(" ").toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderMetrics() {
+      const count = (s) => all.filter((co) => co.status === s).length;
+      const approvedTotal = all.filter((co) => co.status === "approved").reduce((sum, co) => sum + (co.total || 0), 0);
+      document.getElementById("metrics").innerHTML = [
+        [count("draft"), "Draft", ""],
+        [count("sent"), "Awaiting approval", ""],
+        [count("approved"), "Approved", ""],
+        [count("declined"), "Declined", ""],
+        [money(approvedTotal), "Approved value", "money"]
+      ].map(([v, l, cls]) => `<div class="metric ${cls}"><b>${v}</b><span>${l}</span></div>`).join("");
+    }
+
+    function render() {
+      const rows = filtered();
+      renderMetrics();
+      document.getElementById("countLabel").textContent = `${rows.length} of ${all.length} shown`;
+      const emptyHost = document.getElementById("emptyHost");
+      const table = document.getElementById("coTable");
+      if (!rows.length) {
+        table.style.display = "none";
+        emptyHost.innerHTML = all.length === 0
+          ? `<div class="empty">
+              <strong>No change orders yet</strong>
+              Scope changed mid-job? Write it up, price it, and send the client a one-click approval link.
+              <div class="empty-cta"><button class="btn primary" id="emptyNew">Create your first change order</button></div>
+            </div>`
+          : `<div class="empty">
+              <strong>No change orders match these filters</strong>
+              Try a different project, status, or search term.
+              <div class="empty-cta"><button class="btn" id="emptyReset">Clear filters</button></div>
+            </div>`;
+        document.getElementById("emptyNew")?.addEventListener("click", () => openDrawer(null));
+        document.getElementById("emptyReset")?.addEventListener("click", resetFilters);
+        return;
+      }
+      table.style.display = "";
+      emptyHost.innerHTML = "";
+      document.getElementById("rows").innerHTML = rows.map((co) => `
+        <tr class="row" data-id="${esc(co.id)}">
+          <td class="nowrap"><b>${coNumber(co)}</b></td>
+          <td><b>${esc(co.title)}</b>${co.description ? `<br /><span class="muted" style="font-size:0.72rem">${esc(co.description.slice(0, 90))}${co.description.length > 90 ? "…" : ""}</span>` : ""}</td>
+          <td>${esc(co.projectName || "")}</td>
+          <td>${statusPill(co.status)}</td>
+          <td class="num"><b>${money(co.total)}</b></td>
+          <td class="num">${co.daysImpact ? (co.daysImpact > 0 ? "+" : "") + co.daysImpact : '<span class="muted">0</span>'}</td>
+          <td>${esc(co.clientName || "")}</td>
+          <td class="nowrap muted">${shortDate(co.sentAt)}</td>
+          <td class="nowrap muted">${shortDate(co.approvedAt || co.declinedAt)}</td>
+        </tr>`).join("");
+    }
+
+    function resetFilters() {
+      for (const id of ["fSearch", "fProject", "fStatus"]) document.getElementById(id).value = "";
+      render();
+    }
+
+    // ── drawer / editor ──
+    function computeTotals() {
+      const subtotal = draftLines.reduce((sum, line) => sum + (Number(line.qty) || 0) * (Number(line.unitCost) || 0), 0);
+      const markupPct = Number(val("eMarkup") || 0);
+      return { subtotal, markup: subtotal * markupPct / 100, total: subtotal * (1 + markupPct / 100) };
+    }
+
+    function renderLines() {
+      const host = document.getElementById("linesHost");
+      if (!host) return;
+      host.innerHTML = `
+        <table class="lines-table">
+          <thead><tr><th style="width:44%">Description</th><th class="num" style="width:12%">Qty</th><th style="width:14%">Unit</th><th class="num" style="width:15%">Unit cost $</th><th class="num" style="width:12%">Total</th><th></th></tr></thead>
+          <tbody>
+            ${draftLines.map((line, i) => `
+              <tr>
+                <td><input data-i="${i}" data-k="description" value="${esc(line.description)}" placeholder="e.g. Upgrade to quartz countertops" /></td>
+                <td class="num"><input data-i="${i}" data-k="qty" type="number" step="any" min="0" value="${esc(String(line.qty))}" /></td>
+                <td><input data-i="${i}" data-k="unit" value="${esc(line.unit)}" placeholder="ea" /></td>
+                <td class="num"><input data-i="${i}" data-k="unitCost" type="number" step="any" min="0" value="${esc(String(line.unitCost))}" /></td>
+                <td class="line-total">${money((Number(line.qty) || 0) * (Number(line.unitCost) || 0))}</td>
+                <td><button class="btn danger" data-del="${i}" title="Remove line" type="button">×</button></td>
+              </tr>`).join("")}
+          </tbody>
+        </table>
+        <div class="actions"><button class="btn" id="btnAddLine" type="button">+ Add line item</button></div>`;
+      renderTotals();
+      host.querySelectorAll("input[data-i]").forEach((input) => input.addEventListener("input", (e) => {
+        const line = draftLines[Number(e.target.dataset.i)];
+        line[e.target.dataset.k] = e.target.dataset.k === "description" || e.target.dataset.k === "unit" ? e.target.value : Number(e.target.value || 0);
+        e.target.closest("tr").querySelector(".line-total").textContent = money((Number(line.qty) || 0) * (Number(line.unitCost) || 0));
+        renderTotals();
+      }));
+      host.querySelectorAll("button[data-del]").forEach((btn) => btn.addEventListener("click", (e) => {
+        draftLines.splice(Number(e.currentTarget.dataset.del), 1);
+        renderLines();
+      }));
+      document.getElementById("btnAddLine").addEventListener("click", () => {
+        draftLines.push({ description: "", qty: 1, unit: "ea", unitCost: 0 });
+        renderLines();
+        const inputs = host.querySelectorAll('input[data-k="description"]');
+        inputs[inputs.length - 1]?.focus();
+      });
+    }
+
+    function renderTotals() {
+      const t = computeTotals();
+      const box = document.getElementById("totalsBox");
+      if (box) box.innerHTML = `
+        <div>Subtotal: <b>${money(t.subtotal)}</b></div>
+        <div>Markup (${esc(val("eMarkup") || "0")}%): <b>${money(t.markup)}</b></div>
+        <div class="grand">Total: ${money(t.total)}</div>`;
+    }
+
+    function openDrawer(co) {
+      current = co;
+      const isNew = !co;
+      const locked = co && ["approved", "declined"].includes(co.status);
+      draftLines = (co?.lineItems || []).map((line) => ({ ...line }));
+      if (!draftLines.length) draftLines = [{ description: "", qty: 1, unit: "ea", unitCost: 0 }];
+      const projectOpts = ['<option value="">— no project —</option>']
+        .concat(projects.map((p) => `<option value="${esc(p.id)}" ${co?.projectId === p.id ? "selected" : ""}>${esc(p.name)}</option>`));
+      if (co?.projectId && !projects.some((p) => p.id === co.projectId)) {
+        projectOpts.push(`<option value="${esc(co.projectId)}" selected>${esc(co.projectName || "(archived project)")}</option>`);
+      }
+      const d = document.getElementById("drawer");
+      d.innerHTML = `
+        <div class="dhead">
+          <div>
+            <h2 style="font-size:1.05rem">${isNew ? "New change order" : esc(co.title)}</h2>
+            <div class="muted" style="font-size:0.8rem">${isNew ? "Draft — not saved yet" : `${coNumber(co)} · ${esc(co.projectName || "no project")} · `}${isNew ? "" : statusPill(co.status)}</div>
+          </div>
+          <button class="btn" onclick="closeDrawer()">Close</button>
+        </div>
+        <div class="dbody">
+          ${locked ? `<div class="card"><div class="grid2">
+            <div class="kv"><span>${co.status === "approved" ? "Approved" : "Declined"}</span><b>${esc(shortDate(co.approvedAt || co.declinedAt))}</b></div>
+            <div class="kv"><span>Signed by</span><b>${esc(co.approvalSignatureName || "—")}</b></div>
+            <div class="kv"><span>From IP</span><b>${esc(co.approvalIp || "—")}</b></div>
+            <div class="kv"><span>Client can still view</span><b>the link shows a confirmation page</b></div>
+          </div></div>` : ""}
+          <div class="card">
+            <div class="form-section">Details</div>
+            <div class="grid2">
+              <label class="kv"><span>Title</span><input id="eTitle" value="${esc(co?.title || "")}" placeholder="e.g. Kitchen island electrical upgrade" ${locked ? "disabled" : ""} /></label>
+              <label class="kv"><span>Project (from Actuals)</span><select id="eProject" ${locked ? "disabled" : ""}>${projectOpts.join("")}</select></label>
+            </div>
+            <label class="kv"><span>Scope of this change</span><textarea id="eDesc" ${locked ? "disabled" : ""}>${esc(co?.description || "")}</textarea></label>
+            <label class="kv"><span>Reason (why the contract needs to change)</span><textarea id="eReason" ${locked ? "disabled" : ""}>${esc(co?.reason || "")}</textarea></label>
+            <div class="form-section">Line items</div>
+            <div id="linesHost"></div>
+            <div class="form-section">Pricing &amp; schedule</div>
+            <div class="grid2">
+              <label class="kv"><span>Markup %</span><input id="eMarkup" type="number" step="any" min="0" value="${esc(String(co?.markupPct ?? 0))}" ${locked ? "disabled" : ""} /></label>
+              <label class="kv"><span>Schedule impact (days, negative = faster)</span><input id="eDays" type="number" step="1" value="${esc(String(co?.daysImpact ?? 0))}" ${locked ? "disabled" : ""} /></label>
+            </div>
+            <div class="totalsbox" id="totalsBox"></div>
+            <div class="form-section">Client</div>
+            <div class="grid2">
+              <label class="kv"><span>Client name</span><input id="eClientName" value="${esc(co?.clientName || "")}" ${locked ? "disabled" : ""} /></label>
+              <label class="kv"><span>Client email</span><input id="eClientEmail" type="email" value="${esc(co?.clientEmail || "")}" ${locked ? "disabled" : ""} /></label>
+            </div>
+            <div class="status-line" id="drawerStatus"></div>
+            <div class="actions">
+              ${locked ? "" : '<button class="btn primary" id="btnSave" type="button">Save</button>'}
+              ${locked || isNew ? "" : '<button class="btn" id="btnSend" type="button">Send for approval</button>'}
+              ${isNew ? "" : '<button class="btn" id="btnPrint" type="button">Print</button>'}
+              ${!isNew && !locked && co.status !== "void" ? '<button class="btn" id="btnVoid" type="button">Void</button>' : ""}
+              ${locked && co.status !== "void" ? '<button class="btn" id="btnVoid" type="button">Void</button>' : ""}
+              ${isNew ? "" : '<button class="btn danger" id="btnDelete" type="button">Delete</button>'}
+            </div>
+            <div class="linkbox" id="linkBox" style="display:${co?.approvalToken && co?.status === "sent" ? "grid" : "none"}">
+              <b style="font-size:0.8rem">Client approval link</b>
+              <input id="approvalUrl" readonly value="${co?.approvalToken ? esc(publicUrl(co.approvalToken)) : ""}" />
+              <div class="actions">
+                <button class="btn" id="btnCopyLink" type="button">Copy link</button>
+                <a class="btn" id="btnMailto" style="display:inline-flex;align-items:center;text-decoration:none" href="#">Email to client</a>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      document.getElementById("overlay").style.display = "block";
+      d.classList.add("open");
+      if (!locked) renderLines(); else renderReadOnlyLines();
+      renderTotals();
+      document.getElementById("eMarkup")?.addEventListener("input", renderTotals);
+      document.getElementById("btnSave")?.addEventListener("click", saveCo);
+      document.getElementById("btnSend")?.addEventListener("click", sendCo);
+      document.getElementById("btnPrint")?.addEventListener("click", () => printCo(current));
+      document.getElementById("btnVoid")?.addEventListener("click", voidCo);
+      document.getElementById("btnDelete")?.addEventListener("click", deleteCo);
+      document.getElementById("btnCopyLink")?.addEventListener("click", copyLink);
+      updateMailto();
+    }
+
+    function renderReadOnlyLines() {
+      const host = document.getElementById("linesHost");
+      if (!host) return;
+      host.innerHTML = `
+        <table class="lines-table">
+          <thead><tr><th>Description</th><th class="num">Qty</th><th>Unit</th><th class="num">Unit cost</th><th class="num">Total</th></tr></thead>
+          <tbody>${(current?.lineItems || []).map((line) => `
+            <tr><td>${esc(line.description)}</td><td class="num">${esc(String(line.qty))}</td><td>${esc(line.unit)}</td><td class="num">${money(line.unitCost)}</td><td class="line-total">${money(line.total)}</td></tr>`).join("")}
+          </tbody>
+        </table>`;
+    }
+
+    function closeDrawer() {
+      document.getElementById("drawer").classList.remove("open");
+      document.getElementById("overlay").style.display = "none";
+      current = null;
+    }
+
+    function publicUrl(token) {
+      return `${location.protocol}//${location.hostname}:4173/co/${token}`;
+    }
+
+    function drawerBody() {
+      const projectId = val("eProject");
+      return {
+        projectId,
+        projectName: projects.find((p) => p.id === projectId)?.name || current?.projectName || "",
+        title: val("eTitle"),
+        description: val("eDesc"),
+        reason: val("eReason"),
+        lineItems: draftLines,
+        markupPct: Number(val("eMarkup") || 0),
+        daysImpact: Number(val("eDays") || 0),
+        status: current?.status || "draft",
+        clientName: val("eClientName"),
+        clientEmail: val("eClientEmail")
+      };
+    }
+
+    function setStatusLine(text, cls) {
+      const el = document.getElementById("drawerStatus");
+      if (el) { el.textContent = text; el.className = `status-line ${cls || ""}`; }
+    }
+
+    async function saveCo(keepOpen) {
+      const body = drawerBody();
+      if (!body.title) { setStatusLine("Give the change order a title first.", "bad"); return null; }
+      const res = current
+        ? await fetch(`${API}/${current.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+        : await fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const data = await res.json();
+      if (!res.ok) { setStatusLine(data.error || "Save failed.", "bad"); return null; }
+      current = data;
+      setStatusLine("Saved.", "good");
+      await load();
+      if (keepOpen !== true) { closeDrawer(); }
+      return data;
+    }
+
+    async function sendCo() {
+      const saved = await saveCo(true);
+      if (!saved) return;
+      const btn = document.getElementById("btnSend");
+      if (btn) btn.disabled = true;
+      const res = await fetch(`${API}/${saved.id}`.replace(/\/$/, "") + "/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+      const data = await res.json();
+      if (btn) btn.disabled = false;
+      if (!res.ok) { setStatusLine(data.error || "Send failed.", "bad"); return; }
+      current = { ...saved, status: "sent", sentAt: data.sentAt, approvalToken: data.approvalToken };
+      const box = document.getElementById("linkBox");
+      document.getElementById("approvalUrl").value = data.approvalUrl || publicUrl(data.approvalToken);
+      box.style.display = "grid";
+      updateMailto();
+      setStatusLine("Sent — share the approval link below with your client.", "good");
+      await load();
+    }
+
+    function updateMailto() {
+      const a = document.getElementById("btnMailto");
+      if (!a || !current?.approvalToken) return;
+      const url = document.getElementById("approvalUrl")?.value || publicUrl(current.approvalToken);
+      const subject = encodeURIComponent(`Change order for ${current.projectName || "your project"}: ${current.title}`);
+      const bodyText = encodeURIComponent(
+        `Hi ${current.clientName || "there"},\n\n` +
+        `We've written up the change we discussed — "${current.title}" (${money(current.total)}${current.daysImpact ? `, ${current.daysImpact > 0 ? "+" : ""}${current.daysImpact} days` : ""}).\n\n` +
+        `You can review the full breakdown and approve or decline it here:\n${url}\n\n` +
+        `Any questions, just reply to this email.\n\nJoon Development Group\n(818) 371-0334`
+      );
+      a.href = `mailto:${current.clientEmail || ""}?subject=${subject}&body=${bodyText}`;
+    }
+
+    async function copyLink() {
+      const input = document.getElementById("approvalUrl");
+      input.select();
+      try { await navigator.clipboard.writeText(input.value); setStatusLine("Link copied.", "good"); }
+      catch (_e) { document.execCommand("copy"); setStatusLine("Link copied.", "good"); }
+    }
+
+    async function voidCo() {
+      if (!current || !confirm(`Void ${current.title}? The client link will stop accepting approval.`)) return;
+      const res = await fetch(`${API}/${current.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...current, status: "void" }) });
+      if (!res.ok) { const data = await res.json(); setStatusLine(data.error || "Void failed.", "bad"); return; }
+      closeDrawer(); await load();
+    }
+
+    async function deleteCo() {
+      if (!current || !confirm(`Delete ${current.title}? This cannot be undone.`)) return;
+      await fetch(`${API}/${current.id}`, { method: "DELETE" });
+      closeDrawer(); await load();
+    }
+
+    // ── print-clean view ──
+    function printCo(co) {
+      if (!co) return;
+      const days = Number(co.daysImpact || 0);
+      document.getElementById("printSheet").innerHTML = `
+        <div class="phead">
+          <div>
+            <h1>Change Order ${coNumber(co)}</h1>
+            <div>${esc(co.title)}</div>
+          </div>
+          <div style="text-align:right">
+            <b>Joon Development Group</b><br />CA Class B #1107974<br />(818) 371-0334
+          </div>
+        </div>
+        <p><b>Project:</b> ${esc(co.projectName || "—")} &nbsp; <b>Client:</b> ${esc(co.clientName || "—")} &nbsp; <b>Status:</b> ${esc(co.status)} &nbsp; <b>Date:</b> ${esc(shortDate(co.sentAt || co.updatedAt || co.createdAt))}</p>
+        ${co.description ? `<p><b>Scope:</b> ${esc(co.description)}</p>` : ""}
+        ${co.reason ? `<p><b>Reason:</b> ${esc(co.reason)}</p>` : ""}
+        <table>
+          <thead><tr><th>Description</th><th class="num">Qty</th><th>Unit</th><th class="num">Unit cost</th><th class="num">Total</th></tr></thead>
+          <tbody>${(co.lineItems || []).map((line) => `
+            <tr><td>${esc(line.description)}</td><td class="num">${esc(String(line.qty))}</td><td>${esc(line.unit)}</td><td class="num">${money(line.unitCost)}</td><td class="num">${money(line.total)}</td></tr>`).join("")}
+          </tbody>
+        </table>
+        <div class="ptotals">
+          Subtotal: <b>${money(co.subtotal)}</b><br />
+          Markup (${esc(String(co.markupPct || 0))}%): <b>${money((co.total || 0) - (co.subtotal || 0))}</b><br />
+          <span class="grand">Total: ${money(co.total)}</span>
+        </div>
+        <p><b>Schedule impact:</b> ${days > 0 ? `+${days} day(s)` : days < 0 ? `${days} day(s)` : "none"}</p>
+        ${co.status === "approved" ? `<p><b>Approved electronically</b> by ${esc(co.approvalSignatureName || "")} on ${esc(shortDate(co.approvedAt))} (IP ${esc(co.approvalIp || "")}).</p>` : ""}
+        <div class="psign">
+          <div>Client signature / date</div>
+          <div>Contractor signature / date</div>
+        </div>`;
+      window.print();
+    }
+
+    // ── wiring ──
+    document.addEventListener("input", (e) => { if (e.target.closest(".filters")) render(); });
+    document.addEventListener("change", (e) => { if (e.target.closest(".filters")) render(); });
+    document.getElementById("btnReset").addEventListener("click", resetFilters);
+    document.getElementById("btnNew").addEventListener("click", () => openDrawer(null));
+    document.getElementById("rows").addEventListener("click", (e) => {
+      const tr = e.target.closest("tr.row"); if (!tr) return;
+      const co = all.find((row) => row.id === tr.dataset.id);
+      if (co) openDrawer(co);
+    });
+    document.getElementById("overlay").addEventListener("click", closeDrawer);
+    load();
+  </script>
+</body>
+</html>

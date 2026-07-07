@@ -1,8 +1,11 @@
-# SaaS Build-vs-Buy Decisions — 2026-07-06
-_Verdicts for the 10 providers evaluated. Full research with citations: `tmp/saas-research-leads.md` (Angi/HomeBuddy/HeyPros), `tmp/saas-research-fsm.md` (Houzz/Jobber/SimplyWise), `tmp/saas-research-misc.md` (Hearth/Leap/HybridReach/AudienceLab)._
+# SaaS Build-vs-Buy Decisions — 2026-07-06 (updated 2026-07-07)
+_Verdicts for the 13 providers evaluated. Full research with citations: `tmp/saas-research-leads.md` (Angi/HomeBuddy/HeyPros), `tmp/saas-research-fsm.md` (Houzz/Jobber/SimplyWise), `tmp/saas-research-misc.md` (Hearth/Leap/HybridReach/AudienceLab)._
 
 | Provider | What it is | Cost | Verdict |
 |---|---|---|---|
+| Buildertrend | All-in-one builder PM suite | ~$339-1,099/mo + onboarding; year-1 ~$9-12K | **SKIP / CLONE** — ~80% of it is CRUD we build free; documented auto-renew hikes + no bulk export (data lock-in). Cloned: change orders w/ client e-approval (2026-07-07). Next: budget-vs-actual by cost code, client portal |
+| JACK App (jackapp.io) | AU builder platform, US launch; finance-first | $299/mo flat + $18/user | **SKIP / CLONE** — best domain design of the lot; cashflow forecast + RFQ + POs are pure aggregation math. Cloned: RFQ workflow into Bid Lab (2026-07-07). Next: POs/committed cost, cashflow forecast, AI bill OCR (weekend build w/ Claude API) |
+| CompanyCam | Photo documentation for contractors | $63-249/mo + $29/seat | **SKIP paid / CLONE core** — moat is the native mobile capture app; everything downstream is CRUD. Cloned: project photo feed + share galleries + PDF photo report (2026-07-07). Mobile-web upload (`<input capture>`) gets ~70% of capture value; revisit paid only if crews need offline |
 | HeyPros | Sub compliance SaaS | $149-249/mo | **BUILT IN-HOUSE** (compliance packet tracker, commit 2191ec7) |
 | Leap (leaptodigital.com) | Contractor CRM (ex-JobProgress) | $99+/mo, BBB F | **SKIP** — we have our own CRM; post-acquisition decline |
 | Houzz Pro | All-in-one remodeler suite | ~$399/mo [EST], annual lock-in | **SKIP paid** — $14K auto-renew horror stories; claim the FREE Houzz directory profile |

@@ -85,6 +85,27 @@
     .badge.good { background: #dff5ef; color: var(--green); }
     .badge.warn { background: #fff3d6; color: var(--amber); }
     .badge.bad { background: #fee4e2; color: var(--red); }
+    .pill { display: inline-flex; align-items: center; border-radius: 999px; padding: 0.05rem 0.5rem; font-size: 0.7rem; font-weight: 800; background: var(--mist); color: var(--steel); border: 1px solid var(--line); white-space: nowrap; }
+    .pill.green { background: #e7f6f4; color: var(--green); border-color: #bfe6e1; }
+    .pill.amber { background: #fdf3e7; color: var(--amber); border-color: #f3ddc0; }
+    .pill.red { background: #fdecea; color: var(--red); border-color: #f5c9c4; }
+    .pill.blue { background: #e8effd; color: var(--blue); border-color: #c8d9f9; }
+    .rfq-block { border-top: 1px solid var(--line); margin-top: 0.85rem; padding-top: 0.85rem; }
+    .rfq-block h4 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.45rem; }
+    .rfq-card { border: 1px solid var(--line); border-radius: 8px; background: #fbfcfd; padding: 0.7rem 0.8rem; margin-bottom: 0.6rem; }
+    .rfq-card header { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: space-between; }
+    .rfq-recipient { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; border-top: 1px dashed var(--line); margin-top: 0.5rem; padding-top: 0.5rem; font-size: 0.88rem; }
+    .rfq-recipient .grow { flex: 1 1 160px; min-width: 0; font-weight: 800; }
+    .rfq-recipient button { min-height: 30px; font-size: 0.74rem; padding: 0 0.55rem; }
+    .rfq-response { flex-basis: 100%; color: var(--steel); font-size: 0.84rem; background: var(--white); border: 1px solid var(--line); border-radius: 6px; padding: 0.5rem 0.6rem; }
+    .rfq-builder { border: 1px solid var(--line); border-left: 4px solid var(--blue); border-radius: 8px; background: var(--white); padding: 0.85rem; margin-top: 0.6rem; }
+    .rfq-builder h4 { color: var(--ink); text-transform: none; letter-spacing: 0; font-size: 0.98rem; }
+    .sub-pick-list, .line-pick-list { max-height: 240px; overflow: auto; border: 1px solid var(--line); border-radius: 6px; margin-top: 0.4rem; background: var(--white); }
+    .pick-row { display: flex; gap: 0.5rem; align-items: center; padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--line); font-size: 0.88rem; }
+    .pick-row:last-child { border-bottom: 0; }
+    .pick-row input[type="checkbox"] { width: auto; min-height: 0; }
+    .pick-row .grow { flex: 1 1 auto; min-width: 0; }
+    .pick-row .sub-meta { color: var(--muted); font-size: 0.76rem; }
     .money { text-align: right; font-weight: 900; }
     .detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem 1rem; margin-top: 0.75rem; color: var(--steel); font-size: 0.92rem; }
     .wide { grid-column: 1 / -1; }
@@ -399,6 +420,7 @@
         $("#storageStatus").textContent = "Browser";
       }
       render();
+      loadRfqs();
     }
 
     function saveLocal() { localStorage.setItem(localKey, JSON.stringify(projects)); }
@@ -504,6 +526,7 @@
               <div class="wide"><strong>Next:</strong> ${project.nextAction || "No next action"} ${project.nextActionDate ? `on ${project.nextActionDate}` : ""}</div>
             </div>
             ${quoteRows ? `<table><thead><tr><th>Trade</th><th>Sub</th><th>Status</th><th>Quote</th><th>Confidence</th></tr></thead><tbody>${quoteRows}</tbody></table>` : ""}
+            ${renderRfqSection(project)}
             <div class="actions" style="margin-top:0.8rem;">
               <button class="secondary" data-edit="${project.id}" type="button">Edit bid</button>
               <button class="secondary" data-quote="${project.id}" type="button">Quote Request</button>
@@ -563,6 +586,205 @@
       $("#quoteOutput").textContent = buildLocalQuoteRequest(project, trade);
     }
 
+    // ── RFQ workflow (Mongo collection "rfqs", API at /api/rfq on :4373) ──
+    const esc = (value) => String(value == null ? "" : value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c]));
+    let rfqs = [];
+    let rosterSubs = null;
+    let openRfqBuilderId = "";
+    let rfqBuilderCategory = "relevant";
+    const rfqSelectedSubs = new Set();
+
+    async function loadRfqs() {
+      if (!apiAvailable) return;
+      try {
+        rfqs = await api("/api/rfq");
+        render();
+      } catch (_error) { rfqs = []; }
+    }
+
+    async function loadRosterSubs() {
+      if (rosterSubs) return rosterSubs;
+      const rows = await api("/api/subcontractors");
+      rosterSubs = rows
+        .filter((sub) => clean(sub.email))
+        .sort((a, b) => (b.legitScore || 0) - (a.legitScore || 0) || (b.overallScore || 0) - (a.overallScore || 0));
+      return rosterSubs;
+    }
+
+    function legitPill(sub) {
+      const tier = clean(sub.legitTier || "unverified");
+      const cls = tier === "verified" ? "green" : tier === "credible" ? "blue" : tier === "unverified" ? "amber" : "red";
+      return `<span class="pill ${cls}">${esc(tier)} ${Number(sub.legitScore || 0)}</span>`;
+    }
+
+    function rfqStatusPill(status) {
+      const cls = status === "responded" ? "green" : status === "viewed" ? "blue" : status === "declined" ? "red" : "amber";
+      return `<span class="pill ${cls}">${esc(status)}</span>`;
+    }
+
+    function projectTradeWords(project) {
+      const words = new Set();
+      const push = (text) => clean(text).toLowerCase().split(/[^a-z]+/).forEach((word) => { if (word.length >= 4 && !["with", "haul"].includes(word)) words.add(word); });
+      (project.lineItems || []).forEach((item) => push(item.trade));
+      push(project.projectType);
+      return words;
+    }
+
+    function subMatchesProject(sub, tradeWords) {
+      const category = clean(sub.serviceCategory).toLowerCase();
+      if (!category) return false;
+      return [...tradeWords].some((word) => category.includes(word));
+    }
+
+    function rfqBuilderSubRows(project) {
+      const tradeWords = projectTradeWords(project);
+      const subs = (rosterSubs || []).filter((sub) => rfqBuilderCategory === "all"
+        ? true
+        : rfqBuilderCategory === "relevant"
+          ? subMatchesProject(sub, tradeWords)
+          : clean(sub.serviceCategory) === rfqBuilderCategory);
+      if (!subs.length) return `<div class="pick-row"><span class="sub-meta">No roster subs with an email match this filter. Try "All categories".</span></div>`;
+      return subs.map((sub) => `
+        <label class="pick-row">
+          <input type="checkbox" data-rfq-sub="${esc(sub.id)}" ${rfqSelectedSubs.has(sub.id) ? "checked" : ""} />
+          <span class="grow"><strong>${esc(sub.companyName || "Unnamed")}</strong><br /><span class="sub-meta">${esc(sub.serviceCategory || "No category")}${sub.ownerName ? ` &middot; ${esc(sub.ownerName)}` : ""} &middot; ${esc(sub.email)}</span></span>
+          ${legitPill(sub)}
+        </label>`).join("");
+    }
+
+    function renderRfqBuilder(project) {
+      const categories = [...new Set((rosterSubs || []).map((sub) => clean(sub.serviceCategory)).filter(Boolean))].sort();
+      const items = project.lineItems || [];
+      return `
+        <div class="rfq-builder" data-builder="${esc(project.id)}">
+          <h4>Request quotes: pick subs and scope</h4>
+          <label style="margin-top:0.6rem;">Roster subs (email required, sorted by legitimacy)</label>
+          <select data-rfq-category="${esc(project.id)}">
+            <option value="relevant" ${rfqBuilderCategory === "relevant" ? "selected" : ""}>Relevant trades only</option>
+            <option value="all" ${rfqBuilderCategory === "all" ? "selected" : ""}>All categories</option>
+            ${categories.map((category) => `<option value="${esc(category)}" ${rfqBuilderCategory === category ? "selected" : ""}>${esc(category)}</option>`).join("")}
+          </select>
+          <div class="sub-pick-list" data-sub-list="${esc(project.id)}">${rfqBuilderSubRows(project)}</div>
+          <label style="margin-top:0.75rem;">Line items to price</label>
+          <div class="line-pick-list">
+            ${items.length ? items.map((item) => `
+              <label class="pick-row">
+                <input type="checkbox" data-rfq-line="${esc(item.id)}" checked />
+                <span class="grow"><strong>${esc(item.trade || "General")}</strong> <span class="sub-meta">${esc(item.description || "")}</span></span>
+              </label>`).join("") : `<div class="pick-row"><span class="sub-meta">No line items on this bid yet. Generate a scope draft and save first, or create the RFQ with just a title and notes.</span></div>`}
+          </div>
+          <div class="grid" style="margin-top:0.75rem;">
+            <div class="full"><label>Scope title (what the subs see)</label><input data-rfq-title placeholder="${esc(project.projectType || "Scope package")}" value="${esc(project.projectType || "")}" /></div>
+            <div><label>Quotes due</label><input data-rfq-due type="date" /></div>
+            <div class="full"><label>Notes to subs</label><textarea data-rfq-notes placeholder="Access, timeline, selections, anything they should know."></textarea></div>
+          </div>
+          <div class="actions" style="margin-top:0.75rem;">
+            <button type="button" data-rfq-create="${esc(project.id)}">Create RFQ</button>
+            <button type="button" class="secondary" data-rfq-cancel="${esc(project.id)}">Cancel</button>
+          </div>
+          <div class="form-status" data-rfq-status="${esc(project.id)}" aria-live="polite"></div>
+        </div>`;
+    }
+
+    function renderRfqResponse(recipient) {
+      const response = recipient.response || {};
+      if (recipient.status === "declined") return `<div class="rfq-response">Declined${response.respondentName ? ` by ${esc(response.respondentName)}` : ""}${response.notes ? ` - ${esc(response.notes)}` : ""}.</div>`;
+      if (recipient.status !== "responded") return "";
+      const lines = [
+        `<strong>${money(response.total)}</strong> ${response.pricingMode === "line" ? "(line-item pricing)" : "(lump sum)"} &middot; confidence ${esc(response.confidence || "unknown")}`,
+        response.leadTime ? `Lead time: ${esc(response.leadTime)}` : "",
+        response.exclusions ? `Exclusions: ${esc(response.exclusions)}` : "",
+        response.notes ? `Needs from us: ${esc(response.notes)}` : "",
+        response.respondentName ? `Priced by ${esc(response.respondentName)} on ${esc((response.submittedAt || "").slice(0, 10))}` : ""
+      ].filter(Boolean);
+      return `<div class="rfq-response">${lines.join("<br />")}</div>`;
+    }
+
+    function renderRfqSection(project) {
+      if (!apiAvailable) return "";
+      const projectRfqs = rfqs.filter((rfq) => rfq.bidProjectId === project.id);
+      const cards = projectRfqs.map((rfq) => `
+        <div class="rfq-card">
+          <header>
+            <div><strong>${esc(rfq.scopeTitle)}</strong> <span class="muted" style="font-size:0.8rem;">${(rfq.lineItems || []).length} line items${rfq.dueDate ? ` &middot; due ${esc(rfq.dueDate)}` : ""} &middot; sent ${esc((rfq.createdAt || "").slice(0, 10))}</span></div>
+            <button class="secondary" type="button" data-rfq-delete="${esc(rfq.id)}" style="min-height:30px;font-size:0.74rem;padding:0 0.55rem;">Delete RFQ</button>
+          </header>
+          ${(rfq.recipients || []).map((recipient) => `
+            <div class="rfq-recipient">
+              <span class="grow">${esc(recipient.companyName || recipient.email)}</span>
+              ${rfqStatusPill(recipient.status)}
+              <button class="secondary" type="button" data-copy-link="${esc(recipient.responseUrl)}">Copy link</button>
+              <button class="secondary" type="button" data-copy-email="${esc(rfq.id)}" data-copy-email-sub="${esc(recipient.subId)}" data-copy-email-addr="${esc(recipient.email)}">Copy email</button>
+              ${renderRfqResponse(recipient)}
+            </div>`).join("")}
+        </div>`).join("");
+      return `
+        <div class="rfq-block">
+          <h4>RFQ - request for quotes</h4>
+          ${cards || `<div class="muted" style="font-size:0.86rem;margin-bottom:0.5rem;">No RFQs yet. Pick roster subs, choose line items, and copy personal quote links. Responses land in the quote table above automatically.</div>`}
+          ${openRfqBuilderId === project.id ? renderRfqBuilder(project) : `<div class="actions"><button class="secondary" type="button" data-rfq-open="${esc(project.id)}">Request quotes</button></div>`}
+        </div>`;
+    }
+
+    async function copyText(text, button) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (_error) {
+        const area = document.createElement("textarea");
+        area.value = text;
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand("copy");
+        area.remove();
+      }
+      if (button) {
+        const original = button.textContent;
+        button.textContent = "Copied";
+        setTimeout(() => { button.textContent = original; }, 1200);
+      }
+    }
+
+    async function createRfq(projectId) {
+      const project = projects.find((row) => row.id === projectId);
+      const builder = document.querySelector(`[data-builder="${projectId}"]`);
+      if (!project || !builder) return;
+      const status = builder.querySelector("[data-rfq-status]");
+      const pickedSubIds = [...builder.querySelectorAll("[data-rfq-sub]:checked")].map((input) => input.dataset.rfqSub);
+      const pickedLineIds = new Set([...builder.querySelectorAll("[data-rfq-line]:checked")].map((input) => input.dataset.rfqLine));
+      const recipients = (rosterSubs || []).filter((sub) => pickedSubIds.includes(sub.id)).map((sub) => ({ subId: sub.id, companyName: sub.companyName, email: sub.email, ownerName: sub.ownerName, serviceCategory: sub.serviceCategory }));
+      if (!recipients.length) { status.style.color = "var(--red)"; status.textContent = "Pick at least one sub with an email."; return; }
+      const lineItems = (project.lineItems || []).filter((item) => pickedLineIds.has(item.id));
+      status.style.color = "";
+      status.textContent = "Creating RFQ...";
+      try {
+        await api("/api/rfq", { method: "POST", body: JSON.stringify({
+          bidProjectId: projectId,
+          scopeTitle: builder.querySelector("[data-rfq-title]").value || project.projectType,
+          dueDate: builder.querySelector("[data-rfq-due]").value,
+          notes: builder.querySelector("[data-rfq-notes]").value,
+          lineItems,
+          recipients
+        }) });
+        openRfqBuilderId = "";
+        rfqSelectedSubs.clear();
+        await loadRfqs();
+      } catch (error) {
+        status.style.color = "var(--red)";
+        status.textContent = error.message;
+      }
+    }
+
+    async function copyEmailDraft(rfqId, subId, email, button) {
+      try {
+        const result = await api(`/api/rfq/${rfqId}/emails`);
+        const draft = (result.drafts || []).find((row) => (subId && row.subId === subId) || row.email === email);
+        if (!draft) throw new Error("Email draft not found for this recipient.");
+        await copyText(`To: ${draft.email}\nSubject: ${draft.subject}\n\n${draft.body}`, button);
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
     function populate() {
       $("#projectType").innerHTML = projectTypes.map((type) => `<option>${type}</option>`).join("");
       $("#quoteTrade").innerHTML = trades.map((trade) => `<option>${trade}</option>`).join("");
@@ -612,6 +834,47 @@
         projects = projects.filter((project) => project.id !== deleteId);
         saveLocal();
         render();
+      }
+    });
+
+    $("#projectList").addEventListener("click", async (event) => {
+      const target = event.target.closest("button");
+      if (!target) return;
+      if (target.dataset.rfqOpen) {
+        openRfqBuilderId = target.dataset.rfqOpen;
+        rfqBuilderCategory = "relevant";
+        rfqSelectedSubs.clear();
+        try { await loadRosterSubs(); } catch (error) { alert(`Could not load roster subs: ${error.message}`); openRfqBuilderId = ""; return; }
+        render();
+        const builder = document.querySelector(`[data-builder="${openRfqBuilderId}"]`);
+        if (builder) builder.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      if (target.dataset.rfqCancel) {
+        openRfqBuilderId = "";
+        rfqSelectedSubs.clear();
+        render();
+      }
+      if (target.dataset.rfqCreate) await createRfq(target.dataset.rfqCreate);
+      if (target.dataset.rfqDelete && confirm("Delete this RFQ? The response links stop working.")) {
+        try {
+          await api(`/api/rfq/${target.dataset.rfqDelete}`, { method: "DELETE" });
+          await loadRfqs();
+        } catch (error) { alert(error.message); }
+      }
+      if (target.dataset.copyLink) await copyText(target.dataset.copyLink, target);
+      if (target.dataset.copyEmail) await copyEmailDraft(target.dataset.copyEmail, target.dataset.copyEmailSub, target.dataset.copyEmailAddr, target);
+    });
+
+    $("#projectList").addEventListener("change", (event) => {
+      if (event.target.dataset.rfqSub) {
+        if (event.target.checked) rfqSelectedSubs.add(event.target.dataset.rfqSub);
+        else rfqSelectedSubs.delete(event.target.dataset.rfqSub);
+      }
+      if (event.target.dataset.rfqCategory) {
+        rfqBuilderCategory = event.target.value;
+        const project = projects.find((row) => row.id === event.target.dataset.rfqCategory);
+        const list = document.querySelector(`[data-sub-list="${event.target.dataset.rfqCategory}"]`);
+        if (project && list) list.innerHTML = rfqBuilderSubRows(project);
       }
     });
 
