@@ -1265,8 +1265,23 @@ async function upsertSourcedSubcontractor(coll, input) {
       outreachStage: existing.outreachStage && existing.outreachStage !== "not_contacted" ? existing.outreachStage : doc.outreachStage,
       bringsOwnMaterials: doc.bringsOwnMaterials !== "unknown" ? doc.bringsOwnMaterials : (existing.bringsOwnMaterials || "unknown"),
       docChecklist: existing.docChecklist && Object.values(existing.docChecklist).some((item) => item && item.status !== "missing") ? existing.docChecklist : doc.docChecklist,
-      overallScore: blendScores(doc.fitScore, existing.jobScore, existing.jobCount)
+      overallScore: blendScores(doc.fitScore, existing.jobScore, existing.jobCount),
+      // ...nor regress vetting evidence (deep-vet results, website checks, red flags).
+      licenseStatus: doc.licenseStatus !== "unchecked" ? doc.licenseStatus : (existing.licenseStatus || "unchecked"),
+      websiteAlive: doc.websiteAlive !== null ? doc.websiteAlive : (existing.websiteAlive ?? null),
+      websiteCheckedAt: doc.websiteCheckedAt || existing.websiteCheckedAt || "",
+      redFlags: cleanArray(doc.redFlags).length ? doc.redFlags : (existing.redFlags || []),
+      vettingNotes: doc.vettingNotes || existing.vettingNotes || "",
+      lastVettedAt: doc.lastVettedAt || existing.lastVettedAt || "",
+      vettingStatus: existing.vettingStatus === "deep_vetted" ? "deep_vetted" : doc.vettingStatus,
+      licenseVerified: doc.licenseVerified || Boolean(existing.licenseVerified),
+      licenseNumber: doc.licenseNumber || existing.licenseNumber || "",
+      reviewRating: Number(doc.reviewRating) > 0 ? doc.reviewRating : (existing.reviewRating || 0),
+      reviewCount: Number(doc.reviewCount) > 0 ? doc.reviewCount : (existing.reviewCount || 0),
+      reviewSource: doc.reviewSource || existing.reviewSource || ""
     };
+    // Recompute scores off the preserved evidence, not the raw incoming doc.
+    Object.assign(merged, vettingFieldsFor({ ...merged, jobCount: existing.jobCount, jobScore: existing.jobScore }));
     await coll.updateOne({ _id: existing._id }, { $set: merged });
     return { ...merged, id: existing._id.toString(), updatedExisting: true };
   }
