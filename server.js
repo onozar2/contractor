@@ -195,9 +195,10 @@ crmApp.get("/change_orders.html", (_req, res) => res.sendFile(path.join(__dirnam
 crmApp.get("/photo_feed.html", (_req, res) => res.sendFile(path.join(__dirname, "photo_feed.html")));
 // Unified backend app (entity-centric redesign 2026-07-07)
 crmApp.get("/app.html", (_req, res) => res.sendFile(path.join(__dirname, "app.html")));
-for (const moduleFile of ["app_subs.js", "app_projects.js", "app_pipeline.js"]) {
+for (const moduleFile of ["app_subs.js", "app_projects.js", "app_pipeline.js", "app_knowledge.js"]) {
   crmApp.get(`/${moduleFile}`, (_req, res) => res.sendFile(path.join(__dirname, moduleFile)));
 }
+crmApp.use("/api/knowledge", require("./knowledge")(collection));
 crmApp.use("/api/suppliers", require("./suppliers")(collection));
 crmApp.use("/api/changeorders", require("./changeorders")(collection));
 crmApp.use("/api/photofeed", require("./photofeed")(collection));
