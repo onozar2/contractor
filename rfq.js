@@ -5,7 +5,7 @@ const { ObjectId } = require("mongodb");
 // RFQ (request-for-quote) module for the Joon subcontractor-finder CRM.
 // JACK-app-style flow: pick roster subs on bid_lab.html, create an RFQ with a
 // snapshot of the bid project's line items, copy a personal email draft per
-// sub, and let each sub submit pricing on a tokenized public page (:4173).
+// sub, and let each sub submit pricing on a tokenized public page (:4373).
 // Factory mirrors suppliers.js:
 // - `collection` is the app helper `async (name) => coll|null`.
 // - every route returns 503 when Mongo is not configured.
@@ -123,7 +123,7 @@ function rfqLocation(rfq) {
 
 function publicBaseUrl(req) {
   if (process.env.PUBLIC_SITE_URL) return cleanString(process.env.PUBLIC_SITE_URL).replace(/\/+$/, "");
-  const publicPort = process.env.PUBLIC_PORT || process.env.PORT || 4173;
+  const publicPort = process.env.PUBLIC_PORT || process.env.PORT || 4373;
   return `http://${req.hostname}:${publicPort}`;
 }
 
@@ -182,7 +182,7 @@ function buildEmailDraft(rfq, recipient, link) {
   return { subject, body };
 }
 
-// ── Public quote-submission page (served on :4173) ──
+// ── Public quote-submission page (served on :4373) ──
 
 function publicPageShell(title, inner) {
   return `<!DOCTYPE html>
@@ -524,7 +524,7 @@ module.exports = function createRfqRouter(collection) {
   return router;
 };
 
-// ── Public router (mount at /rfq on the :4173 app) ──
+// ── Public router (mount at /rfq on the :4373 app) ──
 
 module.exports.publicRouter = function createRfqPublicRouter(collection) {
   const router = express.Router();
@@ -606,4 +606,4 @@ module.exports.publicRouter = function createRfqPublicRouter(collection) {
 module.exports.RECIPIENT_STATUSES = RECIPIENT_STATUSES;
 
 // MOUNT (CRM, :4373):   crmApp.use("/api/rfq", require("./rfq")(collection));
-// MOUNT (public, :4173): publicApp.use("/rfq", require("./rfq").publicRouter(collection));
+// MOUNT (public, :4373): publicApp.use("/rfq", require("./rfq").publicRouter(collection));

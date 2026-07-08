@@ -12,7 +12,7 @@ const { ObjectId } = require("mongodb");
 //
 // Two routers are exported:
 // - module.exports = (collection) => router          -> CRM API at /api/photofeed (:4373)
-// - module.exports.publicRouter = (collection) => router -> public gallery at /gallery (:4173)
+// - module.exports.publicRouter = (collection) => router -> public gallery at /gallery (:4373)
 //
 // Photos live on disk under UPLOADS_DIR (same tree the actuals photos use) and
 // are served statically at /uploads on the CRM app only. The public gallery
@@ -147,7 +147,7 @@ module.exports = function createPhotoFeedRouter(collection) {
 
   function publicGalleryBase(req) {
     if (process.env.PUBLIC_GALLERY_URL) return String(process.env.PUBLIC_GALLERY_URL).replace(/\/+$/, "");
-    const publicPort = process.env.PUBLIC_PORT || process.env.PORT || 4173;
+    const publicPort = process.env.PUBLIC_PORT || process.env.PORT || 4373;
     return `${req.protocol}://${req.hostname}:${publicPort}`;
   }
 
@@ -269,7 +269,7 @@ module.exports = function createPhotoFeedRouter(collection) {
   return router;
 };
 
-// ── Public gallery router (mounted on the :4173 public site at /gallery) ──
+// ── Public gallery router (mounted on the :4373 public site at /gallery) ──
 module.exports.publicRouter = function createPublicGalleryRouter(collection) {
   const router = express.Router();
 
@@ -461,4 +461,4 @@ module.exports.PHASES = PHASES;
 
 // MOUNT (CRM, :4373):    crmApp.use("/api/photofeed", require("./photofeed")(collection));
 //                        crmApp.get("/photo_feed.html", (_req, res) => res.sendFile(path.join(__dirname, "photo_feed.html")));
-// MOUNT (public, :4173): publicApp.use("/gallery", require("./photofeed").publicRouter(collection));
+// MOUNT (public, :4373): publicApp.use("/gallery", require("./photofeed").publicRouter(collection));

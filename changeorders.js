@@ -9,11 +9,11 @@ const { ObjectId } = require("mongodb");
 // - :id routes look up documents by ObjectId.
 // Two routers ship from this file:
 // - module.exports(collection)              -> CRM router  (mount at /api/changeorders on :4373)
-// - module.exports.publicRouter(collection) -> approval router (mount at /co on :4173)
+// - module.exports.publicRouter(collection) -> approval router (mount at /co on :4373)
 
 const STATUSES = ["draft", "sent", "approved", "declined", "void"];
 const MONGO_ERROR = "MongoDB is not configured. Set MONGODB_URI to enable server persistence.";
-const PUBLIC_ORIGIN = process.env.PUBLIC_ORIGIN || `http://localhost:${process.env.PUBLIC_PORT || process.env.PORT || 4173}`;
+const PUBLIC_ORIGIN = process.env.PUBLIC_ORIGIN || `http://localhost:${process.env.PUBLIC_PORT || process.env.PORT || 4373}`;
 
 function cleanString(value) {
   return String(value || "").replace(/\s+/g, " ").trim();
@@ -146,7 +146,7 @@ module.exports = function createChangeOrdersRouter(collection) {
   return router;
 };
 
-// ── Public approval page (mount on the :4173 app at /co) ──
+// ── Public approval page (mount on the :4373 app at /co) ──
 
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -404,4 +404,4 @@ module.exports.STATUSES = STATUSES;
 
 // MOUNT (CRM, :4373):    crmApp.use("/api/changeorders", require("./changeorders")(collection));
 // MOUNT (CRM page):      crmApp.get("/change_orders.html", (_req, res) => res.sendFile(path.join(__dirname, "change_orders.html")));
-// MOUNT (public, :4173): publicApp.use("/co", require("./changeorders").publicRouter(collection));
+// MOUNT (public, :4373): publicApp.use("/co", require("./changeorders").publicRouter(collection));

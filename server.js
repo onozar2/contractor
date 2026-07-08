@@ -6,7 +6,7 @@ require("dotenv").config();
 const publicApp = express();
 const crmApp = express();
 const app = crmApp;
-const publicPort = process.env.PUBLIC_PORT || process.env.PORT || 4173;
+const publicPort = process.env.PUBLIC_PORT || process.env.PORT || 4373;
 const crmPort = process.env.CRM_PORT || 4373;
 const mongoUri = process.env.MONGODB_URI || "";
 const dbName = process.env.MONGODB_DB || "contractor";
@@ -3049,8 +3049,8 @@ app.post("/api/autosweep", async (req, res) => {
 // Single-port consolidation (2026-07-07): the CRM app is mounted INSIDE the
 // public app instead of listening on its own port. Public routes are registered
 // first, so "/" stays the marketing homepage; CRM pages + /api live at the same
-// origin (http://localhost:4173/subs_database.html etc). NOTE: before exposing
-// :4173 on a public domain, the CRM paths need auth or an IP allowlist.
+// origin (http://localhost:4373/subs_database.html etc). NOTE: before exposing
+// :4373 on a public domain, the CRM paths need auth or an IP allowlist.
 publicApp.use(crmApp);
 
 publicApp.listen(publicPort, () => {
