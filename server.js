@@ -193,6 +193,11 @@ crmApp.get("/estimator.html", (_req, res) => res.sendFile(path.join(__dirname, "
 crmApp.get("/actuals.html", (_req, res) => res.sendFile(path.join(__dirname, "actuals.html")));
 crmApp.get("/change_orders.html", (_req, res) => res.sendFile(path.join(__dirname, "change_orders.html")));
 crmApp.get("/photo_feed.html", (_req, res) => res.sendFile(path.join(__dirname, "photo_feed.html")));
+// Unified backend app (entity-centric redesign 2026-07-07)
+crmApp.get("/app.html", (_req, res) => res.sendFile(path.join(__dirname, "app.html")));
+for (const moduleFile of ["app_subs.js", "app_projects.js", "app_pipeline.js"]) {
+  crmApp.get(`/${moduleFile}`, (_req, res) => res.sendFile(path.join(__dirname, moduleFile)));
+}
 crmApp.use("/api/suppliers", require("./suppliers")(collection));
 crmApp.use("/api/changeorders", require("./changeorders")(collection));
 crmApp.use("/api/photofeed", require("./photofeed")(collection));
@@ -2447,6 +2452,111 @@ app.post("/api/vetting/apply", async (req, res) => {
   }
 });
 
+// ── Aggregates for the unified backend app (app.html) ──
+// One call each for the dashboard action-items and the pricing-intelligence
+// view; both are read-only rollups over existing collections.
+app.get("/api/dashboard", async (_req, res) => {
+  try {
+    const subsColl = await collection("subcontractors");
+    if (!subsColl) return res.status(503).json({ error: "MongoDB is not configured." });
+    const [subs, cos, rfqs, leads, actuals, bids, estimates] = await Promise.all([
+      subsColl.find({}).project({ companyName: 1, serviceCategory: 1, legitScore: 1, legitTier: 1, contactStrength: 1, vettingStatus: 1, redFlags: 1, docChecklist: 1, licenseExpiresAt: 1, insuranceExpiresAt: 1, outreachStage: 1 }).toArray(),
+      (await collection("changeOrders")).find({}).project({ title: 1, projectName: 1, status: 1, total: 1, sentAt: 1 }).toArray(),
+      (await collection("rfqs")).find({}).project({ scopeTitle: 1, title: 1, dueDate: 1, recipients: 1, bidProjectId: 1, createdAt: 1 }).toArray(),
+      (await collection("customerLeads")).find({}).project({ customerName: 1, projectType: 1, status: 1, priority: 1, estimatedValue: 1, source: 1, createdAt: 1, updatedAt: 1 }).toArray(),
+      (await collection("projectActuals")).find({}).project({ projectName: 1, status: 1, lines: 1, updatedAt: 1 }).toArray(),
+      (await collection("bidProjects")).find({}).project({ projectName: 1, customerName: 1, status: 1, lineItems: 1, subQuotes: 1, updatedAt: 1 }).toArray(),
+      (await collection("estimates")).find({}).project({ projectName: 1, status: 1, total: 1, updatedAt: 1 }).toArray()
+    ]);
+    const now = Date.now();
+    const daysTo = (value) => value ? Math.round((new Date(value).getTime() - now) / 86400000) : null;
+    const expiring = [];
+    for (const sub of subs) {
+      for (const [key, item] of Object.entries(sub.docChecklist || {})) {
+        const days = daysTo(item && item.expiresAt);
+        if (days !== null && days <= 45) expiring.push({ subId: sub._id.toString(), companyName: sub.companyName, doc: key, expiresAt: item.expiresAt, days });
+      }
+      const licenseDays = daysTo(sub.licenseExpiresAt);
+      if (licenseDays !== null && licenseDays <= 45) expiring.push({ subId: sub._id.toString(), companyName: sub.companyName, doc: "license", expiresAt: sub.licenseExpiresAt, days: licenseDays });
+    }
+    const openRfqs = rfqs.map((rfq) => {
+      const recipients = rfq.recipients || [];
+      const responded = recipients.filter((recipient) => ["responded", "declined"].includes(recipient.status)).length;
+      return { id: rfq._id.toString(), title: rfq.scopeTitle || rfq.title || "RFQ", dueDate: rfq.dueDate, dueDays: daysTo(rfq.dueDate), responded, total: recipients.length };
+    }).filter((rfq) => rfq.responded < rfq.total);
+    res.json({
+      kpis: {
+        subs: subs.length,
+        strongContacts: subs.filter((sub) => sub.contactStrength === "strong").length,
+        verified: subs.filter((sub) => sub.legitTier === "verified").length,
+        deepVetted: subs.filter((sub) => sub.vettingStatus === "deep_vetted").length,
+        redFlagged: subs.filter((sub) => (sub.redFlags || []).length).length,
+        projects: actuals.length,
+        openBids: bids.filter((bid) => !/won|lost|closed/i.test(bid.status || "")).length,
+        newLeads: leads.filter((lead) => (lead.status || "new") === "new").length,
+        pipelineValue: leads.reduce((sum, lead) => sum + (Number(lead.estimatedValue) || 0), 0)
+      },
+      actionItems: {
+        expiringDocs: expiring.sort((a, b) => a.days - b.days).slice(0, 12),
+        pendingCOs: cos.filter((co) => co.status === "sent").map((co) => ({ id: co._id.toString(), title: co.title, projectName: co.projectName, total: co.total, sentAt: co.sentAt })),
+        openRfqs: openRfqs.slice(0, 12),
+        newLeads: leads.filter((lead) => (lead.status || "new") === "new").sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || ""))).slice(0, 12).map((lead) => ({ ...lead, id: lead._id.toString(), _id: undefined })),
+        flaggedSubs: subs.filter((sub) => (sub.redFlags || []).length && !["rejected"].includes(sub.outreachStage)).slice(0, 12).map((sub) => ({ id: sub._id.toString(), companyName: sub.companyName, serviceCategory: sub.serviceCategory, redFlags: sub.redFlags, legitScore: sub.legitScore }))
+      },
+      estimates: estimates.slice(-8).map((estimate) => ({ id: estimate._id.toString(), projectName: estimate.projectName, status: estimate.status, total: estimate.total }))
+    });
+  } catch (error) {
+    res.status(502).json({ error: error.message });
+  }
+});
+
+app.get("/api/pricing-intel", async (_req, res) => {
+  try {
+    const subsColl = await collection("subcontractors");
+    if (!subsColl) return res.status(503).json({ error: "MongoDB is not configured." });
+    const book = loadCostbook();
+    const [actuals, bids, rfqs, jobs] = await Promise.all([
+      (await collection("projectActuals")).find({}).project({ projectName: 1, lines: 1, updatedAt: 1 }).toArray(),
+      (await collection("bidProjects")).find({}).project({ projectName: 1, subQuotes: 1 }).toArray(),
+      (await collection("rfqs")).find({}).project({ scopeTitle: 1, lineItems: 1, recipients: 1, responses: 1 }).toArray(),
+      (await collection("subcontractorJobs")).find({}).project({ subcontractorId: 1, trade: 1, projectName: 1, contractValue: 1, completedAt: 1, score: 1 }).toArray()
+    ]);
+    // observations per costbook item + per trade
+    const byItem = {}; const byTrade = {};
+    const push = (obs) => {
+      if (!obs.amount) return;
+      if (obs.costbookId) (byItem[obs.costbookId] = byItem[obs.costbookId] || []).push(obs);
+      if (obs.trade) (byTrade[obs.trade] = byTrade[obs.trade] || []).push(obs);
+    };
+    for (const actual of actuals) for (const line of actual.lines || []) {
+      push({ source: "actual", costbookId: line.costbookId, trade: line.trade, amount: Number(line.actualUnit || line.actualTotal || 0), unit: line.unit, subName: line.subName, project: actual.projectName, at: actual.updatedAt });
+    }
+    for (const bid of bids) for (const quote of bid.subQuotes || []) {
+      const amount = Number(quote.quoteFixed) || (Number(quote.quoteLow) + Number(quote.quoteHigh)) / 2 || 0;
+      push({ source: "bid-quote", trade: quote.trade, amount, subName: quote.subcontractorName, subId: quote.subcontractorId, project: bid.projectName, at: quote.receivedAt });
+    }
+    for (const rfq of rfqs) for (const response of rfq.responses || []) {
+      if (Number(response.lumpSum)) push({ source: "rfq", trade: response.trade || "", amount: Number(response.lumpSum), subName: response.companyName || response.name, at: response.submittedAt });
+      for (const line of response.lineItems || []) push({ source: "rfq", costbookId: line.costbookId || line.id, trade: response.trade || "", amount: Number(line.price || 0), subName: response.companyName || response.name, at: response.submittedAt });
+    }
+    for (const job of jobs) push({ source: "job", trade: job.trade, amount: Number(job.contractValue || 0), subId: String(job.subcontractorId || ""), project: job.projectName, at: job.completedAt });
+    const stats = (list) => {
+      const amounts = list.map((obs) => obs.amount).sort((a, b) => a - b);
+      return { count: amounts.length, low: amounts[0], median: amounts[Math.floor(amounts.length / 2)], high: amounts[amounts.length - 1] };
+    };
+    res.json({
+      updated: book.updated,
+      items: (book.items || []).map((item) => {
+        const observations = byItem[item.id] || [];
+        return { ...item, observed: observations.length ? { ...stats(observations), samples: observations.slice(-6) } : null };
+      }),
+      trades: Object.fromEntries(Object.entries(byTrade).map(([trade, observations]) => [trade, { ...stats(observations), samples: observations.slice(-10) }]))
+    });
+  } catch (error) {
+    res.status(502).json({ error: error.message });
+  }
+});
+
 app.get("/api/vetting/summary", async (_req, res) => {
   try {
     const coll = await collection();
@@ -2837,7 +2947,10 @@ app.post("/api/customer-leads/agent-search", async (req, res) => {
 app.put("/api/customer-leads/:id", async (req, res) => {
   const coll = await collection("customerLeads");
   if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
-  const update = normalizeLead(req.body);
+  // Merge onto the stored doc first — normalizeLead blanks absent fields, so a
+  // partial PUT body must not wipe the record (same fix as subcontractors PUT).
+  const existing = await coll.findOne({ _id: new ObjectId(req.params.id) });
+  const update = normalizeLead(existing ? { ...existing, ...req.body } : req.body);
   await coll.updateOne({ _id: new ObjectId(req.params.id) }, { $set: update });
   res.json({ ...update, id: req.params.id });
 });
