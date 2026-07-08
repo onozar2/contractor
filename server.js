@@ -543,6 +543,7 @@ function normalize(input) {
   doc.completenessScore = computeCompletenessScore(doc);
   doc.legitScore = computeLegitScore({ ...doc, jobCount: input.jobCount, jobScore: input.jobScore });
   doc.legitTier = legitTierFor(doc.legitScore, doc.redFlags);
+  doc.contactStrength = doc.ownerName && doc.email ? "strong" : (doc.email || doc.phone) ? "weak" : "none";
   return doc;
 }
 
@@ -2340,7 +2341,10 @@ function vettingFieldsFor(doc) {
     phoneKey: dedupePhoneKey(doc.phone),
     completenessScore: computeCompletenessScore(enriched),
     legitScore,
-    legitTier: legitTierFor(legitScore, doc.redFlags)
+    legitTier: legitTierFor(legitScore, doc.redFlags),
+    // strong = named owner AND email (outreach-ready); weak = some channel; none = dead record
+    contactStrength: cleanString(doc.ownerName) && cleanString(doc.email) ? "strong"
+      : (cleanString(doc.email) || cleanString(doc.phone)) ? "weak" : "none"
   };
 }
 

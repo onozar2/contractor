@@ -90,7 +90,7 @@
       <label>Search<input type="text" id="fSearch" placeholder="company, owner, phone, specialty..." /></label>
       <label>Trade<select id="fTrade"><option value="">All trades</option></select></label>
       <label>Min score<input type="number" id="fScore" min="0" max="100" step="5" style="width:80px" /></label>
-      <label>Contact<select id="fContact"><option value="">Any</option><option value="phone">Has phone</option><option value="email">Has email</option><option value="both">Phone + email</option><option value="owner">Owner reachable</option><option value="none">Missing contact</option></select></label>
+      <label>Contact<select id="fContact"><option value="strong" selected>Strong (owner + email)</option><option value="">Any</option><option value="weak">Weak contacts</option><option value="phone">Has phone</option><option value="email">Has email</option><option value="both">Phone + email</option><option value="owner">Owner reachable</option><option value="none">Missing contact</option></select></label>
       <label>Stage<select id="fStage"><option value="">Any stage</option><option>not_contacted</option><option>queued</option><option>contacted</option><option>responded</option><option>pricing_received</option><option>vetted</option><option>preferred</option><option>rejected</option></select></label>
       <label>Materials<select id="fMat"><option value="">Any</option><option value="yes">Brings own</option><option value="no">We supply</option><option value="partial">Partial</option><option value="unknown">Unknown</option></select></label>
       <label>License<select id="fLic"><option value="">Any</option><option value="verified">Verified</option><option value="number">Has number</option><option value="missing">Missing</option></select></label>
@@ -144,6 +144,9 @@
       return `<span class="pill ${cls}">${esc((s || "not_contacted").replace(/_/g, " "))}</span>`;
     };
     const TIER_CLS = { verified: "green", credible: "plum", unverified: "amber", risky: "red", flagged: "red" };
+    const strength = (s) => s.ownerName && s.email ? "strong" : (s.email || s.phone) ? "weak" : "none";
+    const weakPill = (s) => (s.contactStrength || strength(s)) === "strong" ? "" :
+      ' <span class="pill amber" title="no named owner + email on file - low outreach value">weak contact</span>';
     const legitCell = (s) => {
       const tier = s.legitTier || "unverified";
       const flags = (s.redFlags || []).length;
@@ -204,6 +207,8 @@
         if (contact === "both" && (!s.phone || !s.email)) return false;
         if (contact === "owner" && s.reachTier !== "owner") return false;
         if (contact === "none" && (s.phone || s.email)) return false;
+        if (contact === "strong" && (s.contactStrength || strength(s)) !== "strong") return false;
+        if (contact === "weak" && (s.contactStrength || strength(s)) === "strong") return false;
         if (lic === "verified" && !s.licenseVerified) return false;
         if (lic === "number" && !s.licenseNumber) return false;
         if (lic === "missing" && s.licenseNumber) return false;
@@ -257,8 +262,8 @@
       document.getElementById("headRow").innerHTML = COLS.map((c) =>
         `<th data-key="${c.key}">${c.label}${sortKey === c.key ? (sortDir < 0 ? " ▾" : " ▴") : ""}</th>`).join("");
       document.getElementById("rows").innerHTML = rows.map((s) => `
-        <tr class="row" data-id="${s.id}">
-          <td><b>${esc(s.companyName)}</b><br /><span class="muted" style="font-size:0.72rem">${esc(s.serviceArea || "")}</span></td>
+        <tr class="row" data-id="${s.id}" style="${(s.contactStrength || strength(s)) === "strong" ? "" : "opacity:0.55"}">
+          <td><b>${esc(s.companyName)}</b>${weakPill(s)}<br /><span class="muted" style="font-size:0.72rem">${esc(s.serviceArea || "")}</span></td>
           <td>${esc(s.serviceCategory)}</td>
           <td>${legitCell(s)}</td>
           <td><span class="score ${scoreClass(s.completenessScore || 0)}" title="record completeness">${s.completenessScore ?? "-"}</span></td>
@@ -469,7 +474,8 @@
     document.addEventListener("change", (e) => { if (e.target.closest(".filters")) render(); });
     document.getElementById("btnReset").addEventListener("click", () => {
       for (const id of ["fSearch","fScore"]) document.getElementById(id).value = "";
-      for (const id of ["fTrade","fContact","fStage","fMat","fLic","fDocs","fVet"]) document.getElementById(id).value = "";
+      for (const id of ["fTrade","fStage","fMat","fLic","fDocs","fVet"]) document.getElementById(id).value = "";
+      document.getElementById("fContact").value = "strong";
       render();
     });
     document.getElementById("btnCsv").addEventListener("click", exportCsv);
