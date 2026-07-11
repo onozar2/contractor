@@ -164,7 +164,7 @@
 
   // Estimates and bids now live under Projects → Potential; this view is leads-only.
   APP.registerView("pipeline", {
-    title: "Pipeline",
+    title: "Leads",
     render: function (container) {
       container.innerHTML = "";
       container.appendChild(loadingEl("leads"));

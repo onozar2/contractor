@@ -211,7 +211,6 @@
     { key: "serviceCategory", label: "Trade" },
     { key: "legitScore", label: "Trust score", title: "License verified + reviews + insurance evidence — is this a real, good company" },
     { key: "completenessScore", label: "Record", title: "How complete OUR info on them is — contact, license, pricing, docs" },
-    { key: "overall", label: "Score" },
     { key: "reviewRating", label: "Reviews" },
     { key: "licenseNumber", label: "License" },
     { key: "docs", label: "Docs", title: "Compliance packet we've collected: COI, W-9, agreement, workers-comp (n of 4)" },
@@ -251,7 +250,8 @@
         "</div>" +
         '<div class="chips" id="subsChips" style="margin-top:0.7rem">' +
           QUALITY_TIERS.map(function (t) {
-            return '<button type="button" class="chip' + (state.tier === t.key ? " active" : "") + '" data-tier="' + t.key + '">' + esc(t.label) + "</button>";
+            var active = state.tier === t.key && !(t.key === "" && state.strongOnly);
+            return '<button type="button" class="chip' + (active ? " active" : "") + '" data-tier="' + t.key + '">' + esc(t.label) + "</button>";
           }).join("") +
           '<button type="button" class="chip' + (state.strongOnly ? " active" : "") + '" data-toggle="strong" title="Named owner + email on file" style="margin-left:0.6rem">Strong contacts</button>' +
           '<button type="button" class="chip' + (state.pricingOnly ? " active" : "") + '" data-toggle="pricing" title="Price tier, minimum job size, labor rates or unit prices known">Has pricing signal</button>' +
@@ -276,12 +276,17 @@
     chips.addEventListener("click", function (e) {
       var chip = e.target.closest(".chip");
       if (!chip) return;
-      if (chip.dataset.tier) {
+      if (chip.dataset.tier !== undefined && chip.dataset.toggle === undefined) {
         state.tier = chip.dataset.tier;
-        chips.querySelectorAll("[data-tier]").forEach(function (c) { c.classList.toggle("active", c.dataset.tier === state.tier); });
+        chips.querySelectorAll("[data-tier]").forEach(function (c) {
+          c.classList.toggle("active", c.dataset.tier === state.tier && !(c.dataset.tier === "" && state.strongOnly));
+        });
       } else if (chip.dataset.toggle === "strong") {
         state.strongOnly = !state.strongOnly;
         chip.classList.toggle("active", state.strongOnly);
+        // "All" only reads as truly-all when the strong filter is off.
+        var allChip = chips.querySelector('[data-tier=""]');
+        if (allChip) allChip.classList.toggle("active", state.tier === "" && !state.strongOnly);
       } else if (chip.dataset.toggle === "pricing") {
         state.pricingOnly = !state.pricingOnly;
         chip.classList.toggle("active", state.pricingOnly);
@@ -439,7 +444,8 @@
     var hiddenTotal = roster.length - visibleTotal;
     count.textContent = state.tier === "hidden"
       ? rows.length + " hidden"
-      : rows.length + " of " + visibleTotal + " shown";
+      : rows.length + " of " + visibleTotal + " shown" +
+        (state.strongOnly ? " — strong contacts only (named owner + email); turn off the Strong contacts chip to see everyone" : "");
 
     var hiddenChip = container.querySelector("#subsHiddenChip");
     if (hiddenChip) {
@@ -478,7 +484,6 @@
         "<td>" + esc(s.serviceCategory || "") + "</td>" +
         "<td>" + legitCell(s) + "</td>" +
         "<td>" + APP.scoreBadge(s.completenessScore) + "</td>" +
-        '<td><span title="fit ' + esc(s.fitScore || 0) + (s.jobCount ? " / job " + esc(s.jobScore) + " over " + esc(s.jobCount) + " job(s)" : "") + '">' + APP.scoreBadge(overall(s)) + "</span></td>" +
         '<td style="white-space:nowrap">' + reviewsCell(s) + "</td>" +
         '<td style="white-space:nowrap">' + licenseCell(s) + "</td>" +
         "<td>" + docsPill(s) + "</td>" +
@@ -520,7 +525,7 @@
     var scores =
       '<span style="' + LBL + ';display:inline;margin-right:0.2rem" title="License verified + reviews + insurance evidence — is this a real, good company">Trust score</span>' + APP.scoreBadge(sub.legitScore) +
       ' <span style="' + LBL + ';display:inline;margin:0 0.2rem 0 0.7rem" title="How complete OUR info on them is — contact, license, pricing, docs">Record</span>' + APP.scoreBadge(sub.completenessScore) +
-      ' <span style="' + LBL + ';display:inline;margin:0 0.2rem 0 0.7rem">Overall</span>' + APP.scoreBadge(overall(sub));
+      ' <span style="' + LBL + ';display:inline;margin:0 0.2rem 0 0.7rem" title="Trust score blended with how they scored on jobs we logged with them">Overall</span>' + APP.scoreBadge(overall(sub));
 
     var contactBits = [];
     if (sub.ownerName) contactBits.push("<b>" + esc(sub.ownerName) + "</b>" + (sub.ownerTitle ? ' <span style="' + MUTED + '">· ' + esc(sub.ownerTitle) + "</span>" : ""));

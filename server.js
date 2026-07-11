@@ -2479,7 +2479,7 @@ app.get("/api/dashboard", async (_req, res) => {
     const subsColl = await collection("subcontractors");
     if (!subsColl) return res.status(503).json({ error: "MongoDB is not configured." });
     const [subs, cos, rfqs, leads, actuals, bids, estimates] = await Promise.all([
-      subsColl.find({}).project({ companyName: 1, serviceCategory: 1, legitScore: 1, legitTier: 1, contactStrength: 1, vettingStatus: 1, redFlags: 1, docChecklist: 1, licenseExpiresAt: 1, insuranceExpiresAt: 1, outreachStage: 1 }).toArray(),
+      subsColl.find({}).project({ companyName: 1, serviceCategory: 1, legitScore: 1, legitTier: 1, contactStrength: 1, vettingStatus: 1, redFlags: 1, docChecklist: 1, licenseExpiresAt: 1, insuranceExpiresAt: 1, outreachStage: 1, hidden: 1, hiddenAuto: 1 }).toArray(),
       (await collection("changeOrders")).find({}).project({ title: 1, projectName: 1, status: 1, total: 1, sentAt: 1 }).toArray(),
       (await collection("rfqs")).find({}).project({ scopeTitle: 1, title: 1, dueDate: 1, recipients: 1, bidProjectId: 1, createdAt: 1 }).toArray(),
       (await collection("customerLeads")).find({}).project({ customerName: 1, projectType: 1, status: 1, priority: 1, estimatedValue: 1, source: 1, createdAt: 1, updatedAt: 1 }).toArray(),
@@ -2505,7 +2505,8 @@ app.get("/api/dashboard", async (_req, res) => {
     }).filter((rfq) => rfq.responded < rfq.total);
     res.json({
       kpis: {
-        subs: subs.length,
+        // Active roster (junk auto-hidden) — matches what the Subs view shows.
+        subs: subs.filter((sub) => !sub.hidden && !sub.hiddenAuto).length,
         strongContacts: subs.filter((sub) => sub.contactStrength === "strong").length,
         verified: subs.filter((sub) => sub.legitTier === "verified").length,
         deepVetted: subs.filter((sub) => sub.vettingStatus === "deep_vetted").length,
