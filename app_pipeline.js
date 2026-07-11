@@ -203,25 +203,67 @@
   // ══════════════════════════════════════════════════════════════════════════
 
   var SOURCE_PILLS = { actual: "green", "bid-quote": "plum", rfq: "amber", job: "" };
+  var CONFIDENCE_PILLS = { high: "green", medium: "amber", low: "red" };
 
   function bookRangeText(item) {
     if (item.unit === "pct-of-subtotal") return esc(String(item.low)) + "–" + esc(String(item.high)) + "%";
     return esc(APP.fmtMoney(Number(item.low) || 0)) + " – " + esc(APP.fmtMoney(Number(item.high) || 0));
   }
 
+  // Median coloring compares against the SoCal benchmark when we have one (it's
+  // what's now shown alongside it); falls back to the book range otherwise.
   function medianClass(item) {
-    var mid = ((Number(item.low) || 0) + (Number(item.high) || 0)) / 2;
+    var b = item.benchmark;
+    var lo = b && Number(b.lowUSD) ? Number(b.lowUSD) : (Number(item.low) || 0);
+    var hi = b && Number(b.highUSD) ? Number(b.highUSD) : (Number(item.high) || 0);
+    var mid = (lo + hi) / 2;
     var median = item.observed.median;
-    if (median > (Number(item.high) || 0)) return "red";
+    if (median > hi) return "red";
     if (median <= mid) return "green";
     return "amber";
   }
 
-  function deltaText(item) {
-    var mid = ((Number(item.low) || 0) + (Number(item.high) || 0)) / 2;
-    if (!mid) return "—";
-    var delta = Math.round(((item.observed.median - mid) / mid) * 100);
-    return (delta > 0 ? "+" : "") + delta + "%";
+  // SoCal benchmark cell: researched range + confidence pill (tooltip carries the
+  // source count / as-of date / notes); falls back to the internal book range,
+  // clearly labeled, when no benchmark has been researched yet.
+  function benchmarkCell(item) {
+    var b = item.benchmark;
+    if (b && (Number(b.lowUSD) || Number(b.highUSD))) {
+      var isPct = item.unit === "pct-of-subtotal";
+      var rangeText = isPct
+        ? esc(String(b.lowUSD)) + "–" + esc(String(b.highUSD)) + "%"
+        : esc(APP.fmtMoney(Number(b.lowUSD) || 0)) + "–" + esc(APP.fmtMoney(Number(b.highUSD) || 0));
+      var conf = String(b.confidence || "").toLowerCase();
+      var sourceCount = Array.isArray(b.sources) ? b.sources.length : 0;
+      var tipParts = [];
+      if (sourceCount) tipParts.push(sourceCount + " source" + (sourceCount === 1 ? "" : "s"));
+      if (b.asOf) tipParts.push("as of " + b.asOf);
+      if (b.notes) tipParts.push(b.notes);
+      var tip = tipParts.join(" — ");
+      return rangeText +
+        (conf ? ' <span class="pill' + (CONFIDENCE_PILLS[conf] ? " " + CONFIDENCE_PILLS[conf] : "") + '" title="' + esc(tip) + '">' + esc(conf) + "</span>" : "") +
+        (sourceCount ? ' <span class="pill" style="opacity:0.65;" title="' + esc(tip) + '">' + sourceCount + " src" + (sourceCount === 1 ? "" : "s") + "</span>" : "");
+    }
+    return bookRangeText(item) + ' <span class="pill" style="opacity:0.55;" title="No SoCal benchmark researched yet — showing the internal cost-book range.">book</span>';
+  }
+
+  // "Our jobs" cell: Ori's own prior project/RFQ data for this exact item — kept
+  // deliberately distinct from the researched SoCal benchmark next to it.
+  function ourJobsCell(item) {
+    var obs = item.observed;
+    if (!obs) return '<span style="color:#98a2b3;font-size:0.82rem;">none yet — fills from your projects/RFQs</span>';
+    return '<span class="pill ' + medianClass(item) + '">median ' + esc(APP.fmtMoney(obs.median)) + " from " + esc(String(obs.count)) + (obs.count === 1 ? " job/quote" : " jobs/quotes") + "</span>";
+  }
+
+  function knowledgeSectionHTML(cacheEntry) {
+    if (!cacheEntry || cacheEntry.loading) return '<div style="margin-top:0.6rem;color:#98a2b3;font-size:0.8rem;">Checking knowledge base&hellip;</div>';
+    if (cacheEntry.error) return "";
+    var chunk = (cacheEntry.chunks || [])[0];
+    if (!chunk) return '<div style="margin-top:0.6rem;color:#98a2b3;font-size:0.8rem;">No scope-of-work notes matched this item yet.</div>';
+    return '<div style="margin-top:0.6rem;font-size:0.82rem;">' +
+      '<a href="#/knowledge">📋 ' + esc(chunk.title || "Scope notes") + "</a>" +
+      (chunk.driveUrl ? ' &middot; <a href="' + esc(chunk.driveUrl) + '" target="_blank" rel="noopener">source doc</a>' : "") +
+    "</div>";
   }
 
   function sampleRowsHTML(samples) {
@@ -271,25 +313,27 @@
 
         var filter = { service: "", search: "" };
         var expanded = {};
+        var knowledgeCache = {};
 
         container.innerHTML = "";
         var wrap = APP.el("<div>" +
           "<h1>Pricing intelligence</h1>" +
+          '<div class="card">' +
+            '<input type="search" data-role="search" placeholder="Search any job — ‘kitchen demo’, ‘repipe’, ‘turf’..." ' +
+              'style="width:100%;font-size:1.05rem;padding:0.7rem 0.9rem;border:1px solid var(--line);border-radius:8px;font-family:inherit;" />' +
+            '<div class="chips" data-role="service-chips" style="margin-top:0.7rem;"></div>' +
+          "</div>" +
           '<div class="card"><h2>Live pricing intelligence</h2>' +
             '<div style="display:flex;gap:0.9rem;flex-wrap:wrap;align-items:baseline;">' +
               "<strong>" + esc(String(itemObs)) + " item observations · " + esc(String(tradeObs)) + " trade observations</strong>" +
               '<span style="color:#667085;">cost book updated ' + esc(data.updated ? APP.fmtDate(data.updated) : "—") + "</span>" +
             "</div>" +
-            '<p style="color:#667085;margin:0.4rem 0 0;">RFQ responses, logged jobs, and project actuals feed this automatically.</p>' +
+            '<p style="color:#667085;margin:0.4rem 0 0;">Benchmarks from SoCal research · your own quotes and job costs sharpen every number automatically.</p>' +
           "</div>" +
           ((itemObs + tradeObs) === 0 ? pricingEmptyStateHTML() : "") +
           '<div class="card"><h2>Cost book vs street</h2>' +
-            '<div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;margin:0.5rem 0;">' +
-              '<div class="chips" data-role="service-chips"></div>' +
-              '<input type="search" data-role="search" placeholder="Search items&hellip;" style="margin-left:auto;min-width:200px;" />' +
-            "</div>" +
             '<div style="overflow-x:auto;"><table class="table">' +
-              "<thead><tr><th>Service</th><th>Item</th><th>Unit</th><th>Book range</th><th>Observed</th><th>Live estimate</th><th>&Delta;% vs book mid</th></tr></thead>" +
+              "<thead><tr><th>Item</th><th>SoCal benchmark</th><th>Our jobs</th><th>Live estimate</th></tr></thead>" +
               '<tbody data-role="items-body"></tbody>' +
             "</table></div>" +
             '<div class="empty" data-role="items-empty" hidden>No cost book items match this filter.</div>' +
@@ -320,20 +364,24 @@
           });
         }
 
+        // Fetch scope-of-work matches for one item, once, and repaint when it lands.
+        function loadKnowledge(item) {
+          knowledgeCache[item.id] = { loading: true };
+          var q = item.description || item.id;
+          APP.fetchJSON("/api/knowledge/search?q=" + encodeURIComponent(q)).then(function (result) {
+            knowledgeCache[item.id] = { chunks: (result && result.chunks) || [] };
+            paintItems();
+          }).catch(function () {
+            knowledgeCache[item.id] = { error: true };
+            paintItems();
+          });
+        }
+
         function paintItems() {
           var rows = visibleItems();
           itemsEmptyEl.hidden = rows.length > 0;
           bodyEl.innerHTML = rows.map(function (item) {
             var obs = item.observed;
-            var observedCell, deltaCell;
-            if (obs) {
-              observedCell = '<span class="pill ' + medianClass(item) + '">' + esc(String(obs.count)) + " · " +
-                esc(APP.fmtMoney(obs.low)) + " / " + esc(APP.fmtMoney(obs.median)) + " / " + esc(APP.fmtMoney(obs.high)) + "</span>";
-              deltaCell = deltaText(item);
-            } else {
-              observedCell = '<span class="pill" style="opacity:0.55;">[EST] book only</span>';
-              deltaCell = "—";
-            }
             var blended = item.blended;
             var blendedCell = "—";
             if (blended && (blended.low || blended.high)) {
@@ -342,18 +390,19 @@
                 : '<span class="pill" style="opacity:0.65" title="' + esc(blended.basis || "book") + ' prior - fills with your quotes automatically">' + esc(blended.basis === "benchmark" ? "SoCal benchmark" : "book prior") + "</span>";
               blendedCell = "<strong>" + esc(APP.fmtMoney(blended.low)) + "–" + esc(APP.fmtMoney(blended.high)) + "</strong> " + basisPill;
             }
+            var metaParts = [item.service, item.trade].filter(Boolean);
+            if (item.unit && item.unit !== "pct-of-subtotal") metaParts.push(item.unit);
             var open = !!expanded[item.id];
-            var row = '<tr data-item-id="' + esc(item.id) + '"' + (obs ? ' style="cursor:pointer;"' : "") + ">" +
-              "<td>" + esc(item.service || "—") + "</td>" +
-              "<td>" + esc(item.description || item.id) + '<div style="color:#667085;font-size:0.78rem;">' + esc(item.trade || "") + "</div></td>" +
-              "<td>" + esc(item.unit || "—") + "</td>" +
-              "<td>" + bookRangeText(item) + "</td>" +
-              "<td>" + observedCell + "</td>" +
+            var row = '<tr data-item-id="' + esc(item.id) + '" style="cursor:pointer;">' +
+              "<td>" + esc(item.description || item.id) +
+                '<div style="color:#667085;font-size:0.78rem;">' + esc(metaParts.join(" · ")) + "</div></td>" +
+              "<td>" + benchmarkCell(item) + "</td>" +
+              "<td>" + ourJobsCell(item) + "</td>" +
               "<td>" + blendedCell + "</td>" +
-              "<td>" + deltaCell + "</td>" +
             "</tr>";
-            if (obs && open) {
-              row += '<tr><td colspan="7" style="background:#f8fafc;">' + sampleRowsHTML(obs.samples) + "</td></tr>";
+            if (open) {
+              var sampleHTML = obs ? sampleRowsHTML(obs.samples) : '<div class="empty">No logged samples yet for this item.</div>';
+              row += '<tr><td colspan="4" style="background:#f8fafc;">' + sampleHTML + knowledgeSectionHTML(knowledgeCache[item.id]) + "</td></tr>";
             }
             return row;
           }).join("");
@@ -376,8 +425,9 @@
           if (!row) return;
           var id = row.getAttribute("data-item-id");
           var item = items.find(function (i) { return i.id === id; });
-          if (!item || !item.observed) return;
+          if (!item) return;
           expanded[id] = !expanded[id];
+          if (expanded[id] && !knowledgeCache[id]) loadKnowledge(item);
           paintItems();
         });
 

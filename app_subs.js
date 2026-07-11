@@ -11,13 +11,13 @@
   var roster = null;          // full roster, kept in memory after first fetch
   var rosterPromise = null;
   var pricingPromise = null;  // /api/pricing-intel, fetched once
-  var vettingSummaryPromise = null; // /api/vetting/summary, fetched once for the roster health strip
+  var vetsweepPromise = null; // /api/vetsweep, fetched once for the roster health strip
 
   // ── list state ──
   var state = {
     q: "",
     trade: "",
-    tier: "all",
+    tier: "all",         // all | verified | credible | unverified | hidden
     strongOnly: true,   // "Strong contacts" toggle DEFAULT ON
     pricingOnly: false, // "Has pricing signal" toggle
     sortKey: "legitScore",
@@ -26,7 +26,13 @@
 
   var profileState = { id: null, tab: "overview" };
 
-  var TIERS = ["all", "verified", "credible", "unverified", "risky", "flagged"];
+  // Working-roster tiers shown as chips; "hidden" is a separate muted chip appended after.
+  var QUALITY_TIERS = [
+    { key: "all", label: "All" },
+    { key: "verified", label: "Verified" },
+    { key: "credible", label: "Credible" },
+    { key: "unverified", label: "Unvetted" }
+  ];
   var STAGE_CLS = { preferred: "green", vetted: "green", pricing_received: "plum", responded: "plum", contacted: "amber", queued: "amber", rejected: "red" };
   var DOC_KEYS = ["coi", "w9", "agreement", "workersCompCert"];
   var DOC_LABELS = { coi: "COI (additional insured)", w9: "W-9", agreement: "Signed sub agreement", workersCompCert: "Workers comp cert" };
@@ -51,6 +57,7 @@
     return "none";
   }
   function hasText(v) { return v != null && String(v).trim() !== ""; }
+  function isHidden(s) { return !!(s.hidden || s.hiddenAuto); }
   function hasPricingSignal(s) {
     return (hasText(s.priceTier) && s.priceTier !== "unknown") ||
       hasText(s.minimumJobSize) || hasText(s.laborRateHints) || hasText(s.unitPriceNotes);
@@ -120,11 +127,11 @@
     }
     return pricingPromise;
   }
-  function fetchVettingSummary() {
-    if (!vettingSummaryPromise) {
-      vettingSummaryPromise = APP.fetchJSON("/api/vetting/summary").catch(function (err) { vettingSummaryPromise = null; throw err; });
+  function fetchVetsweep() {
+    if (!vetsweepPromise) {
+      vetsweepPromise = APP.fetchJSON("/api/vetsweep").catch(function (err) { vetsweepPromise = null; throw err; });
     }
-    return vettingSummaryPromise;
+    return vetsweepPromise;
   }
   function updateRosterRecord(updated) {
     if (!roster || !updated || !updated.id) return null;
@@ -163,14 +170,17 @@
   function listFiltered() {
     var q = state.q.toLowerCase().trim();
     var rows = roster.filter(function (s) {
+      // Working roster (any quality tier, including "all") never shows the hidden pile;
+      // the dedicated "Hidden" chip shows ONLY the hidden pile.
+      if (state.tier === "hidden") {
+        if (!isHidden(s)) return false;
+      } else {
+        if (isHidden(s)) return false;
+        if (state.tier !== "all" && (s.legitTier || "unverified") !== state.tier) return false;
+      }
       if (state.trade && s.serviceCategory !== state.trade) return false;
       if (state.strongOnly && contactStrength(s) !== "strong") return false;
       if (state.pricingOnly && !hasPricingSignal(s)) return false;
-      if (state.tier !== "all") {
-        if (state.tier === "flagged") {
-          if (!((s.redFlags || []).length || s.legitTier === "flagged")) return false;
-        } else if ((s.legitTier || "unverified") !== state.tier) return false;
-      }
       if (q) {
         var hay = [s.companyName, s.ownerName, s.contactName, s.phone, s.email, s.serviceCategory,
           (s.specialties || []).join(" "), s.summary, s.serviceArea].join(" ").toLowerCase();
@@ -179,6 +189,9 @@
       return true;
     });
     rows.sort(function (a, b) {
+      // Trusted (Ori's own WhatsApp/phone contacts) always float to the top, in every sort.
+      var ta = a.trusted ? 1 : 0, tb = b.trusted ? 1 : 0;
+      if (ta !== tb) return tb - ta;
       var va = sortVal(a, state.sortKey);
       var vb = sortVal(b, state.sortKey);
       if (NUMERIC_KEYS[state.sortKey]) return ((Number(va) || 0) - (Number(vb) || 0)) * state.sortDir;
@@ -196,12 +209,12 @@
   var LIST_COLS = [
     { key: "companyName", label: "Company" },
     { key: "serviceCategory", label: "Trade" },
-    { key: "legitScore", label: "Legit" },
-    { key: "completenessScore", label: "Complete" },
+    { key: "legitScore", label: "Trust score", title: "License verified + reviews + insurance evidence — is this a real, good company" },
+    { key: "completenessScore", label: "Record", title: "How complete OUR info on them is — contact, license, pricing, docs" },
     { key: "overall", label: "Score" },
     { key: "reviewRating", label: "Reviews" },
     { key: "licenseNumber", label: "License" },
-    { key: "docs", label: "Docs" },
+    { key: "docs", label: "Docs", title: "Compliance packet we've collected: COI, W-9, agreement, workers-comp (n of 4)" },
     { key: "outreachStage", label: "Stage" },
     { key: "priceTier", label: "Price tier" }
   ];
@@ -216,8 +229,17 @@
 
     container.innerHTML =
       "<h1>Subs</h1>" +
-      '<div id="subsHealth">' +
+      '<div id="subsHealth" style="margin-bottom:0.9rem">' +
         '<span style="' + MUTED + '">Loading roster health…</span>' +
+      "</div>" +
+      '<div class="card" id="subsQuickAdd" style="margin-bottom:0.9rem">' +
+        "<h2>Quick-add a sub</h2>" +
+        '<div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.5rem">' +
+          '<input id="qaText" type="text" placeholder="Type it how you’d text it: ‘Mike Torres plumbing 818-555-0199 does repipes, from WhatsApp’" style="' + FIELD + ';flex:1;min-width:280px" />' +
+          '<button type="button" class="btn primary" id="qaSubmit">Add sub</button>' +
+        "</div>" +
+        '<div id="qaStatus" style="' + MUTED + ';margin-top:0.4rem"></div>' +
+        '<div id="qaDraft"></div>' +
       "</div>" +
       '<div class="card">' +
         '<div style="display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center">' +
@@ -227,16 +249,18 @@
             trades.map(function (t) { return '<option value="' + esc(t) + '"' + (state.trade === t ? " selected" : "") + ">" + esc(t) + "</option>"; }).join("") +
           "</select>" +
         "</div>" +
-        '<div class="chips" id="subsChips" style="margin-top:0.6rem">' +
-          TIERS.map(function (t) {
-            return '<button type="button" class="chip' + (state.tier === t ? " active" : "") + '" data-tier="' + t + '">' + t.charAt(0).toUpperCase() + t.slice(1) + "</button>";
+        '<div class="chips" id="subsChips" style="margin-top:0.7rem">' +
+          QUALITY_TIERS.map(function (t) {
+            return '<button type="button" class="chip' + (state.tier === t.key ? " active" : "") + '" data-tier="' + t.key + '">' + esc(t.label) + "</button>";
           }).join("") +
           '<button type="button" class="chip' + (state.strongOnly ? " active" : "") + '" data-toggle="strong" title="Named owner + email on file" style="margin-left:0.6rem">Strong contacts</button>' +
           '<button type="button" class="chip' + (state.pricingOnly ? " active" : "") + '" data-toggle="pricing" title="Price tier, minimum job size, labor rates or unit prices known">Has pricing signal</button>' +
+          '<button type="button" class="chip" id="subsHiddenChip" data-tier="hidden" title="Auto-hidden: red-flagged, dead site, or not actually a sub" style="margin-left:0.6rem;color:#687587"></button>' +
         "</div>" +
+        '<div id="subsHiddenNote" style="' + MUTED + ';font-size:0.78rem;margin-top:0.45rem"></div>' +
       "</div>" +
       '<div class="card" style="margin-top:0.9rem">' +
-        '<div id="subsCount" style="' + MUTED + ';margin-bottom:0.4rem"></div>' +
+        '<div id="subsCount" style="' + MUTED + ';margin-bottom:0.5rem"></div>' +
         '<div style="overflow-x:auto">' +
           '<table class="table"><thead><tr id="subsHead"></tr></thead><tbody id="subsRows"></tbody></table>' +
         "</div>" +
@@ -277,32 +301,126 @@
       if (tr) APP.navigate("#/subs/" + tr.dataset.id);
     });
 
+    wireQuickAdd(container);
     renderTable(container);
     renderRosterHealth(container);
+  }
+
+  // ── AI quick-add ──
+  function wireQuickAdd(container) {
+    var text = container.querySelector("#qaText");
+    var submit = container.querySelector("#qaSubmit");
+    var status = container.querySelector("#qaStatus");
+    var draftBox = container.querySelector("#qaDraft");
+
+    function submitText() {
+      var value = text.value.trim();
+      if (!value) { status.textContent = "Type a quick note first."; return; }
+      submit.disabled = true;
+      status.textContent = "Reading that… (~1 min)";
+      draftBox.innerHTML = "";
+      APP.fetchJSON(API + "/ai-parse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: value })
+      }).then(function (data) {
+        status.textContent = "Here's what I got — check it over, then save.";
+        renderQaDraft(data.draft || {});
+      }).catch(function (err) {
+        status.textContent = "Couldn't parse that — try rephrasing, or add the details yourself: " + (err.message || "unknown error");
+      }).then(function () { submit.disabled = false; });
+    }
+    submit.addEventListener("click", submitText);
+    text.addEventListener("keydown", function (e) { if (e.key === "Enter") submitText(); });
+
+    function renderQaDraft(draft) {
+      var specialties = (draft.specialties || []).join(", ");
+      draftBox.innerHTML =
+        '<div class="card" style="margin-top:0.6rem;background:#f5f7fa">' +
+          '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:0.5rem">' +
+            qaField("qaCompany", "Company", draft.companyName) +
+            qaField("qaTrade", "Trade", draft.serviceCategory) +
+            qaField("qaOwner", "Owner", draft.ownerName) +
+            qaField("qaPhone", "Phone", draft.phone) +
+            qaField("qaEmail", "Email", draft.email) +
+            qaField("qaWebsite", "Website", draft.website) +
+            qaField("qaLicense", "License #", draft.licenseNumber) +
+            qaField("qaArea", "Service area", draft.serviceArea) +
+          "</div>" +
+          '<label style="display:block;margin-top:0.5rem"><span style="' + LBL + '">Specialties (comma separated)</span>' +
+            '<input id="qaSpecialties" style="' + FIELD + '" value="' + esc(specialties) + '" /></label>' +
+          '<label style="display:block;margin-top:0.5rem"><span style="' + LBL + '">Summary</span>' +
+            '<input id="qaSummary" style="' + FIELD + '" value="' + esc(draft.summary || "") + '" /></label>' +
+          '<label style="display:flex;align-items:center;gap:0.4rem;margin-top:0.6rem;font-size:0.85rem">' +
+            '<input id="qaTrusted" type="checkbox"' + (draft.trusted ? " checked" : "") + ' /> ⭐ This is my personal contact (WhatsApp/phone) — pin to the top' +
+          "</label>" +
+          '<div style="margin-top:0.7rem;display:flex;gap:0.5rem">' +
+            '<button type="button" class="btn primary" id="qaSave">Save</button>' +
+            '<button type="button" class="btn" id="qaDiscard">Discard</button>' +
+          "</div>" +
+        "</div>";
+
+      draftBox.querySelector("#qaDiscard").addEventListener("click", function () {
+        draftBox.innerHTML = "";
+        status.textContent = "";
+        text.value = "";
+      });
+      draftBox.querySelector("#qaSave").addEventListener("click", function () {
+        var saveBtn = draftBox.querySelector("#qaSave");
+        var payload = {
+          companyName: draftBox.querySelector("#qaCompany").value.trim(),
+          serviceCategory: draftBox.querySelector("#qaTrade").value.trim(),
+          ownerName: draftBox.querySelector("#qaOwner").value.trim(),
+          phone: draftBox.querySelector("#qaPhone").value.trim(),
+          email: draftBox.querySelector("#qaEmail").value.trim(),
+          website: draftBox.querySelector("#qaWebsite").value.trim(),
+          licenseNumber: draftBox.querySelector("#qaLicense").value.trim(),
+          serviceArea: draftBox.querySelector("#qaArea").value.trim(),
+          specialties: draftBox.querySelector("#qaSpecialties").value.split(",").map(function (s) { return s.trim(); }).filter(Boolean),
+          summary: draftBox.querySelector("#qaSummary").value.trim(),
+          trusted: draftBox.querySelector("#qaTrusted").checked,
+          sourcingMethod: "quick-add"
+        };
+        if (!payload.companyName) { status.textContent = "Company name is required before saving."; return; }
+        saveBtn.disabled = true;
+        APP.fetchJSON(API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        }).then(function (created) {
+          if (roster) roster.unshift(created);
+          APP.toast("Added " + (created.companyName || "sub") + " to the roster");
+          draftBox.innerHTML = "";
+          status.textContent = "";
+          text.value = "";
+          renderTable(container);
+          renderRosterHealth(container);
+        }).catch(function (err) {
+          status.textContent = "Save failed: " + (err.message || "unknown error");
+          saveBtn.disabled = false;
+        });
+      });
+    }
+    function qaField(id, label, value) {
+      return '<label><span style="' + LBL + '">' + esc(label) + '</span><input id="' + id + '" style="' + FIELD + '" value="' + esc(value || "") + '" /></label>';
+    }
   }
 
   function renderRosterHealth(container) {
     var box = container.querySelector("#subsHealth");
     if (!box) return;
-    fetchVettingSummary().then(function (summary) {
+    var activeCount = roster.filter(function (s) { return !isHidden(s); }).length;
+    var hiddenCount = roster.length - activeCount;
+    fetchVetsweep().catch(function () { return null; }).then(function (sweep) {
       if (!container.contains(box)) return; // view navigated away before this resolved
-      var stats = summary.stats || {};
-      var total = stats.total || 0;
-      var deepVetted = stats.deepVetted || 0;
-      var avgLegit = stats.avgLegit != null && isFinite(stats.avgLegit) ? Math.round(stats.avgLegit) : null;
-      var alive = stats.websiteAlive || 0;
-      var dead = stats.websiteDead || 0;
-      var flagged = stats.flagged || 0;
-      var cslbActive = (summary.licenseStatuses || {}).active || 0;
+      var sweepBit = sweep && sweep.enabled
+        ? "nightly vetting ON" + (sweep.nightsToClear ? ", ~" + sweep.nightsToClear + " night" + (sweep.nightsToClear === 1 ? "" : "s") + " to finish" : "")
+        : "nightly vetting off";
       box.innerHTML =
-        '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem;margin-bottom:0.7rem">' +
-          '<span class="pill' + (deepVetted ? " green" : "") + '">' + deepVetted + "/" + total + " deep-vetted</span>" +
-          '<span class="pill">avg legit ' + (avgLegit != null ? avgLegit : "—") + "</span>" +
-          '<span class="pill green">' + alive + " sites alive</span>" +
-          '<span class="pill' + (dead ? " red" : "") + '">' + dead + " sites dead</span>" +
-          '<span class="pill' + (flagged ? " red" : "") + '">' + flagged + " red-flagged</span>" +
-          '<span class="pill' + (cslbActive ? " green" : "") + '">' + cslbActive + " CSLB active</span>" +
-          '<span style="' + MUTED + ';font-size:0.74rem">vetting data updates as research waves run</span>' +
+        '<div class="card" style="display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem">' +
+          '<span style="font-size:0.85rem">' +
+            "<b>" + activeCount + "</b> active roster · <b>" + hiddenCount + "</b> hidden (junk/flagged) · " + esc(sweepBit) +
+          "</span>" +
         "</div>";
     }).catch(function () {
       if (container.contains(box)) box.innerHTML = "";
@@ -317,10 +435,28 @@
     if (!head || !body) return;
     var rows = listFiltered();
 
-    count.textContent = rows.length + " of " + roster.length + " shown";
+    var visibleTotal = roster.filter(function (s) { return !isHidden(s); }).length;
+    var hiddenTotal = roster.length - visibleTotal;
+    count.textContent = state.tier === "hidden"
+      ? rows.length + " hidden"
+      : rows.length + " of " + visibleTotal + " shown";
+
+    var hiddenChip = container.querySelector("#subsHiddenChip");
+    if (hiddenChip) {
+      hiddenChip.textContent = "Hidden (" + hiddenTotal + ")";
+      hiddenChip.classList.toggle("active", state.tier === "hidden");
+    }
+    var hiddenNote = container.querySelector("#subsHiddenNote");
+    if (hiddenNote) {
+      hiddenNote.textContent = state.tier === "hidden"
+        ? "Auto-hidden: red-flagged, dead site, or not actually a sub — nightly sweep keeps this updated."
+        : "";
+    }
+
     head.innerHTML = LIST_COLS.map(function (c) {
       var arrow = state.sortKey === c.key ? (state.sortDir < 0 ? " ▾" : " ▴") : "";
-      return '<th data-key="' + c.key + '" style="cursor:pointer" title="Sort by ' + esc(c.label) + '">' + esc(c.label) + arrow + "</th>";
+      var tip = c.title ? c.title : "Sort by " + c.label;
+      return '<th data-key="' + c.key + '" style="cursor:pointer" title="' + esc(tip) + '">' + esc(c.label) + arrow + "</th>";
     }).join("");
 
     if (!rows.length) {
@@ -332,9 +468,12 @@
     }
     emptyBox.innerHTML = "";
     body.innerHTML = rows.map(function (s) {
-      var dim = contactStrength(s) === "strong" ? "" : "opacity:0.55;";
-      return '<tr data-id="' + esc(s.id) + '" data-href="#/subs/' + esc(s.id) + '" style="cursor:pointer;' + dim + '">' +
-        "<td><b>" + esc(s.companyName) + "</b>" + weakPill(s) +
+      var dim = (!s.trusted && contactStrength(s) !== "strong") ? "opacity:0.55;" : "";
+      var trustedBar = s.trusted ? "border-left:3px solid #b7791f;" : "";
+      return '<tr data-id="' + esc(s.id) + '" data-href="#/subs/' + esc(s.id) + '" style="cursor:pointer;' + dim + trustedBar + '">' +
+        "<td><b" + (s.trusted ? ' style="color:#101828"' : "") + ">" + esc(s.companyName) + "</b>" +
+          (s.trusted ? ' <span class="pill amber" title="Your personal contact (WhatsApp/phone)">⭐ my contact</span>' : "") +
+          weakPill(s) +
           (s.serviceArea ? '<br /><span style="' + MUTED + ';font-size:0.72rem">' + esc(s.serviceArea) + "</span>" : "") + "</td>" +
         "<td>" + esc(s.serviceCategory || "") + "</td>" +
         "<td>" + legitCell(s) + "</td>" +
@@ -379,8 +518,8 @@
     var activitiesCache = null;
 
     var scores =
-      '<span style="' + LBL + ';display:inline;margin-right:0.2rem">Legit</span>' + APP.scoreBadge(sub.legitScore) +
-      ' <span style="' + LBL + ';display:inline;margin:0 0.2rem 0 0.7rem">Complete</span>' + APP.scoreBadge(sub.completenessScore) +
+      '<span style="' + LBL + ';display:inline;margin-right:0.2rem" title="License verified + reviews + insurance evidence — is this a real, good company">Trust score</span>' + APP.scoreBadge(sub.legitScore) +
+      ' <span style="' + LBL + ';display:inline;margin:0 0.2rem 0 0.7rem" title="How complete OUR info on them is — contact, license, pricing, docs">Record</span>' + APP.scoreBadge(sub.completenessScore) +
       ' <span style="' + LBL + ';display:inline;margin:0 0.2rem 0 0.7rem">Overall</span>' + APP.scoreBadge(overall(sub));
 
     var contactBits = [];
@@ -395,12 +534,17 @@
 
     container.innerHTML =
       '<div style="margin-bottom:0.6rem"><a href="#/subs" style="' + MUTED + ';font-weight:700;text-decoration:none">← Back to subs</a></div>' +
-      '<div class="card">' +
+      '<div class="card"' + (sub.trusted ? ' style="border-left:3px solid #b7791f"' : "") + '>' +
         '<div style="display:flex;flex-wrap:wrap;gap:0.8rem;justify-content:space-between;align-items:start">' +
           "<div>" +
             "<h1>" + esc(sub.companyName) + weakPill(sub) + "</h1>" +
             '<div style="margin-top:0.25rem">' + esc(sub.serviceCategory || "") + " · " + APP.tierPill(sub.legitTier || "unverified") +
               (sub.serviceArea ? ' <span style="' + MUTED + '">· ' + esc(sub.serviceArea) + "</span>" : "") + "</div>" +
+            '<div style="margin-top:0.5rem">' +
+              '<button type="button" class="btn' + (sub.trusted ? " primary" : "") + '" id="trustedToggle" title="Your personal WhatsApp/phone contacts pin to the top of the roster everywhere">' +
+                (sub.trusted ? "★ Trusted" : "☆ Mark trusted") +
+              "</button>" +
+            "</div>" +
           "</div>" +
           '<div style="text-align:right">' + scores + "</div>" +
         "</div>" +
@@ -414,6 +558,19 @@
         }).join("") +
       "</div>" +
       '<div id="subTabPanel" style="margin-top:0.9rem"></div>';
+
+    var trustedBtn = container.querySelector("#trustedToggle");
+    trustedBtn.addEventListener("click", function () {
+      trustedBtn.disabled = true;
+      putSub(sub.id, { trusted: !sub.trusted }).then(function (updated) {
+        Object.assign(sub, updated);
+        APP.toast(sub.trusted ? "Marked as trusted — pinned to the top" : "Unmarked as trusted");
+        buildProfile(container, sub);
+      }).catch(function (err) {
+        APP.toast("Couldn't update: " + err.message);
+        trustedBtn.disabled = false;
+      });
+    });
 
     var tabs = container.querySelector("#subTabs");
     var panel = container.querySelector("#subTabPanel");

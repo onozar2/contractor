@@ -8,20 +8,20 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --ink: #172033; --steel: #3c4658; --muted: #687587; --line: #d8dee8;
+      --ink: #172033; --steel: #3c4658; --muted: #667085; --line: #e4e8ef;
       --soft: #f5f7fa; --paper: #ffffff; --charcoal: #101828; --blue: #2563eb;
       --green: #0f766e; --amber: #b45309; --red: #b42318; --plum: #7c3aed;
-      --shadow: 0 14px 36px rgba(16, 24, 40, 0.08);
+      --shadow: 0 10px 28px rgba(16, 24, 40, 0.06);
       --sidebar: 220px;
     }
     html { scroll-behavior: smooth; }
     body {
       min-width: 320px; color: var(--ink); background: #eef2f6;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-      font-size: 0.875rem; line-height: 1.45;
+      font-size: 0.875rem; line-height: 1.5;
     }
     a { color: inherit; }
-    h1 { font-size: 1.15rem; font-weight: 900; }
+    h1 { font-size: 1.25rem; font-weight: 900; }
 
     /* ---------- Sidebar ---------- */
     .sidebar {
@@ -41,22 +41,22 @@
       font-size: 1.3rem; line-height: 1; padding: 0.25rem 0.45rem; border-radius: 6px;
     }
     #navToggle:hover { background: rgba(255,255,255,0.12); }
-    .nav { display: grid; gap: 0.15rem; }
+    .nav { display: grid; gap: 0.2rem; }
     .nav a {
       display: block; text-decoration: none; border-radius: 8px;
-      padding: 0.48rem 0.6rem; font-weight: 800; font-size: 0.84rem;
-      color: rgba(255,255,255,0.72);
+      padding: 0.58rem 0.7rem; font-weight: 800; font-size: 0.84rem;
+      color: rgba(255,255,255,0.72); border-left: 3px solid transparent;
     }
     .nav a:hover { color: #fff; background: rgba(255,255,255,0.08); }
-    .nav a.active { color: #fff; background: var(--blue); }
+    .nav a.active { color: #fff; background: rgba(37,99,235,0.22); border-left-color: var(--blue); }
     .navgroup {
       margin: 1.1rem 0 0.35rem; padding: 0 0.6rem;
       font-size: 0.66rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.09em;
       color: rgba(255,255,255,0.42);
     }
-    .nav.tools a { font-size: 0.78rem; font-weight: 700; padding: 0.32rem 0.6rem; color: rgba(255,255,255,0.6); }
+    .nav.tools a { font-size: 0.78rem; font-weight: 700; padding: 0.38rem 0.7rem; color: rgba(255,255,255,0.6); }
     .nav.tools a:hover { color: #fff; }
-    .sidefoot { margin-top: auto; padding-top: 1rem; }
+    .sidefoot { margin-top: auto; padding-top: 1rem; display: grid; gap: 0.5rem; }
     .sidefoot a {
       display: block; text-decoration: none; border-radius: 8px;
       padding: 0.42rem 0.6rem; font-size: 0.78rem; font-weight: 800;
@@ -64,28 +64,32 @@
       text-align: center;
     }
     .sidefoot a:hover { color: #fff; border-color: rgba(255,255,255,0.4); }
+    .sidefoot .version {
+      text-align: center; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.04em;
+      color: rgba(255,255,255,0.3); padding: 0.1rem 0.6rem;
+    }
 
     /* ---------- Content ---------- */
     .main { margin-left: var(--sidebar); min-height: 100vh; }
-    #view { width: min(1560px, 100%); margin: 0 auto; padding: 1rem 1.5vw 3rem; display: grid; gap: 0.9rem; align-content: start; }
+    #view { width: min(1560px, 100%); margin: 0 auto; padding: 1.3rem 1.5vw 3rem; display: grid; gap: 1.1rem; align-content: start; }
     .viewhead { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; padding: 0.2rem 0.1rem 0; }
     .muted { color: var(--muted); }
     .nowrap { white-space: nowrap; }
 
     /* ---------- Cards ---------- */
-    .card { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 0.9rem; }
+    .card { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 1.1rem; box-shadow: var(--shadow); }
     .card h2 {
       font-size: 0.74rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em;
-      color: var(--muted); margin-bottom: 0.55rem;
+      color: var(--muted); margin-bottom: 0.65rem;
     }
 
     /* ---------- KPI tiles ---------- */
-    .kpis { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.6rem; }
-    .kpi { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 0.6rem 0.75rem; }
-    .kpi b { display: block; font-size: 1.3rem; font-weight: 900; line-height: 1.25; }
+    .kpis { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.7rem; }
+    .kpi { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 0.75rem 0.9rem; box-shadow: var(--shadow); }
+    .kpi b { display: block; font-size: 1.5rem; font-weight: 900; line-height: 1.3; }
     .kpi span {
-      color: var(--muted); font-size: 0.68rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--muted); font-size: 0.66rem; font-weight: 700; font-variant: small-caps;
+      text-transform: uppercase; letter-spacing: 0.07em;
     }
     .kpi[data-accent="green"] b { color: var(--green); }
     .kpi[data-accent="amber"] b { color: var(--amber); }
@@ -95,14 +99,14 @@
     .table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
     .table th {
       position: sticky; top: 0; z-index: 1; background: var(--soft); text-align: left;
-      padding: 0.5rem 0.55rem; font-size: 0.7rem; text-transform: uppercase;
+      padding: 0.55rem 0.6rem; font-size: 0.7rem; text-transform: uppercase;
       letter-spacing: 0.05em; color: var(--muted); border-bottom: 1px solid var(--line);
       white-space: nowrap; user-select: none;
     }
-    .table td { padding: 0.48rem 0.55rem; border-bottom: 1px solid #eef1f6; vertical-align: top; }
-    .table tbody tr:hover { background: #f4f8ff; }
+    .table td { padding: 0.6rem 0.6rem; border-bottom: 1px solid #eef1f6; vertical-align: top; }
+    .table tbody tr:hover { background: #f7f9fc; }
     .table tr[data-href] { cursor: pointer; }
-    .tablewrap { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; overflow: auto; max-height: 74vh; }
+    .tablewrap { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; overflow: auto; max-height: 74vh; box-shadow: var(--shadow); }
 
     /* ---------- Pills & score chips ---------- */
     .pill {
@@ -134,12 +138,16 @@
     /* ---------- Buttons ---------- */
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;
-      min-height: 34px; border: 1px solid var(--line); border-radius: 7px;
-      padding: 0 0.8rem; background: var(--paper); font: inherit; font-size: 0.82rem;
+      height: 34px; border: 1px solid var(--line); border-radius: 8px;
+      padding: 0 0.85rem; background: var(--paper); font: inherit; font-size: 0.82rem;
       font-weight: 800; cursor: pointer; color: var(--steel); text-decoration: none;
+      transition: background 0.12s ease, color 0.12s ease;
     }
     .btn:hover { color: var(--blue); background: var(--soft); }
-    .btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .btn.primary {
+      background: var(--blue); border-color: var(--blue); color: #fff;
+      box-shadow: 0 4px 12px rgba(37,99,235,0.28);
+    }
     .btn.primary:hover { background: #1e4fc4; color: #fff; }
 
     /* ---------- Filter chips ---------- */
@@ -171,28 +179,34 @@
 
     /* ---------- Empty / loading states ---------- */
     .empty {
-      background: var(--paper); border: 1px dashed var(--line); border-radius: 10px;
+      background: var(--paper); border: 1px dashed var(--line); border-radius: 12px;
       padding: 1.6rem 1rem; text-align: center; color: var(--muted); font-size: 0.84rem;
     }
     .empty b { display: block; color: var(--steel); font-size: 0.92rem; margin-bottom: 0.2rem; }
-    .allclear { display: flex; align-items: center; gap: 0.4rem; color: var(--green); font-size: 0.8rem; font-weight: 700; padding: 0.25rem 0.1rem; }
+    .allclear { display: flex; align-items: center; gap: 0.4rem; color: var(--green); font-size: 0.8rem; font-weight: 700; padding: 0.3rem 0.1rem; }
     .allclear::before { content: "✓"; font-weight: 900; }
     .loading { color: var(--muted); font-size: 0.84rem; padding: 1.2rem 0.3rem; }
     .loading::after { content: "…"; }
 
     /* ---------- Dashboard specifics ---------- */
-    .attn { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 0.7rem; align-items: start; }
-    .itemlist { display: grid; gap: 0.1rem; }
+    .itemlist { display: grid; gap: 0.15rem; }
     .item {
       display: flex; align-items: center; justify-content: space-between; gap: 0.6rem;
-      text-decoration: none; border-radius: 7px; padding: 0.38rem 0.45rem; font-size: 0.82rem;
+      text-decoration: none; border-radius: 8px; padding: 0.5rem 0.55rem; font-size: 0.84rem;
+      font-weight: 700; color: var(--steel);
     }
     .item:hover { background: var(--soft); }
     .item .who { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .item .who small { color: var(--muted); font-weight: 400; }
     .item .meta { display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0; }
     .quick { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-    .footline { color: var(--muted); font-size: 0.78rem; padding: 0.1rem 0.2rem; }
+    .footline { color: var(--muted); font-size: 0.78rem; padding: 0.15rem 0.2rem; }
+    .sweepline {
+      display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; color: var(--steel);
+      border-top: 1px solid #eef1f6; margin-top: 0.5rem; padding-top: 0.65rem;
+    }
+    .dot { width: 7px; height: 7px; border-radius: 999px; flex-shrink: 0; background: var(--muted); }
+    .dot.on { background: var(--green); }
 
     /* ---------- Toast ---------- */
     #toasts { position: fixed; bottom: 1.1rem; left: 50%; transform: translateX(-50%); z-index: 70; display: grid; gap: 0.4rem; justify-items: center; }
@@ -220,7 +234,6 @@
     }
     @media (max-width: 560px) {
       .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .attn { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -239,7 +252,10 @@
       <a href="#/pricing" data-view="pricing">Pricing</a>
       <a href="#/knowledge" data-view="knowledge">Knowledge</a>
     </nav>
-    <div class="sidefoot"><a href="/">Public site</a></div>
+    <div class="sidefoot">
+      <a href="/">Public site</a>
+      <div class="version">JOON Command</div>
+    </div>
   </aside>
 
   <div class="main">
@@ -516,28 +532,23 @@
         }
       });
 
-      function daysPill(days) {
-        if (days === null || days === undefined || !isFinite(Number(days))) return "";
-        var n = Number(days);
-        var cls = n <= 14 ? "red" : n <= 45 ? "amber" : "";
-        var label = n < 0 ? Math.abs(n) + "d overdue" : n === 0 ? "today" : n + "d";
-        return '<span class="pill ' + cls + '">' + label + "</span>";
-      }
-
-      function itemLink(href, who, sub, metaHtml) {
+      // One compact count-line for the "Needs attention" card — no company names on the dashboard.
+      function countLine(count, text, href, tone) {
+        var n = Number(count) || 0;
+        if (!n) return "";
         return '<a class="item" href="' + esc(href) + '">' +
-          '<span class="who">' + who + (sub ? " <small>" + sub + "</small>" : "") + "</span>" +
-          '<span class="meta">' + (metaHtml || "") + "</span></a>";
+          '<span class="who">' + n + " " + esc(text) + "</span>" +
+          '<span class="meta"><span class="pill' + (tone ? " " + tone : "") + '">view</span></span></a>';
       }
 
-      function attnCard(title, items, allClearText, renderItem) {
-        var inner;
-        if (!items || !items.length) {
-          inner = '<div class="allclear">' + esc(allClearText) + "</div>";
-        } else {
-          inner = '<div class="itemlist">' + items.map(renderItem).join("") + "</div>";
+      function sweepLineHtml(v) {
+        if (v && v.enabled) {
+          var per = Number(v.perNight || 0);
+          var nights = v.nightsToClear;
+          var tail = nights ? ", ~" + nights + " night" + (nights === 1 ? "" : "s") + " to finish the roster" : "";
+          return '<span class="dot on"></span><span>Nightly vetting: <b>ON</b> — ' + per + "/night" + esc(tail) + "</span>";
         }
-        return '<div class="card"><h2>' + esc(title) + "</h2>" + inner + "</div>";
+        return '<span class="dot"></span><span>Nightly vetting: <b>OFF</b> — turn it on from the Audit tool to clear the backlog faster</span>';
       }
 
       function renderDashboard(container, data) {
@@ -557,78 +568,34 @@
           "</div>"
         ));
 
-        /* Needs attention */
-        var grid = el('<div class="attn"></div>');
+        /* Needs attention — one compact card, count-lines only, no name lists */
+        var lines = [
+          countLine((a.expiringDocs || []).length, "docs/licenses expiring or overdue", "#/subs", "amber"),
+          countLine((a.pendingCOs || []).length, "COs awaiting client approval", "#/projects", ""),
+          countLine((a.openRfqs || []).length, "RFQs awaiting sub responses", "#/pipeline", "plum"),
+          countLine((a.newLeads || []).length, "new leads waiting", "#/pipeline", "amber"),
+          countLine((a.flaggedSubs || []).length, "red-flagged subs in pipeline", "#/subs", "red")
+        ].filter(Boolean);
 
-        grid.appendChild(el(attnCard(
-          "Expiring docs", a.expiringDocs, "All compliance docs current",
-          function (d) {
-            return itemLink(
-              "#/subs/" + encodeURIComponent(d.subId || ""),
-              esc(d.companyName || "Unknown sub"),
-              esc(d.doc || "doc"),
-              daysPill(d.days) + '<span class="muted nowrap">' + esc(fmtDate(d.expiresAt)) + "</span>"
-            );
-          }
-        )));
+        var attnInner = lines.length
+          ? '<div class="itemlist">' + lines.join("") + "</div>"
+          : '<div class="allclear">All clear — nothing needs attention</div>';
 
-        grid.appendChild(el(attnCard(
-          "COs awaiting client approval", a.pendingCOs, "No change orders waiting on clients",
-          function (co) {
-            return itemLink(
-              "#/projects",
-              esc(co.title || "Change order"),
-              esc(co.projectName || ""),
-              '<b class="nowrap">' + esc(fmtMoney(co.total)) + "</b>" +
-              '<span class="muted nowrap">sent ' + esc(fmtAgo(co.sentAt)) + "</span>"
-            );
-          }
-        )));
+        var attnCardEl = el(
+          '<div class="card"><h2>Needs attention</h2>' + attnInner +
+          '<div class="sweepline"><span class="dot"></span><span class="muted">Checking nightly vetting…</span></div></div>'
+        );
+        container.appendChild(attnCardEl);
 
-        grid.appendChild(el(attnCard(
-          "RFQs awaiting responses", a.openRfqs, "No RFQs waiting on subs",
-          function (rfq) {
-            var due = rfq.dueDate ? daysPill(rfq.dueDays) : "";
-            return itemLink(
-              "#/pipeline",
-              esc(rfq.title || "RFQ"),
-              "",
-              '<span class="pill plum">' + Number(rfq.responded || 0) + "/" + Number(rfq.total || 0) + " responded</span>" + due
-            );
-          }
-        )));
+        fetchJSON("/api/vetsweep").then(function (v) {
+          var line = attnCardEl.querySelector(".sweepline");
+          if (line) line.innerHTML = sweepLineHtml(v);
+        }).catch(function () {
+          var line = attnCardEl.querySelector(".sweepline");
+          if (line) line.remove();
+        });
 
-        grid.appendChild(el(attnCard(
-          "New leads", a.newLeads, "No new leads waiting",
-          function (lead) {
-            var pr = String(lead.priority || "").toLowerCase();
-            var prPill = pr ? '<span class="pill ' + (pr === "high" ? "red" : pr === "medium" ? "amber" : "") + '">' + esc(pr) + "</span>" : "";
-            return itemLink(
-              "#/pipeline",
-              esc(lead.customerName || "Lead"),
-              esc(lead.projectType || lead.source || ""),
-              (lead.estimatedValue ? '<b class="nowrap">' + esc(fmtMoney(lead.estimatedValue)) + "</b>" : "") + prPill
-            );
-          }
-        )));
-
-        grid.appendChild(el(attnCard(
-          "Red-flagged subs", a.flaggedSubs, "No red-flagged subs in the active roster",
-          function (sub) {
-            var flag = (sub.redFlags && sub.redFlags[0]) || "";
-            var short = flag.length > 58 ? flag.slice(0, 55) + "…" : flag;
-            return itemLink(
-              "#/subs/" + encodeURIComponent(sub.id || ""),
-              esc(sub.companyName || "Sub"),
-              esc(sub.serviceCategory || ""),
-              flag ? '<span class="pill red" title="' + esc(flag) + '">' + esc(short) + "</span>" : ""
-            );
-          }
-        )));
-
-        container.appendChild(grid);
-
-        /* Vetting summary + recent estimates foot lines */
+        /* Vetting summary + recent estimates foot lines (muted, single line each) */
         container.appendChild(el(
           '<div class="footline">Vetting: <b>' + Number(k.verified || 0) + "</b> verified · <b>" +
           Number(k.deepVetted || 0) + "</b> deep-vetted · <b>" + Number(k.redFlagged || 0) +

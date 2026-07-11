@@ -529,7 +529,11 @@ function normalize(input) {
     websiteCheckedAt: cleanString(input.websiteCheckedAt),
     redFlags: cleanList(input.redFlags),
     vettingNotes: cleanString(input.vettingNotes),
-    lastVettedAt: cleanString(input.lastVettedAt)
+    lastVettedAt: cleanString(input.lastVettedAt),
+    // Ori's own people (WhatsApp/phone contacts) pin to the top everywhere.
+    trusted: Boolean(input.trusted),
+    // Manual hide; hiddenAuto (computed) hides flagged/risky/dead records.
+    hidden: Boolean(input.hidden)
   };
   const hasChannel = Boolean(doc.phone || doc.email);
   doc.reachTier = doc.ownerName && hasChannel ? "owner" : hasChannel ? "company" : "none";
@@ -1281,6 +1285,8 @@ async function upsertSourcedSubcontractor(coll, input) {
       vettingNotes: doc.vettingNotes || existing.vettingNotes || "",
       lastVettedAt: doc.lastVettedAt || existing.lastVettedAt || "",
       vettingStatus: existing.vettingStatus === "deep_vetted" ? "deep_vetted" : doc.vettingStatus,
+      trusted: doc.trusted || Boolean(existing.trusted),
+      hidden: doc.hidden || Boolean(existing.hidden),
       licenseVerified: doc.licenseVerified || Boolean(existing.licenseVerified),
       licenseNumber: doc.licenseNumber || existing.licenseNumber || "",
       reviewRating: Number(doc.reviewRating) > 0 ? doc.reviewRating : (existing.reviewRating || 0),
@@ -1764,9 +1770,9 @@ app.get("/api/audit", async (_req, res) => {
 // a locally spawned claude CLI (haiku tier) — same pattern as the oriRM runner.
 const { spawn } = require("child_process");
 
-function runClaudeCli(prompt, timeoutMs = 150000) {
+function runClaudeCli(prompt, timeoutMs = 150000, model = "claude-haiku-4-5-20251001") {
   return new Promise((resolve, reject) => {
-    const child = spawn("claude", ["-p", "--model", "claude-haiku-4-5-20251001", "--output-format", "text"], {
+    const child = spawn("claude", ["-p", "--model", model, "--output-format", "text"], {
       shell: true,
       windowsHide: true,
       env: { ...process.env }
@@ -2348,16 +2354,21 @@ function vettingFieldsFor(doc) {
     licenseStatus: doc.licenseStatus || "unchecked"
   };
   const legitScore = computeLegitScore(enriched);
+  const legitTier = legitTierFor(legitScore, doc.redFlags);
+  const nonInstalling = cleanArray(doc.redFlags).some((flag) => /non-installing|supplier|manufacturer|retailer/i.test(flag));
   return {
     nameKey: dedupeNameKey(doc.companyName),
     siteKey: dedupeSiteKey(doc.website),
     phoneKey: dedupePhoneKey(doc.phone),
     completenessScore: computeCompletenessScore(enriched),
     legitScore,
-    legitTier: legitTierFor(legitScore, doc.redFlags),
+    legitTier,
     // strong = named owner AND email (outreach-ready); weak = some channel; none = dead record
     contactStrength: cleanString(doc.ownerName) && cleanString(doc.email) ? "strong"
-      : (cleanString(doc.email) || cleanString(doc.phone)) ? "weak" : "none"
+      : (cleanString(doc.email) || cleanString(doc.phone)) ? "weak" : "none",
+    // Auto-hide junk from the working roster: red-flag tiers, dead sites, and
+    // non-installing vendors. trusted always wins; manual hidden also respected.
+    hiddenAuto: !doc.trusted && (["flagged", "risky"].includes(legitTier) || doc.websiteAlive === false || nonInstalling)
   };
 }
 
@@ -2584,6 +2595,179 @@ app.get("/api/pricing-intel", async (_req, res) => {
       }),
       trades: Object.fromEntries(Object.entries(byTrade).map(([trade, observations]) => [trade, { ...stats(observations), samples: observations.slice(-10) }]))
     });
+  } catch (error) {
+    res.status(502).json({ error: error.message });
+  }
+});
+
+// ── AI quick-add: free text → record draft ──
+// Ori types "Mike's plumbing, guy named Mike Torres 818-555-0199, does repipes
+// in the Valley, from WhatsApp" and gets a filled record back to confirm.
+function extractJsonBlock(text) {
+  const cleaned = String(text || "").replace(/```json|```/g, "").trim();
+  const start = cleaned.indexOf("{");
+  const end = cleaned.lastIndexOf("}");
+  if (start === -1 || end <= start) throw new Error("No JSON in model output");
+  return JSON.parse(cleaned.slice(start, end + 1));
+}
+
+app.post("/api/subcontractors/ai-parse", async (req, res) => {
+  try {
+    const text = cleanString(req.body.text);
+    if (!text) return res.status(400).json({ error: "text is required" });
+    const coll = await collection();
+    const trades = coll ? await coll.distinct("serviceCategory") : [];
+    const prompt = [
+      "Parse this note about a subcontractor into JSON. Fields (omit unknown ones, NEVER invent):",
+      '{"companyName":"","serviceCategory":"<closest from list>","ownerName":"","phone":"","email":"","website":"","licenseNumber":"","serviceArea":"","specialties":[],"summary":"<1 sentence>","trusted":<true if it sounds like a personal contact/referral (WhatsApp, friend, worked together)>}',
+      `Trade list: ${trades.filter(Boolean).slice(0, 60).join(" | ")}`,
+      "Reply with ONLY the JSON.", "", `NOTE: ${text}`
+    ].join("\n");
+    const draft = extractJsonBlock(await runClaudeCli(prompt, 90000));
+    res.json({ draft });
+  } catch (error) {
+    res.status(502).json({ error: error.message });
+  }
+});
+
+app.post("/api/suppliers/ai-parse", async (req, res) => {
+  try {
+    const text = cleanString(req.body.text);
+    if (!text) return res.status(400).json({ error: "text is required" });
+    const prompt = [
+      "Parse this note about a construction materials supplier into JSON. Fields (omit unknown, NEVER invent):",
+      '{"name":"","category":"","website":"","phone":"","email":"","contactName":"","minSpend":"","leadTime":"","brands":[],"suppliesServices":[],"notes":"<1 sentence>","supplierType":"<manufacturer|wholesaler|retailer|distributor if stated or obvious>"}',
+      "Reply with ONLY the JSON.", "", `NOTE: ${text}`
+    ].join("\n");
+    const draft = extractJsonBlock(await runClaudeCli(prompt, 90000));
+    res.json({ draft });
+  } catch (error) {
+    res.status(502).json({ error: error.message });
+  }
+});
+
+// ── Nightly vetting sweep ──
+// Ori: "come up with a schedule that'll get the rest vetted." Runs at night,
+// takes the next unvetted strong-contact subs, spawns the local claude CLI
+// (sonnet, web tools available in agentic -p mode) to verify CSLB + reviews,
+// and applies the results through the same path as the manual waves.
+const VETSWEEP_DEFAULTS = { enabled: true, perRun: 8, runsPerNight: 4, hourLocal: 2 };
+
+async function getVetsweepState() {
+  const coll = await collection("settings");
+  if (!coll) return null;
+  let doc = await coll.findOne({ _id: "vetsweep" });
+  if (!doc) {
+    doc = { _id: "vetsweep", ...VETSWEEP_DEFAULTS, lastNight: "", history: [] };
+    await coll.insertOne(doc);
+  }
+  return doc;
+}
+
+function buildVetPrompt(batch) {
+  return [
+    "You are vetting subcontractor records for an LA general contractor. For EACH company below:",
+    "1. Fetch https://www.cslb.ca.gov/onlineservices/checklicenseII/LicenseDetail.aspx?LicNum=<licenseNumber> when a number exists, else web-search 'CSLB <company name>' to find one. Confirm name match, status, classification, expiry, workers comp, bond.",
+    "2. Search reviews (Yelp/Google/BBB): rating, count, source, sentiment.",
+    "3. Red flags only when verified: suspended/expired license, name mismatch, complaint pattern, WC exemption while claiming crews, non-installing vendor (supplier/manufacturer/retailer miscategorized as a sub).",
+    "NEVER invent. Omit unverifiable fields. licenseVerified true ONLY on exact CSLB name match.",
+    'Reply with ONLY JSON: {"records":[{"id":"","companyName":"","licenseNumber":"","licenseStatus":"active|expired|suspended|revoked|not_found|unchecked","licenseClass":"","licenseExpiresAt":"","licenseSourceUrl":"","licenseVerified":false,"workersCompStatus":"","bondedStatus":"","reviewRating":0,"reviewCount":0,"reviewSource":"","sentiment":"","redFlags":[],"vettingNotes":"[vetsweep] <verdict>","sourceUrls":[]}]} - include EVERY input id.',
+    "", "COMPANIES:", JSON.stringify(batch, null, 1)
+  ].join("\n");
+}
+
+async function applyVettingRecords(coll, records) {
+  const now = new Date().toISOString();
+  let applied = 0;
+  for (const patch of records) {
+    if (!patch || !patch.id) continue;
+    let existing = null;
+    try { existing = await coll.findOne({ _id: new ObjectId(String(patch.id)) }); } catch { continue; }
+    if (!existing) continue;
+    const update = {};
+    for (const field of VETTING_PATCH_FIELDS) {
+      if (patch[field] !== undefined && patch[field] !== null && patch[field] !== "") update[field] = patch[field];
+    }
+    if (patch.vettingNotes) update.vettingNotes = cleanString([existing.vettingNotes, patch.vettingNotes].filter(Boolean).join(" | "));
+    if (Array.isArray(patch.sourceUrls) && patch.sourceUrls.length) update.sourceUrls = mergeUrls(existing.sourceUrls || [], patch.sourceUrls);
+    update.lastVettedAt = now;
+    update.vettingStatus = "deep_vetted";
+    update.updatedAt = now;
+    Object.assign(update, vettingFieldsFor({ ...existing, ...update }));
+    await coll.updateOne({ _id: existing._id }, { $set: update });
+    applied += 1;
+  }
+  return applied;
+}
+
+let vetsweepRunning = false;
+async function vetsweepTick(force = false) {
+  if (vetsweepRunning) return;
+  vetsweepRunning = true;
+  try {
+    const state = await getVetsweepState();
+    if (!state || (!state.enabled && !force)) return;
+    const now = new Date();
+    const tonight = now.toISOString().slice(0, 10);
+    if (!force && (now.getHours() !== Number(state.hourLocal ?? 2) || state.lastNight === tonight)) return;
+    const settings = await collection("settings");
+    await settings.updateOne({ _id: "vetsweep" }, { $set: { lastNight: tonight } });
+    const coll = await collection();
+    let totalApplied = 0;
+    for (let run = 0; run < Number(state.runsPerNight || 4); run += 1) {
+      const batch = await coll.find({
+        vettingStatus: { $ne: "deep_vetted" },
+        contactStrength: "strong",
+        hidden: { $ne: true }
+      }).sort({ fitScore: -1 }).limit(Number(state.perRun || 8)).toArray();
+      if (!batch.length) break;
+      const slim = batch.map((row) => ({
+        id: row._id.toString(), companyName: row.companyName, serviceCategory: row.serviceCategory,
+        website: row.website, phone: row.phone, licenseNumber: row.licenseNumber, ownerName: row.ownerName
+      }));
+      try {
+        const raw = await runClaudeCli(buildVetPrompt(slim), 900000, "claude-sonnet-5");
+        const parsed = extractJsonBlock(raw);
+        totalApplied += await applyVettingRecords(coll, parsed.records || []);
+      } catch (error) {
+        console.error("[vetsweep] run failed:", error.message);
+      }
+    }
+    const entry = { at: new Date().toISOString(), applied: totalApplied };
+    await settings.updateOne({ _id: "vetsweep" }, { $push: { history: { $each: [entry], $slice: -30 } } });
+    console.log(`[vetsweep] night ${tonight}: ${totalApplied} subs deep-vetted`);
+  } catch (error) {
+    console.error("[vetsweep] tick failed:", error.message);
+  } finally {
+    vetsweepRunning = false;
+  }
+}
+setInterval(vetsweepTick, 20 * 60000);
+
+app.get("/api/vetsweep", async (_req, res) => {
+  try {
+    const state = await getVetsweepState();
+    const coll = await collection();
+    const remaining = coll ? await coll.countDocuments({ vettingStatus: { $ne: "deep_vetted" }, contactStrength: "strong", hidden: { $ne: true } }) : 0;
+    const perNight = Number(state.perRun || 8) * Number(state.runsPerNight || 4);
+    res.json({ ...state, _id: undefined, remaining, perNight, nightsToClear: perNight ? Math.ceil(remaining / perNight) : null });
+  } catch (error) {
+    res.status(502).json({ error: error.message });
+  }
+});
+
+app.post("/api/vetsweep", async (req, res) => {
+  try {
+    const settings = await collection("settings");
+    await getVetsweepState();
+    const update = {};
+    if (typeof req.body.enabled === "boolean") update.enabled = req.body.enabled;
+    if (Number(req.body.perRun) >= 1) update.perRun = clamp(Number(req.body.perRun), 1, 24);
+    if (Number(req.body.runsPerNight) >= 1) update.runsPerNight = clamp(Number(req.body.runsPerNight), 1, 8);
+    if (req.body.runNow) update.lastNight = "";
+    if (Object.keys(update).length) await settings.updateOne({ _id: "vetsweep" }, { $set: update });
+    if (req.body.runNow) setImmediate(() => vetsweepTick(true));
+    res.json(await getVetsweepState());
   } catch (error) {
     res.status(502).json({ error: error.message });
   }

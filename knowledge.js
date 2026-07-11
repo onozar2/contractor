@@ -7,6 +7,8 @@
 // fails, the endpoint degrades to returning the retrieved context directly.
 const express = require("express");
 const { spawn } = require("child_process");
+const fs = require("fs");
+const path = require("path");
 
 const STOP_WORDS = new Set([
   "the", "and", "for", "with", "that", "this", "what", "which", "where", "when",
@@ -201,11 +203,12 @@ module.exports = (collection) => {
   router.post("/ask", async (req, res) => {
     try {
       const question = String(req.body.question || "").trim();
+      const useWeb = Boolean(req.body.useWeb);
       if (!question) return res.status(400).json({ error: "question is required" });
       const { chunks, images } = await retrieve(collection, question, 6, 4);
-      if (!chunks.length) {
+      if (!chunks.length && !useWeb) {
         return res.json({
-          answer: "Nothing in the Construction Notes matches that topic. The knowledge base covers the product scopes (roofing, bathroom, kitchen, electrical, foundation, paint, etc.), the client decks, and the trade whiteboards.",
+          answer: "Nothing in the Construction Notes matches that topic. The knowledge base covers the product scopes (roofing, bathroom, kitchen, electrical, foundation, paint, etc.), the client decks, and the trade whiteboards. Turn on \"add web\" to answer from the web anyway.",
           engine: "no-context", sources: [], images: []
         });
       }
@@ -213,10 +216,12 @@ module.exports = (collection) => {
         `[${index + 1}] ${chunk.title} (${chunk.source})\n${chunk.text}`).join("\n\n---\n\n");
       const prompt = [
         "You are the construction-knowledge assistant for We The People Construction (LA general contractor).",
-        "Answer the question using ONLY the notes below - they are the company's own scope-of-work documents and sales decks.",
+        useWeb
+          ? "Answer the question. The NOTES below (the company's own scope-of-work docs and sales decks) are the PRIMARY source of truth - lead with them and cite as [1], [2]. You may use web search to SUPPLEMENT with current/accurate outside facts, but clearly mark web-sourced statements as (web) and never let web info contradict the notes without saying so."
+          : "Answer the question using ONLY the notes below - they are the company's own scope-of-work documents and sales decks.",
         "Be concrete and step-by-step where the notes are. Quote costs/specs exactly as written. If the notes only partially cover the question, say what is missing.",
         "Cite sources inline as [1], [2] matching the numbered notes.",
-        "", "NOTES:", context, "", `QUESTION: ${question}`, "", "ANSWER:"
+        "", "NOTES:", context || "(no matching notes - answer from the web and say the notes have no coverage)", "", `QUESTION: ${question}`, "", "ANSWER:"
       ].join("\n");
       let answer = "";
       let engine = "claude-haiku";
@@ -232,6 +237,43 @@ module.exports = (collection) => {
         sources: chunks.map((chunk, index) => ({ ref: index + 1, title: chunk.title, source: chunk.source, driveUrl: chunk.driveUrl })),
         images
       });
+    } catch (error) {
+      res.status(502).json({ error: error.message });
+    }
+  });
+
+  // Photo question: Ori snaps a jobsite picture, the local claude CLI (agentic
+  // -p mode can Read image files) describes what it sees and answers using the
+  // notes corpus retrieved from the description terms.
+  router.post("/ask-photo", express.raw({ type: "image/*", limit: "15mb" }), async (req, res) => {
+    try {
+      if (!req.body || !req.body.length) return res.status(400).json({ error: "send the image as the request body (image/*)" });
+      const question = String(req.query.question || "What am I looking at and what do I need to know?").trim();
+      const dir = path.join(__dirname, "uploads", "knowledge-questions");
+      fs.mkdirSync(dir, { recursive: true });
+      const ext = /png/.test(String(req.headers["content-type"])) ? "png" : "jpg";
+      const filePath = path.join(dir, `q-${Date.now().toString(36)}.${ext}`);
+      fs.writeFileSync(filePath, req.body);
+      const { chunks, images } = await retrieve(collection, question, 4, 3);
+      const context = chunks.map((chunk, index) => `[${index + 1}] ${chunk.title}\n${chunk.text}`).join("\n\n---\n\n");
+      const prompt = [
+        `First, use your Read tool to look at the image file at: ${filePath}`,
+        "Describe what construction element/condition is shown, then answer the question.",
+        "Use the company NOTES below as the primary reference where relevant (cite [1], [2]); supplement with what you can see and know.",
+        "", "NOTES:", context || "(none matched - answer from the image alone)",
+        "", `QUESTION: ${question}`, "", "ANSWER:"
+      ].join("\n");
+      let answer = "";
+      let engine = "claude-haiku";
+      try {
+        answer = await runClaudeCli(prompt, 240000);
+      } catch (error) {
+        engine = "error";
+        answer = `Could not analyze the photo: ${error.message}`;
+      }
+      res.json({ answer, engine, photoUrl: `/uploads/knowledge-questions/${path.basename(filePath)}`,
+        sources: chunks.map((chunk, index) => ({ ref: index + 1, title: chunk.title, source: chunk.source, driveUrl: chunk.driveUrl })),
+        images });
     } catch (error) {
       res.status(502).json({ error: error.message });
     }

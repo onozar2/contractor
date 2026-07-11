@@ -30,7 +30,7 @@ const CATEGORIES = [
   "Restoration Equipment"
 ];
 const ACCOUNT_TYPES = ["distributor", "manufacturer-dealer", "big-box-pro", "supply-house"];
-const ACCOUNT_STATUSES = ["not_started", "researching", "applied", "open"];
+const ACCOUNT_STATUSES = ["not_started", "researching", "contacted", "applied", "open"];
 
 function cleanString(value) {
   return String(value || "").replace(/\s+/g, " ").trim();
@@ -54,6 +54,8 @@ function pickEnum(value, allowed, fallback) {
 function normalizeSupplier(input) {
   const doc = {
     name: cleanString(input.name),
+    trusted: Boolean(input.trusted),
+    supplierType: cleanString(input.supplierType),
     category: pickEnum(input.category, CATEGORIES, "Lumber & Building Materials"),
     brands: cleanList(input.brands),
     suppliesServices: cleanList(input.suppliesServices),
