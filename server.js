@@ -195,7 +195,7 @@ crmApp.get("/change_orders.html", (_req, res) => res.sendFile(path.join(__dirnam
 crmApp.get("/photo_feed.html", (_req, res) => res.sendFile(path.join(__dirname, "photo_feed.html")));
 // Unified backend app (entity-centric redesign 2026-07-07)
 crmApp.get("/app.html", (_req, res) => res.sendFile(path.join(__dirname, "app.html")));
-for (const moduleFile of ["app_subs.js", "app_projects.js", "app_pipeline.js", "app_knowledge.js"]) {
+for (const moduleFile of ["app_subs.js", "app_projects.js", "app_pipeline.js", "app_knowledge.js", "app_suppliers.js"]) {
   crmApp.get(`/${moduleFile}`, (_req, res) => res.sendFile(path.join(__dirname, moduleFile)));
 }
 crmApp.use("/api/knowledge", require("./knowledge")(collection));
@@ -1940,17 +1940,22 @@ function normalizeActual(input) {
   const lines = Array.isArray(input.lines) ? input.lines.map(normalizeActualLine) : [];
   const actualCost = lines.reduce((sum, line) => sum + line.actualTotal, 0);
   const contractPrice = Number(input.contractPrice || 0);
+  const overheadCost = Number(input.overheadCost || 0);
   return {
     projectName: cleanString(input.projectName || "Untitled project"),
     projectType: cleanString(input.projectType),
     city: cleanString(input.city),
+    status: pickEnum(input.status, ["active", "completed", "on_hold"], "active"),
+    description: cleanString(input.description),
     completedAt: cleanString(input.completedAt || new Date().toISOString().slice(0, 10)),
     sqft: Number(input.sqft || 0),
     contractPrice,
     actualCost: Math.round(actualCost),
-    grossMargin: Math.round(contractPrice - actualCost),
-    marginPercent: contractPrice ? Math.round(((contractPrice - actualCost) / contractPrice) * 100) : 0,
+    overheadCost: Math.round(overheadCost),
+    grossMargin: Math.round(contractPrice - actualCost - overheadCost),
+    marginPercent: contractPrice ? Math.round(((contractPrice - actualCost - overheadCost) / contractPrice) * 100) : 0,
     estimateId: cleanString(input.estimateId),
+    bidProjectId: cleanString(input.bidProjectId),
     notes: cleanString(input.notes),
     lines,
     updatedAt: new Date().toISOString()
@@ -2106,7 +2111,9 @@ app.post("/api/actuals", async (req, res) => {
 app.put("/api/actuals/:id", async (req, res) => {
   const coll = await collection("projectActuals");
   if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
-  const update = normalizeActual(req.body);
+  // Merge onto the stored doc so a partial PUT can't blank unmentioned fields.
+  const existing = await coll.findOne({ _id: new ObjectId(req.params.id) });
+  const update = normalizeActual(existing ? { ...existing, ...req.body } : req.body);
   await coll.updateOne({ _id: new ObjectId(req.params.id) }, { $set: update });
   res.json({ ...update, id: req.params.id });
 });
@@ -2545,11 +2552,35 @@ app.get("/api/pricing-intel", async (_req, res) => {
       const amounts = list.map((obs) => obs.amount).sort((a, b) => a - b);
       return { count: amounts.length, low: amounts[0], median: amounts[Math.floor(amounts.length / 2)], high: amounts[amounts.length - 1] };
     };
+    // Self-learning estimate: start from the researched SoCal benchmark (or the
+    // book range when no benchmark exists) and shift toward Ori's own observed
+    // quotes as they accumulate. Weight = n/(n+3): 1 quote pulls 25%, 3 pull
+    // 50%, 9 pull 75% — the book teaches the street, the street overrides it.
+    const blend = (item, observed) => {
+      const hasBenchmark = item.benchmark && Number(item.benchmark.lowUSD) > 0;
+      const prior = hasBenchmark
+        ? { low: Number(item.benchmark.lowUSD), high: Number(item.benchmark.highUSD) }
+        : { low: Number(item.low || 0), high: Number(item.high || 0) };
+      const priorMid = Math.round((prior.low + prior.high) / 2);
+      if (!observed || !observed.count) {
+        return { ...prior, mid: priorMid, weight: 0, n: 0, basis: hasBenchmark ? "benchmark" : "book" };
+      }
+      const w = observed.count / (observed.count + 3);
+      return {
+        low: Math.round(prior.low * (1 - w) + observed.low * w),
+        high: Math.round(prior.high * (1 - w) + observed.high * w),
+        mid: Math.round(priorMid * (1 - w) + observed.median * w),
+        weight: Math.round(w * 100) / 100,
+        n: observed.count,
+        basis: hasBenchmark ? "benchmark+observed" : "book+observed"
+      };
+    };
     res.json({
       updated: book.updated,
       items: (book.items || []).map((item) => {
         const observations = byItem[item.id] || [];
-        return { ...item, observed: observations.length ? { ...stats(observations), samples: observations.slice(-6) } : null };
+        const observed = observations.length ? { ...stats(observations), samples: observations.slice(-6) } : null;
+        return { ...item, observed, blended: blend(item, observed) };
       }),
       trades: Object.fromEntries(Object.entries(byTrade).map(([trade, observations]) => [trade, { ...stats(observations), samples: observations.slice(-10) }]))
     });

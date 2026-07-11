@@ -1,5 +1,6 @@
-// app_pipeline.js — Pipeline (leads → estimates → bids) + Pricing Intelligence views.
-// Registers "#/pipeline" and "#/pricing" on the APP shell (app.html). Agent D file — do not add other views here.
+// app_pipeline.js — Pipeline (leads-only; estimates/bids live under Projects → Potential)
+// + Pricing Intelligence views. Registers "#/pipeline" and "#/pricing" on the APP shell
+// (app.html). Agent D file — do not add other views here.
 (function () {
   "use strict";
 
@@ -35,44 +36,16 @@
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // 1. PIPELINE VIEW
+  // 1. PIPELINE VIEW (leads only)
   // ══════════════════════════════════════════════════════════════════════════
 
   // Real status vocabulary from lead_generation.html / normalizeLead (free string, default "new").
   var LEAD_STATUSES = ["new", "contacted", "estimate scheduled", "bid sent", "nurture", "won", "lost"];
   var LEAD_STATUS_PILLS = { "new": "plum", "contacted": "amber", "estimate scheduled": "amber", "bid sent": "amber", "nurture": "", "won": "green", "lost": "red" };
-  var EST_STATUS_PILLS = { draft: "", sent: "amber", accepted: "green", dead: "red" };
 
   function leadStatusKey(lead) {
     var s = String(lead.status || "new").toLowerCase().trim();
     return LEAD_STATUSES.indexOf(s) >= 0 ? s : "new";
-  }
-
-  // Planning-range total, same math as estimator.html (subtotal * contingency * markup).
-  function estimateTotals(est) {
-    var lines = Array.isArray(est.lines) ? est.lines : [];
-    var low = 0, high = 0;
-    for (var i = 0; i < lines.length; i++) {
-      var l = lines[i];
-      low += (Number(l.qty) || 0) * (Number(l.unitLow) || 0);
-      high += (Number(l.qty) || 0) * (Number(l.unitHigh) || 0);
-    }
-    var cont = 1 + (Number(est.contingencyPercent) || 0) / 100;
-    var markup = 1 + (Number(est.markupPercent) || 0) / 100;
-    return { low: Math.round(low * cont * markup), high: Math.round(high * cont * markup) };
-  }
-
-  function quotesReceived(bid) {
-    var quotes = Array.isArray(bid.subQuotes) ? bid.subQuotes : [];
-    return quotes.filter(function (q) {
-      return q.receivedAt || /received|validated|accepted/i.test(String(q.status || ""));
-    }).length;
-  }
-
-  function bidName(bid) {
-    if (bid.projectName) return bid.projectName;
-    var parts = [bid.projectType, bid.customerName].filter(Boolean);
-    return parts.length ? parts.join(" — ") : "Untitled bid";
   }
 
   function leadCard(lead) {
@@ -109,55 +82,8 @@
     return html + "</div>";
   }
 
-  function estimatesColumnHTML(estimates) {
-    var html = '<div class="card"><h2>Estimates · ' + estimates.length + "</h2>";
-    if (!estimates.length) {
-      html += '<div class="empty">No saved estimates. Build one in the <a href="estimator.html">Estimator</a>.</div>';
-    } else {
-      html += '<div style="display:grid;gap:0.5rem;margin-top:0.5rem;">' + estimates.map(function (est) {
-        var t = estimateTotals(est);
-        return '<div class="card" style="margin:0;">' +
-          '<div style="display:flex;justify-content:space-between;gap:0.5rem;align-items:baseline;">' +
-            "<strong>" + esc(est.title || est.projectName || "Untitled estimate") + "</strong>" +
-            statusPill(est.status || "draft", EST_STATUS_PILLS) +
-          "</div>" +
-          '<div style="color:#667085;margin:0.2rem 0 0.4rem;">' +
-            esc(APP.fmtMoney(t.low)) + " – " + esc(APP.fmtMoney(t.high)) +
-            " · " + (Array.isArray(est.lines) ? est.lines.length : 0) + " lines" +
-          "</div>" +
-          '<a class="btn" href="estimator.html">Open in Estimator</a>' +
-        "</div>";
-      }).join("") + "</div>";
-    }
-    return html + "</div>";
-  }
-
-  function bidsColumnHTML(bids) {
-    var html = '<div class="card"><h2>Bids · ' + bids.length + "</h2>";
-    if (!bids.length) {
-      html += '<div class="empty">No bid projects. Promote an estimate or start one in <a href="bid_lab.html">Bid Lab</a>.</div>';
-    } else {
-      html += '<div style="display:grid;gap:0.5rem;margin-top:0.5rem;">' + bids.map(function (bid) {
-        var received = quotesReceived(bid);
-        var totalQuotes = Array.isArray(bid.subQuotes) ? bid.subQuotes.length : 0;
-        return '<div class="card" style="margin:0;">' +
-          '<div style="display:flex;justify-content:space-between;gap:0.5rem;align-items:baseline;">' +
-            "<strong>" + esc(bidName(bid)) + "</strong>" +
-            (bid.fixedBidReady ? '<span class="pill green">fixed-bid ready</span>' : '<span class="pill">' + esc(bid.status || "intake") + "</span>") +
-          "</div>" +
-          '<div style="color:#667085;margin:0.2rem 0 0.4rem;">' +
-            esc(bid.customerName || "—") +
-            " · " + (Array.isArray(bid.lineItems) ? bid.lineItems.length : 0) + " line items" +
-            " · " + received + "/" + totalQuotes + " quotes in" +
-          "</div>" +
-          '<a class="btn" href="bid_lab.html">Open in Bid Lab</a>' +
-        "</div>";
-      }).join("") + "</div>";
-    }
-    return html + "</div>";
-  }
-
-  function funnelHTML(leads, estimates, bids) {
+  function funnelHTML(leads) {
+    var newCount = leads.filter(function (l) { return leadStatusKey(l) === "new"; }).length;
     var won = leads.filter(function (l) { return leadStatusKey(l) === "won"; }).length;
     var pipeline = leads.reduce(function (sum, l) {
       return leadStatusKey(l) === "lost" ? sum : sum + (Number(l.estimatedValue) || 0);
@@ -166,9 +92,8 @@
       return '<div class="kpi"' + (accent ? ' data-accent="' + accent + '"' : "") + "><strong>" + esc(value) + "</strong><span>" + esc(label) + "</span></div>";
     }
     return '<div class="kpis">' +
-      kpi(leads.length, "Leads") +
-      kpi(estimates.length, "Estimates") +
-      kpi(bids.length, "Bids") +
+      kpi(leads.length, "Total leads") +
+      kpi(newCount, "New", newCount ? "amber" : null) +
       kpi(won, "Won", won ? "green" : null) +
       kpi(APP.fmtMoney(pipeline), "Pipeline $ (open + won)") +
     "</div>";
@@ -237,23 +162,22 @@
     APP.openDrawer(drawer);
   }
 
+  // Estimates and bids now live under Projects → Potential; this view is leads-only.
   APP.registerView("pipeline", {
     title: "Pipeline",
     render: function (container) {
       container.innerHTML = "";
-      container.appendChild(loadingEl("pipeline"));
+      container.appendChild(loadingEl("leads"));
 
-      var state = { leads: [], estimates: [], bids: [], errors: {} };
+      var state = { leads: [], errors: {} };
 
       function paint() {
         container.innerHTML = "";
         var wrap = APP.el("<div>" +
-          "<h1>Sales pipeline</h1>" +
-          funnelHTML(state.leads, state.estimates, state.bids) +
-          '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;align-items:start;margin-top:1rem;">' +
+          "<h1>Leads</h1>" +
+          funnelHTML(state.leads) +
+          '<div style="margin-top:1rem;">' +
             (state.errors.leads ? '<div class="card"><h2>Leads</h2><p style="color:#b42318;">' + esc(state.errors.leads) + "</p></div>" : leadsColumnHTML(state.leads)) +
-            (state.errors.estimates ? '<div class="card"><h2>Estimates</h2><p style="color:#b42318;">' + esc(state.errors.estimates) + "</p></div>" : estimatesColumnHTML(state.estimates)) +
-            (state.errors.bids ? '<div class="card"><h2>Bids</h2><p style="color:#b42318;">' + esc(state.errors.bids) + "</p></div>" : bidsColumnHTML(state.bids)) +
           "</div>" +
         "</div>");
         wrap.addEventListener("click", function (event) {
@@ -270,11 +194,7 @@
         container.appendChild(wrap);
       }
 
-      Promise.all([
-        APP.fetchJSON("/api/customer-leads").then(function (rows) { state.leads = rows || []; }, function (e) { state.errors.leads = e.message || String(e); }),
-        APP.fetchJSON("/api/estimates").then(function (rows) { state.estimates = rows || []; }, function (e) { state.errors.estimates = e.message || String(e); }),
-        APP.fetchJSON("/api/bid-projects").then(function (rows) { state.bids = rows || []; }, function (e) { state.errors.bids = e.message || String(e); })
-      ]).then(paint);
+      APP.fetchJSON("/api/customer-leads").then(function (rows) { state.leads = rows || []; }, function (e) { state.errors.leads = e.message || String(e); }).then(paint);
     }
   });
 
@@ -369,7 +289,7 @@
               '<input type="search" data-role="search" placeholder="Search items&hellip;" style="margin-left:auto;min-width:200px;" />' +
             "</div>" +
             '<div style="overflow-x:auto;"><table class="table">' +
-              "<thead><tr><th>Service</th><th>Item</th><th>Unit</th><th>Book range</th><th>Observed</th><th>&Delta;% vs book mid</th></tr></thead>" +
+              "<thead><tr><th>Service</th><th>Item</th><th>Unit</th><th>Book range</th><th>Observed</th><th>Live estimate</th><th>&Delta;% vs book mid</th></tr></thead>" +
               '<tbody data-role="items-body"></tbody>' +
             "</table></div>" +
             '<div class="empty" data-role="items-empty" hidden>No cost book items match this filter.</div>' +
@@ -414,6 +334,14 @@
               observedCell = '<span class="pill" style="opacity:0.55;">[EST] book only</span>';
               deltaCell = "—";
             }
+            var blended = item.blended;
+            var blendedCell = "—";
+            if (blended && (blended.low || blended.high)) {
+              var basisPill = blended.n > 0
+                ? '<span class="pill green" title="benchmark prior blended with ' + blended.n + ' observed quote(s), weight ' + Math.round((blended.weight || 0) * 100) + '%">' + blended.n + " obs · " + Math.round((blended.weight || 0) * 100) + "%</span>"
+                : '<span class="pill" style="opacity:0.65" title="' + esc(blended.basis || "book") + ' prior - fills with your quotes automatically">' + esc(blended.basis === "benchmark" ? "SoCal benchmark" : "book prior") + "</span>";
+              blendedCell = "<strong>" + esc(APP.fmtMoney(blended.low)) + "–" + esc(APP.fmtMoney(blended.high)) + "</strong> " + basisPill;
+            }
             var open = !!expanded[item.id];
             var row = '<tr data-item-id="' + esc(item.id) + '"' + (obs ? ' style="cursor:pointer;"' : "") + ">" +
               "<td>" + esc(item.service || "—") + "</td>" +
@@ -421,10 +349,11 @@
               "<td>" + esc(item.unit || "—") + "</td>" +
               "<td>" + bookRangeText(item) + "</td>" +
               "<td>" + observedCell + "</td>" +
+              "<td>" + blendedCell + "</td>" +
               "<td>" + deltaCell + "</td>" +
             "</tr>";
             if (obs && open) {
-              row += '<tr><td colspan="6" style="background:#f8fafc;">' + sampleRowsHTML(obs.samples) + "</td></tr>";
+              row += '<tr><td colspan="7" style="background:#f8fafc;">' + sampleRowsHTML(obs.samples) + "</td></tr>";
             }
             return row;
           }).join("");

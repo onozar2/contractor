@@ -143,6 +143,36 @@ module.exports = (collection) => {
     }
   });
 
+  // Append chunks without wiping the corpus (dedupes on title).
+  router.post("/append", async (req, res) => {
+    try {
+      const chunksColl = await collection("knowledgeChunks");
+      if (!chunksColl) return res.status(503).json({ error: "MongoDB is not configured." });
+      const chunks = Array.isArray(req.body.chunks) ? req.body.chunks : [];
+      const now = new Date().toISOString();
+      let added = 0;
+      let updated = 0;
+      for (const chunk of chunks) {
+        const doc = {
+          title: String(chunk.title || "").trim(),
+          source: String(chunk.source || "").trim(),
+          topics: Array.isArray(chunk.topics) ? chunk.topics : [],
+          text: String(chunk.text || "").trim(),
+          driveUrl: String(chunk.driveUrl || "").trim(),
+          tokens: [...new Set(tokenize(`${chunk.title} ${chunk.text}`))],
+          ingestedAt: now
+        };
+        if (!doc.title || !doc.text) continue;
+        const existing = await chunksColl.findOne({ title: doc.title });
+        if (existing) { await chunksColl.updateOne({ _id: existing._id }, { $set: doc }); updated += 1; }
+        else { await chunksColl.insertOne(doc); added += 1; }
+      }
+      res.json({ added, updated });
+    } catch (error) {
+      res.status(502).json({ error: error.message });
+    }
+  });
+
   router.get("/summary", async (_req, res) => {
     try {
       const chunksColl = await collection("knowledgeChunks");
