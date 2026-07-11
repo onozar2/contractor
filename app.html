@@ -232,21 +232,12 @@
     </div>
     <nav class="nav" id="mainNav">
       <a href="#/dashboard" data-view="dashboard">Dashboard</a>
-      <a href="#/subs" data-view="subs">Subs</a>
       <a href="#/projects" data-view="projects">Projects</a>
-      <a href="#/pipeline" data-view="pipeline">Pipeline</a>
+      <a href="#/subs" data-view="subs">Subs</a>
+      <a href="#/suppliers" data-view="suppliers">Suppliers</a>
+      <a href="#/pipeline" data-view="pipeline">Leads</a>
       <a href="#/pricing" data-view="pricing">Pricing</a>
       <a href="#/knowledge" data-view="knowledge">Knowledge</a>
-    </nav>
-    <div class="navgroup">Tools</div>
-    <nav class="nav tools">
-      <a href="estimator.html">Estimator</a>
-      <a href="bid_lab.html">Bid Lab</a>
-      <a href="suppliers.html">Suppliers</a>
-      <a href="audit.html">Audit</a>
-      <a href="subcontractor_finder.html">Sourcing (paused)</a>
-      <a href="research_chat.html">Research</a>
-      <a href="services_board.html">Readiness</a>
     </nav>
     <div class="sidefoot"><a href="/">Public site</a></div>
   </aside>
@@ -437,8 +428,14 @@
         closeDrawer();
         setActiveNav(name);
         document.title = (def.title ? def.title + " · " : "") + "JOON · Command";
-        var container = document.getElementById("view");
-        container.innerHTML = "";
+        // Each render gets its own wrapper node. When navigation replaces it,
+        // a previous view's late async writes land in a detached element
+        // instead of polluting the current view (cold deep-link race).
+        var host = document.getElementById("view");
+        host.innerHTML = "";
+        var container = document.createElement("div");
+        container.style.display = "contents";
+        host.appendChild(container);
         renderedName = name;
         try {
           def.render(container, parsed.params);
@@ -671,5 +668,6 @@
   <script src="app_projects.js"></script>
   <script src="app_pipeline.js"></script>
   <script src="app_knowledge.js"></script>
+  <script src="app_suppliers.js"></script>
 </body>
 </html>

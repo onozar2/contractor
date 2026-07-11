@@ -11,6 +11,7 @@
   var roster = null;          // full roster, kept in memory after first fetch
   var rosterPromise = null;
   var pricingPromise = null;  // /api/pricing-intel, fetched once
+  var vettingSummaryPromise = null; // /api/vetting/summary, fetched once for the roster health strip
 
   // ── list state ──
   var state = {
@@ -119,6 +120,12 @@
     }
     return pricingPromise;
   }
+  function fetchVettingSummary() {
+    if (!vettingSummaryPromise) {
+      vettingSummaryPromise = APP.fetchJSON("/api/vetting/summary").catch(function (err) { vettingSummaryPromise = null; throw err; });
+    }
+    return vettingSummaryPromise;
+  }
   function updateRosterRecord(updated) {
     if (!roster || !updated || !updated.id) return null;
     for (var i = 0; i < roster.length; i++) {
@@ -208,6 +215,10 @@
     trades.sort();
 
     container.innerHTML =
+      "<h1>Subs</h1>" +
+      '<div id="subsHealth">' +
+        '<span style="' + MUTED + '">Loading roster health…</span>' +
+      "</div>" +
       '<div class="card">' +
         '<div style="display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center">' +
           '<input id="subsSearch" type="text" placeholder="Search company, owner, phone, email, specialty…" value="' + esc(state.q) + '" style="' + FIELD + ';flex:1;min-width:220px;width:auto" />' +
@@ -267,6 +278,35 @@
     });
 
     renderTable(container);
+    renderRosterHealth(container);
+  }
+
+  function renderRosterHealth(container) {
+    var box = container.querySelector("#subsHealth");
+    if (!box) return;
+    fetchVettingSummary().then(function (summary) {
+      if (!container.contains(box)) return; // view navigated away before this resolved
+      var stats = summary.stats || {};
+      var total = stats.total || 0;
+      var deepVetted = stats.deepVetted || 0;
+      var avgLegit = stats.avgLegit != null && isFinite(stats.avgLegit) ? Math.round(stats.avgLegit) : null;
+      var alive = stats.websiteAlive || 0;
+      var dead = stats.websiteDead || 0;
+      var flagged = stats.flagged || 0;
+      var cslbActive = (summary.licenseStatuses || {}).active || 0;
+      box.innerHTML =
+        '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem;margin-bottom:0.7rem">' +
+          '<span class="pill' + (deepVetted ? " green" : "") + '">' + deepVetted + "/" + total + " deep-vetted</span>" +
+          '<span class="pill">avg legit ' + (avgLegit != null ? avgLegit : "—") + "</span>" +
+          '<span class="pill green">' + alive + " sites alive</span>" +
+          '<span class="pill' + (dead ? " red" : "") + '">' + dead + " sites dead</span>" +
+          '<span class="pill' + (flagged ? " red" : "") + '">' + flagged + " red-flagged</span>" +
+          '<span class="pill' + (cslbActive ? " green" : "") + '">' + cslbActive + " CSLB active</span>" +
+          '<span style="' + MUTED + ';font-size:0.74rem">vetting data updates as research waves run</span>' +
+        "</div>";
+    }).catch(function () {
+      if (container.contains(box)) box.innerHTML = "";
+    });
   }
 
   function renderTable(container) {
