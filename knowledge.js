@@ -238,7 +238,7 @@ module.exports = (collection) => {
   // Illustration via Google's image models ("Nano Banana"). Needs GEMINI_API_KEY
   // in .env (free at aistudio.google.com/apikey). Tries the Pro image model
   // first, falls back to the flash image model if unavailable on the key's tier.
-  const GEMINI_IMAGE_MODELS = ["gemini-3-pro-image-preview", "gemini-2.5-flash-image"];
+  const GEMINI_IMAGE_MODELS = ["gemini-3.1-flash-lite-image", "gemini-3.1-flash-image", "gemini-2.5-flash-image", "gemini-3-pro-image-preview"]; // cheapest-first; free tier currently allows 0 image calls - works the moment Google opens quota or billing is added
   router.post("/illustrate", async (req, res) => {
     try {
       const promptText = String(req.body.prompt || "").trim();

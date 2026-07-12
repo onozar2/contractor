@@ -1,0 +1,171 @@
+{
+  "chunks": [
+    {
+      "title": "ADU demand and garage conversions 2025-2026 - what's driving it and what to quote",
+      "topics": ["ADU", "garage conversion", "trends", "SoCal", "pricing"],
+      "text": "ADU and garage-to-living-space conversions remain one of the strongest remodel categories in LA in 2026, driven by three forces: continued state ADU-friendly zoning/permitting streamlining, EV adoption pushing homeowners to reclaim garage space for living area instead of parking, and owners chasing rental income or multigenerational housing. Typical LA-area garage conversion cost runs $70K (small garage, basic finish) to $110K+ (larger garage, full kitchen/bath), and a full detached or attached ADU conversion in California runs $80K-$200K depending on size, existing structure condition, and how much new plumbing/electrical/HVAC is required. Client talking points: (1) rental comps matter for ROI conversations — LA ADUs typically rent $1,800-$2,500/mo depending on area and finish level, San Diego $2,100-$2,300, San Jose $2,600-$3,000; (2) resale-only garage conversions (no rental intent) recoup roughly 60-80% of cost per the Remodeling Magazine Cost vs. Value report, while income-generating ADUs can return 100%+ of investment within 5-7 years of rental income; (3) budget conversations should flag 2026 tariff-driven material cost increases on framing lumber, steel, and imported fixtures — get GC bids locked with escalation clauses on longer-timeline jobs. Sell the ADU conversation as an investment decision, not just a remodel, especially for clients weighing it against a straight kitchen/bath refresh.",
+      "sources": [
+        "https://maisonremodeling.com/blog/adu-garage-conversion-cost",
+        "https://www.customhome.us/blog/garage-conversion-cost-california",
+        "https://www.laconstructioncompliance.com/tariffs-construction-costs-2026-la-adu-remodeling-budget/",
+        "https://designonnpoint.com/blog/adu-vs-garage-conversion-los-angeles/"
+      ]
+    },
+    {
+      "title": "Heat pump / electrification conversions 2026 - rebate status and how to advise clients",
+      "topics": ["heat pump", "electrification", "HVAC", "rebates", "TECH Clean CA", "HEEHRA"],
+      "text": "Heat pump HVAC and heat pump water heater conversions remain a common ask from electrification-minded clients, but the rebate landscape tightened significantly heading into mid-2026 — this is important to set expectations correctly. TECH Clean California's single-family incentive program (which paid installers directly to lower upfront cost) closed to new reservations on November 14, 2025 after exhausting its budget, and the related HEEHRA (Home Electrification and Appliance Rebates) single-family rebates were fully reserved statewide as of February 24, 2026 with no new applications being accepted. Before the freeze, incentive tiers were: moderate-income households (80-150% AMI) up to $3,000 per heat pump; households under 80% AMI up to $8,000 via HEEHRA. Practical guidance for clients now: (1) do NOT quote TECH Clean CA/HEEHRA rebate amounts as currently available — check techcleanca.com and switchison.org for reopening before promising savings; (2) pivot clients to utility-specific rebates (SCE, LADWP, PG&E, SDG&E each run their own heat pump programs, some still active with amounts up to $2,500/ton or more) and the federal 25C tax credit where still applicable; (3) heat pump water heaters and heat pump HVAC replacements still make sense on pure operating-cost and gas-phase-out-risk grounds even without rebates, especially in all-electric new ADUs where gas hookups add permitting friction. Always verify current program status before quoting a number to a client — these programs are reopening and closing on a rolling basis through 2026.",
+      "sources": [
+        "https://techcleanca.com/incentives/single-family-incentives/",
+        "https://techcleanca.com/incentives/heehrarebates/",
+        "https://www.switchison.org/techcleanca/incentive-resources",
+        "https://homeenergybasics.com/heat-pumps/states/ca"
+      ]
+    },
+    {
+      "title": "Battery storage economics under NEM 3.0 - why batteries are now the pitch, not solar alone",
+      "topics": ["battery storage", "solar", "NEM 3.0", "SGIP", "electrical"],
+      "text": "For any remodel that touches the electrical panel or roof, battery storage has become the default upsell conversation, not solar panels alone. Under NEM 3.0 (California's current net metering policy), exported solar power is credited at only $0.05-$0.08/kWh (avoided-cost basis) versus $0.30-$0.40/kWh under the old NEM 2.0 retail-rate credit — roughly a 75% cut. That means solar-only systems now take 9-13 years to pay back instead of 5-6. Adding a battery closes the gap: instead of exporting cheap and buying back expensive (peak TOU rates run $0.45-$0.75/kWh), the battery stores daytime solar and discharges it at night, pushing self-consumption from 40-50% (solar-only) up to 80-90% (solar+battery). That brings blended payback down to roughly 8-9 years statewide, 6-7 years for SDG&E customers who face the highest peak rates. Rebate support: the CPUC's SGIP (Self-Generation Incentive Program) still pays $850/kWh (Equity budget) to $1,000/kWh (Equity Resilience, for high fire-threat districts and vulnerable households) toward battery hardware — but SGIP's general-market budget is fully reserved as of 2026, with only equity-tier funding reliably available; applications must go through a registered contractor. Bottom line for client conversations: don't sell solar without a battery in 2026 SoCal — the standalone-solar math no longer pencils for most homeowners, and battery-inclusive quotes should lean on resilience (blackout/fire-PSPS backup) as much as bill savings.",
+      "sources": [
+        "https://www.franklinwh.com/blog/a-complete-guide-to-california-sgip-program-in-2026",
+        "https://www.cpuc.ca.gov/industries-and-topics/electrical-energy/demand-side-management/self-generation-incentive-program/participating-in-self-generation-incentive-program-sgip",
+        "https://sunsuppv.com/california-nem-3-0-solar-batteries-2026/",
+        "https://storpwr.com/energy-tips/solar-vs-solar-plus-battery-california-2026/"
+      ]
+    },
+    {
+      "title": "Zone 0 defensible space and fire-hardening - new 2026 compliance mandate GCs need to know",
+      "topics": ["fire hardening", "defensible space", "Zone 0", "wildfire", "roofing", "code compliance"],
+      "text": "Zone 0 (the ember-resistant 5-foot perimeter immediately around a structure) moved from guidance to hard law in 2026 and is now a live compliance issue for any exterior remodel, hardscape, or landscaping job on a home in a fire hazard zone. Under Assembly Bill 3074, this 5-foot zone must be free of combustible vegetation, wood mulch, attached wood fencing, firewood piles, and any other material that could ignite from a wind-blown ember — meaning gravel, pavers, concrete, or non-combustible hardscape right up against the foundation, not bark mulch or shrubs touching siding. Governor Newsom's Executive Order N-18-25 forced the Board of Forestry to finalize Zone 0 rulemaking by December 31, 2025, and three related state laws took effect January 1, 2026, so enforcement timelines are now live in many jurisdictions (phased by local agency — confirm with the specific city/county). AB 888 also created the California Safe Homes Grant Program, offering grants toward fire-safe roof replacement and Zone 0 mitigation for qualifying homeowners, with applications expected to open through 2026 — worth flagging to clients doing a re-roof or exterior remodel who may qualify. Practical GC advice: on any landscaping, hardscape, fencing, or exterior remodel bid in a high-fire-severity zone (most of the LA foothills, Malibu, Santa Monica Mountains, etc.), proactively raise Zone 0 compliance — attached wood fencing and mulch beds against the house are common violations that will need to be redesigned, and doing it during a remodel is far cheaper than a retrofit mandate later. Pair with Class-A fire-rated roofing and ember-resistant vents where re-roofing is in scope.",
+      "sources": [
+        "https://bof.fire.ca.gov/projects-and-programs/defensible-space-zones-0-1-and-2",
+        "https://firestormbuildingproducts.com/california-zone-0-defensible-space-hoa-2026/",
+        "https://emberprousa.com/california-wildfire-laws-2026-compliance/",
+        "https://firereadyhome.com/zone-0"
+      ]
+    },
+    {
+      "title": "Synthetic turf and drought landscaping rebates - current SoCal WaterSmart numbers",
+      "topics": ["turf", "landscaping", "drought", "rebate", "SoCal WaterSmart"],
+      "text": "Turf replacement remains a steady conversion project for SoCal landscaping and exterior remodel work, but the rebate has come down significantly from its peak — set client expectations accordingly. The current Metropolitan Water District (SoCal WaterSmart) residential base rebate is $2.00 per square foot, capped at 5,000 sq ft of converted yard per household per year. This is a major step down from the prior enhanced rate of $7/sq ft; projects that were approved under that older, higher rate but not completed by September 30, 2026 will be paid out at only $4/sq ft, so any client sitting on an old approval needs to finish the job before that deadline or lose the higher payout. Local water agencies often stack an additional rebate on top of the Metropolitan base amount, so always run the client's specific address through the SoCal WaterSmart rebate estimator rather than quoting a flat number — actual totals vary by agency. Process note: it's a reserve-then-complete model — homeowners must apply and get funds reserved before starting work, then have 180 days to finish and submit for payment, so timeline the permit/install schedule around that window. For design conversations: synthetic turf remains the most requested no-water lawn replacement, but drought-tolerant/native planting (which also qualifies for the same rebate) is gaining share among design-conscious clients who find turf's plastic look dated — offer both options and note turf has higher upfront cost per sq ft but near-zero ongoing water/maintenance versus low-water landscaping's more natural look and lower material cost.",
+      "sources": [
+        "https://socalwatersmart.com/en/residential/rebates/available-rebates/turf-replacement-program/",
+        "https://socalwatersmart.com/en/residential/rebates/available-rebates/turf-replacement-program/rebate-eligibility-requirements/"
+      ]
+    },
+    {
+      "title": "EV charger installs 2026 - costs, rebate status, and panel-upgrade upsell",
+      "topics": ["EV charger", "electrical", "rebate", "panel upgrade"],
+      "text": "Level 2 EV charger installation is now a routine add-on to kitchen remodels, garage conversions, and whole-panel upgrade jobs. Straightforward installs run $800-$2,700 (equipment + labor); if the electrical panel needs upgrading to support the added load (common in older SoCal homes with 100-amp service), add $1,500-$3,000. Rebate landscape: California has no statewide EV charger tax credit, and both major federal incentives — the Alternative Fuel Vehicle Refueling Property Credit and the 30C commercial charging credit — expired June 30, 2026, so don't promise federal money on new bids. Utility-level rebates are still the play: 14 California utilities offer EV charger rebates ranging from $150 to $1,500, and SCE's Charge Ready Home program can pay up to $4,200 toward a Level 2 charger and related panel work for qualifying customers — worth checking for any SCE-territory client before finalizing scope. Income-qualified clients replacing an older gas vehicle may also access California's Clean Cars 4 All program (up to $12,000 for the vehicle plus up to $2,000 for home charging). GC angle: an EV charger install is a natural moment to have the panel-capacity conversation — if a client is also considering a heat pump, induction range, or battery storage down the line, bundle the panel upgrade now rather than doing three separate electrical jobs over several years.",
+      "sources": [
+        "https://www.sce.com/clean-energy-efficiency/electric-vehicles/rebates-rates",
+        "https://cleanenergycalc.com/calculators/ev-charger-install",
+        "https://connca.com/rebates/",
+        "https://driveclean.ca.gov/search-incentives"
+      ]
+    },
+    {
+      "title": "Aging-in-place remodeling - now mainstream demand, not a niche request",
+      "topics": ["aging in place", "accessibility", "bathroom", "universal design", "NAHB"],
+      "text": "Aging-in-place features have moved from specialty request to mainstream expectation in bathroom and whole-home remodels. Per NAHB's remodeler survey, 73% of remodelers report significant growth in aging-in-place requests over the past five years, and separately AARP found 75% of adults over 50 want to stay in their current home long-term — meaning this comes up in nearly every bathroom consult now, not just for elderly clients. Most-installed features in the past year per NAHB data: grab bars (86% of remodelers installed them), curbless/zero-threshold showers (78%), and comfort-height toilets (71%) — these should be treated as default options to mention, not upsells. Design shift to know: clients increasingly want these features to blend in rather than look medical — grab bars are now selected to match finish and placement of the rest of the bathroom hardware (not the institutional stainless bar), and smart contractors are installing in-wall blocking during any bathroom remodel (even for younger clients) so grab bars can be added later in minutes instead of requiring wall demo. Costs: curbless walk-in shower $6,000-$10,000 installed; grab bars $100-$350 each; full accessible bathroom remodel $8,000-$25,000; whole-home retrofit (multiple rooms — wider doorways, lever handles, ramps) $18,000-$75,000. The NAHB's CAPS (Certified Aging-in-Place Specialist) credential is worth pursuing or partnering with a CAPS-certified designer — it's an increasingly common ask from clients researching contractors online, and it signals competence on code-adjacent accessibility details (turning radius, grab bar blocking load ratings, threshold heights).",
+      "sources": [
+        "https://www.nahb.org/education-and-events/credentials/certified-aging-in-place-specialist-caps/additional-caps-resources/aging-in-place-remodeling-checklist",
+        "https://solsticekitchenandbath.com/blog/aging-in-place-bathroom-remodel/",
+        "https://www.costtorenovate.com/blog/aging-in-place-renovation-cost-2026/"
+      ]
+    },
+    {
+      "title": "Kitchen cabinet trends 2026 - white is no longer the default, wood is back",
+      "topics": ["kitchen", "cabinets", "color", "design", "trends", "NKBA"],
+      "text": "The single biggest shift in the NKBA/KBIS 2026 Kitchen Trends Report: for the first time in nine years, white is not the top-preferred cabinet finish. Light wood stains (white oak leads at 51% popularity) now take first place, with off-white slipping to third — wood grain is outpacing painted cabinets industry-wide for the first time in years. Overall color direction: 96% of design professionals name warm neutrals as the dominant palette (a shift away from the cool grays of the 2015-2020 era), with green (86%) and blue (78%) as the leading accent colors — but sage green specifically is dating out in favor of deeper, more saturated tones: olive, forest green, and deep teal. On islands and lower cabinets, expect navy, charcoal, plum, aubergine, even burgundy as bold contrast choices against warm wood uppers. Finish direction: matte and low-sheen finishes are replacing high-gloss (hides fingerprints, reads more expensive), and textured details — reeded/fluted panels, subtle ribbing, limewashed or brushed finishes — are gaining fast. European frameless cabinet construction is also growing sharply across price segments. Client conversation guidance: steer clients away from stark white shaker (still functional and resalable, but reads dated/builder-grade in 2026 design circles) toward warm wood-tone or two-tone schemes (wood/neutral uppers + a bold color on the island) — this also tends to be a lower-cost way to make a kitchen feel current without a full cabinet replacement, since often just the island needs to change.",
+      "sources": [
+        "https://www.thekitchn.com/nkba-2026-kitchen-trend-report-23747413",
+        "https://nkba.org/press/nkba-kbis-releases-annual-2026-kitchen-trends-report/",
+        "https://www.forbes.com/sites/terriwilliams/2025/09/22/inside-the-nkbakbis-2026-kitchen-trends-report-with-photos/",
+        "https://kitchencabinetkings.com/blog/warm-kitchen-trends-2026/"
+      ]
+    },
+    {
+      "title": "Kitchen countertop trends 2026 - quartz vs quartzite vs porcelain, what to spec and why",
+      "topics": ["kitchen", "countertop", "quartz", "quartzite", "porcelain", "materials"],
+      "text": "Three materials are competing for the countertop conversation in 2026, and each has a clear client profile. Quartz (engineered stone) remains the volume leader for its nonporous, low-maintenance, no-sealing performance — manufacturers have pushed realism forward with warmer, more natural-looking veining patterns, closing the visual gap with natural stone. Quartzite (natural stone) is surging in the luxury segment: it offers marble's translucent depth and dramatic veining but with a 7-8 Mohs hardness that resists scratching, heat, and etching far better than actual marble — the pitch for clients who want a real-stone look without marble's babying-required maintenance, though it costs more than quartz and needs periodic sealing. Porcelain slab is the fastest-growing category, moving from niche to mainstream spec in 2026: near-zero porosity, UV-stable (usable outdoors for BBQ islands/patios), heat and stain resistant, and available in large-format slabs that mimic stone, wood, or concrete — the trade-off is a more specialized (and pricier) fabrication/install process, so vet your fabricator's porcelain experience before quoting it. Color direction across all three: cool grays are giving way to warm creams, beiges, taupes, soft browns, and muted greens. Biggest 2026 design trend overall isn't a single material — it's intentional material mixing within one kitchen (e.g., quartzite island + quartz perimeter, or a porcelain waterfall island against wood cabinetry). For client budget conversations: quartz remains the value/performance default, quartzite is the 'looks like marble, acts like granite' upsell, porcelain is the premium/outdoor-capable option for clients who want zero maintenance and are willing to pay for specialized fabrication.",
+      "sources": [
+        "https://slabwise.com/guide/countertop-trends-2026",
+        "https://omnisurfaces.com/trending-countertop-materials-2026-designers-guide/",
+        "https://premiergranitetops.com/2026-kitchen-countertop-design-trends/",
+        "https://builderstoneglobal.com/2026/03/18/best-quartz-countertops-in-2026-a-comprehensive-guide-to-premium-surfaces/"
+      ]
+    },
+    {
+      "title": "Backsplash trends 2026 - full-height slab is the aspirational ask, subway tile still the value play",
+      "topics": ["kitchen", "backsplash", "tile", "slab", "trends"],
+      "text": "The dominant high-end backsplash trend in 2026 is the full-height slab: running a single sheet of marble, quartz, or porcelain from countertop to ceiling for a seamless, grout-free wall. Clients like it for two reasons that are worth naming explicitly in a sales conversation — it reads as luxurious/architectural, and it's genuinely lower-maintenance (fewer grout lines means less staining and cleaning behind the range and sink). Cost implication: full-height slab backsplash is a significant upcharge over standard 4-inch or tile backsplash, largely driven by the material yield and the need for precise fabrication/seaming, and it's most often paired with waterfall-edge islands as part of the same slab order (worth bundling into one fabrication run to save on setup/delivery costs). For clients not ready for that budget, subway tile remains the durable value option in 2026 but has evolved — vertical stack layouts, warmer off-white/cream tones, and textured or handmade-look finishes (zellige is especially trending for its light-catching irregular surface) read current, while flat white 3x6 running-bond subway tile is starting to feel like a 2015-era default. Practical GC note: if a client is unsure about full-height slab, a good middle option is running the counter material up as a standard 4-6 inch backsplash with a statement tile (zellige or a bold color) above it — captures some of the 2026 look without the full slab cost.",
+      "sources": [
+        "https://www.homesandgardens.com/kitchens/kitchen-backsplash-trends-2026",
+        "https://www.hardrockstoneworks.com/full-height-backsplash-the-top-kitchen-trend-of-2026/",
+        "https://www.kylieminteriors.ca/tile-trends-zellige-subway-tile-herringbone-countersplashes/"
+      ]
+    },
+    {
+      "title": "Cabinet and fixture hardware finishes 2026 - unlacquered brass, mixed metals, matte black demoted",
+      "topics": ["hardware", "finishes", "brass", "matte black", "kitchen", "bathroom"],
+      "text": "Hardware finish trends flipped in 2026: matte black, which dominated the prior decade as the safe modern default, has been demoted to an accent/secondary finish rather than the primary hardware choice — using it on every pull and knob in a kitchen now reads slightly dated. The move is toward warm metals, led by unlacquered brass, which develops a living patina over time (a feature, not a defect, for design-forward clients, but flag the maintenance reality: it shows fingerprints and changes color with use, which some clients will not want on high-touch pulls). For clients who want brass warmth without patina upkeep, brushed or satin brass is the lower-maintenance alternative. The other major shift: the old 'match every metal in the room' rule is dead — mixed-metal palettes are now the recommended approach, e.g., unlacquered brass cabinet pulls with a matte black faucet, or brushed nickel hardware paired with warm bronze lighting. Oversized pulls (longer bar pulls, larger knobs) and textured hardware (fluted or knurled detailing) are also trending as part of the broader 'tactile, layered' design direction. Client conversation tip: hardware is one of the cheapest ways to update a dated kitchen or bath without touching cabinets — a full hardware swap to a current mixed-metal scheme is a low-cost, high-visual-impact add-on worth pitching on almost any remodel, even ones where cabinets are staying.",
+      "sources": [
+        "https://kitchencabinetkings.com/blog/kitchen-hardware-trends-2026/",
+        "https://www.alexandermarchant.com/blog/architectural-hardware-finishes-designers-are-using-in-2026/",
+        "https://wurthlac.com/blog/cabinet-hardware-trends"
+      ]
+    },
+    {
+      "title": "Bathroom shower and tub trends 2026 - walk-in shower is the default, freestanding tub is polarizing",
+      "topics": ["bathroom", "shower", "tub", "tile", "trends", "wet room"],
+      "text": "Walk-in/zero-entry showers are now the default bathroom expectation in 2026, not a premium upgrade — a recessed subfloor lets tile run uninterrupted from the dry area into the wet zone for a seamless look, and this pairs with the aging-in-place trend (curbless entry serves both accessibility and pure design goals). Freestanding tubs remain popular as an aspirational/aesthetic centerpiece, but treat this as polarizing and regional rather than universal: many primary-suite clients want a freestanding tub as a visual statement even if they rarely bathe in it, while budget- and function-focused clients (and most secondary/guest bathrooms) are skipping the tub entirely in favor of a larger shower — always ask directly whether the client actually baths regularly before defaulting to 'tub + shower' in the layout, since a freestanding tub eats significant square footage that could go to a bigger walk-in shower or double vanity. Where both fit, the 'wet room' approach — shower and freestanding tub combined in one continuous waterproofed zone with no separating curb or glass — is now considered a mainstream standard for primary suites, not just a luxury/spa concept. Tile direction: stark white subway tile and high-contrast black-and-white checkerboard floors are reading dated in 2026; the move is toward textured tile (ribbed/fluted, especially on accent walls and shower niches, which catches and diffuses light) and natural-material-look large format tile — travertine, limestone, marble, and zellige are the most-requested looks. Design overall is trending softer: curved vanity edges, arched shower entries/niches, and mixed-metal fixture finishes for a 'curated, lived-in' feel rather than matchy-matchy.",
+      "sources": [
+        "https://www.homesandgardens.com/bathrooms/bathroom-trends-2026",
+        "https://www.badeloftusa.com/buying-guides/bathroom-tile-trends-2026/",
+        "https://www.housedigest.com/2042971/2026-shower-design-trends/",
+        "https://www.houzz.com/photos/bathroom-walk-in-shower-and-freestanding-bathtub-ideas-phbr2-bp~t_712~a_23-127--24-135"
+      ]
+    },
+    {
+      "title": "Bathroom vanity trends 2026 - floating vanities up, furniture-style freestanding gaining fast",
+      "topics": ["bathroom", "vanity", "trends", "design"],
+      "text": "Two vanity styles are splitting the 2026 market and it's worth showing clients both in a selections meeting. Floating (wall-mounted) vanities continue strong growth — industry estimates put them at 15-20% year-over-year growth — because they expose floor area, make small powder rooms and primary baths alike feel bigger, and simplify cleaning underneath. The material direction within floating vanities has shifted toward wood: sealed white oak, teak, or reclaimed wood with a matte moisture-resistant finish, replacing the flat painted MDF boxes that were standard a few years ago. The counter-trend is furniture-style freestanding vanities — pieces designed to look like a converted antique dresser or console rather than a built-in fixture, with turned or tapered legs, inset panel doors, and decorative hardware. Mid-century versions (walnut or white oak, tapered legs) are the most common execution; more traditional versions use turned legs and inset paneling for an heirloom feel. This is part of the broader 2026 shift toward warmth and 'collected' character over sterile minimalism — it plays especially well in older SoCal Spanish/Craftsman-style homes where a built-in floating vanity can look out of place. Finish-wise, both styles are pairing with warm metal hardware (brushed brass, champagne bronze, polished nickel, aged unlacquered brass) rather than chrome or matte black. Client guidance: floating vanities win on small-bathroom space efficiency and clean modern lines; furniture-style freestanding wins on character and fits period-appropriate homes — ask about the home's overall architectural style before defaulting to floating.",
+      "sources": [
+        "https://nextdaycabinets.com/top-10-bathroom-vanity-trends-2026/",
+        "https://www.homedit.com/bathroom-vanity-ideas-that-make-your-bathroom-feel-designed-around-natural-wood-in-2026/",
+        "https://www.housedigest.com/2038612/bathroom-vanity-furniture-trend/"
+      ]
+    },
+    {
+      "title": "Flooring trends 2026 - LVP keeps taking share from engineered hardwood, know when to spec which",
+      "topics": ["flooring", "LVP", "vinyl plank", "engineered hardwood", "trends"],
+      "text": "Luxury vinyl plank (LVP) continues gaining market share against engineered hardwood — resilient flooring (LVP's category) grew 9.2% year-over-year in 2025 versus hardwood's 1.8%, and LVP now accounts for roughly 30% of all US residential flooring installs, up from 22% in 2021. The practical driver: rigid-core LVP handles moisture-prone areas (kitchens, bathrooms, laundry, basements, and increasingly whole open-plan main floors) that rule out engineered or solid hardwood, and it costs meaningfully less installed — $4.50-$7.00/sq ft for mid-grade LVP versus $8.00-$14.00+/sq ft for engineered hardwood, a 35-50% savings. That said, engineered hardwood still holds the premium/authenticity position for living rooms, dining rooms, and primary bedrooms where clients want real wood underfoot and are less worried about moisture exposure — position it as the 'warmth and resale prestige' choice versus LVP's 'practicality and budget' choice, and note LVP is now routinely specified in spaces that would have automatically gotten engineered wood five years ago. Design direction in both categories: wider, longer planks; warm wood tones (honey oak, caramel walnut, butterscotch hickory, natural ash) replacing the cool gray 'driftwood' look that dominated 2015-2022; and heavy texture — wire-brushed, hand-scraped, and embossed-in-register finishes that add realism. For clients focused on sustainability certifications (LEED, WELL Building Standard, or municipal green codes), confirm LVP sourcing/certifications up front since this is becoming a specification gate on some projects.",
+      "sources": [
+        "https://carpetexchange.com/flooring-school/luxury-vinyl-flooring-trends-2026",
+        "https://bodefloors.com/flooring-trends-for-2026-what-homeowners-need-to-know/",
+        "https://superarbor.io/blogs/blogs/2026-lvp-flooring-trends-every-designer-and-contractor-should-know-before-sourcing"
+      ]
+    },
+    {
+      "title": "2026 paint colors of the year - what the major brands are pushing and how to use it in selections",
+      "topics": ["paint", "color", "trends", "interior design"],
+      "text": "All four major paint brands landed on warm, grounded, wellness-adjacent colors for 2026, a clear break from the cool grays and stark whites of the 2015-2022 era — useful shorthand when a client asks 'what's the color of the year.' Sherwin-Williams picked Universal Khaki (SW 6150), a warm, calming neutral positioned as a return to simplicity. Benjamin Moore picked Silhouette (AF-655), a rich espresso/charcoal blend for a refined, grounded look. Behr picked Hidden Gem (N430-6A), a smoky jade blue-green — the one departure from pure neutrals, useful for clients wanting a moodier accent wall or cabinet color. PPG/Glidden picked Warm Mahogany (PPG1060-7), a rich red-brown. Practical takeaway for client conversations: these four picks all reinforce the same broader 2026 direction already showing up in cabinets, countertops, and hardware — warm neutrals as the base palette, with deeper saturated accent colors (jade, espresso, mahogany, forest/olive greens) used selectively on islands, doors, or accent walls rather than whole-room color. If a client is deciding on a whole-house repaint, warm khaki/greige tones are the safest, most resale-friendly choice; if they want one bold statement, a deep green or espresso-toned accent (front door, island, powder room) captures the 2026 mood without the resale risk of an all-over saturated color.",
+      "sources": [
+        "https://www.thedecorholic.com/the-2026-color-of-the-year-from-every-major-paint-brand/",
+        "https://porchdaydreamer.com/paint-color-of-the-year/",
+        "https://www.younghouselove.com/2026-color-of-the-year/"
+      ]
+    },
+    {
+      "title": "Lighting trends 2026 - layered lighting and statement fixtures over single overhead cans",
+      "topics": ["lighting", "trends", "design", "fixtures"],
+      "text": "Two shifts matter most for GCs pricing electrical/lighting scope in 2026. First, layered lighting has gone from a designer talking point to something homeowners are actually requesting and budgeting for: rather than a single central overhead fixture (or worse, a grid of recessed cans), clients want multiple light sources at different heights — ceiling fixture, wall sconces, and table/floor lamps — each on its own dimmer, to create zones and moods through the day. This has direct scope implications: it means more switch legs, more dimmers, and more fixture locations than a builder-grade recessed-can plan, so flag this early in electrical rough-in planning rather than after drywall. Second, statement fixtures are back as architectural focal points — sculptural pendants and chandeliers with curved arms, layered globes, or organic silhouettes, often in natural materials like alabaster, travertine, or handcrafted glass that glow warmly when lit, plus ribbed/fluted glass texture showing up on pendants and sconces. Color temperature direction has also shifted: cool, blue-toned white light is out, warm color temperatures (2700-3000K) are back in for the ambiance-over-clinical-brightness look. Practical guidance: when clients are choosing between spending remodel budget on more recessed cans versus fewer cans plus a real fixture budget (statement pendant over the island, sconces flanking a vanity mirror, layered bedroom lighting), steer them toward the latter — it's both more current and often cheaper in total fixture/labor cost than a dense recessed-can grid.",
+      "sources": [
+        "https://mahlanders.com/2026-lighting-trends-warm-metals-sculptural-fixtures-color-confidence/",
+        "https://www.colorcord.com/blogs/lighting-design-blog/2026-lighting-fixture-trends-what-s-in-and-out",
+        "https://www.us.pooky.com/blogs/inspiration/lighting-trends-2026"
+      ]
+    }
+  ]
+}

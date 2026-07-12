@@ -1,33 +1,41 @@
-/* Knowledge view — ask questions against the Construction Notes corpus
-   (scope-of-work PDF, client decks, trade whiteboards). Answers cite sources
-   and show the related whiteboard/deck images (Drive thumbnails — they render
-   because Ori is logged into Google in this browser). Also supports asking
-   with a jobsite photo, and an optional "+ web" supplement in notes mode. */
+/* Knowledge view — ONE all-encompassing flow (Ori's spec): ask by text or
+   photo, get a GC-briefing answer from the Construction Notes (primary) + web
+   (supplement), the related whiteboard/deck pictures, a generate-diagram
+   button, and automatically: which subs in OUR roster do this work and what
+   OUR pricing looks like for it. No modes, no toggles. */
 (function () {
   var summaryCache = null;
-  var mode = "notes"; // "notes" | "research"
-  var webOn = true;   // notes + web together is the default (Ori: not one or the other)
+  var rosterCache = null;   // /api/subcontractors (fetched once per session)
+  var pricingCache = null;  // /api/pricing-intel
   var photoPreviewUrl = null;
-  var lastAsk = { question: "", answer: "" }; // for Generate-diagram // last object URL created for a photo preview (revoked on replace)
+  var lastAsk = { question: "", answer: "" }; // for Generate-diagram
 
-  var NOTES_SUGGESTIONS = [
+  var SUGGESTIONS = [
     "How do I replace a beam holding up the roof?",
     "Bathroom remodel scope + inspections",
+    "Stair and handrail code requirements",
     "Tear-off roof process and shingle brand",
     "Foundation bolting retrofit steps",
     "Full house rewire cost",
     "Mold remediation scope",
-    "Exterior paint prep steps",
     "Driveway pavers vs cement"
   ];
 
-  var RESEARCH_SUGGESTIONS = [
-    "Which of our subs do balcony SB-326 repairs?",
-    "Current price for a 200A panel upgrade in LA?",
-    "Who are my top 3 electricians with owner contact info?",
-    "Best way to source LVP flooring for a 2,000 sqft remodel?",
-    "Should I buy shower glass from a distributor or let the glass sub supply it?"
-  ];
+  var STOP = { the: 1, and: 1, for: 1, with: 1, that: 1, this: 1, what: 1, how: 1, are: 1, was: 1, will: 1, can: 1, our: 1, your: 1, out: 1, need: 1, holding: 1 };
+  function terms(text) {
+    return String(text || "").toLowerCase().split(/[^a-z0-9]+/)
+      .filter(function (w) { return w.length >= 3 && !STOP[w]; });
+  }
+  function overlap(questionTerms, hayTokens) {
+    var score = 0;
+    questionTerms.forEach(function (t) {
+      hayTokens.forEach(function (h) {
+        if (h === t) score += 3;
+        else if (h.indexOf(t) === 0 || t.indexOf(h) === 0) score += 1;
+      });
+    });
+    return score;
+  }
 
   function engineClass(engine) {
     if (engine === "claude-haiku") return "green";
@@ -61,32 +69,15 @@
     var items = sources.map(sourceLine).join("");
     if (sources.length > 4) {
       return (
-        '<div class="card">' +
-          '<details>' +
-            '<summary style="cursor:pointer;font-weight:800;font-size:0.95rem">Sources (' + sources.length + ')</summary>' +
-            '<ul style="list-style:none;margin-top:0.5rem">' + items + '</ul>' +
-          '</details>' +
-        '</div>'
+        '<div class="card" style="margin-bottom:0.9rem"><details>' +
+          '<summary style="cursor:pointer;font-weight:800;font-size:0.95rem">Sources (' + sources.length + ')</summary>' +
+          '<ul style="list-style:none;margin-top:0.5rem">' + items + '</ul>' +
+        '</details></div>'
       );
     }
-    return '<div class="card"><h2>Sources</h2><ul style="list-style:none">' + items + '</ul></div>';
+    return '<div class="card" style="margin-bottom:0.9rem"><h2>Sources</h2><ul style="list-style:none">' + items + '</ul></div>';
   }
 
-  // Research-chat meta line: engine + internal/web match counts (research-chat has
-  // no source-objects array like /api/knowledge/ask — these counts are its "sources").
-  function researchMetaLine(result) {
-    return (
-      '<div class="muted" style="font-size:0.74rem;margin-top:0.5rem">' +
-        APP.esc(result.engine || "engine unknown") + " · " +
-        APP.esc(String(result.internalMatches != null ? result.internalMatches : 0)) + " internal / " +
-        APP.esc(String(result.webMatches != null ? result.webMatches : 0)) + " web matches" +
-      "</div>"
-    );
-  }
-
-  // Shared card for /api/knowledge/ask + /api/knowledge/ask-photo responses
-  // ({answer, engine, sources, images}). `extraPills` and `photoHtml` let
-  // callers add a "notes + web" pill or a photo preview above the answer.
   function answerHtml(result, extraPills, photoHtml) {
     var html = "";
     if (photoHtml) html += photoHtml;
@@ -111,6 +102,7 @@
         "</div>";
     }
     html += '<div class="card" style="margin-bottom:0.9rem" id="kIllu"><button class="btn" data-illustrate="1">🎨 Generate diagram</button><span class="muted" style="font-size:0.74rem;margin-left:0.5rem">draws a labeled diagram of this answer (Google image model)</span></div>';
+    html += '<div id="kRoster"></div>';
     html += sourcesBlock(result.sources);
     return html;
   }
@@ -124,16 +116,110 @@
     );
   }
 
+  // ── "Who in OUR roster does this + what OUR pricing says" ──
+  function loadRoster() {
+    if (rosterCache) return Promise.resolve(rosterCache);
+    return APP.fetchJSON("/api/subcontractors").then(function (a) { rosterCache = a; return a; });
+  }
+  function loadPricing() {
+    if (pricingCache) return Promise.resolve(pricingCache);
+    return APP.fetchJSON("/api/pricing-intel").then(function (p) { pricingCache = p; return p; });
+  }
+
+  function matchSubs(question, roster) {
+    var qTerms = terms(question);
+    return roster
+      .filter(function (s) { return !s.hidden && !s.hiddenAuto; })
+      .map(function (s) {
+        var hay = terms(s.serviceCategory + " " + (s.specialties || []).join(" "));
+        return { s: s, score: overlap(qTerms, hay) };
+      })
+      .filter(function (e) { return e.score > 0; })
+      .sort(function (a, b) {
+        if (!!b.s.trusted !== !!a.s.trusted) return b.s.trusted ? 1 : -1;
+        return b.score - a.score || (b.s.legitScore || 0) - (a.s.legitScore || 0);
+      })
+      .slice(0, 5)
+      .map(function (e) { return e.s; });
+  }
+
+  function matchPricing(question, pricing) {
+    var qTerms = terms(question);
+    return (pricing.items || [])
+      .map(function (item) {
+        var hay = terms(item.description + " " + item.service + " " + item.trade);
+        return { item: item, score: overlap(qTerms, hay) };
+      })
+      .filter(function (e) { return e.score >= 3; })
+      .sort(function (a, b) { return b.score - a.score; })
+      .slice(0, 4)
+      .map(function (e) { return e.item; });
+  }
+
+  function money(n) { return APP.fmtMoney(Number(n) || 0); }
+
+  function rosterSectionHtml(subs, items) {
+    var html = "";
+    if (subs.length) {
+      html +=
+        '<div class="card" style="margin-bottom:0.9rem"><h2>Subs in our roster for this</h2>' +
+        '<div style="overflow-x:auto"><table class="table"><thead><tr><th>Company</th><th>Trade</th><th>Trust</th><th>Contact</th><th>Price tier</th></tr></thead><tbody>' +
+        subs.map(function (s) {
+          return '<tr data-href="#/subs/' + APP.esc(s.id) + '" style="cursor:pointer">' +
+            '<td><b>' + APP.esc(s.companyName) + '</b>' + (s.trusted ? ' <span class="pill amber">⭐ my contact</span>' : '') +
+              (s.ownerName ? '<br /><span class="muted" style="font-size:0.72rem">' + APP.esc(s.ownerName) + '</span>' : '') + '</td>' +
+            '<td>' + APP.esc(s.serviceCategory || '') + '</td>' +
+            '<td>' + APP.scoreBadge(s.legitScore) + '</td>' +
+            '<td style="font-size:0.78rem">' +
+              (s.phone ? '<a href="tel:' + APP.esc(s.phone) + '" onclick="event.stopPropagation()">' + APP.esc(s.phone) + '</a><br />' : '') +
+              (s.email ? '<a href="mailto:' + APP.esc(s.email) + '" onclick="event.stopPropagation()">' + APP.esc(s.email) + '</a>' : '') + '</td>' +
+            '<td>' + APP.esc(s.priceTier && s.priceTier !== 'unknown' ? s.priceTier : '') +
+              (s.minimumJobSize ? '<div class="muted" style="font-size:0.72rem">min ' + APP.esc(s.minimumJobSize) + '</div>' : '') + '</td>' +
+          '</tr>';
+        }).join("") +
+        '</tbody></table></div>' +
+        '<div class="muted" style="font-size:0.72rem;margin-top:0.4rem">Ranked: your ⭐ contacts first, then trust score. Click a row for the full profile + outreach drafts.</div></div>';
+    }
+    if (items.length) {
+      html +=
+        '<div class="card" style="margin-bottom:0.9rem"><h2>Our pricing for this</h2>' +
+        '<div style="overflow-x:auto"><table class="table"><thead><tr><th>Item</th><th>SoCal benchmark</th><th>Our jobs</th><th>Live estimate</th></tr></thead><tbody>' +
+        items.map(function (item) {
+          var bench = item.benchmark && item.benchmark.lowUSD
+            ? money(item.benchmark.lowUSD) + "–" + money(item.benchmark.highUSD)
+            : money(item.low) + "–" + money(item.high) + ' <span class="pill" style="opacity:0.6">book</span>';
+          var ours = item.observed && item.observed.count
+            ? money(item.observed.median) + ' <span class="muted">(' + item.observed.count + ')</span>'
+            : '<span class="muted">none yet</span>';
+          var blended = item.blended ? "<b>" + money(item.blended.low) + "–" + money(item.blended.high) + "</b>" : "—";
+          return "<tr><td>" + APP.esc(item.description) + '<div class="muted" style="font-size:0.72rem">' + APP.esc(item.trade || "") + " · per " + APP.esc(item.unit || "job") + "</div></td>" +
+            "<td>" + bench + "</td><td>" + ours + "</td><td>" + blended + "</td></tr>";
+        }).join("") +
+        '</tbody></table></div>' +
+        '<div class="muted" style="font-size:0.72rem;margin-top:0.4rem">Full detail on the <a href="#/pricing" style="font-weight:800">Pricing</a> page.</div></div>';
+    }
+    return html;
+  }
+
+  function appendRosterSections(question) {
+    var host = document.getElementById("kRoster");
+    if (!host) return;
+    host.innerHTML = '<div class="muted" style="font-size:0.78rem;margin-bottom:0.9rem">Checking our roster and pricing…</div>';
+    Promise.all([loadRoster(), loadPricing()]).then(function (results) {
+      var subs = matchSubs(question, results[0]);
+      var items = matchPricing(question, results[1]);
+      host.innerHTML = rosterSectionHtml(subs, items);
+    }).catch(function () {
+      host.innerHTML = "";
+    });
+  }
+
   function render(container) {
     container.innerHTML =
       '<h1 style="margin-bottom:0.7rem">Construction Knowledge</h1>' +
-      '<div class="chips" id="kMode" style="margin-bottom:0.6rem">' +
-        '<span class="chip active" data-mode="notes">Construction knowledge (notes + web)</span>' +
-        '<span class="chip" data-mode="research">Our data (subs & pricing)</span>' +
-      '</div>' +
       '<div class="card" style="margin-bottom:0.9rem">' +
         '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center">' +
-          '<input id="kQ" type="text" placeholder="Ask anything from the Construction Notes - e.g. what is the scope for a bathroom remodel?" ' +
+          '<input id="kQ" type="text" placeholder="Ask anything - scopes, code, how-to. Answers use your notes first, then the web, and show your subs + pricing for it." ' +
             'style="flex:1;min-width:260px;min-height:38px;border:1px solid #d8dee8;border-radius:8px;padding:0 0.7rem;font:inherit;background:#f5f7fa" />' +
           '<button class="btn" id="kPhotoBtn" type="button" title="Take or upload a jobsite photo">📷 Ask with a photo</button>' +
           '<input type="file" id="kPhotoInput" accept="image/*" capture="environment" style="display:none" />' +
@@ -147,73 +233,37 @@
     var qInput = document.getElementById("kQ");
     var suggestEl = document.getElementById("kSuggest");
     var metaEl = document.getElementById("kMeta");
-    var modeEl = document.getElementById("kMode");
-    var webToggleEl = null; // web is always on now
     var photoBtn = document.getElementById("kPhotoBtn");
     var photoInput = document.getElementById("kPhotoInput");
     var out = document.getElementById("kOut");
 
-    function paintSuggestions() {
-      var suggestions = mode === "research" ? RESEARCH_SUGGESTIONS : NOTES_SUGGESTIONS;
-      suggestEl.innerHTML = suggestions.map(function (s) {
-        return '<span class="chip" data-q="' + APP.esc(s) + '">' + APP.esc(s) + "</span>";
-      }).join("");
-    }
+    suggestEl.innerHTML = SUGGESTIONS.map(function (s) {
+      return '<span class="chip" data-q="' + APP.esc(s) + '">' + APP.esc(s) + "</span>";
+    }).join("");
 
-    function paintWebToggle() { /* web always on */ }
+    (summaryCache ? Promise.resolve(summaryCache) : APP.fetchJSON("/api/knowledge/summary").then(function (s) { summaryCache = s; return s; }))
+      .then(function (summary) {
+        metaEl.textContent =
+          summary.chunks + " knowledge chunks (your scope docs, SoCal permits + building code, client decks) + " +
+          summary.images + " whiteboards · answers also check the live web and your sub roster automatically.";
+      })
+      .catch(function () {
+        metaEl.textContent = "Corpus not ingested yet - run tmp/ingest-knowledge.mjs.";
+      });
 
-    function loadMeta() {
-      if (mode === "research") {
-        metaEl.textContent = "Answers pull your vetted sub roster + live web search, then draft a recommendation.";
-        return;
-      }
-      metaEl.textContent = "Loading corpus info...";
-      (summaryCache ? Promise.resolve(summaryCache) : APP.fetchJSON("/api/knowledge/summary").then(function (s) { summaryCache = s; return s; }))
-        .then(function (summary) {
-          var parts = Object.entries(summary.sources || {}).map(function (e) { return e[1] + " " + e[0].toLowerCase(); });
-          metaEl.textContent =
-            summary.chunks + " knowledge chunks (" + parts.join(", ") + ") + " + summary.images + " whiteboard images from the Drive “Construction notes” folder.";
-        })
-        .catch(function () {
-          metaEl.textContent = "Corpus not ingested yet - run tmp/ingest-knowledge.mjs.";
-        });
-    }
-
-    function askNotes(question) {
-      out.innerHTML = '<div class="card"><div class="muted">Searching notes' + (webOn ? " and the web" : "") + ' and drafting answer…</div></div>';
+    function ask(question) {
+      if (!question) return;
+      out.innerHTML = '<div class="card"><div class="muted">Searching your notes + the web and drafting the plan…</div></div>';
       APP.fetchJSON("/api/knowledge/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: question, useWeb: webOn })
+        body: JSON.stringify({ question: question })
       }).then(function (result) {
         lastAsk = { question: question, answer: String(result.answer || "").slice(0, 300) };
-        var extraPills = webOn ? '<span class="pill plum" style="margin-left:0.3rem">notes + web</span>' : "";
-        out.innerHTML = answerHtml(result, extraPills);
+        out.innerHTML = answerHtml(result, '<span class="pill plum" style="margin-left:0.3rem">notes + web</span>');
+        appendRosterSections(question);
       }).catch(function (error) {
         out.innerHTML = '<div class="card"><div class="empty">Ask failed: ' + APP.esc(error.message) + "</div></div>";
-      });
-    }
-
-    function askResearch(question) {
-      out.innerHTML = '<div class="card"><div class="muted">Researching your roster + live web…</div></div>';
-      // POST /api/research-chat body {question, useWeb} -> {question, answer, engine, internalMatches, webMatches, createdAt}
-      APP.fetchJSON("/api/research-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: question, useWeb: true })
-      }).then(function (result) {
-        var html =
-          '<div class="card">' +
-            '<div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap">' +
-              '<h2 style="margin:0">Answer</h2>' +
-              '<span class="pill ' + engineClass(result.engine) + '">' + APP.esc(result.engine || "?") + "</span>" +
-            '</div>' +
-            '<div style="white-space:pre-wrap;font-size:0.88rem;line-height:1.55;margin-top:0.5rem">' + APP.esc(result.answer || "") + "</div>" +
-            researchMetaLine(result) +
-          "</div>";
-        out.innerHTML = html;
-      }).catch(function (error) {
-        out.innerHTML = '<div class="card"><div class="empty">Research failed: ' + APP.esc(error.message) + "</div></div>";
       });
     }
 
@@ -221,15 +271,18 @@
       if (photoPreviewUrl) { URL.revokeObjectURL(photoPreviewUrl); }
       photoPreviewUrl = URL.createObjectURL(file);
       out.innerHTML = photoPreviewHtml(photoPreviewUrl, "Reading your photo… this takes about 1-2 minutes.");
-
-      var qs = "?question=" + encodeURIComponent(question || "What am I looking at and what do I need to know?");
+      var effectiveQ = question || "What am I looking at and what do I need to do?";
+      var qs = "?question=" + encodeURIComponent(effectiveQ);
       APP.fetchJSON("/api/knowledge/ask-photo" + qs, {
         method: "POST",
         headers: { "Content-Type": file.type || "image/jpeg" },
         body: file
       }).then(function (result) {
-        lastAsk = { question: question || "jobsite photo", answer: String(result.answer || "").slice(0, 300) };
+        lastAsk = { question: effectiveQ, answer: String(result.answer || "").slice(0, 300) };
         out.innerHTML = answerHtml(result, "", photoPreviewHtml(photoPreviewUrl, "Photo you asked about"));
+        // Match roster/pricing off the answer text too - the photo often names
+        // the trade better than the question ("that's a failed hot mop pan...").
+        appendRosterSections(effectiveQ + " " + String(result.answer || "").slice(0, 200));
       }).catch(function (error) {
         out.innerHTML =
           photoPreviewHtml(photoPreviewUrl, "Photo you asked about") +
@@ -237,38 +290,7 @@
       });
     }
 
-    function ask(question) {
-      if (!question) return;
-      if (mode === "research") askResearch(question);
-      else askNotes(question);
-    }
-
-    paintSuggestions();
-    paintWebToggle();
-    loadMeta();
-
-    modeEl.addEventListener("click", function (event) {
-      var chip = event.target.closest(".chip");
-      if (!chip || !chip.dataset.mode) return;
-      if (chip.dataset.mode === mode) return;
-      mode = chip.dataset.mode;
-      Array.prototype.forEach.call(modeEl.querySelectorAll(".chip"), function (c) {
-        c.classList.toggle("active", c.dataset.mode === mode);
-      });
-      qInput.placeholder = mode === "research"
-        ? "Ask a sourcing / roster / vendor question - e.g. which subs handle SB-326 balcony repairs?"
-        : "Ask anything from the Construction Notes - e.g. what is the scope for a bathroom remodel?";
-      out.innerHTML = "";
-      paintSuggestions();
-      paintWebToggle();
-      loadMeta();
-    });
-
-    
-
-    photoBtn.addEventListener("click", function () {
-      photoInput.click();
-    });
+    photoBtn.addEventListener("click", function () { photoInput.click(); });
     photoInput.addEventListener("change", function () {
       var file = photoInput.files && photoInput.files[0];
       if (!file) return;
@@ -277,6 +299,8 @@
     });
 
     out.addEventListener("click", function (event) {
+      var row = event.target.closest("tr[data-href]");
+      if (row && !event.target.closest("a,button")) { APP.navigate(row.dataset.href); return; }
       var btn = event.target.closest("[data-illustrate]");
       if (!btn) return;
       var card = document.getElementById("kIllu");
