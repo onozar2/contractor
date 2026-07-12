@@ -277,6 +277,58 @@ module.exports = (collection) => {
     }
   });
 
+  // Room redesign: photo + style -> nano-banana image EDIT (structure-preserving:
+  // keep layout/camera, change finishes). Same quota reality as /illustrate —
+  // returns a graceful message until Google opens image quota or billing exists.
+  router.post("/redesign", express.raw({ type: "image/*", limit: "15mb" }), async (req, res) => {
+    try {
+      if (!req.body || !req.body.length) return res.status(400).json({ error: "send the room photo as the request body (image/*)" });
+      const style = String(req.query.style || "modern light").trim().slice(0, 120);
+      const room = String(req.query.room || "room").trim().slice(0, 60);
+      const key = process.env.GEMINI_API_KEY;
+      const redesignPrompt =
+        `Redesign this ${room} in a ${style} style. STRUCTURE-PRESERVING edit: keep the exact camera angle, room layout, window/door positions and perspective lines; ` +
+        "change only finishes, cabinetry/fixture styles, colors, materials and lighting. Photorealistic, consistent shadows and lighting direction, professionally staged, decluttered.";
+      if (!key) {
+        return res.json({ configured: false, prompt: redesignPrompt, message: "Add GEMINI_API_KEY to contractor/.env and restart." });
+      }
+      const mime = /png/.test(String(req.headers["content-type"])) ? "image/png" : "image/jpeg";
+      const imageB64 = Buffer.from(req.body).toString("base64");
+      let lastError = "";
+      for (const model of GEMINI_IMAGE_MODELS) {
+        try {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [
+                { inlineData: { mimeType: mime, data: imageB64 } },
+                { text: redesignPrompt }
+              ] }]
+            }),
+            signal: AbortSignal.timeout(120000)
+          });
+          const data = await response.json();
+          if (!response.ok) { lastError = (data.error && data.error.message) || `HTTP ${response.status}`; continue; }
+          const part = (((data.candidates || [])[0] || {}).content || {}).parts?.find((p) => p.inlineData && p.inlineData.data);
+          if (!part) { lastError = "model returned no image"; continue; }
+          const dir = path.join(__dirname, "uploads", "knowledge-gen");
+          fs.mkdirSync(dir, { recursive: true });
+          const fileName = `redesign-${Date.now().toString(36)}.png`;
+          fs.writeFileSync(path.join(dir, fileName), Buffer.from(part.inlineData.data, "base64"));
+          return res.json({ configured: true, model, imageUrl: `/uploads/knowledge-gen/${fileName}`, prompt: redesignPrompt });
+        } catch (error) {
+          lastError = error.message;
+        }
+      }
+      // Quota wall: hand back the composed prompt so the UI can bridge to
+      // gemini.google.com where Ori's AI Pro plan does the same edit free.
+      res.json({ configured: true, quotaBlocked: true, prompt: redesignPrompt, error: `API image quota unavailable: ${lastError}` });
+    } catch (error) {
+      res.status(502).json({ error: error.message });
+    }
+  });
+
   // Photo question: Ori snaps a jobsite picture, the local claude CLI (agentic
   // -p mode can Read image files) describes what it sees and answers using the
   // notes corpus retrieved from the description terms.
@@ -294,6 +346,7 @@ module.exports = (collection) => {
       const prompt = [
         `First, use your Read tool to look at the image file at: ${filePath}`,
         "Describe what construction element/condition is shown, then answer the question as a practical ordered plan for a Los Angeles GC: engineer/plans if structural -> permit (name the SoCal authority) -> shoring/safety prep -> the work -> inspections -> patch/finish.",
+        "THEN add a section titled 'QUOTING QUANTITIES (rough)': estimate the measurable quantities a GC needs at quoting stage from what's visible - e.g. linear feet of base/upper cabinets and countertop, sqft of backsplash (LF of counter x 1.5ft is the rule of thumb), sqft of flooring/tile, count of fixtures/appliances/windows. Scale off reference objects (door ~80\" tall, counter 36\" AFF, outlet ~12\" AFF, standard appliances) and STATE your assumptions. Rough is fine - these feed a quote with margin, not a cut list.",
         "Use the company NOTES below as the primary reference where relevant (cite [1], [2]); supplement with web search for current SoCal code/permit facts and mark those statements (web).",
         "", "NOTES:", context || "(none matched - answer from the image + web research)",
         "", `QUESTION: ${question}`, "", "ANSWER:"

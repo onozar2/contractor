@@ -8,6 +8,7 @@
   var rosterCache = null;   // /api/subcontractors (fetched once per session)
   var pricingCache = null;  // /api/pricing-intel
   var photoPreviewUrl = null;
+  var lastPhotoFile = null; // kept so "Redesign this room" can resend the same photo
   var lastAsk = { question: "", answer: "" }; // for Generate-diagram
 
   var SUGGESTIONS = [
@@ -283,6 +284,28 @@
       }).then(function (result) {
         lastAsk = { question: effectiveQ, answer: String(result.answer || "").slice(0, 300) };
         out.innerHTML = answerHtml(result, "", photoPreviewHtml(photoPreviewUrl, "Photo you asked about"));
+        // Redesign controls (photo asks only)
+        var illu = document.getElementById("kIllu");
+        if (illu) {
+          var rd = document.createElement("div");
+          rd.className = "card";
+          rd.style.marginBottom = "0.9rem";
+          rd.id = "kRedesign";
+          rd.innerHTML =
+            '<h2>Redesign this space</h2>' +
+            '<div style="display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center">' +
+              '<select id="kRdRoom" style="min-height:34px;border:1px solid #d8dee8;border-radius:8px;padding:0 0.5rem;font:inherit;background:#f5f7fa">' +
+                ["kitchen","bathroom","living room","bedroom","exterior / facade","backyard","office"].map(function (r) { return "<option>" + r + "</option>"; }).join("") +
+              "</select>" +
+              '<select id="kRdStyle" style="min-height:34px;border:1px solid #d8dee8;border-radius:8px;padding:0 0.5rem;font:inherit;background:#f5f7fa">' +
+                ["modern light", "warm organic / wood tones", "coastal airy", "traditional classic", "sleek contemporary dark", "spanish / mediterranean"].map(function (s) { return "<option>" + s + "</option>"; }).join("") +
+              "</select>" +
+              '<button class="btn primary" data-redesign="1">🏠 Redesign (API)</button>' +
+              '<button class="btn" data-redesign-bridge="1" title="Opens Gemini with the redesign prompt - attach this same photo there; free with your Pro plan">🖼️ Redesign in Gemini (free)</button>' +
+            '</div>' +
+            '<div id="kRdOut" class="muted" style="font-size:0.76rem;margin-top:0.45rem">Structure-preserving: keeps your layout and camera angle, changes finishes/colors/fixtures.</div>';
+          illu.parentNode.insertBefore(rd, illu);
+        }
         // Match roster/pricing off the answer text too - the photo often names
         // the trade better than the question ("that's a failed hot mop pan...").
         appendRosterSections(effectiveQ + " " + String(result.answer || "").slice(0, 200));
@@ -297,8 +320,52 @@
     photoInput.addEventListener("change", function () {
       var file = photoInput.files && photoInput.files[0];
       if (!file) return;
+      lastPhotoFile = file;
       askPhoto(file, qInput.value.trim());
       photoInput.value = "";
+    });
+
+    function redesignPromptText(room, style) {
+      return "Redesign this " + room + " in a " + style + " style. Keep the exact camera angle, room layout, window/door positions and perspective; " +
+        "change only finishes, cabinetry/fixture styles, colors, materials and lighting. Photorealistic, consistent lighting, professionally staged.";
+    }
+
+    out.addEventListener("click", function (event) {
+      var rdBtn = event.target.closest("[data-redesign]");
+      var rdBridge = event.target.closest("[data-redesign-bridge]");
+      if (!rdBtn && !rdBridge) return;
+      var room = (document.getElementById("kRdRoom") || {}).value || "room";
+      var style = (document.getElementById("kRdStyle") || {}).value || "modern light";
+      var rdOut = document.getElementById("kRdOut");
+      if (rdBridge) {
+        navigator.clipboard.writeText(redesignPromptText(room, style)).then(function () {
+          APP.toast("Prompt copied — in Gemini: attach this same photo, paste, send");
+          window.open("https://gemini.google.com/app", "_blank");
+        }).catch(function () {
+          window.prompt("Copy this, attach the same photo in Gemini:", redesignPromptText(room, style));
+          window.open("https://gemini.google.com/app", "_blank");
+        });
+        return;
+      }
+      if (!lastPhotoFile) { rdOut.textContent = "Upload a photo first (📷 Ask with a photo)."; return; }
+      rdOut.innerHTML = '<span class="muted">Generating redesign… ~30-90s</span>';
+      APP.fetchJSON("/api/knowledge/redesign?room=" + encodeURIComponent(room) + "&style=" + encodeURIComponent(style), {
+        method: "POST",
+        headers: { "Content-Type": lastPhotoFile.type || "image/jpeg" },
+        body: lastPhotoFile
+      }).then(function (r) {
+        if (r.imageUrl) {
+          rdOut.innerHTML =
+            '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0.6rem;margin-top:0.4rem">' +
+              '<div><div class="muted" style="font-size:0.72rem;margin-bottom:0.2rem">Before</div><img src="' + APP.esc(photoPreviewUrl) + '" style="width:100%;border-radius:8px" /></div>' +
+              '<div><div class="muted" style="font-size:0.72rem;margin-bottom:0.2rem">Concept (' + APP.esc(style) + ')</div><img src="' + APP.esc(r.imageUrl) + '" style="width:100%;border-radius:8px" /></div>' +
+            '</div><div class="muted" style="font-size:0.72rem;margin-top:0.3rem">Concept only — not a design document.</div>';
+        } else if (r.quotaBlocked) {
+          rdOut.innerHTML = '<span class="muted">Google\'s API image quota isn\'t available on the free tier — use <b>🖼️ Redesign in Gemini (free)</b>: it copies this exact prompt, you attach the same photo there and your Pro plan renders it.</span>';
+        } else {
+          rdOut.innerHTML = '<span class="muted">' + APP.esc(r.message || r.error || "Generation unavailable") + "</span>";
+        }
+      }).catch(function (e) { rdOut.innerHTML = '<span class="muted">Failed: ' + APP.esc(e.message) + "</span>"; });
     });
 
     out.addEventListener("click", function (event) {

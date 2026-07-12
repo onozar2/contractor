@@ -208,7 +208,7 @@ crmApp.get("/change_orders.html", (_req, res) => res.sendFile(path.join(__dirnam
 crmApp.get("/photo_feed.html", (_req, res) => res.sendFile(path.join(__dirname, "photo_feed.html")));
 // Unified backend app (entity-centric redesign 2026-07-07)
 crmApp.get("/app.html", (_req, res) => res.sendFile(path.join(__dirname, "app.html")));
-for (const moduleFile of ["app_subs.js", "app_projects.js", "app_pipeline.js", "app_knowledge.js", "app_suppliers.js", "app_takeoff.js", "app_billing.js", "app_permits.js"]) {
+for (const moduleFile of ["app_subs.js", "app_projects.js", "app_pipeline.js", "app_knowledge.js", "app_suppliers.js", "app_gantt.js", "app_takeoff.js", "app_billing.js", "app_permits.js"]) {
   crmApp.get(`/${moduleFile}`, (_req, res) => res.sendFile(path.join(__dirname, moduleFile)));
 }
 crmApp.use("/api/knowledge", require("./knowledge")(collection));
@@ -1969,6 +1969,17 @@ function normalizeActual(input) {
     city: cleanString(input.city),
     status: pickEnum(input.status, ["active", "completed", "on_hold"], "active"),
     description: cleanString(input.description),
+    // Gantt schedule: phases/inspections/materials/milestones + job span.
+    startDate: cleanString(input.startDate),
+    targetDate: cleanString(input.targetDate),
+    schedule: Array.isArray(input.schedule) ? input.schedule.map((item) => ({
+      id: cleanString(item.id) || Math.random().toString(36).slice(2, 10),
+      label: cleanString(item.label),
+      kind: pickEnum(item.kind, ["phase", "inspection", "material", "milestone"], "phase"),
+      start: cleanString(item.start),
+      end: cleanString(item.end || item.start),
+      done: Boolean(item.done)
+    })).filter((item) => item.label && item.start) : [],
     completedAt: cleanString(input.completedAt || new Date().toISOString().slice(0, 10)),
     sqft: Number(input.sqft || 0),
     contractPrice,

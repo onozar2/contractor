@@ -596,6 +596,13 @@
           if (line) line.remove();
         });
 
+        /* Jobs timeline — portfolio Gantt of active jobs */
+        var ganttSlot = el("<div></div>");
+        container.appendChild(ganttSlot);
+        fetchJSON("/api/actuals").then(function (projects) {
+          if (window.GANTT) GANTT.renderPortfolio(ganttSlot, projects || []);
+        }).catch(function () { ganttSlot.remove(); });
+
         /* Vetting summary + recent estimates foot lines (muted, single line each) */
         container.appendChild(el(
           '<div class="footline">Vetting: <b>' + Number(k.verified || 0) + "</b> verified · <b>" +
@@ -637,6 +644,7 @@
   <script src="app_pipeline.js"></script>
   <script src="app_knowledge.js"></script>
   <script src="app_suppliers.js"></script>
+  <script src="app_gantt.js"></script>
   <script src="app_takeoff.js"></script>
   <script src="app_billing.js"></script>
   <script src="app_permits.js"></script>

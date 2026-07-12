@@ -458,6 +458,15 @@
     ctx.renderMoney = function () { renderMoney(ctx, moneySlot); };
     ctx.renderMoney();
 
+    /* schedule (Gantt) */
+    if (window.GANTT) {
+      var scheduleSlot = APP.el('<div style="margin-bottom:0.9rem"></div>');
+      container.appendChild(scheduleSlot);
+      GANTT.renderProjectSchedule(scheduleSlot, record, function (patch) {
+        return putProject(record, patch);
+      });
+    }
+
     /* description + AI draft */
     var descSlot = APP.el('<div style="margin-bottom:0.9rem"></div>');
     container.appendChild(descSlot);
