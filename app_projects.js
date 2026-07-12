@@ -434,6 +434,9 @@
         (record.city ? '<div class="muted" style="font-size:0.78rem">' + esc(record.city) + "</div>" : "") +
       "</div>" +
       '<div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">' +
+        '<a class="btn" href="#/takeoff" title="Measure quantities off a plan image">📐 Takeoff</a>' +
+        '<a class="btn" href="#/billing/' + esc(record.id) + '" title="Progress billing (G702/G703) + lien waivers">🧾 Billing</a>' +
+        '<a class="btn" href="#/permits/' + esc(record.id) + '" title="Permits & inspections for this job">🏛️ Permits</a>' +
         '<select ' + INPUT.replace('width:100%"', 'width:auto"') + ' data-f="status" title="Job status">' +
           JOB_STATUSES.map(function (s) {
             return '<option value="' + esc(s.value) + '"' + (jobStatusOf(record) === s.value ? " selected" : "") + ">" + esc(s.label) + "</option>";

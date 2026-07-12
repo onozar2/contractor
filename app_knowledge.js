@@ -101,7 +101,10 @@
           '<div class="muted" style="font-size:0.72rem;margin-top:0.4rem">Images load from your Google Drive - stay signed in to Google in this browser. Click any image to open the original.</div>' +
         "</div>";
     }
-    html += '<div class="card" style="margin-bottom:0.9rem" id="kIllu"><button class="btn" data-illustrate="1">🎨 Generate diagram</button><span class="muted" style="font-size:0.74rem;margin-left:0.5rem">draws a labeled diagram of this answer (Google image model)</span></div>';
+    html += '<div class="card" style="margin-bottom:0.9rem" id="kIllu">' +
+      '<button class="btn" data-illustrate="1">🎨 Generate diagram</button> ' +
+      '<button class="btn" data-gemini-bridge="1" title="Copies the diagram prompt and opens Gemini - your Google AI Pro plan draws it free">🖼️ Draw in Gemini (free w/ your Pro plan)</button>' +
+      '<span class="muted" style="font-size:0.74rem;margin-left:0.5rem">API generation costs ~4¢/image with billing; the Gemini button uses your subscription instead - paste (Ctrl+V) when it opens</span></div>';
     html += '<div id="kRoster"></div>';
     html += sourcesBlock(result.sources);
     return html;
@@ -301,6 +304,19 @@
     out.addEventListener("click", function (event) {
       var row = event.target.closest("tr[data-href]");
       if (row && !event.target.closest("a,button")) { APP.navigate(row.dataset.href); return; }
+      var bridge = event.target.closest("[data-gemini-bridge]");
+      if (bridge) {
+        var diagramPrompt = "Draw a clean, labeled instructional construction diagram for a contractor briefing: " +
+          lastAsk.question + " — key points: " + lastAsk.answer;
+        navigator.clipboard.writeText(diagramPrompt).then(function () {
+          APP.toast("Prompt copied — paste it in Gemini (Ctrl+V)");
+          window.open("https://gemini.google.com/app", "_blank");
+        }).catch(function () {
+          window.prompt("Copy this prompt, then paste it in Gemini:", diagramPrompt);
+          window.open("https://gemini.google.com/app", "_blank");
+        });
+        return;
+      }
       var btn = event.target.closest("[data-illustrate]");
       if (!btn) return;
       var card = document.getElementById("kIllu");
