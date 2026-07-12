@@ -1,0 +1,210 @@
+{
+  "chunks": [
+    {
+      "title": "Soft-story seismic retrofit - LADBS mandatory program",
+      "topics": ["seismic", "retrofit", "soft-story", "permit", "ladbs"],
+      "text": "LA's mandatory soft-story retrofit program (Ordinance 183893, enacted Nov 22, 2015) targets wood-frame buildings with 2+ stories, built under codes enacted before Jan 1, 1978, with ground-floor parking/tuck-under or other open floor space (soft/weak story). It does NOT apply to residential buildings with 3 units or fewer (i.e., typical single-family and small duplex/triplex remodels are exempt from this specific mandatory program, though voluntary retrofits are common and encouraged). Compliance timeline for identified buildings: structural report + retrofit or demolition plans (or proof of completed retrofit) within 2 years of notice; permits secured within 3.5 years; retrofit/demolition finished and permits closed within 7 years. LADBS Soft-Story Retrofit Unit: 201 N. Figueroa St, 8th Fl Suite 890, (213) 482-7638, Soft-storyretrofit@lacity.org. On a remodel job, always check if a property has an open soft-story retrofit compliance order before starting unrelated permit work - LADBS may flag the parcel.",
+      "sources": [
+        "https://dbs.lacity.gov/services/specialized-services/mandatory-retrofit-programs/soft-story-retrofit-program",
+        "https://dbs.lacity.gov/services/specialized-services/mandatory-retrofit-programs"
+      ]
+    },
+    {
+      "title": "Foundation bolting & cripple wall retrofit - LADBS Standard Plan No. 1",
+      "topics": ["seismic", "retrofit", "foundation-bolting", "cripple-wall", "permit"],
+      "text": "For voluntary seismic retrofit of cripple walls/foundation sill bolting on 1-4 unit wood-frame residential buildings up to 3 stories, LADBS issues permits over-the-counter via e-Permit under Standard Plan No. 1 - no engineer of record needed - IF all of the following apply: cripple wall stud height does not exceed 48 inches (1- or 2-story buildings) or 14 inches (3-story buildings); the building sits on a continuous concrete perimeter footing and stem wall; all floors within each story are at the same elevation; building has 4 or fewer dwelling units; cripple walls are NOT already sheathed with wood structural panel or diagonal sheathing; and no part of the building sits over a slope steeper than 3:1 (horizontal:vertical). If any of these conditions fail (e.g., taller cripple walls, hillside lot, more units), the retrofit requires custom structural plans and calculations stamped by a licensed engineer or architect - this is the trigger point for scoping a structural engineer into a bid.",
+      "sources": [
+        "https://www.permitla.org/building/anchor_bolting_bracing_foundation_detail.html"
+      ]
+    },
+    {
+      "title": "Balcony & deck inspections - SB-721 / SB-326 (Exterior Elevated Elements)",
+      "topics": ["balcony", "deck", "inspection", "sb-721", "sb-326", "waterproofing"],
+      "text": "California law requires periodic inspection of load-bearing wood-frame exterior elevated elements (EEEs) - decks, balconies, stairways, walkways, guardrails/handrails, fire escapes - that are elevated more than 6 feet above grade, designed for human occupancy, and rely substantially on wood/wood-based structural support. SB-721 covers rental apartment buildings (3+ units); SB-326 covers condo/HOA common-interest developments. First inspection deadline was extended by AB 2579 to Jan 1, 2026; SB-721 buildings then re-inspect every 6 years, SB-326 (condo) buildings every 9 years. SB-721 inspectors: licensed architect, civil/structural engineer, certified building inspector/official, or a licensed contractor (A, B, or C-5) with 5+ years building multistory wood-frame structures, sampling at least 15% of each EEE type. SB-326 inspections are limited to licensed structural engineers/architects using statistical sampling (95% confidence, 5% margin of error). Inspectors check for decay, corrosion, deterioration, and active water intrusion in concealed spaces (a very common finding under old flashing/waterproofing). Owners have 120 days from the inspection report to complete required repairs. This is a growing repair-bid category for GCs working on LA-area apartment/condo exteriors.",
+      "sources": [
+        "https://www.elcerrito.gov/1680/California-Balcony-Laws---SB-326-SB-721",
+        "https://leginfo.legislature.ca.gov/faces/billNavClient.xhtml?bill_id=201720180SB721"
+      ]
+    },
+    {
+      "title": "Water heater seismic strapping - CPC 507.2 / permit",
+      "topics": ["water-heater", "seismic-strap", "permit", "plumbing", "cpc"],
+      "text": "Every gas or electric storage-type water heater in California must be seismically strapped per CPC 507.2, verified at final inspection. Use two straps: the upper strap in the upper 1/3 of the tank's vertical height, the lower strap in the lower 1/3 of the tank height AND at least 4 inches above the tank's controls. Straps must resist both horizontal and vertical movement (typically 24-gauge min. metal strap or approved strap kit, screwed into wall studs/blocking, not just drywall). In LA, water heater replacement (same location/type) qualifies for an LADBS over-the-counter/express permit - no plan check required - but a permit IS still required; unpermitted swaps are a common code-enforcement and resale-inspection flag. Confirm the water heater closet/space also has combustion air openings and is not storing anything flammable within reach of an open-flame unit.",
+      "sources": [
+        "https://www.ladbs.org/docs/default-source/publications/information-bulletins/plumbing-code/permits-for-gas-water-heaters-ib-p-pc2014-006.pdf",
+        "https://www.sandiegocounty.gov/content/dam/sdc/pds/docs/pds701.pdf"
+      ]
+    },
+    {
+      "title": "Water heater T&P relief valve discharge piping - CPC 608.5",
+      "topics": ["water-heater", "t-p-valve", "plumbing", "cpc"],
+      "text": "Temperature-and-pressure (T&P) relief valve discharge piping must run from the valve to the exterior of the building (or to an approved indirect waste receptor), sized no smaller than the valve outlet, and be constructed of galvanized steel, hard-drawn copper, CPVC, or a listed relief-valve drain tube (never a material that softens/melts under discharge heat). The discharge pipe must terminate between 6 and 24 inches above grade (or the flood-level rim of the receptor) and point downward, with no threaded end (to prevent someone capping it). Critically: NO shutoff valve is permitted anywhere in the T&P discharge line. This is one of the most common final-inspection fails on water heater swaps - inspectors check discharge termination height and material every time.",
+      "sources": [
+        "https://lus.sbcounty.gov/wp-content/uploads/sites/48/BandS/Handouts/WaterHeaterGuide.pdf",
+        "https://up.codes/viewer/california/ca-plumbing-code-2019/chapter/5/water-heaters"
+      ]
+    },
+    {
+      "title": "Window replacement - permit, egress, and Title 24 glazing",
+      "topics": ["windows", "egress", "permit", "title-24", "ladbs"],
+      "text": "In LA, replacing windows with the SAME size, opening type, and location as the existing window qualifies for an LADBS express permit (no plan check). Changing size, adding an opening, or altering a bedroom's egress window requires standard plan check. Egress: every sleeping room (and basements/habitable attics) below the 4th story must have at least one operable emergency escape and rescue opening meeting ALL of: net clear openable area >= 5.7 sq ft (5.0 sq ft allowed for grade-floor openings), net clear openable height >= 24 inches, net clear openable width >= 20 inches, and sill height no more than 44 inches above the floor - openable from inside without a key, tool, or special knowledge (CRC R310). Habitable-room natural light requires glazed area >= 1/10 of floor area (min 10 sq ft); natural ventilation requires openable area >= 1/20 of floor area (min 5 sq ft) - relevant when a remodel shrinks a window opening. Title 24 Part 6 Sec. 150.2(b)1B requires all replacement windows/doors in residential buildings (3 stories or less) to be dual-glazed, NFRC-labeled and certified - the label must be visible for the inspector at final.",
+      "sources": [
+        "https://dbs.lacity.gov/sites/default/files/efs/forms/pc17/ib-p-gi-2020-003-express-permits_rev-5-28-2024.pdf",
+        "https://up.codes/s/emergency-escape-and-rescue-opening-required",
+        "https://www.permitla.org/building/replace_window(s)_detail.html"
+      ]
+    },
+    {
+      "title": "Reroofing - cool roof Title 24 requirements & permit trigger",
+      "topics": ["roofing", "cool-roof", "title-24", "energy-code", "permit"],
+      "text": "Cool-roof requirements trigger when a reroof/recover project replaces 50% or more of the existing roof area (some guidance also cites a 1,000 sq ft alternate trigger, whichever is less - confirm current LADBS bulletin at time of permit). LA City/County sit primarily in Climate Zones 6 (coastal), 8, and 9 (San Fernando Valley), with parts of the county reaching Zone 16 (mountain/high desert). Under the 2022 Title 24 prescriptive path for single-family residential alterations: STEEP-SLOPE roofs in Climate Zones 4 and 8-15 need minimum aged solar reflectance 0.20, thermal emittance 0.75 (or SRI 16) - Zone 6 and Zone 16 have NO steep-slope cool-roof mandate. LOW-SLOPE roofs in Climate Zones 4 and 6-15 need minimum aged solar reflectance 0.63, thermal emittance 0.75 (or SRI 75). Heavy mass tile roofing (>5 lb/sq ft) in some zones qualifies for a reduced reflectance (as low as 0.15) - confirm current cycle table. Product must carry a Cool Roof Rating Council (CRRC) label/rating shown at inspection; roof area covered by solar PV/thermal panels is exempt from the reflectance calc. Always verify exact table values against the current Title 24 cycle before bidding - these numbers shift slightly cycle to cycle.",
+      "sources": [
+        "https://coolroofs.org/documents/2022-Title-24-Part-6-Cool-Roof-Summary.pdf",
+        "https://usmadesupply.com/resources/building-codes-standards/title-24/cool-roofs",
+        "https://energycode.com/new-title-24-cool-roof-requirements/"
+      ]
+    },
+    {
+      "title": "ADU standards - LA city development standards (LAMC 12.22 A.33)",
+      "topics": ["adu", "permit", "zoning", "ladbs"],
+      "text": "LA City's ADU ordinance (Ord. 186,481, effective Dec 19, 2019, codified LAMC 12.22 A.33) sets local development standards on top of state ADU law. Key numbers: max detached ADU size 1,200 sq ft; max attached ADU size is 1,200 sq ft OR 50% of the primary dwelling's square footage, whichever is LESS. Setbacks for new detached ADUs: 4 feet from side and rear property lines (garage/structure conversions are exempt from these setbacks since the existing footprint is grandfathered). Max height for a detached ADU: 16 feet, or up to 18 feet in transit-oriented/qualifying areas (allows a modest 2-story unit). ADUs must otherwise comply with all standard building, zoning, and fire code requirements; new ground-up detached ADUs in LA City require solar panels (Title 24 solar mandate for new residential construction). Fire sprinklers are only required in the ADU if the primary residence already requires them. Permitting agencies (LADBS, Planning, LADWP) must approve/deny a complete ADU application within 60 days. Confirm current numbers against LADBS's ADU page before quoting, since state ADU law (AB 68/587/671, SB 9/13, etc.) has been amended repeatedly and local ordinances get updated to match.",
+      "sources": [
+        "https://dbs.lacity.gov/adu",
+        "https://www.autonomous.ai/ourblog/navigating-adu-setback-requirements-in-los-angeles"
+      ]
+    },
+    {
+      "title": "Pool barriers - California Pool Safety Act (SB 442)",
+      "topics": ["pool", "barrier", "safety", "permit"],
+      "text": "SB 442 (effective Jan 1, 2018) requires every new or remodeled residential pool/spa at a private single-family home to have AT LEAST TWO of these seven drowning-prevention features: (1) an enclosure per Health & Safety Code Sec. 115923 isolating the pool from the house; (2) removable mesh fencing meeting ASTM F2286 with a self-closing, self-latching gate that accepts a key-lockable device; (3) a manual or power safety pool cover meeting ASTM F1346; (4) exit alarms on doors/windows with direct pool access; (5) a self-closing, self-latching door hardware release mechanism mounted at least 54 inches above the floor on doors with direct pool access; (6) water/splash alarms meeting ASTM F2208; (7) other means of protection providing equivalent protection. Minimum pool barrier (fence) height is 60 inches (5 feet), measured from the side facing away from the pool. This applies to ANY remodel that touches the pool (resurfacing alone typically doesn't trigger it, but adding a pool, remodeling the pool, or building a new pool-adjacent structure typically does) - confirm with LADBS at plan check since \"remodeled\" scope is interpreted case by case.",
+      "sources": [
+        "https://leginfo.legislature.ca.gov/faces/billTextClient.xhtml?bill_id=201720180SB442",
+        "https://poolguardusa.com/california-pool-fence-laws/"
+      ]
+    },
+    {
+      "title": "Smoke & CO alarm placement - CRC R314/R315",
+      "topics": ["smoke-detector", "carbon-monoxide", "code", "crc", "electrical"],
+      "text": "Smoke alarms (CRC R314) are required in EVERY sleeping room, outside each separate sleeping area in the immediate vicinity of bedrooms, and on every additional story including basements and habitable attics. Mount smoke alarms on the ceiling, or on a wall between 4 and 12 inches down from the ceiling. Carbon monoxide alarms (CRC R315) are required outside each separate sleeping area near bedrooms, and on every occupiable level including basements; if a fuel-burning appliance is located WITHIN a bedroom or its attached bathroom, a CO alarm is also required inside that bedroom. Mount CO alarms on the ceiling or on the wall, but if wall-mounted, per manufacturer instructions (commonly near the door header, above head height). Where 2+ smoke or CO alarms are required in a dwelling, they must be interconnected so activating one sounds all of them - this is a common trigger point on remodels: any permitted alteration, repair, or addition typically requires bringing the WHOLE dwelling's smoke/CO alarms up to current code, not just the room being worked on.",
+      "sources": [
+        "https://dpw.lacounty.gov/building-and-safety/docs/Smoke%20CO%20Alarms%20Handout.pdf"
+      ]
+    },
+    {
+      "title": "Stairs - rise, run, handrail height - CRC R311.7",
+      "topics": ["stairs", "handrail", "code", "crc"],
+      "text": "Maximum riser height: 7-3/4 inches. Minimum tread depth (run): 10 inches, measured between nosings. Within any single flight, the largest riser/tread cannot differ from the smallest by more than 3/8 inch (consistency tolerance - inspectors carry a gauge for this). A handrail is required on at least one side of any stairway with 4 or more risers. Handrail height: not less than 34 inches and not more than 38 inches, measured vertically from the tread nosing (or ramp surface). Graspability: circular handrails must be 1-1/4 to 2 inches in diameter; non-circular profiles need a 4 to 6-1/4 inch perimeter dimension with a max cross-section of 2-1/4 inches. Minimum stairway width: 36 inches. These numbers are the single most common inspection fail point on interior remodel stairs - verify riser/tread BEFORE framing, not after.",
+      "sources": [
+        "https://timnath.org/wp-content/uploads/2022/03/2018-RESIDENTIAL-STAIR-GUIDE.pdf",
+        "https://www.cityofgilroy.org/DocumentCenter/View/12314/Residential-Stairs-Handrails-and-Guards-Handout"
+      ]
+    },
+    {
+      "title": "Guardrails - height, openings - CRC R312",
+      "topics": ["guardrail", "code", "crc", "deck", "stairs"],
+      "text": "Guards are required on any open-sided walking surface (deck, balcony, porch, landing, stair) located more than 30 inches vertically above the floor or grade within 36 inches horizontally of the open side. Standard guard height: 42 inches minimum at open walking surfaces. On the open side of a stair, guard height can be as low as 34 inches (measured vertically from the nosing line); if the guard's top rail also serves as the stair handrail, it must be between 34 and 38 inches. Openings in a guard cannot allow a 4-inch diameter sphere to pass through, EXCEPT the triangular opening formed by the riser, tread, and bottom rail at the open side of a stair, which may allow up to a 6-inch sphere to pass. This 4-inch/6-inch sphere test is exactly what inspectors use in the field - baluster spacing must be designed to this rule from the start.",
+      "sources": [
+        "https://codes.iccsafe.org/s/CACLARC2020P1/chapter-3-building-planning/CACLARC2020P1-Pt03-Ch03-SecR312.1.2",
+        "https://www.co.routt.co.us/DocumentCenter/View/15199"
+      ]
+    },
+    {
+      "title": "Bedroom egress windows - CRC R310",
+      "topics": ["egress", "windows", "bedroom", "code", "crc"],
+      "text": "Every sleeping room (and basements/habitable attics), below the 4th story above grade, needs at least one exterior emergency escape and rescue opening. Minimums: net clear openable AREA >= 5.7 sq ft (a reduced 5.0 sq ft is allowed for grade-floor openings and window wells); net clear openable HEIGHT >= 24 inches; net clear openable WIDTH >= 20 inches; maximum SILL HEIGHT above the finished floor = 44 inches. The opening must be operable from the inside without a key, tool, or special knowledge, and must remain free of obstruction. This governs both new bedrooms in additions/ADUs and any remodel that touches an existing bedroom window - swapping in a smaller or higher-sill replacement window in a bedroom is a common way contractors accidentally create a non-conforming egress condition.",
+      "sources": [
+        "https://up.codes/s/emergency-escape-and-rescue-opening-required",
+        "https://sanbruno.ca.gov/DocumentCenter/View/4181/2022-Residential-Egress-Windows-Emergency-Escape-and-Rescue-Opening"
+      ]
+    },
+    {
+      "title": "Deck ledger attachment & footing basics - CRC R507",
+      "topics": ["deck", "ledger", "footing", "code", "crc"],
+      "text": "Deck ledgers (where the deck attaches to the house band/rim joist) must be minimum 2x8 nominal, pressure-preservative-treated southern pine, incised PT Hem-Fir, or an approved naturally durable No. 2-grade-or-better lumber. Fasteners at the ledger connection must be hot-dip galvanized or stainless steel, sized/spaced per CRC Table R507.9.1.3 (deck ledgers are NOT attached with toe-nails or standard deck screws alone - lag screws or through-bolts per the table are required). The ledger must be flashed to keep water from reaching the house band/rim joist - this flashing detail is one of the top causes of deck-ledger rot and SB-721 balcony-inspection failures years later. Footings: common field convention runs 24x24x12 inches deep into undisturbed ground, but exact sizing must follow CRC Table R507.3.1 for the tributary load. Minimum: footings extend at least 12 inches below undisturbed grade, minimum 12 inches in plan dimension, with #4 rebar reinforcing, sized to keep soil bearing pressure under roughly 1,500 psf (verify against your soils report/local table). Never rest a deck solely on the house's siding or stucco - the ledger bears on framing.",
+      "sources": [
+        "https://codes.iccsafe.org/s/CARC2022P2/chapter-5-floors/CARC2022P2-Pt03-Ch05-SecR507.9.1.3",
+        "https://ci.carmel.ca.us/sites/main/files/file-attachments/sog_17-14_prescriptive_residential_decks_stairs_railings_0.pdf"
+      ]
+    },
+    {
+      "title": "Shower pan & waterproofing - CPC 408.7",
+      "topics": ["shower-pan", "waterproofing", "bathroom", "cpc", "plumbing"],
+      "text": "Per CPC 408.7, shower receptors require the subfloor and the rough side of walls (to a height of at least 3 inches above the top of the finished dam/threshold) to be lined with a durable, watertight material - sheet plastic, lead, copper, or an approved equivalent. Traditional method: 3-layer hot-mopped 15# felt built-up assembly, or a PVC/CPE sheet pan liner, extending up the walls a minimum of 3 inches above the dam/threshold. Bonded waterproof membrane systems (e.g., Schluter-Kerdi and similar listed sheet or liquid-applied membranes) are accepted as alternatives to the traditional pan liner, as long as the system is a tested/listed waterproof assembly. Every pan liner (and its drain connection) must pass a standing-water test - flood the pan to the top of the dam/threshold and hold for the period the local inspector requires (commonly 24 hours) - BEFORE it's covered with mortar bed and tile. This is a mandatory hold-point inspection on every bathroom remodel with a new or relocated shower.",
+      "sources": [
+        "https://www.placer.ca.gov/DocumentCenter/View/3285/Shower-Pans-PDF",
+        "https://www.rpvca.gov/DocumentCenter/View/19326/-Bathroom-Remodel-Requirements-PDF"
+      ]
+    },
+    {
+      "title": "GFCI/AFCI required locations - CEC 210.8 / 210.12",
+      "topics": ["gfci", "afci", "electrical", "code", "cec"],
+      "text": "GFCI protection (CEC/NEC 210.8) is required for all 125V, 15A/20A receptacles in: bathrooms; garages and accessory buildings; kitchens (all countertop-surface receptacles); laundry areas; within 6 feet of any sink in any room; and dishwasher branch circuits (added under the 2020 NEC cycle, carried into the 2022 CEC). AFCI protection (CEC/NEC 210.12) is required on all 120V, single-phase, 15A/20A branch circuits feeding: kitchens, family rooms, dining rooms, living rooms, parlors, libraries, dens, bedrooms, sunrooms, recreation rooms, closets, hallways, and laundry areas - essentially the whole house outside garages/bathrooms/exteriors. Where a circuit needs BOTH (e.g., a kitchen countertop circuit), use a dual-function AFCI/GFCI breaker, or a combination-type AFCI breaker paired with GFCI receptacles, to satisfy both. On any remodel that opens up walls, expect the inspector to require AFCI/GFCI upgrades on the circuits being altered even if the rest of the house's wiring is grandfathered - confirm scope with the electrical plan checker before bidding.",
+      "sources": [
+        "https://humboldtgov.org/3428/Ground-Fault-Circuit-Interrupter-GFCI-CE",
+        "https://humboldtgov.org/3429/Arc-Fault-Circuit-Interrupter-AFCI-CEC-2"
+      ]
+    },
+    {
+      "title": "Minimum ceiling heights - CRC R305",
+      "topics": ["ceiling-height", "code", "crc"],
+      "text": "Habitable rooms, hallways, and habitable portions of basements: minimum ceiling height 7 feet (84 inches). Bathrooms, toilet rooms, and laundry rooms: minimum ceiling height 6 feet 8 inches (80 inches). Exception for fixtures: the ceiling above a bathroom/toilet fixture only needs to be high enough for the fixture to be used as intended; specifically, a shower or tub with a showerhead needs at least 6 feet 8 inches of height over a minimum 30-inch by 30-inch area at the showerhead. In basements with habitable space, beams/girders/ducts may project down to within 6 feet 4 inches of the finished floor. For a habitable room with a sloped ceiling (attic conversions, dormers), the minimum required 70 sq ft of floor area needs at least 5 feet of ceiling height, and at least 50% of that 70 sq ft (35 sq ft) needs 7 feet or more of ceiling height. Critical number to check before committing to an attic/basement conversion bid.",
+      "sources": [
+        "https://codes.iccsafe.org/s/CACLARC2023P1/chapter-3-building-planning/CACLARC2023P1-Pt03-Ch03-SecR305.1"
+      ]
+    },
+    {
+      "title": "Title 24 window U-factor / SHGC for remodels",
+      "topics": ["title-24", "windows", "u-factor", "shgc", "energy-code"],
+      "text": "New construction / addition prescriptive path (2022 Title 24, Part 6): max U-factor 0.30 for all fenestration products (windows, glass doors, skylights) in all climate zones; max SHGC 0.23 for windows in single-family homes in Climate Zones 2, 4, and 6-15 (which covers essentially all of LA). ALTERATION path (replacing windows in an existing house, not adding new conditioned floor area): the fenestration U-factor requirement is less strict and has been stable since roughly the 2013 code cycle: U-0.58 max in Climate Zones 3 and 5, U-0.47 max in all other zones (including LA's 6, 8, 9). Even replacing ONE window triggers a Title 24 Alteration compliance filing; if only the glazing/sash is swapped and the frame stays, it's classified as a Repair and does NOT trigger Title 24. If more than 75 sq ft of window area is replaced in a project, stricter alteration compliance documentation applies. All replacement windows need NFRC labels/certification for U-factor and SHGC credit - the sticker must be visible at final inspection (don't let the client peel it off before the inspector comes).",
+      "sources": [
+        "https://title24stakeholders.com/wp-content/uploads/2019/06/T24-2022-Submeasure-Summary_High-Performance-Windows.pdf",
+        "https://www.quanex.com/news/california-title-24-update-reduces-u-factor/"
+      ]
+    },
+    {
+      "title": "Title 24 HERS duct testing triggers",
+      "topics": ["title-24", "hers", "hvac", "duct-testing", "energy-code"],
+      "text": "Duct leakage testing by an independent, state-certified HERS rater is required (Title 24, Sec. 150.2(b)1E) whenever an alteration replaces: the air handler, the outdoor condensing unit of a split-system A/C or heat pump, or a heating/cooling coil - these HVAC-component swaps are explicitly defined as an \"alteration\" that triggers duct sealing and testing, even if you're not touching the ducts themselves. Separately, installing more than 40 linear feet of new or replacement space-conditioning duct triggers a requirement to seal and test the ENTIRE duct system to a maximum leakage of 15% (new construction duct systems are held to a tighter ~6% leakage standard). Practical implication: almost any HVAC replacement job in LA (new condenser, new furnace/air handler) needs a HERS rater on the permit, adding cost and lead time that should be quoted up front - this frequently surprises homeowners who think they're just swapping the AC unit.",
+      "sources": [
+        "https://energycode.com/duct-testing/",
+        "https://www.energy.ca.gov/sites/default/files/2021-03/2019_Chapter%209%20-%20Additions%20Alterations%20Repairs_ADA.pdf"
+      ]
+    },
+    {
+      "title": "Title 24 high-efficacy lighting - kitchens/baths (JA8)",
+      "topics": ["title-24", "lighting", "high-efficacy", "ja8", "energy-code"],
+      "text": "Kitchens: at least 50% of the total rated wattage of permanently-installed lighting must be high-efficacy. Under-cabinet lighting is capped at 20 watts per linear foot of illuminated cabinet. Bathrooms: at least ONE luminaire in each bathroom must be high-efficacy; every OTHER luminaire in that bathroom must be either high-efficacy or controlled by a vacancy sensor (motion sensor that turns lights off automatically - a simple occupancy sensor switch satisfies this for non-high-efficacy fixtures like a decorative vanity light). To qualify as high-efficacy under Joint Appendix JA8, LED sources must meet minimum efficacy plus quality standards: color rendering index (CRI) >= 90 and correlated color temperature (CCT) between 2700K and 4000K - a plain LED bulb from a hardware store does not automatically qualify; confirm JA8 compliance/listing on the box or cut sheet before it goes on the inspector's radar.",
+      "sources": [
+        "https://www.energy.ca.gov/filebrowser/download/5128",
+        "https://www.ledlightexpert.com/ja8-compliance-explained"
+      ]
+    },
+    {
+      "title": "CalGreen construction waste diversion (65%)",
+      "topics": ["calgreen", "waste-diversion", "recycling", "permit"],
+      "text": "CalGreen mandates recycling or salvaging at least 65% (by weight or volume) of non-hazardous construction and demolition debris on covered projects, including additions/alterations that increase a residential structure's conditioned area, volume, or size. Compliance paths: (1) a documented Waste Management Plan with tracked diversion/disposal records, or (2) using a waste hauler/recycling facility that provides verifiable documentation meeting the 65% threshold, or (3) the waste stream reduction alternative - for low-rise residential (3 stories or less) projects, disposing no more than 3.4 lbs of waste per square foot of new construction area is deemed to satisfy the 65% requirement without separate tracking. LADBS/local building inspectors can request haul tags or recycling-facility reports at final inspection to verify compliance - keep these receipts in the job file, not just in the dumpster company's system, since they sometimes take days to produce documentation on request.",
+      "sources": [
+        "https://www2.calrecycle.ca.gov/Docs/Web/116820",
+        "https://www.ssfca.gov/files/assets/public/v/1/economic-amp-community-development/documents/building/2025-residentail-calgreen-02-26.pdf"
+      ]
+    },
+    {
+      "title": "CalGreen low-flow fixture flow rates",
+      "topics": ["calgreen", "water-fixtures", "flow-rate", "plumbing"],
+      "text": "Mandatory maximum flow rates for new/replaced fixtures under CalGreen: toilets (water closets) max 1.28 gallons per flush; wall-mounted urinals max 0.125 gpf, all other urinals max 0.5 gpf; single showerheads max 1.8 gpm at 80 psi (where multiple showerheads share one valve, the COMBINED flow of all heads on that valve must not exceed 1.8 gpm at 80 psi, unless only one outlet operates at a time); bathroom lavatory faucets max 1.2 gpm at 60 psi (minimum 0.8 gpm at 20 psi); kitchen faucets max 1.5 gpm at 60 psi (a temporary boost function up to 2.2 gpm at 60 psi is allowed but the faucet must default back to 1.8 gpm max). These have held stable across the 2019/2022/2025 CalGreen cycles. Every fixture installed on a permitted remodel needs to meet these limits regardless of what's being replaced - swapping in a big-box rainfall showerhead without checking its rated GPM is a common final-inspection fail.",
+      "sources": [
+        "https://www.hcd.ca.gov/sites/default/files/docs/building-standards/CALGreen/hcd-shl-620-rev-0323.pdf",
+        "https://energyanalytica.com/california-green-building-code-calgreen-water-conserving-plumbing-fixtures-and-fittings/"
+      ]
+    },
+    {
+      "title": "Permit/inspection sequence - bathroom, kitchen remodel & room addition (LA)",
+      "topics": ["permit", "inspection", "sequence", "ladbs"],
+      "text": "Bathroom/kitchen remodel (no structural changes): typical LADBS inspection order is rough plumbing -> rough electrical -> (rough mechanical if HVAC touched) -> shower pan flood test (hold-point, must pass BEFORE tile/mortar bed goes over it) -> insulation (if walls opened to exterior) -> drywall/lath -> final. Do not close up any wall or ceiling cavity until rough inspections are signed off - re-opening finished work to satisfy an inspector is the single most common cost overrun on remodel jobs. Room addition / structural work adds inspections earlier in the sequence: foundation/footing (before concrete pour) -> framing -> rough electrical -> rough plumbing -> rough mechanical -> insulation -> drywall nailing (if required by the jurisdiction) -> final. Scheduling: the permit holder is responsible for calling in each inspection as work reaches that stage, via LADBS's online portal or phone (311 / LADBS inspection line); inspectors verify the immediately-preceding stage was signed off before proceeding to the next. Any water heater, HVAC, or electrical panel work bundled into the addition rides on the same rough/final sequence rather than needing separate stand-alone permits, as long as it's scoped into the original permit.",
+      "sources": [
+        "https://www.permitla.org/building/bathroom_remodel_repair_detail.html",
+        "https://dbs.lacity.gov/services/inspection"
+      ]
+    }
+  ]
+}
