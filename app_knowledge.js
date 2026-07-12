@@ -6,10 +6,12 @@
 (function () {
   var summaryCache = null;
   var mode = "notes"; // "notes" | "research"
-  var webOn = false;  // notes-mode "+ web" toggle
-  var photoPreviewUrl = null; // last object URL created for a photo preview (revoked on replace)
+  var webOn = true;   // notes + web together is the default (Ori: not one or the other)
+  var photoPreviewUrl = null;
+  var lastAsk = { question: "", answer: "" }; // for Generate-diagram // last object URL created for a photo preview (revoked on replace)
 
   var NOTES_SUGGESTIONS = [
+    "How do I replace a beam holding up the roof?",
     "Bathroom remodel scope + inspections",
     "Tear-off roof process and shingle brand",
     "Foundation bolting retrofit steps",
@@ -108,6 +110,7 @@
           '<div class="muted" style="font-size:0.72rem;margin-top:0.4rem">Images load from your Google Drive - stay signed in to Google in this browser. Click any image to open the original.</div>' +
         "</div>";
     }
+    html += '<div class="card" style="margin-bottom:0.9rem" id="kIllu"><button class="btn" data-illustrate="1">🎨 Generate diagram</button><span class="muted" style="font-size:0.74rem;margin-left:0.5rem">draws a labeled diagram of this answer (Google image model)</span></div>';
     html += sourcesBlock(result.sources);
     return html;
   }
@@ -125,14 +128,13 @@
     container.innerHTML =
       '<h1 style="margin-bottom:0.7rem">Construction Knowledge</h1>' +
       '<div class="chips" id="kMode" style="margin-bottom:0.6rem">' +
-        '<span class="chip active" data-mode="notes">Construction notes</span>' +
-        '<span class="chip" data-mode="research">Research (roster + web)</span>' +
+        '<span class="chip active" data-mode="notes">Construction knowledge (notes + web)</span>' +
+        '<span class="chip" data-mode="research">Our data (subs & pricing)</span>' +
       '</div>' +
       '<div class="card" style="margin-bottom:0.9rem">' +
         '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center">' +
           '<input id="kQ" type="text" placeholder="Ask anything from the Construction Notes - e.g. what is the scope for a bathroom remodel?" ' +
             'style="flex:1;min-width:260px;min-height:38px;border:1px solid #d8dee8;border-radius:8px;padding:0 0.7rem;font:inherit;background:#f5f7fa" />' +
-          '<span class="chip" id="kWebToggle" title="Also draw on live web search - notes stay the primary source">+ web</span>' +
           '<button class="btn" id="kPhotoBtn" type="button" title="Take or upload a jobsite photo">📷 Ask with a photo</button>' +
           '<input type="file" id="kPhotoInput" accept="image/*" capture="environment" style="display:none" />' +
           '<button class="btn primary" id="kAsk">Ask</button>' +
@@ -146,7 +148,7 @@
     var suggestEl = document.getElementById("kSuggest");
     var metaEl = document.getElementById("kMeta");
     var modeEl = document.getElementById("kMode");
-    var webToggleEl = document.getElementById("kWebToggle");
+    var webToggleEl = null; // web is always on now
     var photoBtn = document.getElementById("kPhotoBtn");
     var photoInput = document.getElementById("kPhotoInput");
     var out = document.getElementById("kOut");
@@ -158,10 +160,7 @@
       }).join("");
     }
 
-    function paintWebToggle() {
-      webToggleEl.style.display = mode === "research" ? "none" : "inline-flex";
-      webToggleEl.classList.toggle("active", webOn);
-    }
+    function paintWebToggle() { /* web always on */ }
 
     function loadMeta() {
       if (mode === "research") {
@@ -187,6 +186,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: question, useWeb: webOn })
       }).then(function (result) {
+        lastAsk = { question: question, answer: String(result.answer || "").slice(0, 300) };
         var extraPills = webOn ? '<span class="pill plum" style="margin-left:0.3rem">notes + web</span>' : "";
         out.innerHTML = answerHtml(result, extraPills);
       }).catch(function (error) {
@@ -228,6 +228,7 @@
         headers: { "Content-Type": file.type || "image/jpeg" },
         body: file
       }).then(function (result) {
+        lastAsk = { question: question || "jobsite photo", answer: String(result.answer || "").slice(0, 300) };
         out.innerHTML = answerHtml(result, "", photoPreviewHtml(photoPreviewUrl, "Photo you asked about"));
       }).catch(function (error) {
         out.innerHTML =
@@ -263,11 +264,7 @@
       loadMeta();
     });
 
-    webToggleEl.addEventListener("click", function () {
-      if (mode === "research") return;
-      webOn = !webOn;
-      paintWebToggle();
-    });
+    
 
     photoBtn.addEventListener("click", function () {
       photoInput.click();
@@ -277,6 +274,21 @@
       if (!file) return;
       askPhoto(file, qInput.value.trim());
       photoInput.value = "";
+    });
+
+    out.addEventListener("click", function (event) {
+      var btn = event.target.closest("[data-illustrate]");
+      if (!btn) return;
+      var card = document.getElementById("kIllu");
+      card.innerHTML = '<span class="muted">Drawing diagram… ~20-60s</span>';
+      APP.fetchJSON("/api/knowledge/illustrate", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: lastAsk.question + " — " + lastAsk.answer })
+      }).then(function (r) {
+        if (r.configured === false) { card.innerHTML = '<span class="muted">' + APP.esc(r.message) + '</span>'; return; }
+        if (r.imageUrl) card.innerHTML = '<img src="' + APP.esc(r.imageUrl) + '" style="max-width:560px;width:100%;border-radius:8px" /><div class="muted" style="font-size:0.72rem;margin-top:0.3rem">generated by ' + APP.esc(r.model || "Google image model") + ' — illustrative, not engineering guidance</div>';
+        else card.innerHTML = '<span class="muted">' + APP.esc(r.error || "Generation failed") + '</span>';
+      }).catch(function (e) { card.innerHTML = '<span class="muted">Failed: ' + APP.esc(e.message) + '</span>'; });
     });
 
     document.getElementById("kAsk").addEventListener("click", function () {

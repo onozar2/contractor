@@ -203,25 +203,18 @@ module.exports = (collection) => {
   router.post("/ask", async (req, res) => {
     try {
       const question = String(req.body.question || "").trim();
-      const useWeb = Boolean(req.body.useWeb);
+      // Notes + web TOGETHER is the default (Ori: "I don't want one or the other").
+      const useWeb = req.body.useWeb === undefined ? true : Boolean(req.body.useWeb);
       if (!question) return res.status(400).json({ error: "question is required" });
       const { chunks, images } = await retrieve(collection, question, 6, 4);
-      if (!chunks.length && !useWeb) {
-        return res.json({
-          answer: "Nothing in the Construction Notes matches that topic. The knowledge base covers the product scopes (roofing, bathroom, kitchen, electrical, foundation, paint, etc.), the client decks, and the trade whiteboards. Turn on \"add web\" to answer from the web anyway.",
-          engine: "no-context", sources: [], images: []
-        });
-      }
       const context = chunks.map((chunk, index) =>
         `[${index + 1}] ${chunk.title} (${chunk.source})\n${chunk.text}`).join("\n\n---\n\n");
       const prompt = [
-        "You are the construction-knowledge assistant for We The People Construction (LA general contractor).",
-        useWeb
-          ? "Answer the question. The NOTES below (the company's own scope-of-work docs and sales decks) are the PRIMARY source of truth - lead with them and cite as [1], [2]. You may use web search to SUPPLEMENT with current/accurate outside facts, but clearly mark web-sourced statements as (web) and never let web info contradict the notes without saying so."
-          : "Answer the question using ONLY the notes below - they are the company's own scope-of-work documents and sales decks.",
-        "Be concrete and step-by-step where the notes are. Quote costs/specs exactly as written. If the notes only partially cover the question, say what is missing.",
-        "Cite sources inline as [1], [2] matching the numbered notes.",
-        "", "NOTES:", context || "(no matching notes - answer from the web and say the notes have no coverage)", "", `QUESTION: ${question}`, "", "ANSWER:"
+        "You are the construction-knowledge assistant for We The People Construction, a Los Angeles general contractor. The user is the owner, on a jobsite, deciding what to do next.",
+        "SOURCES, in order of authority: (1) the company NOTES below - their own scope-of-work docs and sales decks - cite as [1], [2]; (2) " + (useWeb ? "live web search for current Southern California code/permit/practice facts - mark those statements (web)" : "nothing else - notes only") + ". Web facts must never silently contradict the notes - flag any conflict.",
+        "ANSWER STYLE: a practical, ordered sequence of steps the way a seasoned GC would brief a foreman. When the job touches structure, always cover in order: engineer/plans if needed -> permit (name the SoCal authority, e.g. LADBS) -> temporary support/shoring or safety prep -> the work itself -> inspections -> patch/finish. Include rough SoCal costs when you know them, and say what is commonly missed.",
+        "Quote costs/specs from the notes exactly as written. If neither notes nor web settle something, say so plainly.",
+        "", "NOTES:", context || "(no matching notes - answer from web research and say the notes have no coverage on this)", "", `QUESTION: ${question}`, "", "ANSWER:"
       ].join("\n");
       let answer = "";
       let engine = "claude-haiku";
@@ -237,6 +230,48 @@ module.exports = (collection) => {
         sources: chunks.map((chunk, index) => ({ ref: index + 1, title: chunk.title, source: chunk.source, driveUrl: chunk.driveUrl })),
         images
       });
+    } catch (error) {
+      res.status(502).json({ error: error.message });
+    }
+  });
+
+  // Illustration via Google's image models ("Nano Banana"). Needs GEMINI_API_KEY
+  // in .env (free at aistudio.google.com/apikey). Tries the Pro image model
+  // first, falls back to the flash image model if unavailable on the key's tier.
+  const GEMINI_IMAGE_MODELS = ["gemini-3-pro-image-preview", "gemini-2.5-flash-image"];
+  router.post("/illustrate", async (req, res) => {
+    try {
+      const promptText = String(req.body.prompt || "").trim();
+      if (!promptText) return res.status(400).json({ error: "prompt is required" });
+      const key = process.env.GEMINI_API_KEY;
+      if (!key) {
+        return res.json({ configured: false, message: "Add GEMINI_API_KEY to contractor/.env (free key at aistudio.google.com/apikey), restart, and diagrams will generate here." });
+      }
+      let lastError = "";
+      for (const model of GEMINI_IMAGE_MODELS) {
+        try {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: `Clean instructional construction diagram, labeled, for a contractor briefing: ${promptText}` }] }]
+            }),
+            signal: AbortSignal.timeout(90000)
+          });
+          const data = await response.json();
+          if (!response.ok) { lastError = (data.error && data.error.message) || `HTTP ${response.status}`; continue; }
+          const part = (((data.candidates || [])[0] || {}).content || {}).parts?.find((p) => p.inlineData && p.inlineData.data);
+          if (!part) { lastError = "model returned no image"; continue; }
+          const dir = path.join(__dirname, "uploads", "knowledge-gen");
+          fs.mkdirSync(dir, { recursive: true });
+          const fileName = `gen-${Date.now().toString(36)}.png`;
+          fs.writeFileSync(path.join(dir, fileName), Buffer.from(part.inlineData.data, "base64"));
+          return res.json({ configured: true, model, imageUrl: `/uploads/knowledge-gen/${fileName}` });
+        } catch (error) {
+          lastError = error.message;
+        }
+      }
+      res.status(502).json({ configured: true, error: `Image generation failed: ${lastError}` });
     } catch (error) {
       res.status(502).json({ error: error.message });
     }
@@ -258,9 +293,9 @@ module.exports = (collection) => {
       const context = chunks.map((chunk, index) => `[${index + 1}] ${chunk.title}\n${chunk.text}`).join("\n\n---\n\n");
       const prompt = [
         `First, use your Read tool to look at the image file at: ${filePath}`,
-        "Describe what construction element/condition is shown, then answer the question.",
-        "Use the company NOTES below as the primary reference where relevant (cite [1], [2]); supplement with what you can see and know.",
-        "", "NOTES:", context || "(none matched - answer from the image alone)",
+        "Describe what construction element/condition is shown, then answer the question as a practical ordered plan for a Los Angeles GC: engineer/plans if structural -> permit (name the SoCal authority) -> shoring/safety prep -> the work -> inspections -> patch/finish.",
+        "Use the company NOTES below as the primary reference where relevant (cite [1], [2]); supplement with web search for current SoCal code/permit facts and mark those statements (web).",
+        "", "NOTES:", context || "(none matched - answer from the image + web research)",
         "", `QUESTION: ${question}`, "", "ANSWER:"
       ].join("\n");
       let answer = "";

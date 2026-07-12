@@ -81,7 +81,10 @@ function serveIndex(req, res) {
   }
 }
 
-publicApp.get("/", serveIndex);
+// Root = the app (Ori: "just make it the app"). The public marketing page
+// stays reachable at /index.html — when a real domain goes live, point "/"
+// back at serveIndex and give the CRM auth.
+publicApp.get("/", (_req, res) => res.redirect("/app.html"));
 publicApp.get("/index.html", serveIndex);
 publicApp.get("/flyer_services.html", (_req, res) => res.sendFile(path.join(__dirname, "flyer_services.html")));
 publicApp.get("/flyer_commercial.html", (_req, res) => res.sendFile(path.join(__dirname, "flyer_commercial.html")));
@@ -180,17 +183,27 @@ publicApp.post("/api/estimate-lead", async (req, res) => {
 });
 
 crmApp.use(express.json({ limit: "1mb" }));
-crmApp.get("/", (_req, res) => res.redirect("/subcontractor_finder.html"));
-crmApp.get("/subcontractor_finder.html", (_req, res) => res.sendFile(path.join(__dirname, "subcontractor_finder.html")));
-crmApp.get("/lead_generation.html", (_req, res) => res.sendFile(path.join(__dirname, "lead_generation.html")));
+// Superseded pages redirect into the app (files stay on disk; append ?legacy=1
+// to any of these URLs to load the old page directly if ever needed).
+const LEGACY_REDIRECTS = {
+  "subcontractor_finder.html": "/app.html#/subs",
+  "subs_database.html": "/app.html#/subs",
+  "audit.html": "/app.html#/subs",
+  "research_chat.html": "/app.html#/knowledge",
+  "lead_generation.html": "/app.html#/pipeline",
+  "services_board.html": "/app.html#/subs",
+  "actuals.html": "/app.html#/projects",
+  "suppliers.html": "/app.html#/suppliers"
+};
+for (const [page, target] of Object.entries(LEGACY_REDIRECTS)) {
+  crmApp.get(`/${page}`, (req, res) => {
+    if (req.query.legacy) return res.sendFile(path.join(__dirname, page));
+    res.redirect(target);
+  });
+}
+// Still-linked deep tools (opened from Potential projects / CO manager).
 crmApp.get("/bid_lab.html", (_req, res) => res.sendFile(path.join(__dirname, "bid_lab.html")));
-crmApp.get("/suppliers.html", (_req, res) => res.sendFile(path.join(__dirname, "suppliers.html")));
-crmApp.get("/services_board.html", (_req, res) => res.sendFile(path.join(__dirname, "services_board.html")));
-crmApp.get("/subs_database.html", (_req, res) => res.sendFile(path.join(__dirname, "subs_database.html")));
-crmApp.get("/audit.html", (_req, res) => res.sendFile(path.join(__dirname, "audit.html")));
-crmApp.get("/research_chat.html", (_req, res) => res.sendFile(path.join(__dirname, "research_chat.html")));
 crmApp.get("/estimator.html", (_req, res) => res.sendFile(path.join(__dirname, "estimator.html")));
-crmApp.get("/actuals.html", (_req, res) => res.sendFile(path.join(__dirname, "actuals.html")));
 crmApp.get("/change_orders.html", (_req, res) => res.sendFile(path.join(__dirname, "change_orders.html")));
 crmApp.get("/photo_feed.html", (_req, res) => res.sendFile(path.join(__dirname, "photo_feed.html")));
 // Unified backend app (entity-centric redesign 2026-07-07)
@@ -2652,7 +2665,9 @@ app.post("/api/suppliers/ai-parse", async (req, res) => {
 // takes the next unvetted strong-contact subs, spawns the local claude CLI
 // (sonnet, web tools available in agentic -p mode) to verify CSLB + reviews,
 // and applies the results through the same path as the manual waves.
-const VETSWEEP_DEFAULTS = { enabled: true, perRun: 8, runsPerNight: 4, hourLocal: 2 };
+// Runs around the clock every intervalHours (Ori: "started doing that more
+// often, it doesn't have to only be at night") — 10 subs every 2h ≈ 120/day.
+const VETSWEEP_DEFAULTS = { enabled: true, perRun: 10, runsPerCycle: 1, intervalHours: 2 };
 
 async function getVetsweepState() {
   const coll = await collection("settings");
@@ -2708,14 +2723,14 @@ async function vetsweepTick(force = false) {
   try {
     const state = await getVetsweepState();
     if (!state || (!state.enabled && !force)) return;
-    const now = new Date();
-    const tonight = now.toISOString().slice(0, 10);
-    if (!force && (now.getHours() !== Number(state.hourLocal ?? 2) || state.lastNight === tonight)) return;
+    const intervalMs = Number(state.intervalHours || 2) * 3600000;
+    const lastRun = state.lastRunAt ? new Date(state.lastRunAt).getTime() : 0;
+    if (!force && Date.now() - lastRun < intervalMs) return;
     const settings = await collection("settings");
-    await settings.updateOne({ _id: "vetsweep" }, { $set: { lastNight: tonight } });
+    await settings.updateOne({ _id: "vetsweep" }, { $set: { lastRunAt: new Date().toISOString() } });
     const coll = await collection();
     let totalApplied = 0;
-    for (let run = 0; run < Number(state.runsPerNight || 4); run += 1) {
+    for (let run = 0; run < Number(state.runsPerCycle || state.runsPerNight || 1); run += 1) {
       const batch = await coll.find({
         vettingStatus: { $ne: "deep_vetted" },
         contactStrength: "strong",
@@ -2735,8 +2750,8 @@ async function vetsweepTick(force = false) {
       }
     }
     const entry = { at: new Date().toISOString(), applied: totalApplied };
-    await settings.updateOne({ _id: "vetsweep" }, { $push: { history: { $each: [entry], $slice: -30 } } });
-    console.log(`[vetsweep] night ${tonight}: ${totalApplied} subs deep-vetted`);
+    await settings.updateOne({ _id: "vetsweep" }, { $push: { history: { $each: [entry], $slice: -60 } } });
+    console.log(`[vetsweep] cycle: ${totalApplied} subs deep-vetted`);
   } catch (error) {
     console.error("[vetsweep] tick failed:", error.message);
   } finally {
@@ -2750,8 +2765,8 @@ app.get("/api/vetsweep", async (_req, res) => {
     const state = await getVetsweepState();
     const coll = await collection();
     const remaining = coll ? await coll.countDocuments({ vettingStatus: { $ne: "deep_vetted" }, contactStrength: "strong", hidden: { $ne: true } }) : 0;
-    const perNight = Number(state.perRun || 8) * Number(state.runsPerNight || 4);
-    res.json({ ...state, _id: undefined, remaining, perNight, nightsToClear: perNight ? Math.ceil(remaining / perNight) : null });
+    const perDay = Math.round(Number(state.perRun || 10) * Number(state.runsPerCycle || 1) * (24 / Number(state.intervalHours || 2)));
+    res.json({ ...state, _id: undefined, remaining, perNight: perDay, perDay, daysToClear: perDay ? Math.ceil(remaining / perDay) : null, nightsToClear: perDay ? Math.ceil(remaining / perDay) : null });
   } catch (error) {
     res.status(502).json({ error: error.message });
   }
@@ -2764,8 +2779,9 @@ app.post("/api/vetsweep", async (req, res) => {
     const update = {};
     if (typeof req.body.enabled === "boolean") update.enabled = req.body.enabled;
     if (Number(req.body.perRun) >= 1) update.perRun = clamp(Number(req.body.perRun), 1, 24);
-    if (Number(req.body.runsPerNight) >= 1) update.runsPerNight = clamp(Number(req.body.runsPerNight), 1, 8);
-    if (req.body.runNow) update.lastNight = "";
+    if (Number(req.body.runsPerCycle) >= 1) update.runsPerCycle = clamp(Number(req.body.runsPerCycle), 1, 8);
+    if (Number(req.body.intervalHours) >= 1) update.intervalHours = clamp(Number(req.body.intervalHours), 1, 24);
+    if (req.body.runNow) update.lastRunAt = "";
     if (Object.keys(update).length) await settings.updateOne({ _id: "vetsweep" }, { $set: update });
     if (req.body.runNow) setImmediate(() => vetsweepTick(true));
     res.json(await getVetsweepState());
