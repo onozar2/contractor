@@ -1,0 +1,204 @@
+{
+  "_README": "Material sourcing model: factory-direct (imported) vs US domestic wholesale, for outdoor fence & gate materials and other high-container-volume building materials. PROVENANCE is explicit on every price: 'sub' = a number Ori got directly from a subcontractor/supplier; 'online' = web research (Alibaba/Made-in-China listings, US distributor listings, tariff filings). See material-sourcing-README.md. Prices are MATERIAL ONLY (not installed). A 'box' = one pre-assembled fence PANEL section, NOT a bulk carton of loose footage.",
+  "asOf": "2026-07-13",
+  "unitNote": "Fence 'box' = one pre-assembled panel. Vinyl & wood panels are typically 8 ft wide (~8 LF/box); aluminum panels ~6 ft wide (~6 LF/box). Always confirm LF-per-box with the supplier before comparing quotes — some factories price per panel/set, some per linear foot, with no consistent labeling.",
+  "dutyWarning": "The Excel model Ori built compared FOB 'box cost' straight to a domestic price and skipped import duties + freight entirely. Real landed cost = FOB + duty + ocean freight + drayage + broker. Duties are large and moving in 2026 (see per-material dutyStack).",
+  "fenceGate": [
+    {
+      "material": "Vinyl (PVC)",
+      "portStatus_perSub": "In stock (port clear)",
+      "sub": {
+        "perBoxUSD": [40, 55],
+        "lfPerBox": 8,
+        "perLF_USD": [5.00, 6.88],
+        "provenance": "sub",
+        "note": "Sub's price per 8-ft panel; sub imports factory-direct so this is already landed/pass-through. Excel used midpoint 47.5."
+      },
+      "factoryDirectFOB": {
+        "perPanelUSD": [23, 63],
+        "perLF_USD": [2.88, 7.88],
+        "grades": "economy 6x8 panel $23-35; virgin/premium $56-63",
+        "provenance": "online",
+        "sources": ["Alibaba vinyl-fence-panels", "longjieplastic (Made-in-China)"]
+      },
+      "landedEstimate": {
+        "perLF_USD": [4.50, 11.50],
+        "dutyPct": 40.3,
+        "freightPerLF_USD": [0.55, 0.85],
+        "provenance": "online-derived"
+      },
+      "domesticWholesale": {
+        "perLF_USD": [9.17, 20],
+        "examples": "Boulder economy $9.17/LF; Newbury premium $19.99/LF (a 4-ft economy panel dips to ~$5.75/LF but that isn't a 6-ft privacy comparison)",
+        "provenance": "online",
+        "sources": ["avinylfence.com", "Home Depot Veranda Windham"]
+      },
+      "importSavingPct": {
+        "economy": [0, 20],
+        "midPremium": [35, 55],
+        "note": "Economy grade may be a WASH after ~40% duty + freight; savings are real only on mid/premium grades and at volume."
+      },
+      "dutyStack": "~40.3% China origin (5.3% MFN + 25% Sec.301 + 10% Sec.122). Sec.122 10% expires ~2026-07-24 unless renewed — live regulatory change, confirm before ordering. HTS 3925.90.",
+      "leadTimeDays": [45, 65],
+      "importBreakEven": "~7,000-12,000+ LF/yr (2-3+ containers); below that, freight/broker/QC fixed costs eat the FOB discount.",
+      "gateKit": {
+        "factoryDirect": "not found — needs direct supplier RFQ",
+        "domesticUSD": [165, 420],
+        "provenance": "online",
+        "note": "Vinyl walk gates 3.5-6 ft, WamBam"
+      },
+      "verdict": "Buy vinyl THROUGH the sub — his ~$5-7/LF beats domestic wholesale $9-20/LF. Joon importing directly only pencils at 2-3+ containers/yr, and even then only on mid/premium grades."
+    },
+    {
+      "material": "Composite (WPC)",
+      "portStatus_perSub": "OUT OF STOCK (at port) — 'waiting for containers to be released'",
+      "sub": {
+        "perBoxUSD": 65,
+        "lfPerBox": 6,
+        "perLF_USD": 10.83,
+        "provenance": "sub",
+        "AMBIGUITY_FLAG": "This is the ONE number to confirm with the sub. '$65/box' could be (a) a full 6-ft panel+post set = ~$10.83/LF (beats domestic — great deal), OR (b) a 3-4 LF picket bundle with no hardware = ~$16-18/LF (near domestic). Ask the sub: 'Is the $65 a full panel+post section, or a box of pickets?' The per-LF math differs ~2x. Excel divided by 8; a composite panel is 6 ft wide, so ÷6 is correct if it's a panel."
+      },
+      "factoryDirectFOB": {
+        "perSetUSD": [70, 140],
+        "perLF_USD": [11.67, 23.33],
+        "grades": "standard co-extrusion $70-90; aluminum-post $90-120; premium fluted/dual-tone $100-140 (per 6-ft set)",
+        "provenance": "online",
+        "note": "Alibaba headline $2.60-5/m prices are 'bait' — real FOB is the set prices above. mecofence wholesale guide.",
+        "sources": ["mecofence.com wholesale guide", "newgendepot.com direct-import kit $209"]
+      },
+      "landedEstimate": {
+        "perLF_USD": [19, 38],
+        "dutyPct": 40.3,
+        "freightNote": "Ocean freight at JULY 2026 PEAK: $6,075-7,425 per 40ft (vs $2,100-2,700 in Jan). Peak Aug-Oct. This thins the import case right now.",
+        "provenance": "online-derived"
+      },
+      "domesticWholesale": {
+        "perLF_USD": [20, 80],
+        "examples": "mid-grade (Fiberon-tier) $20-35/LF; premium capped (Trex Seclusions) $35-80/LF",
+        "provenance": "online",
+        "sources": ["bohaiwoods.com", "ergeon.com", "fenceguides.com"]
+      },
+      "importSavingPct": {
+        "value": [0, 30],
+        "note": "Vendor marketing claims 25-45%; real landed math at current ~40% duty + PEAK freight is closer to 0-30%. Clear win only at full-container (300+ LF) volume outside peak season."
+      },
+      "dutyStack": "~40.3% China origin (5.3% MFN + 25% Sec.301 + 10% Sec.122). HTS 3925.90 (CBP ruling N337378 — plastic component governs). Same stack as vinyl.",
+      "leadTimeDays": [42, 70],
+      "gateKit": { "factoryDirect": "not found — needs direct supplier RFQ", "provenance": "online" },
+      "verdict": "Depends entirely on what the '$65/box' is. If a full 6-ft panel: strong buy through the sub (~$11/LF vs $20-80 domestic). If a picket bundle: only modest edge. Confirm with the sub first. Direct import only pencils at full-container volume, not during the current peak-freight window."
+    },
+    {
+      "material": "Aluminum",
+      "portStatus_perSub": "OUT OF STOCK (at port) — 'waiting for containers to be released'",
+      "sub": {
+        "perBoxUSD": 75,
+        "lfPerBox": 6,
+        "perLF_USD": 12.50,
+        "provenance": "sub",
+        "note": "Sub's price per ~6-ft powder-coated panel. Excel divided by 8 (=$9.38/LF) — WRONG for aluminum; aluminum panels are ~6 ft wide, so per-LF is ~$12.50, not $9.38."
+      },
+      "factoryDirectFOB": {
+        "perLF_USD": [9.45, 27.40],
+        "provenance": "online-derived",
+        "note": "Alibaba/MIC quote per m2 or per piece, rarely a bundled post-to-post panel — hard to standardize; get a landed quote.",
+        "sources": ["Alibaba aluminum-fence-price", "Made-in-China aluminum-fence-panel"]
+      },
+      "domesticWholesale": {
+        "perLF_USD": [11.84, 40.84],
+        "examples": "Home Depot Forgeright $11.84/LF; FenceWorkshop 6-ft panels $80-245 ($13.40-40.84/LF); Barrette $28-29/LF",
+        "provenance": "online",
+        "sources": ["fenceworkshop.com", "Home Depot aluminum fence panels"]
+      },
+      "importSavingPct": {
+        "value": "NEGATIVE (import lands ABOVE domestic)",
+        "note": "This is the key finding — see dutyStack."
+      },
+      "dutyStack": "Chinese aluminum fence is inside the Antidumping/Countervailing Duty order on aluminum extrusions: AD China-wide 86.01% + CVD 7.37% (up to 374%) + Section 232 aluminum 50% (as of 2025-06-04) + Section 301 ~25%. Stacking AD (86%) + Sec.232 (50%) alone more than DOUBLES landed cost over FOB. HTS aluminum extrusions scope ruling (trade.gov ita-338p).",
+      "leadTimeDays": [56, 98],
+      "verdict": "DO NOT import aluminum fence direct from China — tariffs erase the FOB discount several times over. The sub's $75/panel is ~= domestic ($71-100 for a comparable 6-ft panel), which corroborates this: even 'factory-direct' aluminum lands near domestic once duties are paid. Buy aluminum domestically (or from the sub at domestic-parity), whichever is more reliable."
+    },
+    {
+      "material": "Wood (pre-assembled treated sections)",
+      "portStatus_perSub": "In stock (local)",
+      "sub": {
+        "perBoxUSD": 55,
+        "lfPerBox": 8,
+        "perLF_USD": 6.88,
+        "provenance": "sub",
+        "note": "Sub's price per 8-ft PT pine panel. Matches Home Depot 6ft x 8ft PT pine panel ($49.98-54.98) — i.e. this is a DOMESTIC panel, not an import."
+      },
+      "factoryDirectFOB": {
+        "value": "N/A — no viable China factory-direct supply chain for solid-sawn PT pine/cedar/redwood fence panels",
+        "provenance": "online"
+      },
+      "domesticWholesale": {
+        "perLF_USD": [6.25, 12.38],
+        "examples": "PT pine $6.25-9.25/LF; cedar $9.25-12.38/LF; redwood ~$8-20/LF",
+        "provenance": "online",
+        "sources": ["Home Depot PT pine fence panels", "Home Depot cedar"]
+      },
+      "importSavingPct": {
+        "value": "N/A — importing wood does not make sense",
+        "note": "Low value-to-weight (freight dominates), abundant nearby domestic supply (SE-US pine, PNW/NorCal cedar-redwood), no real Chinese solid-lumber fence export industry. CONFIRMED."
+      },
+      "leadTimeDays": "domestic — days, not weeks",
+      "verdict": "Wood is a domestic-only category. The Excel treating wood as an 'overseas' line is misleading — the sub's $55 is a domestic pre-assembled panel. Source locally."
+    }
+  ],
+  "otherMaterials": [
+    {
+      "material": "LVP / SPC flooring (vinyl-core)",
+      "factoryDirectFOB_perSqft": [0.19, 1.00],
+      "domesticWholesale_perSqft": [1.50, 4.00],
+      "dutyPct": 40.3,
+      "dutyNote": "No China AD/CVD on vinyl flooring (HTS 3918); general China stack 5.3% MFN + 25% Sec.301 + 10% Sec.122. Real ENGINEERED HARDWOOD is different — separate Multilayered Wood Flooring AD/CVD, stay domestic.",
+      "landedSavingPct": [50, 70],
+      "containerCoverage": "40HQ ~7,000-13,000 sqft = under 1 yr of GC use",
+      "leadTimeDays": [14, 20],
+      "verdict": "IMPORT NOW — strongest direct-import case. Vinyl-core only, not engineered hardwood.",
+      "provenance": "online",
+      "sources": ["Made-in-China SPC listings", "Section 301 China tariff guide 2026"]
+    },
+    {
+      "material": "Quartz / porcelain slabs",
+      "factoryDirectFOB_perSqft": [2, 9],
+      "domesticWholesale_perSqft": [30, 75],
+      "dutyNote": "China quartz AD 265-337% + CVD 45-191% (~300-430% combined) — kills China import. Vietnam currently exempt from that order (~20% general) but Section 201 global safeguard up to 50% cleared ITC injury vote 2026-04-01, decision mid-2026.",
+      "savingPctPreDuty": [75, 95],
+      "verdict": "China: stay domestic. Vietnam: import at volume, but needs a fabricator relationship + warehouse; Section 201 risk makes a single-container bet speculative now.",
+      "provenance": "online",
+      "sources": ["Made-in-China quartz", "Federal Register quartz AD/CVD continuation 2025"]
+    },
+    {
+      "material": "Porcelain / ceramic tile",
+      "factoryDirectFOB_perSqft": [0.25, 1.00],
+      "domesticWholesale_perSqft": [2, 5],
+      "dutyNote": "China ceramic tile AD/CVD continued Feb 2026, commonly cited 600-725% China-wide (verify vs primary order). India also now AD/CVD. Country-by-country reciprocal rates in flux post-SCOTUS Feb 2026.",
+      "savingPctPreDuty": [60, 90],
+      "verdict": "China: stay domestic (punitive duty). Verified non-China/non-AD-CVD origin: import at volume — widest raw FOB spread of the set, survives a moderate general tariff. Needs storage + breakage tolerance.",
+      "provenance": "online",
+      "sources": ["Made-in-China tile", "Federal Register ceramic tile AD/CVD continuation 2026"]
+    },
+    {
+      "material": "Kitchen cabinets (RTA)",
+      "factoryDirectFOB_perLF": [40, 100],
+      "domesticWholesale_perLF": [100, 300],
+      "dutyNote": "China Wooden Cabinets AD/CVD up to 251.64% (2024-25 review) + Vietnam circumvention ruling (Chinese components) + Section 232 25% on cabinets from ALL countries (2025-10-14, rising to 50% Jan 2027).",
+      "savingPctPreDuty": [60, 75],
+      "verdict": "STAY DOMESTIC — full stop. Clearest 'don't' in the list. No low-duty sourcing country left at GC scale.",
+      "provenance": "online",
+      "sources": ["Made-in-China RTA cabinets", "Federal Register wooden cabinets AD/CVD 2026", "Section 232 wood furniture"]
+    },
+    {
+      "material": "Vinyl windows",
+      "factoryDirectFOB_perUnit": [55, 140],
+      "domesticWholesale_perUnit": [100, 300],
+      "dutyPct": 22.5,
+      "dutyNote": "~22.5% (Sec.301 + Sec.122); no China AD/CVD on finished vinyl windows. The REAL gate is CA Title 24 / NFRC certification — every permitted window needs an NFRC U-factor/SHGC label; only a handful of Asian factories carry NFRC listing (multi-month, multi-$K per product line).",
+      "verdict": "Stay domestic for spot/project buys. Import only at 50+ units/yr committed to ONE NFRC-certified factory line — below that, compliance friction + narrowed choice eat the savings. Matches the earlier 'windows are dealer-only' read.",
+      "provenance": "online",
+      "sources": ["Made-in-China vinyl window", "CA Title 24 window compliance guide"]
+    }
+  ]
+}
