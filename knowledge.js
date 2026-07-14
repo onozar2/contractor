@@ -9,6 +9,7 @@ const express = require("express");
 const { spawn } = require("child_process");
 const fs = require("fs");
 const path = require("path");
+const { parseCliJson, logTokenUsage } = require("./tokenlog");
 
 const STOP_WORDS = new Set([
   "the", "and", "for", "with", "that", "this", "what", "which", "where", "when",
@@ -52,9 +53,16 @@ function driveView(fileId) {
   return `https://drive.google.com/file/d/${fileId}/view`;
 }
 
-function runClaudeCli(prompt, timeoutMs = 150000) {
+// collection is passed explicitly (same pattern as retrieve() below) since this
+// function lives outside the module.exports(collection) closure.
+function runClaudeCli(collection, prompt, timeoutMs = 150000, model = "claude-haiku-4-5-20251001", feature = "unknown") {
   return new Promise((resolve, reject) => {
-    const child = spawn("claude", ["-p", "--model", "claude-haiku-4-5-20251001", "--output-format", "text"], {
+    const started = Date.now();
+    // --strict-mcp-config with no --mcp-config: skip loading every user/project
+    // MCP server at CLI startup (they're irrelevant here and cost real seconds).
+    // --output-format json: gives us usage/cost/duration for the token tracker
+    // (Feature 1) - parsed by tokenlog.js, with a plain-text fallback below.
+    const child = spawn("claude", ["-p", "--model", model, "--output-format", "json", "--strict-mcp-config"], {
       shell: true,
       windowsHide: true,
       env: { ...process.env }
@@ -66,8 +74,21 @@ function runClaudeCli(prompt, timeoutMs = 150000) {
     child.stderr.on("data", (data) => { err += data; });
     child.on("close", (code) => {
       clearTimeout(timer);
-      if (code === 0 && out.trim()) resolve(out.trim());
-      else reject(new Error(err.trim() || `Claude CLI exited ${code}`));
+      const durationMs = Date.now() - started;
+      if (code === 0 && out.trim()) {
+        const parsed = parseCliJson(out);
+        if (parsed) {
+          logTokenUsage(collection, { feature, model, parsed, ok: true, durationMs });
+          resolve(String(parsed.result || "").trim());
+        } else {
+          // JSON.parse failed - fall back to treating stdout as plain text exactly like before.
+          logTokenUsage(collection, { feature, model, parsed: null, ok: true, durationMs });
+          resolve(out.trim());
+        }
+      } else {
+        logTokenUsage(collection, { feature, model, parsed: null, ok: false, durationMs });
+        reject(new Error(err.trim() || `Claude CLI exited ${code}`));
+      }
     });
     child.stdin.write(prompt);
     child.stdin.end();
@@ -212,14 +233,17 @@ module.exports = (collection) => {
       const prompt = [
         "You are the construction-knowledge assistant for We The People Construction, a Los Angeles general contractor. The user is the owner, on a jobsite, deciding what to do next.",
         "SOURCES, in order of authority: (1) the company NOTES below - their own scope-of-work docs and sales decks - cite as [1], [2]; (2) " + (useWeb ? "live web search for current Southern California code/permit/practice facts - mark those statements (web)" : "nothing else - notes only") + ". Web facts must never silently contradict the notes - flag any conflict.",
-        "ANSWER STYLE: a practical, ordered sequence of steps the way a seasoned GC would brief a foreman. When the job touches structure, always cover in order: engineer/plans if needed -> permit (name the SoCal authority, e.g. LADBS) -> temporary support/shoring or safety prep -> the work itself -> inspections -> patch/finish. Include rough SoCal costs when you know them, and say what is commonly missed.",
+        "ANSWER STYLE: write like a seasoned GC briefing the owner - flowing short paragraphs, not choppy one-line fragments; use a numbered list ONLY for a real step-by-step sequence and never use markdown tables. When the job touches structure, always cover in order: engineer/plans if needed -> permit (name the SoCal authority, e.g. LADBS) -> temporary support/shoring or safety prep -> the work itself -> inspections -> patch/finish. Include rough SoCal costs when you know them, and say what is commonly missed. COMPLIANCE COVERAGE is a standing part of EVERY briefing about physical work - even a cost-only or single-trade question: every answer MUST include a short 'Permits & inspections:' line (or section) naming the permit authority (e.g. LADBS) and the specific inspections the job will hit (rough/final at minimum) - an answer without it is incomplete; and if the work will cut into, open, remove or patch ANY existing finish (drywall, plaster, stucco, roofing, flooring) - including when that is only implied, e.g. for access, shoring or patch-back - the answer MUST also include a 'Hazmat:' line immediately after the 'Permits & inspections:' line stating the asbestos/lead survey gate (survey before demo, required regardless of building age) - omitting it when finishes get opened is an incomplete answer.",
+        "IF THE QUESTION COMPARES OPTIONS (e.g. pavers vs concrete): give one '## <Option>' section per option. Inside each section: what it is in a sentence, then the actual installation process as a short numbered sequence (demo/excavation, base prep, the install, finish/cure), then its installed SoCal price on its own line ALWAYS labeled with the option's name (e.g. 'Concrete: roughly $X-$Y per sqft installed'), then 'Pros:' and 'Cons:' as short bullets. Finish with a '## Verdict' section - 2-4 plain sentences on which one to pick and when. Never mix two options' prices in the same sentence.",
+        "SPEED: run at most 2 web searches before writing - do not keep browsing.",
         "Quote costs/specs from the notes exactly as written. If neither notes nor web settle something, say so plainly.",
+        "HARD RULES: never state a permit-fee dollar amount or a code section number as fact unless it appears verbatim in the NOTES below - say \"verify current fee schedule with <authority>\" instead. Whenever the job involves demolition or opening walls/ceilings/floors, carry forward the asbestos/lead hazmat gate (survey required regardless of building age). Never invent an inspection type that isn't in the notes or well-established SoCal practice.",
         "", "NOTES:", context || "(no matching notes - answer from web research and say the notes have no coverage on this)", "", `QUESTION: ${question}`, "", "ANSWER:"
       ].join("\n");
       let answer = "";
       let engine = "claude-haiku";
       try {
-        answer = await runClaudeCli(prompt);
+        answer = await runClaudeCli(collection, prompt, undefined, undefined, "knowledge-ask");
       } catch {
         engine = "context-only";
         answer = "Claude CLI unavailable - here are the matching notes verbatim:\n\n" +
@@ -286,9 +310,13 @@ module.exports = (collection) => {
       const style = String(req.query.style || "modern light").trim().slice(0, 120);
       const room = String(req.query.room || "room").trim().slice(0, 60);
       const key = process.env.GEMINI_API_KEY;
-      const redesignPrompt =
-        `Redesign this ${room} in a ${style} style. STRUCTURE-PRESERVING edit: keep the exact camera angle, room layout, window/door positions and perspective lines; ` +
-        "change only finishes, cabinetry/fixture styles, colors, materials and lighting. Photorealistic, consistent shadows and lighting direction, professionally staged, decluttered.";
+      // The new Design view composes its own full render prompt from the chat
+      // (via /design-brief) and passes it here as ?prompt=. Fall back to the
+      // room/style formula for the legacy Knowledge-view redesign buttons.
+      const custom = String(req.query.prompt || "").trim().slice(0, 2000);
+      const redesignPrompt = custom ||
+        (`Redesign this ${room} in a ${style} style. STRUCTURE-PRESERVING edit: keep the exact camera angle, room layout, window/door positions and perspective lines; ` +
+        "change only finishes, cabinetry/fixture styles, colors, materials and lighting. Photorealistic, consistent shadows and lighting direction, professionally staged, decluttered.");
       if (!key) {
         return res.json({ configured: false, prompt: redesignPrompt, message: "Add GEMINI_API_KEY to contractor/.env and restart." });
       }
@@ -341,20 +369,37 @@ module.exports = (collection) => {
       const ext = /png/.test(String(req.headers["content-type"])) ? "png" : "jpg";
       const filePath = path.join(dir, `q-${Date.now().toString(36)}.${ext}`);
       fs.writeFileSync(filePath, req.body);
-      const { chunks, images } = await retrieve(collection, question, 4, 3);
+      // Pass 1 (cheap, haiku): describe the photo as search keywords so retrieval
+      // matches what's IN the picture, not just the often-generic question text
+      // (a "redo this backyard" question has no pool/paver terms to match on).
+      // On any failure this degrades to question-only retrieval, same as before.
+      let sceneTerms = "";
+      try {
+        const raw = await runClaudeCli(collection, [
+          `Use your Read tool to look at the image file at: ${filePath}`,
+          "Then reply with ONLY one line: 8-15 lowercase search keywords, space-separated, no punctuation, naming the construction elements, materials, rooms/areas and trades visible in the photo (e.g. \"pool jacuzzi spa pavers patio hardscape landscaping coping retaining wall\").",
+          "No sentences, no preamble, no explanation - just the keyword line."
+        ].join("\n"), 90000, undefined, "knowledge-photo-scene");
+        const lines = raw.split("\n").map((line) => line.trim()).filter(Boolean);
+        sceneTerms = (lines[lines.length - 1] || "").slice(0, 300);
+      } catch { /* keyword pass is best-effort */ }
+      const { chunks, images } = await retrieve(collection, `${question} ${sceneTerms}`.trim(), 4, 3);
       const context = chunks.map((chunk, index) => `[${index + 1}] ${chunk.title}\n${chunk.text}`).join("\n\n---\n\n");
       const prompt = [
         `First, use your Read tool to look at the image file at: ${filePath}`,
-        "Describe what construction element/condition is shown, then answer the question as a practical ordered plan for a Los Angeles GC: engineer/plans if structural -> permit (name the SoCal authority) -> shoring/safety prep -> the work -> inspections -> patch/finish.",
+        "Describe what construction element/condition is shown, then answer the question as a practical ordered plan for a Los Angeles GC: engineer/plans if structural -> permit (name the SoCal authority) -> shoring/safety prep -> the work -> inspections -> patch/finish. Write in flowing short paragraphs (numbered lists only for real step sequences); never use markdown tables.",
         "THEN add a section titled 'QUOTING QUANTITIES (rough)': estimate the measurable quantities a GC needs at quoting stage from what's visible - e.g. linear feet of base/upper cabinets and countertop, sqft of backsplash (LF of counter x 1.5ft is the rule of thumb), sqft of flooring/tile, count of fixtures/appliances/windows. Scale off reference objects (door ~80\" tall, counter 36\" AFF, outlet ~12\" AFF, standard appliances) and STATE your assumptions. Rough is fine - these feed a quote with margin, not a cut list.",
+        "HARD RULES: never state a permit-fee dollar amount or a code section number as fact unless it appears verbatim in the NOTES below - say \"verify current fee schedule with <authority>\" instead. If the photo shows or the question involves demolition or opening walls/ceilings/floors, always include the asbestos/lead hazmat gate (survey required regardless of building age). Never invent an inspection type that isn't in the notes or well-established SoCal practice.",
         "Use the company NOTES below as the primary reference where relevant (cite [1], [2]); supplement with web search for current SoCal code/permit facts and mark those statements (web).",
         "", "NOTES:", context || "(none matched - answer from the image + web research)",
         "", `QUESTION: ${question}`, "", "ANSWER:"
       ].join("\n");
+      // Sonnet for photo questions: haiku misreads scenes (e.g. called a printed
+      // brochure a real kitchen); scene identification is the whole feature here.
       let answer = "";
-      let engine = "claude-haiku";
+      let engine = "claude-sonnet";
       try {
-        answer = await runClaudeCli(prompt, 240000);
+        answer = await runClaudeCli(collection, prompt, 240000, "claude-sonnet-5", "knowledge-photo");
       } catch (error) {
         engine = "error";
         answer = `Could not analyze the photo: ${error.message}`;
@@ -362,6 +407,88 @@ module.exports = (collection) => {
       res.json({ answer, engine, photoUrl: `/uploads/knowledge-questions/${path.basename(filePath)}`,
         sources: chunks.map((chunk, index) => ({ ref: index + 1, title: chunk.title, source: chunk.source, driveUrl: chunk.driveUrl })),
         images });
+    } catch (error) {
+      res.status(502).json({ error: error.message });
+    }
+  });
+
+  // Design-brief conversation (Design view). The customer photographs a real
+  // room and types plain-speech requests; each message posts the whole thread
+  // here. Haiku maintains a structured brief and composes ONE structure-
+  // preserving image-edit instruction (renderPrompt) that the Design view then
+  // sends to /redesign (?prompt=) or hands to Gemini. Always returns valid JSON;
+  // if the CLI fails or emits non-JSON, we compose a fallback from the raw
+  // messages using the same proven formula so the flow never dead-ends.
+  const RENDER_TAIL = "Photorealistic, consistent shadows and lighting direction, professionally staged, decluttered.";
+  function composeRenderPrompt(room, changes, keep) {
+    const changeText = (Array.isArray(changes) && changes.length) ? changes.join(", ") : "the requested finishes and styling";
+    const keepText = (Array.isArray(keep) && keep.length) ? " and " + keep.join(", ") : "";
+    return `Redesign this ${room || "space"}. STRUCTURE-PRESERVING edit: keep the exact camera angle, room layout, window/door positions and perspective lines${keepText}; change only ${changeText}. ${RENDER_TAIL}`;
+  }
+  function extractJson(text) {
+    if (!text) return null;
+    let t = String(text).trim();
+    const fence = t.match(/```(?:json)?\s*([\s\S]*?)```/i);
+    if (fence) t = fence[1].trim();
+    const start = t.indexOf("{");
+    const end = t.lastIndexOf("}");
+    if (start < 0 || end < 0 || end < start) return null;
+    try { return JSON.parse(t.slice(start, end + 1)); } catch (_e) { return null; }
+  }
+
+  router.post("/design-brief", async (req, res) => {
+    try {
+      const messages = Array.isArray(req.body.messages) ? req.body.messages : [];
+      if (!messages.length) return res.status(400).json({ error: "messages is required" });
+      const userTexts = messages
+        .filter((m) => m && String(m.role) !== "assistant")
+        .map((m) => String((m && m.text) || "").trim())
+        .filter(Boolean);
+      const transcript = messages
+        .map((m) => (String(m && m.role) === "assistant" ? "Designer: " : "Customer: ") + String((m && m.text) || "").trim())
+        .join("\n");
+      const prompt = [
+        "You are the design-brief assistant inside a Los Angeles remodeling contractor's photo-redesign tool. The customer has uploaded a PHOTO of a real room and is telling you in plain speech what they want changed. You maintain a running structured design brief across the whole conversation and compose ONE image-edit instruction that a photorealistic, STRUCTURE-PRESERVING image model will run on their photo.",
+        "READ THE ENTIRE CONVERSATION and merge every request into one coherent brief. Later messages refine or override earlier ones.",
+        "Ask AT MOST ONE short clarifying question, and ONLY when something essential is missing or two requests conflict (e.g. you genuinely cannot tell what room it is). Otherwise DO NOT ask a question — warmly confirm and proceed.",
+        "Infer the room type ONLY from what the customer's own words state or clearly imply (\"cabinets and counters\" implies kitchen; \"vanity and shower\" implies bathroom). You CANNOT see the photo — if their words don't identify the room, use the neutral word \"space\" in renderPrompt (never guess: the photo may be an exterior, yard, or any room) and let your one clarifying question ask which room it is. Infer a coherent style from what they say; never make them pick from a menu.",
+        "renderPrompt MUST follow this exact formula, filling the blanks: \"Redesign this <room> <as/in a ...>. STRUCTURE-PRESERVING edit: keep the exact camera angle, room layout, window/door positions and perspective lines<, plus any specific things to keep>; change only <the requested changes as a comma list>. " + RENDER_TAIL + "\"",
+        "reply is 1-2 warm, conversational sentences to the customer, like texting — never JSON, never a bulleted list.",
+        "Return ONLY a single minified JSON object, no markdown fences, no text before or after it:",
+        '{"reply":"...","brief":{"room":"...","style":"...","changes":["..."],"keep":["..."]},"renderPrompt":"..."}',
+        "",
+        "CONVERSATION (most recent last):",
+        transcript,
+        "",
+        "JSON:"
+      ].join("\n");
+
+      let raw = "";
+      try {
+        raw = await runClaudeCli(collection, prompt, 90000, "claude-haiku-4-5-20251001", "design-brief");
+      } catch (_e) { raw = ""; }
+      const parsed = extractJson(raw);
+      if (parsed && parsed.renderPrompt) {
+        const brief = parsed.brief && typeof parsed.brief === "object" ? parsed.brief : {};
+        return res.json({
+          reply: String(parsed.reply || "").trim() || "Got it — your render brief is updated below.",
+          brief: {
+            room: String(brief.room || "").trim(),
+            style: String(brief.style || "").trim(),
+            changes: Array.isArray(brief.changes) ? brief.changes.map((c) => String(c || "").trim()).filter(Boolean) : [],
+            keep: Array.isArray(brief.keep) ? brief.keep.map((c) => String(c || "").trim()).filter(Boolean) : []
+          },
+          renderPrompt: String(parsed.renderPrompt).trim().slice(0, 2000),
+          engine: "claude-haiku"
+        });
+      }
+      // Fallback: compose from the raw customer messages with the same formula.
+      return res.json({
+        reply: "Here's your render brief — tweak it below or tell me another change.",
+        brief: { room: "", style: "", changes: userTexts, keep: [] },
+        renderPrompt: composeRenderPrompt("room", userTexts, []),
+        engine: "fallback"
+      });
     } catch (error) {
       res.status(502).json({ error: error.message });
     }

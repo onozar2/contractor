@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="JOON Command — unified backend for subs, projects, and pipeline." />
+  <meta name="theme-color" content="#101828" />
+  <link rel="manifest" href="/assets/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>JOON · Command</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -252,6 +257,8 @@
       <a href="#/permits" data-view="permits">Permits</a>
       <a href="#/pricing" data-view="pricing">Pricing</a>
       <a href="#/knowledge" data-view="knowledge">Knowledge</a>
+      <a href="#/design" data-view="design">🎨 Design</a>
+      <a href="#/bids" data-view="bids">📄 Bids</a>
     </nav>
     <div class="sidefoot">
       <a href="/index.html">Public site</a>
@@ -596,6 +603,22 @@
           if (line) line.remove();
         });
 
+        /* AI usage (30d) — compact card over the token-spend tracker */
+        var aiCardEl = el('<div class="card"><h2>AI usage (30d)</h2><div class="loading">Loading…</div></div>');
+        container.appendChild(aiCardEl);
+        fetchJSON("/api/token-usage?days=30").then(function (u) {
+          var t = (u && u.totals) || {};
+          var top = (u && u.byFeature && u.byFeature[0]) || null;
+          var totalTokens = (Number(t.inputTokens) || 0) + (Number(t.outputTokens) || 0);
+          aiCardEl.innerHTML = '<h2>AI usage (30d)</h2>' +
+            '<div class="kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">' +
+              kpi(Number(t.calls) || 0, "Calls") +
+              kpi(totalTokens.toLocaleString(), "Tokens") +
+              kpi("$" + (Number(t.costUsd) || 0).toFixed(2), "Est. cost", "green") +
+              kpi(top ? top.feature : "—", "Top feature") +
+            "</div>";
+        }).catch(function () { aiCardEl.remove(); });
+
         /* Jobs timeline — portfolio Gantt of active jobs */
         var ganttSlot = el("<div></div>");
         container.appendChild(ganttSlot);
@@ -648,5 +671,12 @@
   <script src="app_takeoff.js"></script>
   <script src="app_billing.js"></script>
   <script src="app_permits.js"></script>
+  <script src="app_design3d.js"></script>
+  <script src="app_bids.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+    }
+  </script>
 </body>
 </html>

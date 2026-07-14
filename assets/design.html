@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Design your remodel in 3D — free, interactive, and yours in 60 seconds. Joon Development Group, Southern California." />
+  <title>Free 3D Design Studio | Joon Development Group</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #172033; --steel: #334155; --mist: #f4f6f8; --paper: #fffaf2;
+      --clay: #b85c38; --copper: #d78b54; --sage: #6f7d68; --line: #dde3ea;
+      --white: #ffffff; --muted: #687587;
+      --shadow: 0 24px 60px rgba(23, 32, 51, 0.14);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: var(--ink); background: var(--white); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+
+    .topbar { background: var(--ink); color: rgba(255,255,255,0.85); font-size: 0.8rem; padding: 0.55rem 5vw; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.4rem; }
+    .topbar a { color: rgba(255,255,255,0.85); text-decoration: none; }
+    .topbar strong { color: #fff; letter-spacing: 0.04em; }
+
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 0.9rem 5vw; border-bottom: 1px solid var(--line); flex-wrap: wrap; gap: 0.6rem; }
+    .brand { display: flex; flex-direction: column; text-decoration: none; color: var(--ink); }
+    .brand span:first-child { font-weight: 900; letter-spacing: 0.01em; font-size: 1.02rem; }
+    .brand span:last-child { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    nav .back { text-decoration: none; color: var(--steel); font-weight: 700; font-size: 0.9rem; }
+    nav .back:hover { color: var(--clay); }
+
+    /* ---- hero pitch ---- */
+    .hero { padding: 2.2rem 5vw 1.2rem; max-width: 1180px; margin: 0 auto; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.09em; color: var(--clay); background: #fbeee6; border: 1px solid #f0d9c9; padding: 0.28rem 0.7rem; border-radius: 999px; margin-bottom: 0.75rem; }
+    .hero h1 { font-size: clamp(1.55rem, 4.4vw, 2.5rem); line-height: 1.12; letter-spacing: -0.01em; margin-bottom: 0.5rem; }
+    .hero h1 em { color: var(--clay); font-style: normal; }
+    .hero p { color: var(--steel); max-width: 640px; font-size: clamp(0.95rem, 2.4vw, 1.08rem); }
+    .steps { display: flex; gap: 1.1rem; flex-wrap: wrap; margin-top: 0.9rem; }
+    .steps span { font-size: 0.82rem; color: var(--muted); font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem; }
+    .steps b { display: inline-flex; width: 20px; height: 20px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 0.7rem; align-items: center; justify-content: center; }
+
+    /* ---- studio layout ---- */
+    .studio { max-width: 1180px; margin: 0 auto; padding: 1.1rem 5vw 8rem; display: grid; grid-template-columns: 340px 1fr; gap: 1.1rem; align-items: start; }
+
+    .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 1rem; box-shadow: var(--shadow); }
+    #controls { display: flex; flex-direction: column; gap: 0.7rem; }
+
+    .grp { }
+    .grp-lbl { font-size: 0.68rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 0.45rem; display: flex; justify-content: space-between; align-items: baseline; gap: 0.4rem; flex-wrap: wrap; }
+    .ladder { font-size: 0.6rem; font-weight: 800; letter-spacing: 0.02em; color: #a6b0bd; text-transform: none; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .chip { border: 1.5px solid var(--line); background: var(--white); border-radius: 9px; padding: 0.46rem 0.66rem; font: inherit; font-size: 0.85rem; font-weight: 700; color: var(--ink); cursor: pointer; display: inline-flex; align-items: center; gap: 0.38rem; transition: border-color 0.14s, background 0.14s, transform 0.1s; }
+    .chip:hover { border-color: var(--copper); }
+    .chip:active { transform: translateY(1px); }
+    .chip.active { border-color: var(--clay); background: #fbeee6; color: #8a3f21; }
+    .sw { width: 13px; height: 13px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.18); display: inline-block; flex: none; }
+    .tier { font-size: 0.58rem; font-weight: 800; color: #a6b0bd; margin-left: 0.05rem; }
+    .chip.active .tier { color: #b07b5f; }
+
+    .rooms { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem; }
+    .rooms .chip { justify-content: center; padding: 0.6rem 0.3rem; flex-direction: column; gap: 0.2rem; font-size: 0.82rem; }
+    .rooms .chip .ic { font-size: 1.1rem; line-height: 1; }
+
+    .slider { }
+    .slider input[type=range] { width: 100%; accent-color: var(--clay); height: 26px; }
+    .slider .val { font-weight: 800; color: var(--ink); }
+
+    .toggle { display: inline-flex; }
+    .toggle .chip { }
+
+    /* ---- canvas ---- */
+    #stage { position: relative; }
+    #canvasWrap { position: relative; min-height: 540px; height: 62vh; max-height: 680px; background: #eceae4; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); }
+    #hint { position: absolute; bottom: 0.6rem; left: 0.7rem; font-size: 0.7rem; color: #5c6472; background: rgba(255,255,255,0.82); padding: 0.18rem 0.55rem; border-radius: 7px; pointer-events: none; z-index: 2; }
+    .skel { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.8rem; color: #5c6472; font-weight: 800; font-size: 0.9rem; background: linear-gradient(135deg, #f6f2ea, #e7e2d8); z-index: 3; }
+    .spin { width: 36px; height: 36px; border-radius: 50%; border: 3px solid #d6cec0; border-top-color: var(--clay); animation: sp 0.8s linear infinite; }
+    @keyframes sp { to { transform: rotate(360deg); } }
+
+    .stagebar { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.7rem; flex-wrap: wrap; }
+    .btn { min-height: 44px; border: 1.5px solid var(--line); background: var(--white); color: var(--ink); border-radius: 9px; padding: 0 1rem; font: inherit; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; transition: border-color 0.14s, background 0.14s; }
+    .btn:hover { border-color: var(--copper); }
+    .btn.primary { background: var(--clay); border-color: var(--clay); color: #fff; }
+    .btn.primary:hover { background: #a04f2f; border-color: #a04f2f; }
+    .btn:disabled { opacity: 0.55; cursor: default; }
+
+    .ball { display: inline-flex; flex-direction: column; background: var(--ink); color: #fff; border-radius: 11px; padding: 0.45rem 0.85rem; line-height: 1.15; }
+    .ball .num { font-weight: 900; font-size: 1.08rem; }
+    .ball .note { font-size: 0.6rem; font-weight: 700; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* ---- sticky mobile action bar ---- */
+    .mobilebar { display: none; }
+
+    /* ---- modal ---- */
+    .overlay { position: fixed; inset: 0; background: rgba(23,32,51,0.55); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; padding: 1rem; z-index: 50; }
+    .overlay.on { display: flex; }
+    .modal { background: #fff; border-radius: 16px; width: 100%; max-width: 440px; box-shadow: 0 30px 80px rgba(16,24,40,0.35); overflow: hidden; animation: pop 0.18s ease; }
+    @keyframes pop { from { transform: translateY(8px) scale(0.98); opacity: 0; } to { transform: none; opacity: 1; } }
+    .modal-head { padding: 1.2rem 1.3rem 0.4rem; }
+    .modal-head h2 { font-size: 1.22rem; margin-bottom: 0.25rem; }
+    .modal-head p { color: var(--muted); font-size: 0.88rem; }
+    .modal-body { padding: 0.6rem 1.3rem 1.3rem; }
+    label.f { display: grid; gap: 0.2rem; font-size: 0.7rem; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.65rem; }
+    .modal input { min-height: 44px; border: 1px solid var(--line); border-radius: 9px; padding: 0.5rem 0.7rem; font: inherit; background: var(--mist); width: 100%; }
+    .modal input:focus { outline: 2px solid var(--copper); outline-offset: 0; border-color: var(--copper); }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .err { color: #b42318; font-size: 0.85rem; margin: 0.2rem 0 0.5rem; min-height: 1em; }
+    .fine { color: var(--muted); font-size: 0.74rem; margin-top: 0.7rem; }
+    .modal .btn.primary { width: 100%; }
+    .preview-strip { display: flex; gap: 0.7rem; align-items: center; background: var(--paper); border: 1px solid var(--line); border-radius: 11px; padding: 0.6rem; margin-bottom: 0.9rem; }
+    .preview-strip img { width: 88px; height: 62px; object-fit: cover; border-radius: 7px; border: 1px solid var(--line); flex: none; background: #eceae4; }
+    .preview-strip .ps-r { font-weight: 900; }
+    .preview-strip .ps-s { font-size: 0.78rem; color: var(--muted); }
+
+    /* ---- success ---- */
+    .success { text-align: center; padding: 1.6rem 1.3rem 1.5rem; }
+    .success .check { width: 58px; height: 58px; border-radius: 50%; background: #e8f3ee; color: var(--sage); display: flex; align-items: center; justify-content: center; font-size: 1.7rem; margin: 0 auto 0.8rem; }
+    .success h2 { font-size: 1.3rem; margin-bottom: 0.45rem; }
+    .success p { color: var(--steel); font-size: 0.92rem; margin-bottom: 1rem; }
+    .success img { width: 100%; border-radius: 11px; border: 1px solid var(--line); margin-bottom: 0.9rem; }
+    .success .btn { width: 100%; margin-bottom: 0.5rem; }
+
+    @media (max-width: 900px) {
+      .studio { grid-template-columns: 1fr; padding-bottom: 6.5rem; }
+      #stage { order: -1; }
+      #canvasWrap { height: 52vh; min-height: 320px; }
+      .stagebar { display: none; }
+      .mobilebar { display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 40; background: rgba(255,255,255,0.96); border-top: 1px solid var(--line); box-shadow: 0 -8px 24px rgba(16,24,40,0.1); padding: 0.6rem 4vw calc(0.6rem + env(safe-area-inset-bottom)); align-items: center; gap: 0.6rem; }
+      .mobilebar .ball { flex: 1; }
+      .mobilebar .btn.primary { flex: none; }
+    }
+    @media (max-width: 420px) {
+      .rooms .chip { font-size: 0.76rem; }
+      .hero { padding-top: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div><strong>Joon Development Group</strong> &nbsp;·&nbsp; Southern California General Contractor</div>
+    <div><a href="tel:+18183710334">(818) 371-0334</a></div>
+  </div>
+
+  <nav>
+    <a class="brand" href="/index.html">
+      <span>Joon Development Group</span>
+      <span>Free 3D Design Studio</span>
+    </a>
+    <a class="back" href="/index.html">&larr; Back to site</a>
+  </nav>
+
+  <section class="hero">
+    <div class="eyebrow">✦ Free · No obligation</div>
+    <h1>Design your remodel in <em>3D</em> — in about 60 seconds.</h1>
+    <p>Pick a room, drag a few sliders, and watch your new space come to life. When you love it, save it — we'll bring the full design to your free in-home consultation.</p>
+    <div class="steps">
+      <span><b>1</b> Pick your room</span>
+      <span><b>2</b> Choose your finishes</span>
+      <span><b>3</b> Save &amp; get your free design</span>
+    </div>
+  </section>
+
+  <div class="studio">
+    <div class="panel" id="controls"></div>
+
+    <div id="stage">
+      <div id="canvasWrap"><div id="hint">Drag to orbit · scroll to zoom · pinch on touch</div></div>
+      <div class="stagebar">
+        <div class="ball" id="ball"><span class="num">—</span><span class="note">ballpark, pre-measure</span></div>
+        <button class="btn" id="reset">↻ Reset view</button>
+        <button class="btn primary" id="save">Save my design →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mobilebar">
+    <div class="ball" id="ballM"><span class="num">—</span><span class="note">ballpark, pre-measure</span></div>
+    <button class="btn primary" id="saveM">Save my design →</button>
+  </div>
+
+  <!-- contact gate -->
+  <div class="overlay" id="gate">
+    <div class="modal" id="gateModal">
+      <div id="gateForm">
+        <div class="modal-head">
+          <h2>Where should we send your 3D design?</h2>
+          <p>We'll email your design and reach out once to book your free walkthrough.</p>
+        </div>
+        <div class="modal-body">
+          <div class="preview-strip">
+            <img id="gatePrev" alt="Your design preview" />
+            <div>
+              <div class="ps-r" id="gateRange">—</div>
+              <div class="ps-s" id="gateSummary">—</div>
+            </div>
+          </div>
+          <label class="f">Name<input id="fName" autocomplete="name" placeholder="Jane Doe" /></label>
+          <div class="row2">
+            <label class="f">Phone<input id="fPhone" type="tel" autocomplete="tel" placeholder="(818) 555-0134" /></label>
+            <label class="f">Email<input id="fEmail" type="email" autocomplete="email" placeholder="you@email.com" /></label>
+          </div>
+          <label class="f">City / ZIP<input id="fCity" autocomplete="address-level2" placeholder="Pasadena, 91101" /></label>
+          <div class="err" id="gateErr"></div>
+          <button class="btn primary" id="gateSubmit">Get my free 3D design</button>
+          <p class="fine">No spam. Planning ranges are a ballpark, not a bid — final pricing follows a free on-site walkthrough.</p>
+        </div>
+      </div>
+      <div class="success" id="gateSuccess" style="display:none">
+        <div class="check">✓</div>
+        <h2>Your design is on its way!</h2>
+        <p>Nice work. We'll bring the <b>full 3D design</b> to your free in-home consultation and turn this ballpark into a firm proposal.</p>
+        <img id="successImg" alt="Your saved 3D design" />
+        <button class="btn primary" id="dlSnap">⬇ Download my design</button>
+        <button class="btn" id="gateClose">Keep designing</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+  /* ================================================================
+     Joon — public Free 3D Design Studio.
+     Self-contained: three.js loaded locally (assets/vendor), scene
+     builders adapted from the CRM app_design3d.js close tool.
+     Lead capture posts to the existing public /api/customer-leads.
+  ================================================================ */
+  const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  /* ---- lazy vendor load ---- */
+  let THREE = null, OrbitControls = null, vendorPromise = null;
+  function loadVendor() {
+    if (!vendorPromise) {
+      vendorPromise = Promise.all([
+        import("/assets/vendor/three.module.min.js"),
+        import("/assets/vendor/OrbitControls.js")
+      ]).then((mods) => { THREE = mods[0]; OrbitControls = mods[1].OrbitControls; return true; });
+    }
+    return vendorPromise;
+  }
+
+  /* ---- engine handles ---- */
+  let scene = null, camera = null, renderer = null, controls = null, root = null;
+  let raf = 0, canvasEl = null, wrapEl = null, ro = null;
+  let renderScheduled = false, autoRotateActive = false, idleTimer = null, firstFrameAt = 0;
+  let disposables = [];
+  const reduceMotion = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const isTouch = !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+
+  /* ---- state ---- */
+  const state = {
+    room: "kitchen",
+    width: 12, depth: 14, ceiling: 9,
+    kLayout: "l", island: true,
+    cabinet: "white", counter: "quartz", floor: "lvp", backsplash: true,
+    bWet: "shower", vanityCount: "single", bTile: "warm", vanity: "semi", glass: "semiframeless",
+    yWidth: 30, yDepth: 24, turfRatio: 0.5, patio: "alumawood", pool: false, planters: true
+  };
+
+  /* ---- finish catalogs (Good/Better/Best) ---- */
+  const CAT = {
+    cabinet: [ { v: "white", label: "White shaker", tier: "Good", sw: "#f1eee7" }, { v: "wood", label: "Warm wood", tier: "Better", sw: "#9c6b3f" }, { v: "gloss", label: "Gloss", tier: "Best", sw: "#e7e9ee" } ],
+    counter: [ { v: "laminate", label: "Laminate", tier: "Good", sw: "#d7cec0" }, { v: "quartz", label: "Quartz", tier: "Better", sw: "#efece6" }, { v: "stone", label: "Stone slab", tier: "Best", sw: "#cbc4ba" } ],
+    floor:   [ { v: "lvp", label: "LVP oak", tier: "Good", sw: "#c69a68" }, { v: "tile", label: "Tile", tier: "Better", sw: "#d8d2c8" }, { v: "dark", label: "Dark wood", tier: "Best", sw: "#5a3d28" } ],
+    bTile:   [ { v: "greige", label: "Greige", tier: "Good", sw: "#d9d2c6" }, { v: "warm", label: "Warm stone", tier: "Better", sw: "#c9b79f" }, { v: "marble", label: "Marble", tier: "Best", sw: "#ece9e4" } ],
+    vanity:  [ { v: "stock", label: "Stock", tier: "Good", sw: "#eae6df" }, { v: "semi", label: "Semi-custom", tier: "Better", sw: "#8a5a37" }, { v: "custom", label: "Custom float", tier: "Best", sw: "#3f3a35" } ],
+    glass:   [ { v: "framed", label: "Framed", tier: "Good", sw: "#b8c2c6" }, { v: "semiframeless", label: "Semi-frameless", tier: "Better", sw: "#cdd6d9" }, { v: "frameless", label: "Frameless", tier: "Best", sw: "#e2eaec" } ],
+    patio:   [ { v: "none", label: "None", tier: "Good", sw: "#cfc8bd" }, { v: "alumawood", label: "Alumawood", tier: "Better", sw: "#e8e3d8" }, { v: "louvered", label: "Louvered", tier: "Best", sw: "#3b4048" } ]
+  };
+
+  /* ---- ballpark price map (rough installed ranges; NOT a quote) ---- */
+  const PRICE = {
+    cabinetLf: { white: [150, 300], wood: [250, 450], gloss: [500, 800] },
+    counterSf: { laminate: [25, 60], quartz: [55, 120], stone: [70, 150] },
+    floorSf:   { lvp: [4, 7], tile: [12, 18], dark: [8, 20] },
+    backsplashSf: [12, 25],
+    applianceSuite: { white: [7000, 12000], wood: [9000, 18000], gloss: [22000, 45000] },
+    bTileSf:  { greige: [8, 12], warm: [12, 18], marble: [18, 30] },
+    vanityEa: { stock: [800, 2000], semi: [2200, 4500], custom: [5000, 12000] },
+    wetArea:  { framed: [3500, 6500], semiframeless: [8000, 14000], frameless: [15000, 28000] },
+    toilet: [400, 700],
+    turfSf: [8, 18], paverSf: [12, 28],
+    patioSf: { none: [0, 0], alumawood: [18, 22], louvered: [65, 200] },
+    poolFlat: [45000, 85000], plantersFlat: [1200, 4500]
+  };
+
+  function money(n) { const v = Math.round(Number(n) || 0); if (v >= 1000) return "$" + Math.round(v / 100) / 10 + "k"; return "$" + v.toLocaleString("en-US"); }
+
+  function cabinetLf() {
+    const w = state.width, d = state.depth; let run = 0;
+    if (state.kLayout === "l") run = w + d * 0.7;
+    else if (state.kLayout === "u") run = w + d * 1.4;
+    else if (state.kLayout === "galley") run = w * 1.9;
+    else run = w;
+    if (state.island) run += 8;
+    return run;
+  }
+  function ballpark() {
+    let lo = 0, hi = 0;
+    const add = (range, qty) => { if (!range) return; lo += range[0] * (qty == null ? 1 : qty); hi += range[1] * (qty == null ? 1 : qty); };
+    if (state.room === "kitchen") {
+      const lf = cabinetLf();
+      add(PRICE.cabinetLf[state.cabinet], lf);
+      add(PRICE.counterSf[state.counter], lf * 2.1 + (state.island ? 12 : 0));
+      add(PRICE.floorSf[state.floor], state.width * state.depth);
+      if (state.backsplash) add(PRICE.backsplashSf, lf * 1.5);
+      add(PRICE.applianceSuite[state.cabinet]);
+    } else if (state.room === "bathroom") {
+      const w = state.width, d = state.depth;
+      add(PRICE.bTileSf[state.bTile], w * d + 2 * (w + d) * 4);
+      add(PRICE.vanityEa[state.vanity], state.vanityCount === "double" ? 1.8 : 1);
+      add(PRICE.wetArea[state.glass]);
+      add(PRICE.toilet);
+    } else {
+      const area = state.yWidth * state.yDepth;
+      add(PRICE.turfSf, area * state.turfRatio);
+      add(PRICE.paverSf, area * (1 - state.turfRatio));
+      add(PRICE.patioSf[state.patio], Math.min(area * 0.35, 380));
+      if (state.pool) add(PRICE.poolFlat);
+      if (state.planters) add(PRICE.plantersFlat);
+    }
+    return { lo, hi };
+  }
+
+  /* ==================== PROCEDURAL TEXTURES ==================== */
+  function canvasTexture(size, draw) {
+    const c = document.createElement("canvas"); c.width = c.height = size || 512;
+    draw(c.getContext("2d"), c.width, c.height);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
+    disposables.push(t); return t;
+  }
+  function shadeHex(hex, mult) {
+    let c = String(hex || "#cccccc").replace("#", "");
+    if (c.length === 3) c = c[0] + c[0] + c[1] + c[1] + c[2] + c[2];
+    const r = Math.min(255, Math.round(parseInt(c.slice(0, 2), 16) * mult));
+    const g = Math.min(255, Math.round(parseInt(c.slice(2, 4), 16) * mult));
+    const b = Math.min(255, Math.round(parseInt(c.slice(4, 6), 16) * mult));
+    return "rgb(" + r + "," + g + "," + b + ")";
+  }
+  function woodTex(base, dark) { return canvasTexture(256, (x, w, h) => {
+    x.fillStyle = base; x.fillRect(0, 0, w, h);
+    for (let i = 0; i < 46; i++) { const y = Math.random() * h; x.strokeStyle = dark; x.globalAlpha = 0.05 + Math.random() * 0.12; x.lineWidth = 0.6 + Math.random() * 2.2;
+      x.beginPath(); x.moveTo(0, y); x.bezierCurveTo(w * 0.33, y + (Math.random() - 0.5) * 14, w * 0.66, y + (Math.random() - 0.5) * 14, w, y + (Math.random() - 0.5) * 8); x.stroke(); }
+    x.globalAlpha = 1;
+  }); }
+  function tileTex(base, grout, tiles) { return canvasTexture(256, (x, w, h) => {
+    x.fillStyle = grout; x.fillRect(0, 0, w, h);
+    const n = tiles || 4, g = Math.max(2, w * 0.012), s = (w - g * (n + 1)) / n;
+    for (let r = 0; r < n; r++) for (let col = 0; col < n; col++) { x.fillStyle = shadeHex(base, 1 - Math.random() * 0.06); x.fillRect(g + col * (s + g), g + r * (s + g), s, s); }
+  }); }
+  function speckleTex(base) { return canvasTexture(256, (x, w, h) => {
+    x.fillStyle = base; x.fillRect(0, 0, w, h);
+    for (let i = 0; i < 2600; i++) { x.globalAlpha = 0.04 + Math.random() * 0.10; x.fillStyle = Math.random() > 0.5 ? "#ffffff" : "#8b8378"; const s = Math.random() * 2.2; x.fillRect(Math.random() * w, Math.random() * h, s, s); }
+    x.globalAlpha = 1;
+  }); }
+  function marbleTex(base) { return canvasTexture(256, (x, w, h) => {
+    x.fillStyle = base; x.fillRect(0, 0, w, h);
+    for (let i = 0; i < 10; i++) { x.strokeStyle = "rgba(120,120,130,0.28)"; x.lineWidth = 0.7 + Math.random() * 1.6; x.beginPath(); const y = Math.random() * h; x.moveTo(0, y); for (let xx = 0; xx <= w; xx += 40) x.lineTo(xx, y + (Math.random() - 0.5) * 40); x.stroke(); }
+  }); }
+  function turfTex() { return canvasTexture(256, (x, w, h) => {
+    x.fillStyle = "#4f7a3a"; x.fillRect(0, 0, w, h);
+    for (let i = 0; i < 5200; i++) { x.fillStyle = ["#5c8a41", "#6f9c4d", "#456b32", "#77a852"][i & 3]; x.globalAlpha = 0.5 + Math.random() * 0.5; x.fillRect(Math.random() * w, Math.random() * h, 1.3, 1.3 + Math.random() * 2); }
+    x.globalAlpha = 1;
+  }); }
+  function paverTex() { return canvasTexture(256, (x, w, h) => {
+    x.fillStyle = "#8f8577"; x.fillRect(0, 0, w, h); const rows = 6, hgt = h / rows;
+    for (let r = 0; r < rows; r++) { const off = (r % 2) * (w / 8);
+      for (let col = -1; col < 5; col++) { x.fillStyle = shadeHex(["#c7b7a2", "#bca88f", "#c2b498"][((r + col) % 3 + 3) % 3], 0.96 + Math.random() * 0.08); x.fillRect(off + col * (w / 4) + 2, r * hgt + 2, w / 4 - 4, hgt - 4); } }
+  }); }
+
+  /* ==================== MATERIAL + GEO HELPERS ==================== */
+  function mat(opts) { const m = new THREE.MeshStandardMaterial(opts); disposables.push(m); return m; }
+  function box(w, h, d, material, x, y, z, parent) {
+    const g = new THREE.BoxGeometry(w, h, d); disposables.push(g);
+    const m = new THREE.Mesh(g, material); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; (parent || root).add(m); return m;
+  }
+  function floorMaterial() {
+    if (state.room === "bathroom") {
+      const bt = { greige: ["#d9d2c6", 6], warm: ["#c9b79f", 5], marble: ["#ece9e4", 4] }[state.bTile];
+      const t = state.bTile === "marble" ? marbleTex(bt[0]) : tileTex(bt[0], "#b9b1a4", bt[1]);
+      t.repeat.set(Math.max(2, state.width / 2), Math.max(2, state.depth / 2));
+      return mat({ map: t, roughness: 0.55, metalness: 0.02 });
+    }
+    if (state.floor === "lvp") { const w1 = woodTex("#c69a68", "#7a4f28"); w1.repeat.set(state.width / 3, state.depth / 1.2); return mat({ map: w1, roughness: 0.7 }); }
+    if (state.floor === "dark") { const w2 = woodTex("#5a3d28", "#2c1c10"); w2.repeat.set(state.width / 3, state.depth / 1.2); return mat({ map: w2, roughness: 0.5 }); }
+    const ft = tileTex("#d8d2c8", "#b6ada0", 4); ft.repeat.set(state.width / 2, state.depth / 2); return mat({ map: ft, roughness: 0.6 });
+  }
+  function cabinetMaterial() {
+    if (state.cabinet === "wood") { const wt = woodTex("#9c6b3f", "#5c3c1f"); wt.repeat.set(1, 1); return mat({ map: wt, roughness: 0.55 }); }
+    if (state.cabinet === "gloss") return mat({ color: 0xe7e9ee, roughness: 0.12, metalness: 0.15 });
+    return mat({ color: 0xf1eee7, roughness: 0.6 });
+  }
+  function counterMaterial() {
+    if (state.counter === "laminate") return mat({ color: 0xd7cec0, roughness: 0.5 });
+    if (state.counter === "stone") { const s = speckleTex("#cbc4ba"); return mat({ map: s, roughness: 0.35, metalness: 0.05 }); }
+    const q = speckleTex("#efece6"); return mat({ map: q, roughness: 0.28 });
+  }
+
+  /* ==================== SCENE BUILDERS ==================== */
+  const WALL_COL = 0xeae4da;
+  function addWalls(w, d, h) {
+    const wm = mat({ color: WALL_COL, roughness: 0.95, side: THREE.FrontSide });
+    box(w, h, 0.25, wm, 0, h / 2, -d / 2, root);
+    box(0.25, h, d, wm, -w / 2, h / 2, 0, root);
+    const bm = mat({ color: 0xf6f3ee, roughness: 0.8 });
+    box(w, 0.35, 0.06, bm, 0, 0.17, -d / 2 + 0.16, root);
+    box(0.06, 0.35, d, bm, -w / 2 + 0.16, 0.17, 0, root);
+  }
+  function addWindow(w, h) {
+    const fw = Math.min(w * 0.4, 4), fh = Math.min(h * 0.45, 3.5), cy = h * 0.55, z = -state.depth / 2 + 0.14;
+    box(fw + 0.3, fh + 0.3, 0.12, mat({ color: 0xffffff, roughness: 0.6 }), 0, cy, z, root);
+    box(fw, fh, 0.05, mat({ color: 0xcfe2ee, roughness: 0.1, metalness: 0.2, emissive: 0x9fc4d8, emissiveIntensity: 0.25 }), 0, cy, z + 0.05, root);
+    const ml = mat({ color: 0xffffff, roughness: 0.6 });
+    box(0.08, fh, 0.08, ml, 0, cy, z + 0.07, root); box(fw, 0.08, 0.08, ml, 0, cy, z + 0.07, root);
+  }
+  function addCeilingLights(w, d, h) {
+    const lm = new THREE.MeshStandardMaterial({ color: 0xfff4e0, emissive: 0xffe9c0, emissiveIntensity: 0.9, roughness: 0.4 }); disposables.push(lm);
+    const geo = new THREE.CircleGeometry(0.28, 20); disposables.push(geo);
+    const cols = 3, rows = 2;
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const m = new THREE.Mesh(geo, lm); m.rotation.x = Math.PI / 2; m.position.set(-w / 2 + w * (c + 1) / (cols + 1), h - 0.05, -d / 2 + d * (r + 1) / (rows + 1)); root.add(m); }
+  }
+  function backsplashMat() { const t = tileTex(state.counter === "stone" ? "#d9cfc0" : "#eef0ee", "#c9c3b6", 6); t.repeat.set(6, 1.5); return mat({ map: t, roughness: 0.4 }); }
+  function addPulls(g, length, baseH, kind, baseD) {
+    if (state.cabinet === "gloss") return;
+    const pm = mat({ color: 0x2a2f36, roughness: 0.4, metalness: 0.7 }); const n = Math.max(3, Math.round(length / 2));
+    for (let i = 0; i < n; i++) { const px = -length / 2 + length * (i + 0.5) / n; box(0.05, 0.28, 0.05, pm, px, baseH - 0.35, baseD / 2 + 0.02, g); }
+  }
+  function addSink(g, x, y, z, baseD) {
+    box(1.6, 0.06, 1.1, mat({ color: 0xdfe3e6, roughness: 0.25, metalness: 0.3 }), x, y + 0.01, z, g);
+    box(1.3, 0.35, 0.85, mat({ color: 0xb9c0c4, roughness: 0.3, metalness: 0.2 }), x, y - 0.16, z, g);
+    const fm = mat({ color: 0x30353b, roughness: 0.3, metalness: 0.8 });
+    const fg = new THREE.CylinderGeometry(0.04, 0.04, 0.9, 12); disposables.push(fg); const f = new THREE.Mesh(fg, fm); f.position.set(x, y + 0.45, z - 0.42); g.add(f);
+    const sg = new THREE.SphereGeometry(0.05, 10, 10); disposables.push(sg); const s = new THREE.Mesh(sg, fm); s.position.set(x, y + 0.88, z - 0.3); g.add(s);
+  }
+  function cabinetRun(axis, length, cabMat, ctrMat, opts) {
+    opts = opts || {}; const baseH = 2.875, ctrThk = 0.13, upperH = 2.5, upperY = 4.5, upperD = 1.05, baseD = 2.0, ctrH = 3.0;
+    const w = state.width, d = state.depth; const g = new THREE.Group(); root.add(g);
+    if (axis === "back") {
+      g.position.set(0, 0, -d / 2 + baseD / 2 + 0.13);
+      box(length, baseH, baseD, cabMat, 0, baseH / 2, 0, g);
+      box(length, ctrThk, baseD + 0.06, ctrMat, 0, baseH + ctrThk / 2, 0.03, g);
+      if (!opts.noUpper) { box(length * 0.44, upperH, upperD, cabMat, -length * 0.26, upperY + upperH / 2, -baseD / 2 + upperD / 2, g); box(length * 0.30, upperH, upperD, cabMat, length * 0.33, upperY + upperH / 2, -baseD / 2 + upperD / 2, g); }
+      if (state.backsplash) { box(length, 1.5, 0.04, backsplashMat(), 0, ctrH + 0.75, 0, g); g.children[g.children.length - 1].position.z = -baseD / 2 + 0.02; }
+      addPulls(g, length, baseH, "backX", baseD);
+      if (!opts.noSink) addSink(g, 0, baseH + ctrThk, 0, baseD);
+    } else {
+      const sign = axis === "left" ? -1 : 1; g.position.set(sign * (w / 2 - baseD / 2 - 0.13), 0, 0);
+      box(baseD, baseH, length, cabMat, 0, baseH / 2, 0, g);
+      box(baseD + 0.06, ctrThk, length, ctrMat, sign * -0.03, baseH + ctrThk / 2, 0, g);
+      if (!opts.noUpper) box(upperD, upperH, length * 0.7, cabMat, sign * (baseD / 2 - upperD / 2), upperY + upperH / 2, 0, g);
+      if (state.backsplash) box(0.04, 1.5, length, backsplashMat(), sign * (-baseD / 2 + 0.02), ctrH + 0.75, 0, g);
+    }
+    return g;
+  }
+  function addIsland() {
+    const w = state.width, d = state.depth; const iw = Math.min(w * 0.5, 5), id = 3, baseH = 2.875, ctrThk = 0.13;
+    const g = new THREE.Group(); root.add(g); g.position.set(0, 0, d * 0.12);
+    box(iw, baseH, id, cabinetMaterial(), 0, baseH / 2, 0, g);
+    box(iw + 0.5, ctrThk, id + 0.5, counterMaterial(), 0, baseH + ctrThk / 2, 0, g);
+    const pm = new THREE.MeshStandardMaterial({ color: 0x2a2f36, emissive: 0xffdf9e, emissiveIntensity: 0.5, roughness: 0.5, metalness: 0.4 }); disposables.push(pm);
+    const pg = new THREE.ConeGeometry(0.3, 0.4, 16); disposables.push(pg);
+    for (let i = -1; i <= 1; i += 2) { const p = new THREE.Mesh(pg, pm); p.position.set(i * iw * 0.25, baseH + 2.6, 0); g.add(p); }
+  }
+  function buildKitchen() {
+    const w = state.width, d = state.depth, h = state.ceiling;
+    const fg = new THREE.PlaneGeometry(w, d); disposables.push(fg);
+    const floor = new THREE.Mesh(fg, floorMaterial()); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; root.add(floor);
+    addWalls(w, d, h); addWindow(w, h); addCeilingLights(w, d, h);
+    const cm = cabinetMaterial(), ctr = counterMaterial();
+    cabinetRun("back", w - 0.4, cm, ctr, {});
+    if (state.kLayout === "l" || state.kLayout === "u") cabinetRun("left", d - 0.4, cm, ctr, { noSink: true });
+    if (state.kLayout === "u") cabinetRun("right", d - 0.4, cm, ctr, { noSink: true });
+    if (state.kLayout === "galley") cabinetRun("right", d - 0.4, cm, ctr, { noSink: true });
+    if (state.island) addIsland();
+    box(2.6, 5.7, 2.4, mat({ color: 0xc7ccd0, roughness: 0.3, metalness: 0.6 }), w / 2 - 1.6, 2.85, d / 2 - 1.6, root);
+  }
+  function vanityMaterial() {
+    if (state.vanity === "semi") { const wt = woodTex("#8a5a37", "#4d3016"); return mat({ map: wt, roughness: 0.55 }); }
+    if (state.vanity === "custom") return mat({ color: 0x3f3a35, roughness: 0.35, metalness: 0.1 });
+    return mat({ color: 0xeae6df, roughness: 0.6 });
+  }
+  function counterMaterialBath() { if (state.bTile === "marble") { const m = marbleTex("#f0eee9"); return mat({ map: m, roughness: 0.25 }); } const s = speckleTex("#ece7df"); return mat({ map: s, roughness: 0.3 }); }
+  function buildBathroom() {
+    const w = state.width, d = state.depth, h = state.ceiling;
+    const fg = new THREE.PlaneGeometry(w, d); disposables.push(fg);
+    const floor = new THREE.Mesh(fg, floorMaterial()); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; root.add(floor);
+    const wt = tileTex({ greige: "#e5e0d6", warm: "#d8c9b3", marble: "#f0eee9" }[state.bTile], "#c3bbac", 5); wt.repeat.set(Math.max(3, w / 2), 2);
+    const wm = mat({ map: wt, roughness: 0.5, side: THREE.FrontSide });
+    box(w, h, 0.25, wm, 0, h / 2, -d / 2, root); box(0.25, h, d, wm, -w / 2, h / 2, 0, root);
+    addCeilingLights(w, d, h);
+    const vc = vanityMaterial(); const vw = state.vanityCount === "double" ? Math.min(d * 0.7, 6) : Math.min(d * 0.45, 3);
+    const vg = new THREE.Group(); root.add(vg); vg.position.set(-w / 2 + 1.1, 0, 0);
+    const vH = state.vanity === "custom" ? 2.2 : 2.9, vLift = state.vanity === "custom" ? 0.7 : 0;
+    box(2.0, vH, vw, vc, 0, vLift + vH / 2, 0, vg);
+    box(2.1, 0.13, vw + 0.1, counterMaterialBath(), 0, vLift + vH + 0.065, 0, vg);
+    const bm = mat({ color: 0xf3f4f4, roughness: 0.2, metalness: 0.1 });
+    const basins = state.vanityCount === "double" ? [-vw * 0.24, vw * 0.24] : [0];
+    basins.forEach((bz) => { box(1.2, 0.05, 1.1, bm, 0.1, vLift + vH + 0.14, bz, vg); box(0.06, 2.2, state.vanityCount === "double" ? 2.2 : 1.6, mat({ color: 0xdfeaee, roughness: 0.08, metalness: 0.4, emissive: 0x2a3540, emissiveIntensity: 0.15 }), -0.98, vLift + vH + 1.6, bz, vg); });
+    if (state.bWet === "tub") {
+      box(2.6, 1.6, 5.2, mat({ color: 0xf6f6f4, roughness: 0.25 }), w / 2 - 1.6, 0.8, -d / 2 + 2.9, root);
+      box(2.1, 0.2, 4.6, mat({ color: 0xdfe7ea, roughness: 0.2, metalness: 0.2 }), w / 2 - 1.6, 1.35, -d / 2 + 2.9, root);
+    } else {
+      const pan = mat({ color: 0xe9e6df, roughness: 0.5 }); const sw = Math.min(w * 0.42, 4.2), sd = Math.min(d * 0.4, 4);
+      box(sw, 0.25, sd, pan, w / 2 - sw / 2 - 0.2, 0.13, -d / 2 + sd / 2 + 0.2, root);
+      const glassOpacity = state.glass === "framed" ? 0.28 : state.glass === "semiframeless" ? 0.2 : 0.14;
+      const gm = new THREE.MeshPhysicalMaterial({ color: 0xdfeef2, transparent: true, opacity: glassOpacity, roughness: 0.05, metalness: 0, transmission: 0.6, thickness: 0.1 }); disposables.push(gm);
+      const pg = new THREE.PlaneGeometry(sd, 6.5); disposables.push(pg); const panel = new THREE.Mesh(pg, gm); panel.rotation.y = -Math.PI / 2; panel.position.set(w / 2 - sw - 0.2, 3.25, -d / 2 + sd / 2 + 0.2); root.add(panel);
+      const pg2 = new THREE.PlaneGeometry(sw, 6.5); disposables.push(pg2); const panel2 = new THREE.Mesh(pg2, gm); panel2.position.set(w / 2 - sw / 2 - 0.2, 3.25, -d / 2 + sd + 0.2); root.add(panel2);
+      if (state.glass === "framed") { const frm = mat({ color: 0x3a4046, roughness: 0.4, metalness: 0.6 }); box(0.08, 6.5, 0.08, frm, w / 2 - sw - 0.2, 3.25, -d / 2 + 0.25, root); box(0.08, 6.5, 0.08, frm, w / 2 - sw - 0.2, 3.25, -d / 2 + sd + 0.15, root); }
+      const hg = new THREE.CylinderGeometry(0.3, 0.3, 0.08, 16); disposables.push(hg); const head = new THREE.Mesh(hg, mat({ color: 0x30353b, roughness: 0.3, metalness: 0.8 })); head.position.set(w / 2 - 0.5, 6.2, -d / 2 + 0.8); root.add(head);
+    }
+    box(1.3, 1.3, 2.1, mat({ color: 0xf4f4f2, roughness: 0.3 }), w / 2 - 1.0, 0.65, d / 2 - 1.4, root);
+  }
+  function buildBackyard() {
+    const w = state.yWidth, d = state.yDepth; const turfW = w * state.turfRatio;
+    const tt = turfTex(); tt.repeat.set(Math.max(2, turfW / 3), Math.max(2, d / 3)); const tm = mat({ map: tt, roughness: 0.9 });
+    if (turfW > 0.5) { const tg = new THREE.PlaneGeometry(turfW, d); disposables.push(tg); const turf = new THREE.Mesh(tg, tm); turf.rotation.x = -Math.PI / 2; turf.position.set(-w / 2 + turfW / 2, 0, 0); turf.receiveShadow = true; root.add(turf); }
+    const paverW = w - turfW;
+    if (paverW > 0.5) { const pt = paverTex(); pt.repeat.set(Math.max(2, paverW / 4), Math.max(2, d / 4)); const pm = mat({ map: pt, roughness: 0.85 }); const pg = new THREE.PlaneGeometry(paverW, d); disposables.push(pg); const pav = new THREE.Mesh(pg, pm); pav.rotation.x = -Math.PI / 2; pav.position.set(w / 2 - paverW / 2, 0.01, 0); pav.receiveShadow = true; root.add(pav); }
+    box(w, 10, 0.4, mat({ color: 0xefe7d9, roughness: 0.9, side: THREE.FrontSide }), 0, 5, -d / 2, root);
+    box(6, 7, 0.15, mat({ color: 0xbcd2dc, roughness: 0.1, metalness: 0.3, emissive: 0x2b3a42, emissiveIntensity: 0.15 }), 0, 3.5, -d / 2 + 0.25, root);
+    box(6.4, 0.2, 0.3, mat({ color: 0xffffff, roughness: 0.6 }), 0, 7.1, -d / 2 + 0.25, root);
+    if (state.patio !== "none") {
+      const px = w / 2 - paverW / 2, coverW = Math.min(paverW * 0.9, 16), coverD = Math.min(d * 0.55, 13);
+      const postM = mat({ color: state.patio === "louvered" ? 0x3b4048 : 0xe8e3d8, roughness: 0.6, metalness: state.patio === "louvered" ? 0.4 : 0.1 });
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach((c) => box(0.35, 8.5, 0.35, postM, px + c[0] * coverW / 2, 4.25, c[1] * coverD / 2, root));
+      box(coverW + 0.6, 0.4, 0.4, postM, px, 8.4, -coverD / 2, root); box(coverW + 0.6, 0.4, 0.4, postM, px, 8.4, coverD / 2, root);
+      const slats = Math.round(coverW / 1.1);
+      for (let i = 0; i <= slats; i++) { const sm = state.patio === "louvered" ? mat({ color: 0x4a5058, roughness: 0.5, metalness: 0.35 }) : postM; box(0.18, 0.5, coverD, sm, px - coverW / 2 + i * (coverW / slats), 8.55, 0, root); }
+    }
+    if (state.pool) {
+      const poolW = Math.min(turfW * 0.7, 12) || Math.min(w * 0.3, 12), poolD = Math.min(d * 0.5, 12);
+      const wm = new THREE.MeshPhysicalMaterial({ color: 0x2f9fd0, roughness: 0.08, metalness: 0.1, transmission: 0.2, transparent: true, opacity: 0.9 }); disposables.push(wm);
+      const wg = new THREE.BoxGeometry(poolW, 0.5, poolD); disposables.push(wg); const pool = new THREE.Mesh(wg, wm); pool.position.set(-w / 2 + Math.max(poolW / 2 + 1, turfW / 2), 0.05, d * 0.12); pool.receiveShadow = true; root.add(pool);
+      box(poolW + 0.8, 0.2, poolD + 0.8, mat({ color: 0xdcd6c8, roughness: 0.7 }), pool.position.x, 0.02, pool.position.z, root);
+    }
+    if (state.planters) {
+      const soilM = mat({ color: 0x6b5a44, roughness: 0.9 }), leafM = mat({ color: 0x4f7a3a, roughness: 0.8 });
+      const sg = new THREE.SphereGeometry(0.9, 12, 12); disposables.push(sg);
+      for (let j = 0; j < 4; j++) { const bx = -w / 2 + 1.2, bz = -d / 2 + 3 + j * (d - 5) / 3; box(1.4, 1.4, 1.4, soilM, bx, 0.7, bz, root); const sh = new THREE.Mesh(sg, leafM); sh.position.set(bx, 1.9, bz); sh.castShadow = true; root.add(sh); }
+    }
+  }
+
+  /* ==================== ENGINE ==================== */
+  function freeDisposables() { disposables.forEach((o) => { try { o.dispose(); } catch (e) {} }); disposables = []; }
+  function clearRoot() { if (!root) return; while (root.children.length) root.remove(root.children[0]); freeDisposables(); }
+  function frameCamera() {
+    let maxDim, cyTarget;
+    if (state.room === "backyard") { maxDim = Math.max(state.yWidth, state.yDepth); cyTarget = 2; }
+    else { maxDim = Math.max(state.width, state.depth, state.ceiling); cyTarget = state.ceiling * 0.35; }
+    const dist = maxDim * 1.35 + 6;
+    camera.position.set(dist * 0.72, dist * 0.62, dist * 0.72);
+    controls.target.set(0, cyTarget, 0); controls.update();
+  }
+  function rebuild(reframe) {
+    if (!root) return; clearRoot();
+    if (state.room === "kitchen") buildKitchen(); else if (state.room === "bathroom") buildBathroom(); else buildBackyard();
+    if (reframe) frameCamera();
+    renderNow();
+  }
+  function initEngine() {
+    scene = new THREE.Scene(); scene.background = new THREE.Color(0xeceae4); scene.fog = new THREE.Fog(0xeceae4, 60, 130);
+    camera = new THREE.PerspectiveCamera(45, 1, 0.1, 500);
+    renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: false, powerPreference: "high-performance" });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+    renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05; renderer.outputColorSpace = THREE.SRGBColorSpace;
+    canvasEl = renderer.domElement; canvasEl.style.width = "100%"; canvasEl.style.height = "100%"; canvasEl.style.display = "block";
+    wrapEl.appendChild(canvasEl);
+    scene.add(new THREE.HemisphereLight(0xfff5e8, 0xcdbfa8, 0.55)); scene.add(new THREE.AmbientLight(0xffffff, 0.28));
+    const key = new THREE.DirectionalLight(0xfff2df, 1.15); key.position.set(14, 22, 12); key.castShadow = true; key.shadow.mapSize.set(1024, 1024);
+    key.shadow.camera.near = 1; key.shadow.camera.far = 90; key.shadow.camera.left = -30; key.shadow.camera.right = 30; key.shadow.camera.top = 30; key.shadow.camera.bottom = -30; key.shadow.bias = -0.0004; key.shadow.radius = 4; scene.add(key);
+    const fill = new THREE.DirectionalLight(0xdfeaff, 0.35); fill.position.set(-16, 10, -8); scene.add(fill);
+    root = new THREE.Group(); scene.add(root);
+    controls = new OrbitControls(camera, canvasEl);
+    controls.enableDamping = true; controls.dampingFactor = 0.08; controls.minDistance = 6; controls.maxDistance = 90;
+    controls.minPolarAngle = 0.12; controls.maxPolarAngle = Math.PI / 2 - 0.03; controls.autoRotate = false; controls.autoRotateSpeed = 0.5;
+    controls.addEventListener("change", invalidate);
+    controls.addEventListener("start", () => { autoRotateActive = false; controls.autoRotate = false; if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; } });
+    controls.addEventListener("end", scheduleIdle);
+    rebuild(true); resize(); scheduleIdle();
+  }
+  function renderNow() { if (!renderer) return; controls.update(); renderer.render(scene, camera); if (!firstFrameAt) firstFrameAt = performance.now(); }
+  function invalidate() { if (renderScheduled || !renderer) return; renderScheduled = true; raf = requestAnimationFrame(renderFrame); }
+  function renderFrame() {
+    renderScheduled = false; if (!canvasEl || !document.body.contains(canvasEl)) { teardown(); return; }
+    const changed = controls.update(); renderer.render(scene, camera); if (!firstFrameAt) firstFrameAt = performance.now();
+    if (changed || autoRotateActive) invalidate();
+  }
+  function scheduleIdle() {
+    if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+    if (reduceMotion || isTouch) return;
+    idleTimer = setTimeout(() => { if (!controls) return; controls.autoRotate = true; autoRotateActive = true; invalidate(); }, 7000);
+  }
+  function resize() { if (!renderer || !wrapEl) return; const w = wrapEl.clientWidth || 640, h = wrapEl.clientHeight || 480; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); renderNow(); }
+  function teardown() {
+    if (raf) cancelAnimationFrame(raf); raf = 0; renderScheduled = false; autoRotateActive = false;
+    if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+    if (ro) { try { ro.disconnect(); } catch (e) {} ro = null; }
+    window.removeEventListener("resize", resize);
+    if (controls) { try { controls.dispose(); } catch (e) {} }
+    clearRoot(); if (renderer) { try { renderer.dispose(); renderer.forceContextLoss(); } catch (e) {} }
+    scene = camera = renderer = controls = root = canvasEl = null;
+  }
+  function snapshotDataUrl() { if (!renderer) return null; renderer.render(scene, camera); return canvasEl.toDataURL("image/png"); }
+  function hasWebGL() { try { const c = document.createElement("canvas"); return !!(window.WebGLRenderingContext && (c.getContext("webgl2") || c.getContext("webgl") || c.getContext("experimental-webgl"))); } catch (e) { return false; } }
+
+  /* ==================== UI ==================== */
+  function roomLabel() { return state.room === "kitchen" ? "Kitchen remodel" : state.room === "bathroom" ? "Bathroom remodel" : "Backyard remodel"; }
+  function seg(label, key, options) {
+    const opts = options.map((o) => {
+      const active = state[key] === o.v ? " active" : "";
+      const swatch = o.sw ? '<span class="sw" style="background:' + o.sw + '"></span>' : "";
+      const tier = o.tier ? '<span class="tier">' + o.tier + "</span>" : "";
+      return '<button class="chip' + active + '" data-set="' + key + '" data-val="' + esc(o.v) + '">' + swatch + esc(o.label) + tier + "</button>";
+    }).join("");
+    const ladder = options.length === 3 && options[0].tier ? '<span class="ladder">Good · Better · Best</span>' : "";
+    return '<div class="grp"><div class="grp-lbl">' + esc(label) + ladder + '</div><div class="chips">' + opts + "</div></div>";
+  }
+  function slider(label, key, min, max, step, unit) {
+    const v = state[key];
+    return '<div class="grp slider"><div class="grp-lbl">' + esc(label) + '<span class="val" data-val-for="' + key + '">' + v + " " + esc(unit || "") + '</span></div>' +
+      '<input type="range" data-range="' + key + '" min="' + min + '" max="' + max + '" step="' + (step || 1) + '" value="' + v + '" /></div>';
+  }
+  function ratioRow(label, key) {
+    const pct = Math.round(state[key] * 100);
+    return '<div class="grp slider"><div class="grp-lbl">' + esc(label) + '<span class="val" data-ratio-for="' + key + '">' + pct + "% turf · " + (100 - pct) + '% pavers</span></div>' +
+      '<input type="range" data-ratio="' + key + '" min="0" max="100" step="10" value="' + pct + '" /></div>';
+  }
+  function toggle(label, key) { return '<div class="grp"><div class="chips"><button class="chip' + (state[key] ? " active" : "") + '" data-toggle="' + key + '">' + (state[key] ? "✓ " : "") + esc(label) + "</button></div></div>"; }
+  function controlsHtml() {
+    let h = '<div class="grp"><div class="grp-lbl">What are we designing?</div><div class="rooms">' +
+      [["kitchen", "🍳", "Kitchen"], ["bathroom", "🛁", "Bathroom"], ["backyard", "🌿", "Backyard"]].map((r) =>
+        '<button class="chip' + (state.room === r[0] ? " active" : "") + '" data-set="room" data-val="' + r[0] + '"><span class="ic">' + r[1] + "</span>" + r[2] + "</button>").join("") + "</div></div>";
+    if (state.room === "kitchen") {
+      h += slider("Width", "width", 6, 30, 0.5, "ft") + slider("Depth", "depth", 6, 30, 0.5, "ft");
+      h += seg("Layout", "kLayout", [{ v: "l", label: "L-shape" }, { v: "u", label: "U-shape" }, { v: "galley", label: "Galley" }, { v: "single", label: "Single wall" }]);
+      h += toggle("Center island", "island");
+      h += seg("Cabinets", "cabinet", CAT.cabinet);
+      h += seg("Countertop", "counter", CAT.counter);
+      h += seg("Flooring", "floor", CAT.floor);
+      h += toggle("Tile backsplash", "backsplash");
+    } else if (state.room === "bathroom") {
+      h += slider("Width", "width", 5, 20, 0.5, "ft") + slider("Depth", "depth", 5, 20, 0.5, "ft");
+      h += seg("Wet area", "bWet", [{ v: "shower", label: "Walk-in shower" }, { v: "tub", label: "Soaking tub" }]);
+      h += seg("Vanity count", "vanityCount", [{ v: "single", label: "Single" }, { v: "double", label: "Double" }]);
+      h += seg("Tile tone", "bTile", CAT.bTile);
+      h += seg("Vanity style", "vanity", CAT.vanity);
+      h += seg("Glass enclosure", "glass", CAT.glass);
+    } else {
+      h += slider("Lot width", "yWidth", 12, 80, 1, "ft") + slider("Lot depth", "yDepth", 12, 80, 1, "ft");
+      h += ratioRow("Turf vs. pavers", "turfRatio");
+      h += seg("Patio cover", "patio", CAT.patio);
+      h += toggle("Pool", "pool");
+      h += toggle("Planters", "planters");
+    }
+    return h;
+  }
+  function updateBallpark() {
+    const b = ballpark(); const html = '<span class="num">≈ ' + money(b.lo) + " – " + money(b.hi) + '</span><span class="note">ballpark, pre-measure</span>';
+    const a = document.getElementById("ball"), m = document.getElementById("ballM");
+    if (a) a.innerHTML = html; if (m) m.innerHTML = html;
+  }
+  function refreshActive(key, val) { document.querySelectorAll('#controls [data-set="' + key + '"]').forEach((btn) => btn.classList.toggle("active", btn.getAttribute("data-val") === val)); }
+
+  function wireControls(noScene) {
+    const controlsEl = document.getElementById("controls");
+    controlsEl.addEventListener("click", (e) => {
+      const set = e.target.closest("[data-set]"); const tog = e.target.closest("[data-toggle]");
+      if (set) {
+        const key = set.getAttribute("data-set"), val = set.getAttribute("data-val");
+        if (state[key] === val) return;
+        const roomChange = key === "room"; state[key] = val;
+        if (roomChange) controlsEl.innerHTML = controlsHtml();
+        if (!noScene && root) rebuild(roomChange);
+        if (!roomChange) refreshActive(key, val);
+        updateBallpark(); return;
+      }
+      if (tog) {
+        const tkey = tog.getAttribute("data-toggle"); state[tkey] = !state[tkey];
+        tog.classList.toggle("active", state[tkey]); tog.textContent = (state[tkey] ? "✓ " : "") + tog.textContent.replace(/^✓ /, "");
+        if (!noScene && root) rebuild(false); updateBallpark();
+      }
+    });
+    controlsEl.addEventListener("input", (e) => {
+      const rng = e.target.closest("[data-range]"); const ratio = e.target.closest("[data-ratio]");
+      if (rng) {
+        const k = rng.getAttribute("data-range"), v = parseFloat(rng.value); if (!isFinite(v)) return; state[k] = v;
+        const lbl = controlsEl.querySelector('[data-val-for="' + k + '"]'); if (lbl) lbl.textContent = v + " " + (lbl.textContent.split(" ").slice(-1)[0] || "");
+        if (!noScene && root) rebuild(false); updateBallpark();
+      } else if (ratio) {
+        const rk = ratio.getAttribute("data-ratio"); state[rk] = Math.max(0, Math.min(1, parseInt(ratio.value, 10) / 100));
+        const lbl = controlsEl.querySelector('[data-ratio-for="' + rk + '"]'); if (lbl) { const p = Math.round(state[rk] * 100); lbl.textContent = p + "% turf · " + (100 - p) + "% pavers"; }
+        if (!noScene && root) rebuild(false); updateBallpark();
+      }
+    });
+  }
+
+  /* ==================== LEAD GATE ==================== */
+  function designConfig() {
+    const c = { room: state.room };
+    if (state.room === "kitchen") Object.assign(c, { width: state.width, depth: state.depth, layout: state.kLayout, island: state.island, cabinet: state.cabinet, counter: state.counter, floor: state.floor, backsplash: state.backsplash });
+    else if (state.room === "bathroom") Object.assign(c, { width: state.width, depth: state.depth, wet: state.bWet, vanityCount: state.vanityCount, tile: state.bTile, vanity: state.vanity, glass: state.glass });
+    else Object.assign(c, { lotWidth: state.yWidth, lotDepth: state.yDepth, turfRatio: state.turfRatio, patio: state.patio, pool: state.pool, planters: state.planters });
+    return c;
+  }
+  function configSummary() {
+    const f = (k, list) => { const o = (list || []).find((x) => x.v === state[k]); return o ? o.label : state[k]; };
+    if (state.room === "kitchen") return `${state.width}×${state.depth}ft · ${f("cabinet", CAT.cabinet)} cabinets · ${f("counter", CAT.counter)} counters · ${f("floor", CAT.floor)} floor${state.island ? " · island" : ""}`;
+    if (state.room === "bathroom") return `${state.width}×${state.depth}ft · ${state.bWet === "tub" ? "soaking tub" : f("glass", CAT.glass) + " shower"} · ${f("vanity", CAT.vanity)} vanity · ${f("bTile", CAT.bTile)} tile`;
+    return `${state.yWidth}×${state.yDepth}ft · ${Math.round(state.turfRatio * 100)}% turf · ${f("patio", CAT.patio)} cover${state.pool ? " · pool" : ""}${state.planters ? " · planters" : ""}`;
+  }
+
+  let lastSnap = null;
+  function openGate() {
+    const b = ballpark();
+    lastSnap = snapshotDataUrl();
+    const prev = document.getElementById("gatePrev"); if (prev && lastSnap) prev.src = lastSnap;
+    document.getElementById("gateRange").textContent = "≈ " + money(b.lo) + " – " + money(b.hi);
+    document.getElementById("gateSummary").textContent = roomLabel() + " · " + configSummary();
+    document.getElementById("gateForm").style.display = "";
+    document.getElementById("gateSuccess").style.display = "none";
+    document.getElementById("gateErr").textContent = "";
+    document.getElementById("gate").classList.add("on");
+    setTimeout(() => { const n = document.getElementById("fName"); if (n) n.focus(); }, 60);
+  }
+  function closeGate() { document.getElementById("gate").classList.remove("on"); }
+
+  async function submitLead() {
+    const name = document.getElementById("fName").value.trim();
+    const phone = document.getElementById("fPhone").value.trim();
+    const email = document.getElementById("fEmail").value.trim();
+    const city = document.getElementById("fCity").value.trim();
+    const err = document.getElementById("gateErr");
+    if (!name || (!email && !phone)) { err.textContent = "Please add your name plus an email or phone."; return; }
+    const btn = document.getElementById("gateSubmit"); btn.disabled = true; btn.textContent = "Saving your design…";
+    const b = ballpark(); const typical = Math.round((b.lo + (b.hi - b.lo) * 0.45) / 500) * 500;
+    const cfg = designConfig();
+    const payload = {
+      customerName: name, phone, email, city,
+      projectType: roomLabel(),
+      source: "3D Design Studio",
+      sourceUrl: location.href,
+      status: "new",
+      priority: typical >= 40000 ? "high" : "medium",
+      estimatedValue: typical,
+      probability: 20,
+      nextAction: "Bring the full 3D design to a free in-home consultation; qualify + schedule walkthrough.",
+      summary: `3D Design Studio — ${roomLabel()} | ${configSummary()} | ballpark $${Math.round(b.lo).toLocaleString()}–$${Math.round(b.hi).toLocaleString()}`,
+      notes: `Self-serve 3D design. Config: ${JSON.stringify(cfg)} | Ballpark $${Math.round(b.lo).toLocaleString()}–$${Math.round(b.hi).toLocaleString()} (typical ~$${typical.toLocaleString()}).`,
+      sourcingMethod: "widget",
+      agentStatus: "needs_review",
+      sourceConfidence: "high"
+    };
+    try {
+      const res = await fetch("/api/customer-leads", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || ("Server error " + res.status)); }
+      // success
+      document.getElementById("gateForm").style.display = "none";
+      const simg = document.getElementById("successImg"); if (simg && lastSnap) simg.src = lastSnap;
+      document.getElementById("gateSuccess").style.display = "";
+    } catch (e) {
+      err.textContent = e.message || "Something went wrong — please try again.";
+      btn.disabled = false; btn.textContent = "Get my free 3D design";
+    }
+  }
+  function downloadSnap() {
+    const url = lastSnap || snapshotDataUrl(); if (!url) return;
+    const a = document.createElement("a"); a.href = url; a.download = "joon-3d-design-" + state.room + "-" + Date.now() + ".png"; document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  /* ==================== BOOT ==================== */
+  function boot() {
+    const controlsEl = document.getElementById("controls");
+    wrapEl = document.getElementById("canvasWrap");
+    controlsEl.innerHTML = controlsHtml();
+    updateBallpark();
+
+    document.getElementById("reset").addEventListener("click", () => { if (controls) { frameCamera(); renderNow(); scheduleIdle(); } });
+    document.getElementById("save").addEventListener("click", openGate);
+    document.getElementById("saveM").addEventListener("click", openGate);
+    document.getElementById("gateSubmit").addEventListener("click", submitLead);
+    document.getElementById("gateClose").addEventListener("click", closeGate);
+    document.getElementById("dlSnap").addEventListener("click", downloadSnap);
+    document.getElementById("gate").addEventListener("click", (e) => { if (e.target.id === "gate") closeGate(); });
+    document.getElementById("gateModal").addEventListener("keydown", (e) => { if (e.key === "Enter" && document.getElementById("gateForm").style.display !== "none") submitLead(); });
+
+    if (!hasWebGL()) {
+      wireControls(true);
+      wrapEl.innerHTML = '<div class="skel" style="text-align:center;padding:1.4rem"><b>3D preview needs WebGL</b><span style="font-weight:600;max-width:280px">Your finish picker &amp; ballpark still work here. For the live 3D scene, try Chrome, Edge, or Safari.</span></div>';
+      return;
+    }
+    wrapEl.insertAdjacentHTML("beforeend", '<div class="skel"><div class="spin"></div>Preparing your 3D studio…</div>');
+    loadVendor().then(() => {
+      const sk = wrapEl.querySelector(".skel"); if (sk) sk.remove();
+      try { initEngine(); } catch (e) { wrapEl.innerHTML = '<div class="skel"><b>Couldn\'t start the 3D scene</b><span style="font-weight:600">' + esc(e.message) + "</span></div>"; return; }
+      ro = new ResizeObserver(() => resize()); ro.observe(wrapEl);
+      window.addEventListener("resize", resize);
+      wireControls(false);
+    }).catch((e) => {
+      const sk = wrapEl.querySelector(".skel"); if (sk) sk.remove();
+      wireControls(true);
+      wrapEl.innerHTML = '<div class="skel"><b>Couldn\'t load the 3D engine</b><span style="font-weight:600">' + esc(e.message) + "</span></div>";
+    });
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
+  </script>
+</body>
+</html>

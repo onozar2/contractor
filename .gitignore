@@ -5,3 +5,18 @@ node_modules/
 tmp/*.json
 costbook.backup.json
 uploads/
+
+# --- 2026-07-14: keep scratch + large reproducible assets out of git ---
+# Extracted Drive media (758MB, reproducible via scripts/import-whatsapp / Drive zips)
+knowledge/media/
+# CSLB verifier scratch (raw HTML/cookie dumps from building verifyCslbLicense)
+cslb_*.html
+cslb_*.txt
+cookies.txt
+*cookies*.txt
+lic*.html
+sr*.html
+tmp_*.html
+tmp_*.pdf
+# one-off animation backups
+*.backup-anim.html

@@ -1,0 +1,169 @@
+{
+  "version": 1,
+  "updated": "2026-07-12",
+  "method": "See knowledge/PRICE-GAUGING.md for the full method, ask scripts, and selection rule.",
+  "schema": "{trade, probeId, probeSpec, unit, entries: [{subName, subId, licenseVerified, website, quote, unit, date, channel, notes}]}",
+  "probes": [
+    {
+      "trade": "Roofing",
+      "probeId": "roofing-1",
+      "unit": "job",
+      "probeSpec": "1,800 sf single-story hip roof. Tear-off 1 layer comp shingle, re-sheath 25% (450 sf) of deck, install GAF Timberline HDZ shingles + UDL 30 synthetic underlayment, new pipe jacks/flashing/drip edge. Standard 2-day access, no permit included in price (call out separately). Labor + materials, all-in price?",
+      "entries": []
+    },
+    {
+      "trade": "Roofing",
+      "probeId": "roofing-2",
+      "unit": "job",
+      "probeSpec": "22-square (2,200 sf) low-slope (2:12) re-roof, torch-down modified bitumen over existing plywood deck. Tear-off 1 layer, standard parapet flashing, no tapered insulation. Labor + materials, all-in price?",
+      "entries": []
+    },
+    {
+      "trade": "Plumbing",
+      "probeId": "plumbing-1",
+      "unit": "job",
+      "probeSpec": "Whole-house repipe, 3bd/2ba single-story ~1,600 sf, copper to PEX, 12 fixtures (2 baths, kitchen, laundry, water heater). Open attic/crawl access, no drywall patch included. Labor + materials price?",
+      "entries": []
+    },
+    {
+      "trade": "Plumbing",
+      "probeId": "plumbing-2",
+      "unit": "job",
+      "probeSpec": "Water heater swap, 50-gal gas tank to tank, like-for-like, code-compliant strap/T&P valve/expansion tank, standard closet access, permit pulled by us. Labor + materials price?",
+      "entries": []
+    },
+    {
+      "trade": "Sewer",
+      "probeId": "sewer-1",
+      "unit": "job",
+      "probeSpec": "60 ft sewer lateral, 4in, trenchless pipe-burst replacement (clay to HDPE), two access pits (house cleanout + street), city permit pulled by us. Price?",
+      "entries": []
+    },
+    {
+      "trade": "Sewer",
+      "probeId": "sewer-2",
+      "unit": "job",
+      "probeSpec": "Sewer camera inspection + hydro-jet cleaning, single-family lateral up to 75 ft, written report with footage delivered. Price?",
+      "entries": []
+    },
+    {
+      "trade": "Electrical",
+      "probeId": "electrical-1",
+      "unit": "job",
+      "probeSpec": "200A panel upgrade (from 100A), single-family, meter/main combo, up to 20 circuits relabeled, no sub-panel, PoCo coordination + permit by them. Labor + materials price?",
+      "entries": []
+    },
+    {
+      "trade": "Electrical",
+      "probeId": "electrical-2",
+      "unit": "job",
+      "probeSpec": "EV charger circuit: 240V/50A NEMA 14-50 outlet in garage, 40 ft run from main panel, permit included. Labor + materials price?",
+      "entries": []
+    },
+    {
+      "trade": "HVAC",
+      "probeId": "hvac-1",
+      "unit": "job",
+      "probeSpec": "Straight-swap HVAC changeout: 3-ton split system (condenser + coil + furnace), single-story ~1,600 sf, existing ductwork reused, like-for-like, permit by them. Labor + materials price?",
+      "entries": []
+    },
+    {
+      "trade": "HVAC",
+      "probeId": "hvac-2",
+      "unit": "job",
+      "probeSpec": "Mini-split install: 1 outdoor condenser + 2 indoor heads (2-zone), single-story, 30 ft total line set, standard electrical disconnect. Labor + materials price?",
+      "entries": []
+    },
+    {
+      "trade": "Drywall",
+      "probeId": "drywall-1",
+      "unit": "job",
+      "probeSpec": "Drywall patch + texture match: (10) patches averaging 2x2 ft from plumbing/electrical access, level-4 finish, knockdown texture match to existing. Labor + materials price?",
+      "entries": []
+    },
+    {
+      "trade": "Painting - Interior",
+      "probeId": "paint-int-1",
+      "unit": "job",
+      "probeSpec": "Interior repaint, 3bd/2ba ~1,600 sf, walls + ceilings + trim, 2 coats (Sherwin Williams ProClassic/Eminence or equal), light patch/prep, occupied home. Labor + materials price?",
+      "entries": []
+    },
+    {
+      "trade": "Painting - Exterior",
+      "probeId": "paint-ext-1",
+      "unit": "job",
+      "probeSpec": "Exterior repaint, single-story stucco ~1,800 sf footprint, single-story eave height, pressure wash + minor caulk/prep, 2 coats (Sherwin Williams Duration/SuperPaint or equal). Labor + materials price?",
+      "entries": []
+    },
+    {
+      "trade": "Flooring",
+      "probeId": "flooring-1",
+      "unit": "job",
+      "probeSpec": "LVP flooring install, 1,200 sf open floor plan, 7mm click-lock waterproof plank, remove existing carpet/pad (included), standard subfloor prep. Transitions/baseboards priced separately. Labor + materials price?",
+      "entries": []
+    },
+    {
+      "trade": "Flooring",
+      "probeId": "flooring-2",
+      "unit": "sf",
+      "probeSpec": "Engineered hardwood install, 900 sf, glue-down over concrete slab, moisture barrier included, standard prep. Labor + materials price per sf?",
+      "entries": []
+    },
+    {
+      "trade": "Tile / Shower Pan",
+      "probeId": "tile-1",
+      "unit": "job",
+      "probeSpec": "Shower pan + wall tile, one bathroom: tear-out existing to studs (demo included), new mortar-bed pan + waterproofing membrane, 12x24 porcelain wall tile to 8ft, mud-set. Tile supplied by customer, setting materials by sub. Labor + setting-materials price?",
+      "entries": []
+    },
+    {
+      "trade": "Tile / Shower Pan",
+      "probeId": "tile-2",
+      "unit": "sf",
+      "probeSpec": "Floor tile install, 400 sf, 12x24 porcelain, standard layout, self-leveling not included, tile supplied by customer. Labor price per sf?",
+      "entries": []
+    },
+    {
+      "trade": "Concrete",
+      "probeId": "concrete-1",
+      "unit": "job",
+      "probeSpec": "Driveway replacement, 600 sf: remove + haul existing (included), pour 4in reinforced slab w/ #3 rebar 18in OC, broom finish, standard base prep. Labor + materials price?",
+      "entries": []
+    },
+    {
+      "trade": "Concrete",
+      "probeId": "concrete-2",
+      "unit": "sf",
+      "probeSpec": "New concrete flatwork, 300 sf patio slab, 4in w/ wire mesh, broom finish, no demo, standard access. Labor + materials price per sf?",
+      "entries": []
+    },
+    {
+      "trade": "Fencing",
+      "probeId": "fencing-1",
+      "unit": "lf",
+      "probeSpec": "Wood fence, 150 linear ft, 6ft height, cedar dog-ear pickets, pressure-treated posts set in concrete, includes 1 walk gate (4ft). Labor + materials price per lf (and gate as a line item)?",
+      "entries": []
+    },
+    {
+      "trade": "Fencing",
+      "probeId": "fencing-2",
+      "unit": "lf",
+      "probeSpec": "Vinyl fence, 100 linear ft, 6ft privacy panel, standard posts, no gate. Labor + materials price per lf?",
+      "entries": []
+    },
+    {
+      "trade": "Stucco",
+      "probeId": "stucco-1",
+      "unit": "job",
+      "probeSpec": "Stucco patch + re-coat, single-story ~1,800 sf exterior: patch (10) cracks/penetrations up to 2 sf each, full 3-coat re-texture to match existing sand finish. Labor + materials price?",
+      "entries": []
+    },
+    {
+      "trade": "Stucco",
+      "probeId": "stucco-2",
+      "unit": "sf",
+      "probeSpec": "New stucco application over existing wire lath, 400 sf wall section (addition/repair), 3-coat system, standard sand texture. Labor + materials price per sf?",
+      "entries": []
+    }
+  ]
+}

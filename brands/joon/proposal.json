@@ -1,0 +1,14 @@
+{
+  "bio": "Joon Development Group is an owner-operated Southern California general contractor led by Frank Nozar, a California Class B General Contractor (License #1107974) who has been investing in and developing Los Angeles real estate since 2013. That owner's perspective — budget discipline, schedule accountability, and long-term property value — carries into every project Joon builds. Joon focuses on residential remodels, kitchen and bathroom renovations, additions, ADUs, outdoor living, and practical property upgrades across Los Angeles, the San Fernando Valley, Ventura, and the surrounding Southern California communities. The team works directly with homeowners from the first walkthrough through closeout: defining a real scope and price before work starts, coordinating permits, trades, and inspections during construction, and standing behind the punch list and final walkthrough at the end. Clear communication and durable work are the standard on every job Joon takes on.",
+  "reviews": [
+    { "quote": "[Add a customer review here]", "name": "[Customer name]", "project": "[Project type]" },
+    { "quote": "[Add a customer review here]", "name": "[Customer name]", "project": "[Project type]" },
+    { "quote": "[Add a customer review here]", "name": "[Customer name]", "project": "[Project type]" }
+  ],
+  "provisions": [
+    "Area affected by the work will be vacated and emptied by the customer.",
+    "City fees, inspection fees, permit fees and other public body fees will be paid by the customer, if required.",
+    "All plumbing to be connected to existing unless stated in the scope.",
+    "Customer selects all finish materials, colors and designs; installation labor included as scoped."
+  ]
+}

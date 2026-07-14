@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Joon Development Group — Proposal Template</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{
+    --ink:#172033; --steel:#334155; --mist:#f4f6f8; --paper:#fffaf2;
+    --clay:#b85c38; --clayDark:#a44d2e; --copper:#d78b54; --sage:#6f7d68;
+    --line:#dde3ea; --white:#ffffff; --topbar:#111827; --footer:#0f172a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    font-family: Georgia, 'Times New Roman', serif;
+    background:var(--mist);
+    color:var(--ink);
+    margin:0;
+    padding:24px;
+    line-height:1.5;
+  }
+  .toolbar{
+    max-width:900px; margin:0 auto 16px auto;
+    display:flex; gap:10px; justify-content:flex-end; align-items:center;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .toolbar button{
+    background:var(--clay); color:var(--white); border:none; border-radius:6px;
+    padding:9px 16px; font-size:13px; font-weight:700; cursor:pointer;
+    letter-spacing:.02em;
+  }
+  .toolbar button:hover{ background:var(--clayDark); }
+  .toolbar .hint{ font-size:12px; color:var(--steel); margin-right:auto; }
+
+  .sheet{
+    max-width:900px; margin:0 auto; background:var(--white);
+    border:1px solid var(--line); border-radius:4px;
+    padding:48px 56px; box-shadow:0 4px 20px rgba(23,32,51,0.08);
+  }
+
+  .brandbar{
+    background:var(--topbar); color:var(--white);
+    margin:-48px -56px 28px -56px; padding:26px 56px;
+    border-radius:4px 4px 0 0;
+    display:flex; justify-content:space-between; align-items:flex-start; gap:24px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .brandbar h1{ margin:0 0 4px 0; font-size:22px; letter-spacing:.03em; color:var(--white); }
+  .brandbar .tag{ font-size:12.5px; color:var(--copper); font-weight:700; text-transform:uppercase; letter-spacing:.06em; }
+  .brandbar .contact{ font-size:12.5px; color:rgba(255,255,255,0.78); text-align:right; line-height:1.7; }
+  .brandbar .contact strong{ color:var(--white); }
+
+  h2.section{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size:13px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--white); background:var(--clay);
+    padding:7px 12px; margin:30px 0 14px 0; border-radius:3px;
+  }
+  h3.subhead{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size:12.5px; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--clayDark); border-bottom:1px solid var(--line);
+    padding-bottom:4px; margin:18px 0 8px 0;
+  }
+
+  .meta-row{ display:flex; gap:24px; font-family: Arial, Helvetica, sans-serif; font-size:13px; color:var(--steel); }
+  .meta-row .field{ flex:1; }
+  .meta-row label{ display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--sage); margin-bottom:2px; }
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:6px; }
+  .field label{
+    display:block; font-family: Arial, Helvetica, sans-serif; font-size:10.5px;
+    text-transform:uppercase; letter-spacing:.05em; color:var(--sage); margin-bottom:3px;
+  }
+  .field{ margin-bottom:12px; }
+
+  [contenteditable="true"], input[type="text"], input[type="number"], input[type="date"], textarea{
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size:14px; color:var(--ink);
+    border:1px solid var(--line); border-radius:3px;
+    padding:6px 8px; width:100%; background:var(--paper);
+  }
+  [contenteditable="true"]{ min-height:1.4em; background:var(--paper); }
+  textarea{ min-height:64px; resize:vertical; }
+  input[type="number"]{ text-align:right; }
+
+  .trade-block{ margin-bottom:16px; border-left:3px solid var(--line); padding-left:12px; }
+  .trade-block .trade-title{
+    font-family: Arial, Helvetica, sans-serif; font-weight:700; font-size:13px;
+    text-transform:uppercase; letter-spacing:.04em; color:var(--ink);
+    display:flex; align-items:center; gap:8px; margin-bottom:6px;
+  }
+  .trade-block .trade-title input[type="checkbox"]{ width:auto; }
+
+  table.tbl{ width:100%; border-collapse:collapse; font-size:13px; margin-top:6px; }
+  table.tbl th{
+    font-family: Arial, Helvetica, sans-serif; font-size:10.5px; text-transform:uppercase;
+    letter-spacing:.04em; color:var(--white); background:var(--steel);
+    padding:7px 8px; text-align:left;
+  }
+  table.tbl td{ padding:5px 6px; border-bottom:1px solid var(--line); vertical-align:middle; }
+  table.tbl tfoot td{ font-weight:700; border-top:2px solid var(--ink); border-bottom:none; padding-top:8px; }
+  table.tbl input[type="text"], table.tbl input[type="number"]{ border:1px solid transparent; background:var(--paper); }
+  table.tbl input[type="text"]:focus, table.tbl input[type="number"]:focus{ border-color:var(--copper); }
+  .num-cell{ text-align:right; white-space:nowrap; }
+  .rm-row{ background:transparent; border:none; color:var(--steel); cursor:pointer; font-size:15px; }
+  .add-row-btn{
+    font-family: Arial, Helvetica, sans-serif; font-size:12px; color:var(--clay);
+    background:none; border:1px dashed var(--clay); border-radius:4px;
+    padding:5px 10px; cursor:pointer; margin-top:8px;
+  }
+
+  .status-pill{
+    display:inline-block; font-family: Arial, Helvetica, sans-serif; font-size:11.5px;
+    font-weight:700; padding:3px 10px; border-radius:12px; margin-left:8px;
+  }
+  .status-ok{ background:#e3f0e9; color:#1f7a5c; }
+  .status-bad{ background:#fbe6e1; color:var(--clayDark); }
+
+  .clauses label{
+    display:flex; gap:8px; align-items:flex-start; font-size:13px; margin-bottom:8px;
+    font-family: Georgia, serif;
+  }
+  .clauses input[type="checkbox"]{ margin-top:3px; }
+
+  .signrow{ display:flex; gap:40px; margin-top:34px; }
+  .sigline{ flex:1; }
+  .sigline .line{ border-bottom:1px solid var(--ink); height:34px; }
+  .sigline .cap{ font-family: Arial, Helvetica, sans-serif; font-size:10.5px; color:var(--sage); text-transform:uppercase; letter-spacing:.05em; margin-top:4px; }
+
+  .provisions{ font-size:13px; }
+  .provisions ol{ padding-left:20px; }
+  .provisions li{ margin-bottom:6px; }
+
+  footer.doc{
+    margin-top:34px; padding-top:14px; border-top:1px solid var(--line);
+    font-family: Arial, Helvetica, sans-serif; font-size:10.5px; color:var(--sage); text-align:center;
+  }
+
+  @media print{
+    body{ background:var(--white); padding:0; }
+    .toolbar{ display:none; }
+    .sheet{ box-shadow:none; border:none; max-width:100%; padding:28px 40px; }
+    .brandbar{ margin:-28px -40px 24px -40px; padding:20px 40px; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    h2.section{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    table.tbl th{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .add-row-btn, .rm-row{ display:none; }
+    [contenteditable="true"], input, textarea{ border:none !important; background:transparent !important; padding:2px 0; }
+    .status-pill{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  }
+
+  @media (prefers-color-scheme: dark){
+    body{ background:#0f1420; }
+    .sheet{ background:#f4efe6; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <span class="hint">Standalone template — click any field to edit. Not wired into the app; use File &rarr; Print / Save as PDF.</span>
+  <button onclick="window.print()">Print / Save as PDF</button>
+</div>
+
+<div class="sheet" id="sheet">
+
+  <div class="brandbar">
+    <div>
+      <h1 contenteditable="true">Joon Development Group</h1>
+      <div class="tag">Southern California General Contractor</div>
+    </div>
+    <div class="contact">
+      <div><strong>CA General Contractor License Class B #1107974</strong></div>
+      <div contenteditable="true">Los Angeles, CA &middot; Serving Southern California</div>
+      <div contenteditable="true">(818) 371-0334 &middot; ori.nozar@joonmgmt.com</div>
+    </div>
+  </div>
+
+  <div style="text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:12px; color:var(--steel); margin-bottom:10px;">
+    PROPOSAL / HOME IMPROVEMENT CONTRACT — Complies with California Business &amp; Professions Code &sect;7159 and Civil Code &sect;3097(1), as amended
+  </div>
+
+  <div class="meta-row">
+    <div class="field">
+      <label>Estimate #</label>
+      <div contenteditable="true">&nbsp;</div>
+    </div>
+    <div class="field">
+      <label>Date</label>
+      <input type="date" />
+    </div>
+    <div class="field">
+      <label>Estimated Start (3+ business days after signing)</label>
+      <input type="date" />
+    </div>
+  </div>
+
+  <h2 class="section">Client &amp; Project</h2>
+  <div class="grid2">
+    <div>
+      <div class="field"><label>Client Name(s)</label><div contenteditable="true">&nbsp;</div></div>
+      <div class="field"><label>Client Address</label><div contenteditable="true">&nbsp;</div></div>
+      <div class="field"><label>Phone(s)</label><div contenteditable="true">&nbsp;</div></div>
+      <div class="field"><label>Email</label><div contenteditable="true">&nbsp;</div></div>
+    </div>
+    <div>
+      <div class="field"><label>Project / Jobsite Address</label><div contenteditable="true">Same as above</div></div>
+      <div class="field"><label>Project Description</label><div contenteditable="true">e.g. Bathroom Remodeling, ADU &mdash; Garage Conversion</div></div>
+      <div class="field"><label>Rooms / Approx. SF (if known)</label><div contenteditable="true">&nbsp;</div></div>
+    </div>
+  </div>
+
+  <h2 class="section">Scope of Work — by Trade</h2>
+  <p style="font-family:Arial,Helvetica,sans-serif; font-size:11.5px; color:var(--sage); margin-top:-6px;">
+    Uncheck a trade to mark it not-applicable to this job. Edit each box directly.
+  </p>
+
+  <div id="tradeBlocks"></div>
+
+  <h2 class="section">Inclusions &amp; Exclusions</h2>
+  <h3 class="subhead">Contractor (Joon) provides</h3>
+  <textarea style="min-height:96px;">All demolition, debris haul-off, and job-site cleanup.
+All structural/framing work, including engineered headers/beams where required.
+Rough and finish plumbing and electrical labor.
+Waterproofing systems (hot-mop, membrane, or Schluter as specified).
+Insulation and drywall (hang, tape, texture).
+Paint labor (prep, primer, coats) — subject to the 85% paint-match clause, if included.
+Installation labor for all tile, flooring, cabinetry, and fixtures — client-supplied or contractor-supplied per the Allowance Table below.
+Coordination of required inspections and closeout.</textarea>
+
+  <h3 class="subhead">Client provides (or funds via allowance)</h3>
+  <textarea style="min-height:120px;">All finish/selection materials: tile, stone/countertop slabs, cabinets and vanities, plumbing fixtures (faucets, sinks, toilets, tubs), light fixtures, mirrors, hardware, interior/exterior doors and windows, flooring material, appliances, and any decorative items — unless called out as contractor-supplied above.
+All building permit fees, plan-check fees, city/inspection fees, engineering fees, HERS rater fees, and structural-observation fees, if required.
+Vacating and emptying the work area before the scheduled start date.
+Any work or vendor relationship the client manages directly (e.g. client's own cabinet maker or carpet installer) — Joon is not responsible for cost, schedule, or quality of directly-contracted vendors.
+Reimbursement to Joon, at cost, for any finish material Joon purchases on the client's behalf.</textarea>
+
+  <h3 class="subhead">Optional protective clauses</h3>
+  <div class="clauses">
+    <label><input type="checkbox" /> <span><strong>85% paint-match clause</strong> — Contractor will match existing paint color/finish up to approximately 85%; an exact 100% match cannot be guaranteed due to material aging and batch variance.</span></label>
+    <label><input type="checkbox" /> <span><strong>Wood-damage contingency</strong> — Base price includes repair/replacement of up to two to three (2-3) pieces of damaged framing/sheathing lumber discovered during the work; additional wood damage is handled via change order.</span></label>
+    <label><input type="checkbox" /> <span><strong>Engineering liability shield (&gt;3.5 ft walls/decks)</strong> — For any wall, deck, or structure exceeding 3.5 feet in height, Owner is responsible for providing an engineer's plan and the associated city permit and for scheduling the required city inspector call-out, unless Contractor has separately quoted design/engineering.</span></label>
+    <label><input type="checkbox" /> <span><strong>Blueprint approval gate</strong> — Work will not commence until Client has reviewed and approved the final construction plans/layout in writing.</span></label>
+  </div>
+
+  <h2 class="section">Allowance Table — client-selected finishes</h2>
+  <table class="tbl" id="allowTbl">
+    <thead>
+      <tr><th style="width:34%">Item</th><th style="width:16%">Unit</th><th style="width:16%">Allowance ($)</th><th>Notes</th><th style="width:24px"></th></tr>
+    </thead>
+    <tbody id="allowBody"></tbody>
+    <tfoot>
+      <tr><td colspan="2"></td><td class="num-cell" id="allowTotal">$0.00</td><td colspan="2"></td></tr>
+    </tfoot>
+  </table>
+  <button class="add-row-btn" onclick="addAllowRow()">+ Add allowance line</button>
+
+  <h2 class="section">Pricing Summary</h2>
+  <table class="tbl">
+    <tbody>
+      <tr><td>Base scope of work (labor + rough materials + installation)</td><td class="num-cell"><input type="number" step="0.01" oninput="updateTotal()" id="baseScope" value="0" style="width:130px;" /></td></tr>
+      <tr><td>Allowance total (from table above)</td><td class="num-cell" id="allowMirror">$0.00</td></tr>
+    </tbody>
+    <tfoot>
+      <tr><td>TOTAL CONTRACT PRICE</td><td class="num-cell" id="grandTotal">$0.00</td></tr>
+    </tfoot>
+  </table>
+
+  <h2 class="section">Payment Schedule</h2>
+  <p style="font-family:Arial,Helvetica,sans-serif; font-size:11.5px; color:var(--sage); margin-top:-6px;">
+    CA law (BPC &sect;7159.5): down payment cannot exceed the lesser of $1,000 or 10% of contract price. Percentages must sum to 100% before this is sent.
+  </p>
+  <table class="tbl" id="payTbl">
+    <thead>
+      <tr><th style="width:44%">Milestone</th><th style="width:14%">%</th><th style="width:18%">Amount ($)</th><th style="width:24px"></th></tr>
+    </thead>
+    <tbody id="payBody"></tbody>
+    <tfoot>
+      <tr>
+        <td>Total</td>
+        <td class="num-cell" id="payPctTotal">0%</td>
+        <td class="num-cell" id="payAmtTotal">$0.00</td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+  <div id="payStatus"></div>
+  <button class="add-row-btn" onclick="addPayRow()">+ Add milestone</button>
+
+  <h2 class="section">Timeline &amp; General Provisions</h2>
+  <div class="provisions">
+    <div class="grid2" style="margin-bottom:10px;">
+      <div class="field"><label>Estimated Completion</label><div contenteditable="true">&nbsp;</div></div>
+      <div class="field"><label>Completion buffer applied</label><div contenteditable="true">e.g. bathroom scale &rarr; +6 months buffer</div></div>
+    </div>
+    <ol>
+      <li>Area affected by the work will be vacated and emptied by the client before start.</li>
+      <li>Work may interfere with parking/street access at the jobsite.</li>
+      <li>City fees, inspection fees, permit fees, and other public-body fees are paid by the client, if required.</li>
+      <li>All plumbing/electrical connects to existing service unless a service upgrade is separately scoped and priced.</li>
+      <li>All tile, flooring, and molding installations comply with applicable building codes.</li>
+      <li>This price does not include work outside the property line or exterior work not listed above.</li>
+      <li>Client will be given the 3-Day Right to Cancel notice, Notice of Arbitration, Disclosure of Insurance/Bonding, and a copy of the Contractor's License, per CSLB requirements.</li>
+      <li>If a client requests work to start inside the 3-day cancellation window due to an emergency (active leak, structural failure, etc.), a signed waiver stating the specific reason is required before work begins.</li>
+    </ol>
+  </div>
+
+  <h2 class="section">Signatures</h2>
+  <div class="signrow">
+    <div class="sigline">
+      <div class="line"></div>
+      <div class="cap">Customer Signature &amp; Date</div>
+    </div>
+    <div class="sigline">
+      <div class="line"></div>
+      <div class="cap">Customer Print Name</div>
+    </div>
+  </div>
+  <div class="signrow">
+    <div class="sigline">
+      <div class="line"></div>
+      <div class="cap">Contractor (Joon Development Group) &amp; Date</div>
+    </div>
+    <div class="sigline">
+      <div class="line"></div>
+      <div class="cap">Signed As (Title)</div>
+    </div>
+  </div>
+
+  <footer class="doc">
+    Joon Development Group &middot; CA General Contractor License Class B #1107974 &middot; ori.nozar@joonmgmt.com &middot; (818) 371-0334<br />
+    Template built from a review of 7 real CA remodeling/ADU contracts — see knowledge/JOON-BID-TEMPLATE.md and knowledge/bid-analysis/ for sourcing.
+  </footer>
+
+</div>
+
+<script>
+  // ---------- Scope-of-work trade blocks ----------
+  var trades = [
+    { name: "Demolition", text: "All demolition per approved blueprint/layout.\nJob site kept clean at all times of construction." },
+    { name: "Framing", text: "" },
+    { name: "Plumbing", text: "Rough-in (drain, hot/cold lines) + fixture trim-out." },
+    { name: "Electrical", text: "Rough + finish, circuits, fixture count, GFCI/AFCI as required." },
+    { name: "Waterproofing", text: "Hot-mop or Schluter waterproofing system (if wet area)." },
+    { name: "Tile / Stone", text: "" },
+    { name: "Insulation / Drywall", text: "" },
+    { name: "Paint", text: "" },
+    { name: "Flooring", text: "" },
+    { name: "Cabinetry / Millwork", text: "" },
+    { name: "Clean-Up", text: "Clean up and haul away all construction debris upon completion." }
+  ];
+  var tradeHost = document.getElementById("tradeBlocks");
+  trades.forEach(function(t, i){
+    var div = document.createElement("div");
+    div.className = "trade-block";
+    div.innerHTML =
+      '<div class="trade-title"><input type="checkbox" checked onchange="toggleTrade(this)" /> ' + t.name + '</div>' +
+      '<textarea>' + t.text + '</textarea>';
+    tradeHost.appendChild(div);
+  });
+  function toggleTrade(cb){
+    var ta = cb.closest(".trade-block").querySelector("textarea");
+    ta.style.opacity = cb.checked ? "1" : "0.35";
+    ta.disabled = !cb.checked;
+  }
+
+  // ---------- Allowance table ----------
+  var allowSeed = [
+    ["Tile — shower walls/floor", "per sf", ""],
+    ["Tile — bathroom/kitchen floor", "per sf", ""],
+    ["Countertop / stone slab", "per sf", ""],
+    ["Vanity / cabinet unit(s)", "per unit", ""],
+    ["Plumbing fixtures (faucet, valve, toilet)", "lump sum", ""],
+    ["Light fixtures / mirrors", "lump sum", ""]
+  ];
+  var allowBody = document.getElementById("allowBody");
+  function addAllowRow(item, unit, notes){
+    var tr = document.createElement("tr");
+    tr.innerHTML =
+      '<td><input type="text" value="' + (item||"") + '" /></td>' +
+      '<td><input type="text" value="' + (unit||"") + '" /></td>' +
+      '<td class="num-cell"><input type="number" step="0.01" value="0" oninput="updateAllowTotal()" /></td>' +
+      '<td><input type="text" value="' + (notes||"") + '" /></td>' +
+      '<td><button class="rm-row" onclick="this.closest(\'tr\').remove(); updateAllowTotal();">&times;</button></td>';
+    allowBody.appendChild(tr);
+  }
+  allowSeed.forEach(function(r){ addAllowRow(r[0], r[1], r[2]); });
+  function fmt(n){ return "$" + Number(n||0).toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2}); }
+  function updateAllowTotal(){
+    var total = 0;
+    allowBody.querySelectorAll("input[type=number]").forEach(function(inp){ total += Number(inp.value)||0; });
+    document.getElementById("allowTotal").textContent = fmt(total);
+    document.getElementById("allowMirror").textContent = fmt(total);
+    updateTotal();
+  }
+  function updateTotal(){
+    var base = Number(document.getElementById("baseScope").value) || 0;
+    var allowTxt = document.getElementById("allowTotal").textContent.replace(/[$,]/g,"");
+    var allow = Number(allowTxt) || 0;
+    document.getElementById("grandTotal").textContent = fmt(base + allow);
+    syncPayAmounts();
+  }
+
+  // ---------- Payment schedule ----------
+  var paySeed = [
+    ["Deposit (upon signing)", 10],
+    ["Start of demo", 15],
+    ["Material order", 15],
+    ["Rough trades pass inspection", 25],
+    ["Tile / hot-mop pass inspection", 20],
+    ["Final — job complete + walkthrough", 15]
+  ];
+  var payBody = document.getElementById("payBody");
+  function addPayRow(label, pct){
+    var tr = document.createElement("tr");
+    tr.innerHTML =
+      '<td><input type="text" value="' + (label||"") + '" /></td>' +
+      '<td class="num-cell"><input type="number" step="1" value="' + (pct||0) + '" oninput="syncPayAmounts()" style="width:70px;" /></td>' +
+      '<td class="num-cell pay-amt">$0.00</td>' +
+      '<td><button class="rm-row" onclick="this.closest(\'tr\').remove(); syncPayAmounts();">&times;</button></td>';
+    payBody.appendChild(tr);
+  }
+  paySeed.forEach(function(r){ addPayRow(r[0], r[1]); });
+  function syncPayAmounts(){
+    var grandTxt = document.getElementById("grandTotal").textContent.replace(/[$,]/g,"");
+    var grand = Number(grandTxt) || 0;
+    var pctTotal = 0;
+    var amtTotal = 0;
+    payBody.querySelectorAll("tr").forEach(function(tr){
+      var pct = Number(tr.querySelector("input[type=number]").value) || 0;
+      pctTotal += pct;
+      var amt = grand * pct / 100;
+      amtTotal += amt;
+      tr.querySelector(".pay-amt").textContent = fmt(amt);
+    });
+    document.getElementById("payPctTotal").textContent = pctTotal + "%";
+    document.getElementById("payAmtTotal").textContent = fmt(amtTotal);
+    var statusEl = document.getElementById("payStatus");
+    if (Math.abs(pctTotal - 100) < 0.01) {
+      statusEl.innerHTML = '<span class="status-pill status-ok">Sums to 100% &mdash; OK</span>';
+    } else {
+      statusEl.innerHTML = '<span class="status-pill status-bad">Sums to ' + pctTotal + '% &mdash; must equal 100% before sending</span>';
+    }
+  }
+
+  updateAllowTotal();
+</script>
+
+</body>
+</html>

@@ -1,11 +1,15 @@
 const express = require("express");
 const path = require("path");
+const crypto = require("crypto");
 const { MongoClient, ObjectId } = require("mongodb");
 require("dotenv").config();
 
 const publicApp = express();
 const crmApp = express();
 const app = crmApp;
+// Gzip everything (crmApp is mounted into publicApp, so one middleware covers
+// both) — the 3D vendor bundle alone drops ~773KB -> ~200KB for phone loads.
+publicApp.use(require("compression")());
 const publicPort = process.env.PUBLIC_PORT || process.env.PORT || 4373;
 const crmPort = process.env.CRM_PORT || 4373;
 const mongoUri = process.env.MONGODB_URI || "";
@@ -183,6 +187,106 @@ publicApp.post("/api/estimate-lead", async (req, res) => {
 });
 
 crmApp.use(express.json({ limit: "1mb" }));
+
+// ── CRM auth gate (Feature 3, 2026-07-13) ──
+// Before :4373 ever goes on a public domain, CRM pages + APIs need a login;
+// the public marketing site + public token pages (handled by publicApp, or
+// whitelisted below) stay open; local automation keeps working with zero
+// friction. See authgate.js for the pure, unit-tested decision logic.
+const authgate = require("./authgate");
+const CRM_PASSWORD = process.env.CRM_PASSWORD || "";
+const SESSION_SECRET = process.env.SESSION_SECRET || "";
+const AUTH_COOKIE_MAX_AGE_MS = 30 * 24 * 3600 * 1000; // 30 days
+
+crmApp.use((req, res, next) => {
+  const decision = authgate.decide({
+    method: req.method,
+    path: req.path,
+    // req.socket.remoteAddress is the direct TCP peer - correct as long as
+    // :4373 is reached directly (no reverse proxy in front). If a proxy is
+    // ever added, this needs to read a trusted X-Forwarded-For instead.
+    remoteAddress: req.socket && req.socket.remoteAddress,
+    cookieHeader: req.headers.cookie,
+    secret: SESSION_SECRET
+  });
+  if (decision.allow) return next();
+  const wantsJson = req.path.startsWith("/api/") || (req.headers.accept || "").includes("application/json") || req.xhr;
+  if (wantsJson) return res.status(401).json({ error: "Unauthorized. Log in at /login." });
+  res.redirect(`/login?next=${encodeURIComponent(req.originalUrl)}`);
+});
+
+function loginPageHtml({ error, next }) {
+  const safeNext = /^\/[^\s]*$/.test(next || "") ? next : "/app.html";
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex" />
+<title>Log in · JOON Command</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --ink: #172033; --muted: #667085; --line: #e4e8ef; --paper: #ffffff; --charcoal: #101828; --blue: #2563eb; --red: #b42318; }
+  body {
+    min-height: 100vh; display: grid; place-items: center; background: var(--charcoal);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; padding: 1.5rem;
+  }
+  .card { background: var(--paper); border-radius: 14px; padding: 2rem 1.8rem; max-width: 360px; width: 100%; box-shadow: 0 20px 50px rgba(0,0,0,0.35); }
+  .brand { font-size: 0.78rem; font-weight: 850; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); margin-bottom: 0.35rem; }
+  h1 { font-size: 1.2rem; color: var(--ink); font-weight: 900; margin-bottom: 1.2rem; }
+  label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--muted); margin-bottom: 0.35rem; }
+  input[type="password"] {
+    width: 100%; padding: 0.65rem 0.75rem; border: 1px solid var(--line); border-radius: 8px;
+    font-size: 0.95rem; color: var(--ink); margin-bottom: 1rem;
+  }
+  input[type="password"]:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+  button {
+    width: 100%; padding: 0.7rem; border: 0; border-radius: 8px; background: var(--blue); color: #fff;
+    font-weight: 800; font-size: 0.9rem; cursor: pointer;
+  }
+  button:hover { background: #1d4ed8; }
+  .error { color: var(--red); font-size: 0.82rem; font-weight: 700; margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+  <form class="card" method="POST" action="/login" autocomplete="off">
+    <div class="brand">JOON Command</div>
+    <h1>Log in</h1>
+    ${error ? '<div class="error">Wrong password. Try again.</div>' : ""}
+    <input type="hidden" name="next" value="${safeNext.replace(/"/g, "&quot;")}" />
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" autofocus required />
+    <button type="submit">Log in</button>
+  </form>
+</body>
+</html>`;
+}
+
+crmApp.get("/login", (req, res) => {
+  res.type("html").send(loginPageHtml({ error: req.query.error === "1", next: cleanString(req.query.next) }));
+});
+
+crmApp.post("/login", express.urlencoded({ extended: false }), (req, res) => {
+  const password = String((req.body && req.body.password) || "");
+  const next = cleanString((req.body && req.body.next) || "");
+  const candidate = Buffer.from(password);
+  const expected = Buffer.from(CRM_PASSWORD || "");
+  const ok = Boolean(CRM_PASSWORD) && candidate.length === expected.length && crypto.timingSafeEqual(candidate, expected);
+  if (!ok) {
+    // Deliberate 1s delay on a wrong password (Ori's spec) to blunt brute-forcing.
+    return setTimeout(() => res.redirect(`/login?error=1&next=${encodeURIComponent(next)}`), 1000);
+  }
+  const expiryMs = Date.now() + AUTH_COOKIE_MAX_AGE_MS;
+  const cookieValue = authgate.signCookie(SESSION_SECRET, expiryMs);
+  res.setHeader("Set-Cookie", authgate.serializeAuthCookie(cookieValue, AUTH_COOKIE_MAX_AGE_MS));
+  res.redirect(/^\/[^\s]*$/.test(next) ? next : "/app.html");
+});
+
+crmApp.post("/logout", (_req, res) => {
+  res.setHeader("Set-Cookie", authgate.clearAuthCookie());
+  res.redirect("/login");
+});
+
 // Superseded pages redirect into the app (files stay on disk; append ?legacy=1
 // to any of these URLs to load the old page directly if ever needed).
 const LEGACY_REDIRECTS = {
@@ -206,15 +310,19 @@ crmApp.get("/bid_lab.html", (_req, res) => res.sendFile(path.join(__dirname, "bi
 crmApp.get("/estimator.html", (_req, res) => res.sendFile(path.join(__dirname, "estimator.html")));
 crmApp.get("/change_orders.html", (_req, res) => res.sendFile(path.join(__dirname, "change_orders.html")));
 crmApp.get("/photo_feed.html", (_req, res) => res.sendFile(path.join(__dirname, "photo_feed.html")));
+crmApp.get("/curriculum.html", (_req, res) => res.sendFile(path.join(__dirname, "curriculum.html")));
 // Unified backend app (entity-centric redesign 2026-07-07)
 crmApp.get("/app.html", (_req, res) => res.sendFile(path.join(__dirname, "app.html")));
-for (const moduleFile of ["app_subs.js", "app_projects.js", "app_pipeline.js", "app_knowledge.js", "app_suppliers.js", "app_gantt.js", "app_takeoff.js", "app_billing.js", "app_permits.js"]) {
+// PWA service worker must be served from the root scope (not /assets) to control /app.html.
+crmApp.get("/sw.js", (_req, res) => res.sendFile(path.join(__dirname, "sw.js")));
+for (const moduleFile of ["app_subs.js", "app_projects.js", "app_pipeline.js", "app_knowledge.js", "app_suppliers.js", "app_gantt.js", "app_takeoff.js", "app_billing.js", "app_permits.js", "app_design3d.js", "app_bids.js"]) {
   crmApp.get(`/${moduleFile}`, (_req, res) => res.sendFile(path.join(__dirname, moduleFile)));
 }
 crmApp.use("/api/knowledge", require("./knowledge")(collection));
 crmApp.use("/api/takeoff", require("./takeoff")(collection));
 crmApp.use("/api/billing", require("./billing")(collection));
 crmApp.use("/api/permits", require("./permits")(collection));
+crmApp.use("/api/bids", require("./bids")(collection));
 crmApp.use("/api/suppliers", require("./suppliers")(collection));
 crmApp.use("/api/changeorders", require("./changeorders")(collection));
 crmApp.use("/api/photofeed", require("./photofeed")(collection));
@@ -1785,10 +1893,14 @@ app.get("/api/audit", async (_req, res) => {
 // ── Research chat: RAG over subs + suppliers + optional live web, answered by
 // a locally spawned claude CLI (haiku tier) — same pattern as the oriRM runner.
 const { spawn } = require("child_process");
+const { parseCliJson, logTokenUsage } = require("./tokenlog");
 
-function runClaudeCli(prompt, timeoutMs = 150000, model = "claude-haiku-4-5-20251001") {
+function runClaudeCli(prompt, timeoutMs = 150000, model = "claude-haiku-4-5-20251001", feature = "unknown") {
   return new Promise((resolve, reject) => {
-    const child = spawn("claude", ["-p", "--model", model, "--output-format", "text"], {
+    const started = Date.now();
+    // --output-format json: gives us usage/cost/duration for the token tracker
+    // (Feature 1) - parsed by tokenlog.js, with a plain-text fallback below.
+    const child = spawn("claude", ["-p", "--model", model, "--output-format", "json"], {
       shell: true,
       windowsHide: true,
       env: { ...process.env }
@@ -1800,8 +1912,21 @@ function runClaudeCli(prompt, timeoutMs = 150000, model = "claude-haiku-4-5-2025
     child.stderr.on("data", (data) => { err += data; });
     child.on("close", (code) => {
       clearTimeout(timer);
-      if (code === 0 && out.trim()) resolve(out.trim());
-      else reject(new Error(err.trim() || `Claude CLI exited ${code}`));
+      const durationMs = Date.now() - started;
+      if (code === 0 && out.trim()) {
+        const parsed = parseCliJson(out);
+        if (parsed) {
+          logTokenUsage(collection, { feature, model, parsed, ok: true, durationMs });
+          resolve(String(parsed.result || "").trim());
+        } else {
+          // JSON.parse failed - fall back to treating stdout as plain text exactly like before.
+          logTokenUsage(collection, { feature, model, parsed: null, ok: true, durationMs });
+          resolve(out.trim());
+        }
+      } else {
+        logTokenUsage(collection, { feature, model, parsed: null, ok: false, durationMs });
+        reject(new Error(err.trim() || `Claude CLI exited ${code}`));
+      }
     });
     child.stdin.write(prompt);
     child.stdin.end();
@@ -1886,7 +2011,7 @@ app.post("/api/research-chat", async (req, res) => {
     let answer;
     let engine = "claude-haiku";
     try {
-      answer = await runClaudeCli(prompt);
+      answer = await runClaudeCli(prompt, undefined, undefined, "research-chat");
     } catch (cliError) {
       engine = "context-only";
       answer = [
@@ -2183,7 +2308,7 @@ app.post("/api/actuals/ai-parse", async (req, res) => {
       "",
       `PROJECT DESCRIPTION: ${description}`
     ].join("\n");
-    const raw = await runClaudeCli(prompt, 180000);
+    const raw = await runClaudeCli(prompt, 180000, undefined, "actuals-ai-parse");
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("Model did not return JSON.");
     const parsed = JSON.parse(jsonMatch[0]);
@@ -2290,7 +2415,7 @@ app.post("/api/estimator/ai-draft", async (req, res) => {
       `PROJECT DESCRIPTION: ${description}`,
       req.body.sqft ? `Approx sqft: ${req.body.sqft}` : ""
     ].join("\n");
-    const raw = await runClaudeCli(prompt, 180000);
+    const raw = await runClaudeCli(prompt, 180000, undefined, "estimator-draft");
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("Model did not return JSON.");
     const parsed = JSON.parse(jsonMatch[0]);
@@ -2557,6 +2682,39 @@ app.get("/api/dashboard", async (_req, res) => {
   }
 });
 
+// AI token spend / utilization tracker (Feature 1) — reads the tokenUsage
+// collection that runClaudeCli (here and in knowledge.js) fire-and-forget logs to.
+app.get("/api/token-usage", async (req, res) => {
+  try {
+    const coll = await collection("tokenUsage");
+    if (!coll) return res.status(503).json({ error: "MongoDB is not configured." });
+    const days = clamp(Number(req.query.days) || 30, 1, 365);
+    const since = new Date(Date.now() - days * 86400000).toISOString();
+    const match = { at: { $gte: since } };
+    const sumFields = { calls: { $sum: 1 }, inputTokens: { $sum: "$inputTokens" }, outputTokens: { $sum: "$outputTokens" }, costUsd: { $sum: "$costUsd" } };
+    const [totalsAgg, byFeatureAgg, byModelAgg, byDayAgg] = await Promise.all([
+      coll.aggregate([{ $match: match }, { $group: { _id: null, ...sumFields } }]).toArray(),
+      coll.aggregate([{ $match: match }, { $group: { _id: "$feature", ...sumFields } }, { $sort: { calls: -1 } }]).toArray(),
+      coll.aggregate([{ $match: match }, { $group: { _id: "$model", ...sumFields } }, { $sort: { calls: -1 } }]).toArray(),
+      coll.aggregate([
+        { $match: match },
+        { $group: { _id: { $substrCP: ["$at", 0, 10] }, calls: { $sum: 1 }, costUsd: { $sum: "$costUsd" }, tokens: { $sum: { $add: ["$inputTokens", "$outputTokens"] } } } },
+        { $sort: { _id: 1 } }
+      ]).toArray()
+    ]);
+    const round4 = (n) => Math.round((Number(n) || 0) * 10000) / 10000;
+    const t = totalsAgg[0] || { calls: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 };
+    res.json({
+      totals: { calls: t.calls || 0, inputTokens: t.inputTokens || 0, outputTokens: t.outputTokens || 0, costUsd: round4(t.costUsd) },
+      byFeature: byFeatureAgg.map((r) => ({ feature: r._id || "unknown", calls: r.calls, inputTokens: r.inputTokens, outputTokens: r.outputTokens, costUsd: round4(r.costUsd) })),
+      byModel: byModelAgg.map((r) => ({ model: r._id || "unknown", calls: r.calls, inputTokens: r.inputTokens, outputTokens: r.outputTokens, costUsd: round4(r.costUsd) })),
+      byDay: byDayAgg.map((r) => ({ date: r._id, calls: r.calls, costUsd: round4(r.costUsd), tokens: r.tokens }))
+    });
+  } catch (error) {
+    res.status(502).json({ error: error.message });
+  }
+});
+
 app.get("/api/pricing-intel", async (_req, res) => {
   try {
     const subsColl = await collection("subcontractors");
@@ -2651,7 +2809,7 @@ app.post("/api/subcontractors/ai-parse", async (req, res) => {
       `Trade list: ${trades.filter(Boolean).slice(0, 60).join(" | ")}`,
       "Reply with ONLY the JSON.", "", `NOTE: ${text}`
     ].join("\n");
-    const draft = extractJsonBlock(await runClaudeCli(prompt, 90000));
+    const draft = extractJsonBlock(await runClaudeCli(prompt, 90000, undefined, "subs-ai-parse"));
     res.json({ draft });
   } catch (error) {
     res.status(502).json({ error: error.message });
@@ -2667,11 +2825,111 @@ app.post("/api/suppliers/ai-parse", async (req, res) => {
       '{"name":"","category":"","website":"","phone":"","email":"","contactName":"","minSpend":"","leadTime":"","brands":[],"suppliesServices":[],"notes":"<1 sentence>","supplierType":"<manufacturer|wholesaler|retailer|distributor if stated or obvious>"}',
       "Reply with ONLY the JSON.", "", `NOTE: ${text}`
     ].join("\n");
-    const draft = extractJsonBlock(await runClaudeCli(prompt, 90000));
+    const draft = extractJsonBlock(await runClaudeCli(prompt, 90000, undefined, "suppliers-ai-parse"));
     res.json({ draft });
   } catch (error) {
     res.status(502).json({ error: error.message });
   }
+});
+
+// ── First-party CSLB license verifier ──
+// Form-POSTs the CSLB CheckLicense.aspx page directly (the GET LicenseDetail.aspx
+// URL doesn't render for a bot/no-JS client - it needs the ASP.NET WebForms
+// viewstate round-trip: GET the form for __VIEWSTATE/__VIEWSTATEGENERATOR/
+// __EVENTVALIDATION + a session cookie, then POST those back with the license
+// number). Verified working against real licenses 2026-07-13 (active, expired,
+// canceled, and not-found cases all parse correctly).
+const CSLB_URL = "https://www.cslb.ca.gov/OnlineServices/CheckLicenseII/CheckLicense.aspx";
+
+function cslbStripTags(html) {
+  return String(html || "").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&#39;/g, "'").replace(/\s+/g, " ").trim();
+}
+
+function cslbExtractById(html, id) {
+  const match = html.match(new RegExp('id="' + id + '"[^>]*>([\\s\\S]*?)<\\/td>', "i"));
+  return match ? match[1] : "";
+}
+
+async function verifyCslbLicense(licNum) {
+  const lic = String(licNum || "").replace(/\D/g, "");
+  if (!lic) return { ok: false, error: "No license number provided." };
+  try {
+    // Single GET for the viewstate tokens + session cookie, single POST with
+    // the license number - a polite one-shot client, no retries.
+    const res1 = await fetch(CSLB_URL, { headers: { "User-Agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(15000) });
+    const html1 = await res1.text();
+    const cookies = typeof res1.headers.getSetCookie === "function" ? res1.headers.getSetCookie() : [res1.headers.get("set-cookie")].filter(Boolean);
+    const cookieHeader = cookies.map((c) => c.split(";")[0]).join("; ");
+    const vs = (html1.match(/id="__VIEWSTATE" value="([^"]*)"/) || [])[1] || "";
+    const vg = (html1.match(/id="__VIEWSTATEGENERATOR" value="([^"]*)"/) || [])[1] || "";
+    const ev = (html1.match(/id="__EVENTVALIDATION" value="([^"]*)"/) || [])[1] || "";
+    const body = new URLSearchParams();
+    body.set("__VIEWSTATE", vs);
+    body.set("__VIEWSTATEGENERATOR", vg);
+    body.set("__EVENTVALIDATION", ev);
+    body.set("ctl00$MainContent$LicNo", lic);
+    body.set("ctl00$MainContent$Contractor_License_Number_Search", " ");
+    const res2 = await fetch(CSLB_URL, {
+      method: "POST",
+      headers: { "User-Agent": "Mozilla/5.0", "Content-Type": "application/x-www-form-urlencoded", Cookie: cookieHeader, Referer: CSLB_URL },
+      body: body.toString(),
+      signal: AbortSignal.timeout(15000)
+    });
+    const html2 = await res2.text();
+    if (!html2.includes("MainContent_BusInfo")) return { ok: true, found: false, licNum: lic, checkedAt: new Date().toISOString() };
+
+    const busInfoRaw = cslbExtractById(html2, "MainContent_BusInfo");
+    const lines = busInfoRaw.split(/<br\s*\/?>/i).map((line) => cslbStripTags(line)).filter(Boolean);
+    const phoneLine = lines.find((line) => /Business Phone Number/i.test(line)) || "";
+    const phone = (phoneLine.match(/\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/) || [])[0] || "";
+    const nameAddrLines = lines.filter((line) => !/Business Phone Number/i.test(line));
+    const businessName = nameAddrLines[0] || "";
+    const address = nameAddrLines.slice(1).join(", ");
+    const entity = cslbStripTags(cslbExtractById(html2, "MainContent_Entity"));
+    const issueDate = cslbStripTags(cslbExtractById(html2, "MainContent_IssDt"));
+    const expireDate = cslbStripTags(cslbExtractById(html2, "MainContent_ExpDt"));
+    const statusText = cslbStripTags(cslbExtractById(html2, "MainContent_Status"));
+    let status = "unknown";
+    if (/current and active/i.test(statusText)) status = "active";
+    else if (/expired/i.test(statusText)) status = "expired";
+    else if (/suspend/i.test(statusText)) status = "suspended";
+    else if (/revok/i.test(statusText)) status = "revoked";
+    else if (/cancel/i.test(statusText)) status = "canceled";
+
+    const classTd = cslbExtractById(html2, "MainContent_ClassCellTable");
+    const classifications = [...classTd.matchAll(/<a[^>]*>([^<]*)<\/a>/gi)].map((m) => cslbStripTags(m[1])).filter(Boolean);
+
+    // The bonding cell has nested <td>s (section-label mini-tables), so the
+    // non-greedy </td> match above stops too early - use a raw window instead.
+    const bondIdx = html2.indexOf('id="MainContent_BondingCellTable"');
+    const bondingWindow = bondIdx === -1 ? "" : html2.slice(bondIdx, bondIdx + 2500);
+    const bondCompany = cslbStripTags((bondingWindow.match(/Contractor's Bond with\s*<a[^>]*>([^<]*)<\/a>/i) || [])[1] || "");
+    const bondNumber = ((bondingWindow.match(/Bond Number:\s*<\/strong>\s*([^<]+)/i) || [])[1] || "").trim();
+    const bondAmount = ((bondingWindow.match(/Bond Amount:\s*<\/strong>\s*([^<]+)/i) || [])[1] || "").trim();
+
+    let wcText = cslbStripTags(cslbExtractById(html2, "MainContent_WCStatus"));
+    wcText = wcText.split(/Workers' Compensation History/i)[0].split(/For a description of the workers/i)[0].trim();
+    let wcStatus = "unknown";
+    if (/exempt/i.test(wcText)) wcStatus = "exempt";
+    else if (/has workers compensation insurance/i.test(wcText)) wcStatus = "insured";
+    else if (/no workers comp information found/i.test(wcText)) wcStatus = "none_on_file";
+
+    return {
+      ok: true, found: true, licNum: lic, businessName, address, phone, entity,
+      issueDate, expireDate, status, statusText, classifications,
+      bond: { company: bondCompany, bondNumber, bondAmount },
+      workersComp: { status: wcStatus, text: wcText },
+      sourceUrl: CSLB_URL, checkedAt: new Date().toISOString()
+    };
+  } catch (error) {
+    return { ok: false, error: error.message };
+  }
+}
+
+app.get("/api/cslb/:lic", async (req, res) => {
+  const result = await verifyCslbLicense(req.params.lic);
+  if (!result.ok) return res.status(502).json(result);
+  res.json(result);
 });
 
 // ── Nightly vetting sweep ──
@@ -2694,16 +2952,44 @@ async function getVetsweepState() {
   return doc;
 }
 
-function buildVetPrompt(batch) {
+// cslbByLic: Map<licenseNumber, verifyCslbLicense() result> for any sub in the
+// batch we already looked up first-party (Feature 2) - injected as authoritative
+// data so the CLI stops guessing license status/classification from aggregators.
+function buildVetPrompt(batch, cslbByLic) {
+  const cslbLines = (cslbByLic && cslbByLic.size)
+    ? batch.map((row) => {
+        const c = cslbByLic.get(row.licenseNumber);
+        if (!c) return null;
+        if (!c.found) return `CSLB says: license ${row.licenseNumber} (${row.companyName}) - NOT FOUND in the CSLB database.`;
+        return `CSLB says: license ${row.licenseNumber} (${row.companyName}) - business name "${c.businessName}", status ${c.status} (${c.statusText}), classifications ${(c.classifications || []).join(", ") || "none listed"}, expires ${c.expireDate || "unknown"}, workers comp: ${c.workersComp.status}, bond: ${c.bond.company || "none on file"} ${c.bond.bondAmount || ""}.`.trim();
+      }).filter(Boolean)
+    : [];
   return [
     "You are vetting subcontractor records for an LA general contractor. For EACH company below:",
     "1. Fetch https://www.cslb.ca.gov/onlineservices/checklicenseII/LicenseDetail.aspx?LicNum=<licenseNumber> when a number exists, else web-search 'CSLB <company name>' to find one. Confirm name match, status, classification, expiry, workers comp, bond.",
+    cslbLines.length ? "AUTHORITATIVE CSLB DATA (already fetched first-party from cslb.ca.gov for this batch - trust this over any aggregator/search result; use it directly instead of re-fetching for any company listed below):" : "",
+    ...cslbLines,
     "2. Search reviews (Yelp/Google/BBB): rating, count, source, sentiment.",
     "3. Red flags only when verified: suspended/expired license, name mismatch, complaint pattern, WC exemption while claiming crews, non-installing vendor (supplier/manufacturer/retailer miscategorized as a sub).",
     "NEVER invent. Omit unverifiable fields. licenseVerified true ONLY on exact CSLB name match.",
     'Reply with ONLY JSON: {"records":[{"id":"","companyName":"","licenseNumber":"","licenseStatus":"active|expired|suspended|revoked|not_found|unchecked","licenseClass":"","licenseExpiresAt":"","licenseSourceUrl":"","licenseVerified":false,"workersCompStatus":"","bondedStatus":"","reviewRating":0,"reviewCount":0,"reviewSource":"","sentiment":"","redFlags":[],"vettingNotes":"[vetsweep] <verdict>","sourceUrls":[]}]} - include EVERY input id.',
     "", "COMPANIES:", JSON.stringify(batch, null, 1)
-  ].join("\n");
+  ].filter(Boolean).join("\n");
+}
+
+// Small bounded-concurrency map so the CSLB pre-fetch stays a polite client
+// (a few requests in flight at once, not perRun-many all at once).
+async function mapWithConcurrency(items, limit, fn) {
+  const results = new Array(items.length);
+  let cursor = 0;
+  async function worker() {
+    while (cursor < items.length) {
+      const current = cursor++;
+      results[current] = await fn(items[current], current);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+  return results;
 }
 
 async function applyVettingRecords(coll, records) {
@@ -2755,8 +3041,22 @@ async function vetsweepTick(force = false) {
         id: row._id.toString(), companyName: row.companyName, serviceCategory: row.serviceCategory,
         website: row.website, phone: row.phone, licenseNumber: row.licenseNumber, ownerName: row.ownerName
       }));
+      // Pre-fetch CSLB directly (first-party, authoritative) for any sub with a
+      // license number, so the CLI stops guessing license status from aggregators.
+      // On a lookup failure the prompt just stays as today for that sub.
+      const cslbByLic = new Map();
+      const withLic = slim.filter((row) => row.licenseNumber);
+      if (withLic.length) {
+        await mapWithConcurrency(withLic, 3, async (row) => {
+          try {
+            const result = await verifyCslbLicense(row.licenseNumber);
+            if (result && result.ok) cslbByLic.set(row.licenseNumber, result);
+          } catch (_error) { /* CSLB lookup failure - prompt stays as today */ }
+        });
+        console.log(`[vetsweep] CSLB pre-fetch: ${cslbByLic.size}/${withLic.length} license lookups resolved`);
+      }
       try {
-        const raw = await runClaudeCli(buildVetPrompt(slim), 900000, "claude-sonnet-5");
+        const raw = await runClaudeCli(buildVetPrompt(slim, cslbByLic), 900000, "claude-sonnet-5", "vetsweep");
         const parsed = extractJsonBlock(raw);
         totalApplied += await applyVettingRecords(coll, parsed.records || []);
       } catch (error) {
@@ -3174,10 +3474,15 @@ app.get("/api/customer-leads", async (_req, res) => {
   res.json(rows.map((row) => ({ ...row, id: row._id.toString(), _id: undefined })));
 });
 
+// Public (Feature 3 auth-gate whitelist: POST only) - the /assets/design.html
+// lead-capture widget posts here unauthenticated, so this route carries its own
+// cheap abuse guards rather than relying only on the gate.
 app.post("/api/customer-leads", async (req, res) => {
   const coll = await collection("customerLeads");
   if (!coll) return res.status(503).json({ error: "MongoDB is not configured. Set MONGODB_URI to enable server persistence." });
+  if (Buffer.byteLength(JSON.stringify(req.body || {})) > 10000) return res.status(413).json({ error: "Request too large." });
   const doc = normalizeLead(req.body);
+  if (!doc.customerName || (!doc.phone && !doc.email)) return res.status(400).json({ error: "Name plus a phone or email are required." });
   const result = await coll.insertOne(doc);
   res.status(201).json({ ...doc, id: result.insertedId.toString() });
 });

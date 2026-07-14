@@ -38,6 +38,47 @@
     return score;
   }
 
+  /* Answers come back as markdown; rendering them pre-wrap made every ## and **
+     show literally with huge gaps. Tiny renderer: escape first, then transform.
+     Consecutive plain lines merge into one <p> so hard-wrapped model output
+     reads as real paragraphs instead of chopped-up fragments. */
+  function mdInline(s) {
+    s = APP.esc(s);
+    s = s.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
+    s = s.replace(/(^|[^*])\*([^*\s][^*]*)\*/g, "$1<i>$2</i>");
+    s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
+    return s;
+  }
+  function mdToHtml(md) {
+    var out = [], para = [], list = null;
+    function flushPara() { if (para.length) { out.push("<p>" + mdInline(para.join(" ")) + "</p>"); para = []; } }
+    function flushList() { if (list) { out.push("</" + list + ">"); list = null; } }
+    String(md || "").replace(/\r/g, "").split("\n").forEach(function (line) {
+      var t = line.trim();
+      if (!t || /^[-=_*]{3,}$/.test(t)) { flushPara(); flushList(); return; }
+      var h = t.match(/^(#{1,4})\s+(.*)$/);
+      if (h) { flushPara(); flushList(); var lvl = Math.min(h[1].length + 1, 4); out.push("<h" + lvl + ">" + mdInline(h[2]) + "</h" + lvl + ">"); return; }
+      var ul = t.match(/^[-*•]\s+(.*)$/);
+      if (ul) { flushPara(); if (list !== "ul") { flushList(); out.push("<ul>"); list = "ul"; } out.push("<li>" + mdInline(ul[1]) + "</li>"); return; }
+      var ol = t.match(/^\d+[.)]\s+(.*)$/);
+      if (ol) { flushPara(); if (list !== "ol") { flushList(); out.push("<ol>"); list = "ol"; } out.push("<li>" + mdInline(ol[1]) + "</li>"); return; }
+      flushList();
+      para.push(t);
+    });
+    flushPara(); flushList();
+    return out.join("");
+  }
+
+  var ANSWER_CSS =
+    "#kOut .kAnswer{font-size:1rem;line-height:1.62;color:#26303f;margin-top:0.55rem}" +
+    "#kOut .kAnswer p{margin:0 0 0.7rem}" +
+    "#kOut .kAnswer h2{font-size:1.06rem;font-weight:900;text-transform:none;letter-spacing:0;color:#1d2634;margin:1.05rem 0 0.35rem}" +
+    "#kOut .kAnswer h3,#kOut .kAnswer h4{font-size:0.98rem;font-weight:800;text-transform:none;letter-spacing:0;color:#1d2634;margin:0.85rem 0 0.3rem}" +
+    "#kOut .kAnswer h2:first-child,#kOut .kAnswer h3:first-child{margin-top:0.1rem}" +
+    "#kOut .kAnswer ul,#kOut .kAnswer ol{margin:0 0 0.7rem 1.25rem;padding:0}" +
+    "#kOut .kAnswer li{margin:0.22rem 0}" +
+    "#kOut .kAnswer code{background:#eef1f6;border-radius:4px;padding:0.05rem 0.3rem;font-size:0.9em}";
+
   function engineClass(engine) {
     if (engine === "claude-haiku") return "green";
     if (engine === "error") return "red";
@@ -91,7 +132,7 @@
             (extraPills || "") +
           '</div>' +
         '</div>' +
-        '<div style="white-space:pre-wrap;font-size:0.88rem;line-height:1.55;margin-top:0.5rem">' + APP.esc(result.answer) + "</div>" +
+        '<div class="kAnswer">' + mdToHtml(result.answer) + "</div>" +
       "</div>";
     if (result.images && result.images.length) {
       html +=
@@ -219,6 +260,12 @@
   }
 
   function render(container) {
+    if (!document.getElementById("kAnswerCss")) {
+      var styleEl = document.createElement("style");
+      styleEl.id = "kAnswerCss";
+      styleEl.textContent = ANSWER_CSS;
+      document.head.appendChild(styleEl);
+    }
     container.innerHTML =
       '<h1 style="margin-bottom:0.7rem">Construction Knowledge</h1>' +
       '<div class="card" style="margin-bottom:0.9rem">' +
@@ -274,7 +321,7 @@
     function askPhoto(file, question) {
       if (photoPreviewUrl) { URL.revokeObjectURL(photoPreviewUrl); }
       photoPreviewUrl = URL.createObjectURL(file);
-      out.innerHTML = photoPreviewHtml(photoPreviewUrl, "Reading your photo… this takes about 1-2 minutes.");
+      out.innerHTML = photoPreviewHtml(photoPreviewUrl, "Reading your photo… this takes about 2-3 minutes.");
       var effectiveQ = question || "What am I looking at and what do I need to do?";
       var qs = "?question=" + encodeURIComponent(effectiveQ);
       APP.fetchJSON("/api/knowledge/ask-photo" + qs, {
