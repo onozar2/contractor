@@ -1,0 +1,268 @@
+{
+  "case": {
+    "id": "04-composition-shingle-reroof",
+    "source": "SoCal job playbooks 'Playbook: Roofing — Composition Shingle' + Platinum 'Roofing — scope of work' (Roof shingles)",
+    "projectTitle": "Composition Shingle Reroof",
+    "description": "Full reroof — existing composition shingle roof is past its service life (curling, granule loss, a couple of active leaks). Tear off completely and replace with new 30-year composition shingles.",
+    "lengthBand": {
+      "min": 8,
+      "max": 25
+    },
+    "required": [
+      {
+        "id": "permit",
+        "label": "Roofing permit",
+        "patterns": [
+          "\\bpermit\\b"
+        ]
+      },
+      {
+        "id": "tear_off",
+        "label": "Tear off / demo complete roof",
+        "patterns": [
+          "tear.off",
+          "demo.*roof"
+        ]
+      },
+      {
+        "id": "sheathing_deck_inspection",
+        "label": "Deck/sheathing repair + nailing inspection",
+        "patterns": [
+          "sheathing",
+          "deck",
+          "damaged wood",
+          "re.?nail"
+        ]
+      },
+      {
+        "id": "underlayment",
+        "label": "Underlayment / synthetic waterproof paper",
+        "patterns": [
+          "underlayment",
+          "synthetic.*paper",
+          "felt"
+        ]
+      },
+      {
+        "id": "flashing",
+        "label": "New flashing",
+        "patterns": [
+          "flashing"
+        ]
+      },
+      {
+        "id": "vents_jacks",
+        "label": "Vents / pipe jacks / boots sealed",
+        "patterns": [
+          "vent",
+          "jack",
+          "boot",
+          "pipe"
+        ]
+      },
+      {
+        "id": "ridge",
+        "label": "Ridge (cap/vent)",
+        "patterns": [
+          "ridge"
+        ]
+      },
+      {
+        "id": "final_inspection",
+        "label": "Final inspection",
+        "patterns": [
+          "final inspection"
+        ]
+      },
+      {
+        "id": "clean_haul",
+        "label": "Clean job site / haul debris",
+        "patterns": [
+          "clean",
+          "haul"
+        ]
+      }
+    ]
+  },
+  "response": {
+    "sections": [
+      {
+        "trade": "Demo & Site Prep",
+        "lines": [
+          "Demo complete existing composition shingle roof and remove all trash.",
+          "Clean job site."
+        ]
+      },
+      {
+        "trade": "Carpentry / Wood Repair",
+        "lines": [
+          "Fix all damaged wood on roof surface."
+        ]
+      },
+      {
+        "trade": "Flashing & Ventilation",
+        "lines": [
+          "Replace all metal cover vents.",
+          "Replace/install new vents per code.",
+          "Install all new flashing."
+        ]
+      },
+      {
+        "trade": "Roofing",
+        "lines": [
+          "Install synthetic waterproof paper.",
+          "Install new 30-year composition shingles.",
+          "Brand and color chosen by customer.",
+          "Seal all around vents with lifetime silicone."
+        ]
+      },
+      {
+        "trade": "Clean Up & Final Inspection",
+        "lines": [
+          "Clean entire job site.",
+          "Final inspection."
+        ]
+      }
+    ],
+    "notes": [
+      "Client description did not mention full plywood re-decking, so scope assumes spot wood repair only (per roof shingles source line 3); if tear-off reveals widespread deck deterioration, re-decking would be a separate cost.",
+      "Damaged wood repair (from curling/leaks) and exact vent count to be confirmed once old roofing is removed and deck is exposed."
+    ],
+    "engine": "claude-sonnet",
+    "groundedOn": [
+      {
+        "title": "Roofing — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-Decking (Waterproof Layer) — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Patio Cover: Wood (Waterproof and Lattice) — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Waterproofing: Balcony — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Paint: Interior — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Trim Paint — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Pool Re-Plaster — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Kitchen Remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Windows: Vinyl & Aluminum (Retro-Fit) — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Insulation — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Air duct replacement — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Bathroom remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Patio Enclosure — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-Wire — scope of work",
+        "source": "Scope of Work PDF"
+      }
+    ]
+  },
+  "score": {
+    "caseId": "04-composition-shingle-reroof",
+    "projectTitle": "Composition Shingle Reroof",
+    "engine": "claude-sonnet",
+    "coveragePct": 77.8,
+    "requiredHits": 7,
+    "requiredTotal": 9,
+    "requiredResults": [
+      {
+        "id": "permit",
+        "label": "Roofing permit",
+        "hit": false,
+        "evidence": ""
+      },
+      {
+        "id": "tear_off",
+        "label": "Tear off / demo complete roof",
+        "hit": true,
+        "evidence": "tear.off"
+      },
+      {
+        "id": "sheathing_deck_inspection",
+        "label": "Deck/sheathing repair + nailing inspection",
+        "hit": true,
+        "evidence": "deck"
+      },
+      {
+        "id": "underlayment",
+        "label": "Underlayment / synthetic waterproof paper",
+        "hit": true,
+        "evidence": "synthetic.*paper"
+      },
+      {
+        "id": "flashing",
+        "label": "New flashing",
+        "hit": true,
+        "evidence": "flashing"
+      },
+      {
+        "id": "vents_jacks",
+        "label": "Vents / pipe jacks / boots sealed",
+        "hit": true,
+        "evidence": "vent"
+      },
+      {
+        "id": "ridge",
+        "label": "Ridge (cap/vent)",
+        "hit": false,
+        "evidence": ""
+      },
+      {
+        "id": "final_inspection",
+        "label": "Final inspection",
+        "hit": true,
+        "evidence": "final inspection"
+      },
+      {
+        "id": "clean_haul",
+        "label": "Clean job site / haul debris",
+        "hit": true,
+        "evidence": "clean"
+      }
+    ],
+    "forbiddenHits": [],
+    "lines": 12,
+    "lengthBand": {
+      "min": 8,
+      "max": 25
+    },
+    "lengthOk": true,
+    "structure": {
+      "ok": true,
+      "issues": []
+    },
+    "pass": false,
+    "elapsedSec": 21.3
+  }
+}

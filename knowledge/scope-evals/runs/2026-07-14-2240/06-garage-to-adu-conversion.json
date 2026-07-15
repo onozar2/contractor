@@ -1,0 +1,464 @@
+{
+  "case": {
+    "id": "06-garage-to-adu-conversion",
+    "source": "SoCal job playbooks 'Playbook: Garage-to-ADU Conversion' (full 16-step arc)",
+    "projectTitle": "Garage-to-ADU Conversion",
+    "description": "Convert the existing detached 2-car garage into a permitted ADU — studio layout with a kitchenette and a full bathroom, for a family member to live in.",
+    "lengthBand": {
+      "min": 20,
+      "max": 60
+    },
+    "required": [
+      {
+        "id": "architect_engineer_plans",
+        "label": "Architect/engineer plan set",
+        "patterns": [
+          "architect",
+          "engineer",
+          "plan set"
+        ]
+      },
+      {
+        "id": "permit",
+        "label": "Permit / plan-check",
+        "patterns": [
+          "\\bpermit\\b"
+        ]
+      },
+      {
+        "id": "utility_capacity",
+        "label": "Electrical panel + sewer/water lateral capacity check",
+        "patterns": [
+          "panel",
+          "sewer",
+          "lateral",
+          "utility"
+        ]
+      },
+      {
+        "id": "asbestos_lead",
+        "label": "Asbestos/lead test before demo",
+        "patterns": [
+          "asbestos",
+          "lead"
+        ]
+      },
+      {
+        "id": "demo_infill",
+        "label": "Demo garage door opening / frame infill wall",
+        "patterns": [
+          "garage door",
+          "infill"
+        ]
+      },
+      {
+        "id": "insulation",
+        "label": "Insulation to Title 24",
+        "patterns": [
+          "insulat"
+        ]
+      },
+      {
+        "id": "rough_plumbing",
+        "label": "Rough plumbing for kitchen/bath fixtures",
+        "patterns": [
+          "rough plumbing",
+          "plumbing"
+        ]
+      },
+      {
+        "id": "rough_electrical",
+        "label": "Rough electrical / subpanel / dedicated circuits",
+        "patterns": [
+          "rough electrical",
+          "electrical",
+          "subpanel",
+          "circuit"
+        ]
+      },
+      {
+        "id": "mep_inspections",
+        "label": "Rough MEP inspections",
+        "patterns": [
+          "inspection"
+        ]
+      },
+      {
+        "id": "drywall",
+        "label": "Drywall",
+        "patterns": [
+          "drywall"
+        ]
+      },
+      {
+        "id": "flooring",
+        "label": "Flooring",
+        "patterns": [
+          "floor"
+        ]
+      },
+      {
+        "id": "cabinets_countertops",
+        "label": "Cabinets + countertops",
+        "groups": [
+          [
+            "cabinet"
+          ],
+          [
+            "countertop"
+          ]
+        ]
+      },
+      {
+        "id": "fixtures",
+        "label": "Set fixtures (sink/toilet/tub/shower/appliances)",
+        "patterns": [
+          "fixture",
+          "sink",
+          "toilet",
+          "shower"
+        ]
+      },
+      {
+        "id": "hvac",
+        "label": "HVAC / mini-split",
+        "patterns": [
+          "hvac",
+          "mini.split",
+          "minisplit"
+        ]
+      },
+      {
+        "id": "final_inspection",
+        "label": "Final MEP + building inspections",
+        "patterns": [
+          "final.*inspection"
+        ]
+      },
+      {
+        "id": "paint",
+        "label": "Paint",
+        "patterns": [
+          "paint"
+        ]
+      },
+      {
+        "id": "address_utility_setup",
+        "label": "Separate address/utility setup",
+        "patterns": [
+          "address",
+          "meter",
+          "utility setup"
+        ]
+      }
+    ]
+  },
+  "response": {
+    "sections": [
+      {
+        "trade": "Permit & Plans",
+        "lines": [
+          "Provide architect/engineer plan set covering structural adequacy of the existing garage framing and foundation for habitable use, electrical, plumbing layout, and Title 24 energy compliance for the newly conditioned space.",
+          "Pull city permit (ADU plan-check with LADBS or the applicable local building department).",
+          "Confirm the existing electrical panel has capacity for the new unit's load, and check that the sewer/water lateral can handle the added fixture unit count from the new kitchenette and bathroom.",
+          "Test for asbestos/lead before disturbing existing garage materials (drywall, old paint, flooring mastic)."
+        ]
+      },
+      {
+        "trade": "Demo",
+        "lines": [
+          "Demo the garage door opening."
+        ]
+      },
+      {
+        "trade": "Framing",
+        "lines": [
+          "Frame the infill wall at the former garage door opening.",
+          "Address/reinforce existing garage framing and foundation per engineered plans as needed for habitable use."
+        ]
+      },
+      {
+        "trade": "Rough Plumbing",
+        "lines": [
+          "Rough plumbing for the new kitchenette and bathroom fixtures.",
+          "Upgrade plumbing inside the kitchenette and bathroom areas to be up to code, including new valves at the shower, toilet, and sink.",
+          "Rough plumbing inspection."
+        ]
+      },
+      {
+        "trade": "Rough Electrical",
+        "lines": [
+          "Rough electrical — new dedicated circuits/subpanel for the unit, smoke/CO detectors, and a separate meter if required by the city.",
+          "Install GFCI outlets and light fixtures (LED, recessed) in the kitchenette and bathroom, and install a ceiling exhaust fan in the bathroom.",
+          "Rough electrical inspection."
+        ]
+      },
+      {
+        "trade": "Insulation",
+        "lines": [
+          "Add/verify wall and ceiling insulation to Title 24 requirement.",
+          "Insulation inspection (Title 24 energy compliance)."
+        ]
+      },
+      {
+        "trade": "Drywall",
+        "lines": [
+          "Hang and finish drywall throughout the unit, with moisture-resistant board at the kitchenette and bathroom wet areas."
+        ]
+      },
+      {
+        "trade": "Waterproofing / Tile (Bathroom)",
+        "lines": [
+          "Install new shower pan; apply hot mop to shower area and water test for 24 hours.",
+          "Install waterproof paper and chicken wire where tile goes around shower walls and shower floor, then install cement over the paper and chicken wire.",
+          "Install tile on shower walls and floor; apply grout and sealer."
+        ]
+      },
+      {
+        "trade": "Kitchenette",
+        "lines": [
+          "Install kitchenette cabinets per approved layout (client to select design/colors).",
+          "Fabricate and install countertop, sink, and backsplash.",
+          "Install faucet and garbage disposal; connect all plumbing.",
+          "Install back kitchenette appliances."
+        ]
+      },
+      {
+        "trade": "Bathroom Fixtures",
+        "lines": [
+          "Install vanity with countertop and sink; connect faucet.",
+          "Install toilet with new wax ring.",
+          "Install shower head and all shower fixtures; install shower door or curtain.",
+          "Install mirror and grab bars per request.",
+          "Install exhaust fan cover and verify operation."
+        ]
+      },
+      {
+        "trade": "Flooring",
+        "lines": [
+          "Install new flooring throughout the unit (kitchenette, bathroom, main living area) per client selection.",
+          "Install new baseboards."
+        ]
+      },
+      {
+        "trade": "HVAC",
+        "lines": [
+          "Install mini-split HVAC system (no existing ductwork)."
+        ]
+      },
+      {
+        "trade": "Paint",
+        "lines": [
+          "Apply primer and 2 coats of paint to interior walls and ceilings throughout the unit.",
+          "Apply primer and 2 coats of paint to exterior areas disturbed by the infilled garage door opening, to match existing."
+        ]
+      },
+      {
+        "trade": "Final Inspections & Clean Up",
+        "lines": [
+          "Final MEP and building inspections.",
+          "Coordinate separate address and utility setup as required by the city.",
+          "Final walkthrough.",
+          "Clean up and haul away debris."
+        ]
+      }
+    ],
+    "notes": [
+      "Client description did not specify tub vs. shower — scoped as a shower with hot-mop pan per the studio/family-member use case; confirm with client and adjust if a tub is preferred.",
+      "Kitchenette appliance supply (contractor-provided vs. client-provided) was not specified — line assumes contractor installs, confirm who purchases the appliances before finalizing pricing.",
+      "Assumed no existing plans are in hand, so a full architect/engineer plan set is included in scope; if the client already has approved plans, this line and its associated cost should be removed."
+    ],
+    "engine": "claude-sonnet",
+    "groundedOn": [
+      {
+        "title": "Playbook: Garage-to-ADU Conversion",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "ADU demand and garage conversions 2025-2026 - what's driving it and what to quote",
+        "source": "Building & design trends"
+      },
+      {
+        "title": "Bid comparable: Flanigan Garage Conversion ADU ($110,000)",
+        "source": "Real bid comparables"
+      },
+      {
+        "title": "Playbook: Detached ADU New Build",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Bid comparable: Flores Garage Conversion ADU w/ Washer Dryer ($129,000)",
+        "source": "Real bid comparables"
+      },
+      {
+        "title": "Playbook: Garage Door Replacement",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Bloom training: Product - ADU & Room Additions",
+        "source": "Josh Bloom training"
+      },
+      {
+        "title": "Bathroom remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Blueprints — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Glendale permit costs & timelines - ADU and residential",
+        "source": "SoCal permits research"
+      },
+      {
+        "title": "Products: Garage Doors",
+        "source": "Product master list"
+      },
+      {
+        "title": "Walk-In Tub — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "ADU standards - LA city development standards (LAMC 12.22 A.33)",
+        "source": "SoCal code & builder guides"
+      },
+      {
+        "title": "Playbook: Bathroom Remodel",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Kitchen Remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "LADBS ADU permits - fees, plan check, and the 60-day clock",
+        "source": "SoCal permits research"
+      }
+    ]
+  },
+  "score": {
+    "caseId": "06-garage-to-adu-conversion",
+    "projectTitle": "Garage-to-ADU Conversion",
+    "engine": "claude-sonnet",
+    "coveragePct": 100,
+    "requiredHits": 17,
+    "requiredTotal": 17,
+    "requiredResults": [
+      {
+        "id": "architect_engineer_plans",
+        "label": "Architect/engineer plan set",
+        "hit": true,
+        "evidence": "architect"
+      },
+      {
+        "id": "permit",
+        "label": "Permit / plan-check",
+        "hit": true,
+        "evidence": "\\bpermit\\b"
+      },
+      {
+        "id": "utility_capacity",
+        "label": "Electrical panel + sewer/water lateral capacity check",
+        "hit": true,
+        "evidence": "panel"
+      },
+      {
+        "id": "asbestos_lead",
+        "label": "Asbestos/lead test before demo",
+        "hit": true,
+        "evidence": "asbestos"
+      },
+      {
+        "id": "demo_infill",
+        "label": "Demo garage door opening / frame infill wall",
+        "hit": true,
+        "evidence": "garage door"
+      },
+      {
+        "id": "insulation",
+        "label": "Insulation to Title 24",
+        "hit": true,
+        "evidence": "insulat"
+      },
+      {
+        "id": "rough_plumbing",
+        "label": "Rough plumbing for kitchen/bath fixtures",
+        "hit": true,
+        "evidence": "rough plumbing"
+      },
+      {
+        "id": "rough_electrical",
+        "label": "Rough electrical / subpanel / dedicated circuits",
+        "hit": true,
+        "evidence": "rough electrical"
+      },
+      {
+        "id": "mep_inspections",
+        "label": "Rough MEP inspections",
+        "hit": true,
+        "evidence": "inspection"
+      },
+      {
+        "id": "drywall",
+        "label": "Drywall",
+        "hit": true,
+        "evidence": "drywall"
+      },
+      {
+        "id": "flooring",
+        "label": "Flooring",
+        "hit": true,
+        "evidence": "floor"
+      },
+      {
+        "id": "cabinets_countertops",
+        "label": "Cabinets + countertops",
+        "hit": true,
+        "evidence": "cabinet + countertop"
+      },
+      {
+        "id": "fixtures",
+        "label": "Set fixtures (sink/toilet/tub/shower/appliances)",
+        "hit": true,
+        "evidence": "fixture"
+      },
+      {
+        "id": "hvac",
+        "label": "HVAC / mini-split",
+        "hit": true,
+        "evidence": "hvac"
+      },
+      {
+        "id": "final_inspection",
+        "label": "Final MEP + building inspections",
+        "hit": true,
+        "evidence": "final.*inspection"
+      },
+      {
+        "id": "paint",
+        "label": "Paint",
+        "hit": true,
+        "evidence": "paint"
+      },
+      {
+        "id": "address_utility_setup",
+        "label": "Separate address/utility setup",
+        "hit": true,
+        "evidence": "address"
+      }
+    ],
+    "forbiddenHits": [],
+    "lines": 37,
+    "lengthBand": {
+      "min": 20,
+      "max": 60
+    },
+    "lengthOk": true,
+    "structure": {
+      "ok": true,
+      "issues": []
+    },
+    "pass": true,
+    "elapsedSec": 69.3
+  }
+}

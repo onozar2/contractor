@@ -1,0 +1,270 @@
+{
+  "case": {
+    "id": "08-popcorn-ceiling-interior-paint",
+    "source": "Platinum 'Acoustic ceiling removal — scope of work' + 'Paint: Interior — scope of work' chunks",
+    "projectTitle": "Popcorn Ceiling Removal + Interior Paint",
+    "description": "Remove the popcorn/acoustic ceiling texture throughout the house and repaint all ceilings and walls. House was built in 1982.",
+    "lengthBand": {
+      "min": 10,
+      "max": 28
+    },
+    "required": [
+      {
+        "id": "asbestos_test",
+        "label": "Test for asbestos before touching ceiling (pre-1990 home)",
+        "patterns": [
+          "asbestos"
+        ]
+      },
+      {
+        "id": "cover_protect",
+        "label": "Cover furniture/floors before work",
+        "patterns": [
+          "cover",
+          "protect",
+          "plastic",
+          "drop cloth"
+        ]
+      },
+      {
+        "id": "wet_scrape",
+        "label": "Wet-scrape the texture",
+        "patterns": [
+          "scrape"
+        ]
+      },
+      {
+        "id": "skim_coat",
+        "label": "Skim coat / patch / re-texture ceiling",
+        "patterns": [
+          "skim coat",
+          "texture",
+          "plaster",
+          "patch"
+        ]
+      },
+      {
+        "id": "sand",
+        "label": "Sand ceiling/walls",
+        "patterns": [
+          "sand"
+        ]
+      },
+      {
+        "id": "primer",
+        "label": "Apply primer",
+        "patterns": [
+          "prime",
+          "primer"
+        ]
+      },
+      {
+        "id": "two_coats_paint",
+        "label": "Two coats of paint",
+        "patterns": [
+          "2 coats",
+          "two coats",
+          "apply paint"
+        ]
+      },
+      {
+        "id": "clean_haul",
+        "label": "Clean up / haul away debris",
+        "patterns": [
+          "clean",
+          "haul"
+        ]
+      }
+    ]
+  },
+  "response": {
+    "sections": [
+      {
+        "trade": "Prep & Testing",
+        "lines": [
+          "Pull city permit / verify permit requirement for cosmetic ceiling scrape work with local building department.",
+          "Test ceiling texture for asbestos (house built 1982, pre-1990) — pull bulk sample per room/texture batch and send to accredited lab; do not scrape, sand, or wet ceiling before results are back.",
+          "In case of asbestos: house must be cleared 100% to a pod outside the house before abatement crew removes the ceiling; painter completes the job and moves furniture back once abatement crew has finished.",
+          "Remove furniture as needed.",
+          "Cover all working areas with plastics.",
+          "Cover all floors."
+        ]
+      },
+      {
+        "trade": "Ceiling – Popcorn Removal",
+        "lines": [
+          "Spray ceiling with water to moist the surface.",
+          "Scrape the moist surface of the ceiling.",
+          "Refresh all plastics cover to new after popcorn removal and re-cover the job site.",
+          "Fix cracks and openings in the ceiling.",
+          "Apply taping and plaster as needed.",
+          "Apply texture: smooth or texture (customer will choose).",
+          "Sand new plaster."
+        ]
+      },
+      {
+        "trade": "Paint – Interior (Ceilings & Walls)",
+        "lines": [
+          "Prepare all working areas as needed.",
+          "Open cracks wider and fill up cracks on walls.",
+          "Fix and patch all walls.",
+          "Sand walls.",
+          "Apply primer and 2 coats of paint on ceilings.",
+          "Apply primer and 2 coats of paint on walls.",
+          "Paint trim around walls/baseboards: apply primer and 2 coats of paint.",
+          "Place everything back to pre-existing state."
+        ]
+      },
+      {
+        "trade": "Clean Up",
+        "lines": [
+          "Remove all plastics and clean job site.",
+          "Haul away trash."
+        ]
+      }
+    ],
+    "notes": [
+      "House built 1982 (pre-1990): asbestos survey required before ceiling disturbance per AQMD Rule 1403; job can proceed room-by-room with occupants remaining in the house only if the test comes back negative.",
+      "Smooth vs. textured ceiling finish to be confirmed with customer before plaster/texture step.",
+      "Paint brand/tier (Behr, Sherwin-Williams, Dunn-Edwards, Benjamin Moore) and sheen per room to be confirmed with customer."
+    ],
+    "engine": "claude-sonnet",
+    "groundedOn": [
+      {
+        "title": "Acoustic ceiling removal — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Playbook: Popcorn/Acoustic Ceiling Removal",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Paint: Interior — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Playbook: Interior Paint",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Products: Interior Paint",
+        "source": "Product master list"
+      },
+      {
+        "title": "Trim Paint — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Playbook: Whole-House Repipe (PEX/Copper)",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Playbook: Hazmat Gate — Asbestos (AQMD Rule 1403) & Lead (EPA RRP)",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Stucco: New — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Playbook: House Rewire",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Re-pipe — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Insulation — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Playbook: Exterior Paint (incl. Cool Coatings)",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Bathroom remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Playbook: Kitchen Full Remodel",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Re-Wire — scope of work",
+        "source": "Scope of Work PDF"
+      }
+    ]
+  },
+  "score": {
+    "caseId": "08-popcorn-ceiling-interior-paint",
+    "projectTitle": "Popcorn Ceiling Removal + Interior Paint",
+    "engine": "claude-sonnet",
+    "coveragePct": 100,
+    "requiredHits": 8,
+    "requiredTotal": 8,
+    "requiredResults": [
+      {
+        "id": "asbestos_test",
+        "label": "Test for asbestos before touching ceiling (pre-1990 home)",
+        "hit": true,
+        "evidence": "asbestos"
+      },
+      {
+        "id": "cover_protect",
+        "label": "Cover furniture/floors before work",
+        "hit": true,
+        "evidence": "cover"
+      },
+      {
+        "id": "wet_scrape",
+        "label": "Wet-scrape the texture",
+        "hit": true,
+        "evidence": "scrape"
+      },
+      {
+        "id": "skim_coat",
+        "label": "Skim coat / patch / re-texture ceiling",
+        "hit": true,
+        "evidence": "texture"
+      },
+      {
+        "id": "sand",
+        "label": "Sand ceiling/walls",
+        "hit": true,
+        "evidence": "sand"
+      },
+      {
+        "id": "primer",
+        "label": "Apply primer",
+        "hit": true,
+        "evidence": "prime"
+      },
+      {
+        "id": "two_coats_paint",
+        "label": "Two coats of paint",
+        "hit": true,
+        "evidence": "2 coats"
+      },
+      {
+        "id": "clean_haul",
+        "label": "Clean up / haul away debris",
+        "hit": true,
+        "evidence": "clean"
+      }
+    ],
+    "forbiddenHits": [],
+    "lines": 23,
+    "lengthBand": {
+      "min": 10,
+      "max": 28
+    },
+    "lengthOk": true,
+    "structure": {
+      "ok": true,
+      "issues": []
+    },
+    "pass": true,
+    "elapsedSec": 39.3
+  }
+}

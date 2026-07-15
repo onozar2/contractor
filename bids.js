@@ -32,7 +32,20 @@ const { parseCliJson, logTokenUsage } = require("./tokenlog");
 // are the "back pocket" lines Ori wants reused near-verbatim; everything
 // else in the corpus (client decks, trends, bid comparables) is useful
 // grounding but not the authoritative scope language.
-const SOURCE_BOOST = { "Scope of Work PDF": 1000, "SoCal job playbooks": 500 };
+//
+// 2026-07-14 tuning note: boost used to be {1000, 500} — a gap so wide that
+// ANY Platinum chunk matching even one loosely-related term (e.g. "code" or
+// "shower" from an unrelated bathroom chunk) always outranked a SoCal job
+// playbook chunk that was a much stronger topical match (e.g. the actual
+// "Playbook: Whole-House Repipe" for a repipe job). That silently dropped
+// playbook-only lines from context — permit callouts, pressure-test/ridge/
+// control-joint/asbestos steps that live in the playbooks' fuller job arc
+// but aren't repeated in the shorter Platinum trade chunk. Confirmed via
+// /api/knowledge/search that those lines exist in the corpus and simply
+// weren't making it into the retrieved set. Shrunk the gap so real term
+// relevance (which can swing 10-60+ points on a specific query) decides
+// ranking, and source type only breaks near-ties in Platinum's favor.
+const SOURCE_BOOST = { "Scope of Work PDF": 25, "SoCal job playbooks": 15 };
 
 const STOP_WORDS = new Set([
   "the", "and", "for", "with", "that", "this", "what", "which", "where", "when",
@@ -68,7 +81,7 @@ function scoreChunk(chunk, terms) {
 // dumping of the whole corpus), then break ties/reorder so Scope of Work PDF
 // and SoCal job playbook chunks — the company's own tested lines — always
 // float to the top of what gets fed to the model.
-async function retrieveBidContext(collection, queryText, limit = 14) {
+async function retrieveBidContext(collection, queryText, limit = 16) {
   const chunksColl = await collection("knowledgeChunks");
   if (!chunksColl) return [];
   const terms = tokenize(queryText);
@@ -201,6 +214,10 @@ function buildScopePrompt(projectTitle, description, chunks) {
     "2. For each line: reuse the wording of the SOURCE MATERIAL above near-verbatim wherever it applies — these are proven lines, not a place to be creative. Adapt quantities, fixture counts, and specifics to match the client's description.",
     "3. Drop source lines that clearly do not apply to this job (e.g. skip a walk-in-tub install line if the client is removing a tub for a shower).",
     "4. Do NOT invent steps that are not grounded in the source material above or in standard California residential construction practice. Do NOT include payment schedules, deposits, signature blocks, warranty language, or any contract legalese.",
+    "5. PERMIT — every one of the company's own scope templates above opens (or nearly opens) with a permit line; this job needs one too even if the specific chunk you're leaning on most doesn't happen to repeat it. Put it near the top of the first section. Phrase it with the singular word \"permit\" (e.g. \"Pull city permit\", \"Pull plumbing permit\", \"Permit / plan-check\") — several source chunks say \"permits\" (plural) but match this job's own template phrasing style, singular reads cleaner and is the more common form across the source material.",
+    "6. CLEAN UP — every one of the company's own scope templates ends the job with a clean-up/haul-away line (\"Clean up and haul away debris\", \"Clean entire job site\", \"Haul away trash\") even when the one trade chunk you're leaning on most for this job doesn't spell it out itself. Always close the LAST section of the scope with one, in the source material's own wording.",
+    "7. PAINT — whenever a line in your scope calls for painting (interior, exterior, trim, ceiling, patched drywall, baseboards), state it as priming plus 2 coats of paint (e.g. \"Apply primer and 2 coats of paint\") — that's the standard spec behind every \"apply prime and paint\" line in the source material, make it explicit rather than leaving the coat count implied.",
+    "8. PROPORTION — keep each trade's level of detail in proportion to the source material for that trade, not maximally granular. For jobs that repeat the same trade across more than one room or area (e.g. a kitchenette AND a bathroom in one ADU), write the shared trade work (framing, rough plumbing, rough electrical, drywall, paint, inspections) as ONE consolidated set of lines covering all the affected rooms together, and only split out room-specific lines where the fixtures/finishes actually differ (e.g. kitchenette cabinets vs. bathroom vanity). Do not restate a full per-fixture line list twice for two similar wet rooms — that pads length without adding real scope.",
     "",
     "Return STRICT JSON only — no markdown fences, no commentary before or after — in exactly this shape:",
     '{"sections":[{"trade":"Framing","lines":["line 1","line 2"]}],"notes":["short note"]}',
@@ -274,7 +291,7 @@ module.exports = function createBidsRouter(collection) {
       const description = cleanString(req.body.description);
       if (!description) return res.status(400).json({ error: "description is required" });
 
-      const chunks = await retrieveBidContext(collection, `${projectTitle} ${description}`.trim(), 14);
+      const chunks = await retrieveBidContext(collection, `${projectTitle} ${description}`.trim(), 16);
       let result = null;
       let engine = "claude-sonnet";
       try {

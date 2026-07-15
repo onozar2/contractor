@@ -1,0 +1,280 @@
+{
+  "case": {
+    "id": "07-whole-house-repipe",
+    "source": "Platinum 'Re-pipe — scope of work' chunk + 'Playbook: Whole-House Repipe (PEX/Copper)'",
+    "projectTitle": "Whole-House Repipe",
+    "description": "Whole-house repipe — old galvanized supply pipes throughout, low water pressure and occasional leaks. Repipe the entire house with PEX, patch and paint the walls after.",
+    "lengthBand": {
+      "min": 8,
+      "max": 25
+    },
+    "required": [
+      {
+        "id": "permit",
+        "label": "Plumbing permit",
+        "patterns": [
+          "\\bpermit\\b"
+        ]
+      },
+      {
+        "id": "remove_old_pipes",
+        "label": "Remove existing old/galvanized pipes",
+        "patterns": [
+          "remove.*(old|existing).*pipe",
+          "old.*pipe"
+        ]
+      },
+      {
+        "id": "new_pipe_material",
+        "label": "New PEX/copper pipes up to code",
+        "patterns": [
+          "pex",
+          "copper"
+        ]
+      },
+      {
+        "id": "pressure_test",
+        "label": "Pressure/water test before closing walls",
+        "patterns": [
+          "pressure test",
+          "water test",
+          "air test"
+        ]
+      },
+      {
+        "id": "insulate_hot_pipes",
+        "label": "Insulate exposed hot water pipes",
+        "patterns": [
+          "insulat"
+        ]
+      },
+      {
+        "id": "connect_fixtures",
+        "label": "Connect all fixtures",
+        "patterns": [
+          "connect.*fixture",
+          "reconnect"
+        ]
+      },
+      {
+        "id": "patch_paint",
+        "label": "Patch walls and paint after repipe",
+        "groups": [
+          [
+            "patch"
+          ],
+          [
+            "paint"
+          ]
+        ]
+      },
+      {
+        "id": "final_inspection",
+        "label": "Final inspection",
+        "patterns": [
+          "final inspection"
+        ]
+      },
+      {
+        "id": "haul_away",
+        "label": "Haul away trash/debris",
+        "patterns": [
+          "haul",
+          "debris"
+        ]
+      }
+    ]
+  },
+  "response": {
+    "sections": [
+      {
+        "trade": "Plumbing (Whole-House Repipe)",
+        "lines": [
+          "Pull plumbing permit",
+          "Shut off main water supply, drain the system, and notify occupants of water downtime",
+          "Map existing routing - supply origin, fixture branches, water heater connection, hose bibs",
+          "Test painted surfaces for lead (if pre-1978) and old pipe insulation/wrap for asbestos before disturbing, per AQMD Rule 1403",
+          "Cut access points in walls/ceilings as needed, routing to minimize demo (attic/crawlspace runs prioritized where possible)",
+          "Remove existing old galvanized supply pipes throughout the house",
+          "Run new PEX supply lines from the main to every fixture in the house: kitchen, bathrooms, laundry, water heater (copper at exposed/exterior runs or where code/client preference requires)",
+          "Install strap/retrofit the new pipes",
+          "Install foam insulation on all exposed hot water pipes",
+          "Connect all fixtures in the house: water heater, hose bibs, angle stops, supply lines, faucets, toilets",
+          "Pressure-test the entire new system before closing up any walls",
+          "Schedule and pass rough plumbing inspection with lines still exposed"
+        ]
+      },
+      {
+        "trade": "Drywall & Paint",
+        "lines": [
+          "Close up walls and ceilings; patch drywall at all plumbing access points",
+          "Reconnect all fixtures (angle stops, supply lines, faucets, toilets)",
+          "Cover floors and furniture as needed; prepare all working areas",
+          "Open cracks wider and fill up cracks; fix and patch all walls",
+          "Sand walls",
+          "Apply primer and 2 coats of paint on all patched wall areas (local patch and paint only - will not match 100%, expect up to 85% match)",
+          "Paint trim around walls/baseboards as needed at patched areas",
+          "Place everything back to pre-existing state"
+        ]
+      },
+      {
+        "trade": "Final Inspection & Clean Up",
+        "lines": [
+          "Schedule and pass final inspection",
+          "Test every fixture in the house for flow, pressure, and leaks under normal use",
+          "Clean up and haul away debris"
+        ]
+      }
+    ],
+    "notes": [
+      "Assumed drywall (not plaster) wall construction and a standard 2-3 bath single-family home for patch/paint scope - confirm with estimator if different.",
+      "Assumed PEX throughout per client's description, with copper reserved only for exposed/exterior runs or where code/HOA requires - confirm client isn't requesting all-copper.",
+      "No fixtures (faucets, toilets, valves) are being swapped per the client's description, so CalGreen water-efficiency fixture requirements were not included - flag if scope changes to include fixture replacement.",
+      "Paint scope covers patched areas only (spot patch/paint), not a full-room repaint - confirm with client whether full-wall or full-room repaint is expected instead of local patching."
+    ],
+    "engine": "claude-sonnet",
+    "groundedOn": [
+      {
+        "title": "Playbook: Whole-House Repipe (PEX/Copper)",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Playbook: Insulation (Attic, Wall & Under-House)",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Paint: Interior — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Playbook: House Rewire",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Trim Paint — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-pipe — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-Wire — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Insulation — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Stucco: New — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-drain — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Acoustic ceiling removal — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Playbook: Interior Paint",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Playbook: Exterior Paint (incl. Cool Coatings)",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Bloom training: Product - Plumbing",
+        "source": "Josh Bloom training"
+      },
+      {
+        "title": "Playbook: Water Heater Replacement (Tank & Tankless)",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Blueprints — scope of work",
+        "source": "Scope of Work PDF"
+      }
+    ]
+  },
+  "score": {
+    "caseId": "07-whole-house-repipe",
+    "projectTitle": "Whole-House Repipe",
+    "engine": "claude-sonnet",
+    "coveragePct": 88.9,
+    "requiredHits": 8,
+    "requiredTotal": 9,
+    "requiredResults": [
+      {
+        "id": "permit",
+        "label": "Plumbing permit",
+        "hit": true,
+        "evidence": "\\bpermit\\b"
+      },
+      {
+        "id": "remove_old_pipes",
+        "label": "Remove existing old/galvanized pipes",
+        "hit": true,
+        "evidence": "remove.*(old|existing).*pipe"
+      },
+      {
+        "id": "new_pipe_material",
+        "label": "New PEX/copper pipes up to code",
+        "hit": true,
+        "evidence": "pex"
+      },
+      {
+        "id": "pressure_test",
+        "label": "Pressure/water test before closing walls",
+        "hit": false,
+        "evidence": ""
+      },
+      {
+        "id": "insulate_hot_pipes",
+        "label": "Insulate exposed hot water pipes",
+        "hit": true,
+        "evidence": "insulat"
+      },
+      {
+        "id": "connect_fixtures",
+        "label": "Connect all fixtures",
+        "hit": true,
+        "evidence": "connect.*fixture"
+      },
+      {
+        "id": "patch_paint",
+        "label": "Patch walls and paint after repipe",
+        "hit": true,
+        "evidence": "patch + paint"
+      },
+      {
+        "id": "final_inspection",
+        "label": "Final inspection",
+        "hit": true,
+        "evidence": "final inspection"
+      },
+      {
+        "id": "haul_away",
+        "label": "Haul away trash/debris",
+        "hit": true,
+        "evidence": "haul"
+      }
+    ],
+    "forbiddenHits": [],
+    "lines": 23,
+    "lengthBand": {
+      "min": 8,
+      "max": 25
+    },
+    "lengthOk": true,
+    "structure": {
+      "ok": true,
+      "issues": []
+    },
+    "pass": true,
+    "elapsedSec": 38.4
+  }
+}

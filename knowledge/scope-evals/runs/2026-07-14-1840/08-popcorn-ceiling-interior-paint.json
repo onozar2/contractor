@@ -1,0 +1,279 @@
+{
+  "case": {
+    "id": "08-popcorn-ceiling-interior-paint",
+    "source": "Platinum 'Acoustic ceiling removal — scope of work' + 'Paint: Interior — scope of work' chunks",
+    "projectTitle": "Popcorn Ceiling Removal + Interior Paint",
+    "description": "Remove the popcorn/acoustic ceiling texture throughout the house and repaint all ceilings and walls. House was built in 1982.",
+    "lengthBand": {
+      "min": 10,
+      "max": 28
+    },
+    "required": [
+      {
+        "id": "asbestos_test",
+        "label": "Test for asbestos before touching ceiling (pre-1990 home)",
+        "patterns": [
+          "asbestos"
+        ]
+      },
+      {
+        "id": "cover_protect",
+        "label": "Cover furniture/floors before work",
+        "patterns": [
+          "cover",
+          "protect",
+          "plastic",
+          "drop cloth"
+        ]
+      },
+      {
+        "id": "wet_scrape",
+        "label": "Wet-scrape the texture",
+        "patterns": [
+          "scrape"
+        ]
+      },
+      {
+        "id": "skim_coat",
+        "label": "Skim coat / patch / re-texture ceiling",
+        "patterns": [
+          "skim coat",
+          "texture",
+          "plaster",
+          "patch"
+        ]
+      },
+      {
+        "id": "sand",
+        "label": "Sand ceiling/walls",
+        "patterns": [
+          "sand"
+        ]
+      },
+      {
+        "id": "primer",
+        "label": "Apply primer",
+        "patterns": [
+          "prime",
+          "primer"
+        ]
+      },
+      {
+        "id": "two_coats_paint",
+        "label": "Two coats of paint",
+        "patterns": [
+          "2 coats",
+          "two coats",
+          "apply paint"
+        ]
+      },
+      {
+        "id": "clean_haul",
+        "label": "Clean up / haul away debris",
+        "patterns": [
+          "clean",
+          "haul"
+        ]
+      }
+    ]
+  },
+  "response": {
+    "sections": [
+      {
+        "trade": "Testing (Pre-Construction)",
+        "lines": [
+          "Perform asbestos and lead test prior to start of work (required — house built 1982, over 20 years old).",
+          "If asbestos is found: house must be cleared 100% to a pod outside the house before ceiling removal begins; house must remain cleared until asbestos crew completes removal, then painter completes the job and furniture is moved back."
+        ]
+      },
+      {
+        "trade": "Protection & Prep",
+        "lines": [
+          "Remove/move furniture as needed.",
+          "Cover all floors.",
+          "Cover all working areas with plastics.",
+          "Mask windows and doors as needed."
+        ]
+      },
+      {
+        "trade": "Ceiling Texture Removal",
+        "lines": [
+          "Spray ceiling with water to moisten the surface.",
+          "Scrape the moist surface of the ceiling to remove popcorn/acoustic texture.",
+          "Refresh all plastic covers to new after popcorn removal and re-cover the job site.",
+          "Fix cracks and openings in the ceiling.",
+          "Apply taping and plaster to ceiling as needed.",
+          "Apply texture to ceiling: smooth or texture (customer to choose).",
+          "Sand new plaster on ceiling."
+        ]
+      },
+      {
+        "trade": "Wall Preparation & Repair",
+        "lines": [
+          "Open cracks wider and fill up cracks on all walls.",
+          "Fix and patch all walls.",
+          "Sand walls."
+        ]
+      },
+      {
+        "trade": "Priming",
+        "lines": [
+          "Apply primer on the ceiling.",
+          "Apply primer on all walls."
+        ]
+      },
+      {
+        "trade": "Painting",
+        "lines": [
+          "Apply paint on the ceiling throughout the house.",
+          "Apply paint on all walls throughout the house.",
+          "Paint trim around walls/baseboards."
+        ]
+      },
+      {
+        "trade": "Clean Up",
+        "lines": [
+          "Remove all plastics and clean job site.",
+          "Clean up and haul away debris/trash.",
+          "Place everything back to pre-existing state."
+        ]
+      }
+    ],
+    "notes": [
+      "House was built in 1982 (44 years old), which triggers the asbestos/lead test requirement per company scope standard — job can proceed room-by-room with occupants staying in the house only if no asbestos is found.",
+      "Assumed 'throughout the house' means all rooms with popcorn ceilings get texture removed, and all ceilings and walls in the house get repainted — confirm room count/list with client.",
+      "Paint brand not specified — standard options are Benjamin Moore, Sherwin-Williams, Dunn-Edwards, Behr, or other customer preference; confirm selection.",
+      "Ceiling finish (smooth vs. re-textured) to be selected by customer — confirm before plaster/texture step."
+    ],
+    "engine": "claude-sonnet",
+    "groundedOn": [
+      {
+        "title": "Acoustic ceiling removal — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Paint: Interior — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Trim Paint — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Stucco: New — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-pipe — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Insulation — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Bathroom remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-Wire — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Mold Removal — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Patio Cover: Wood (Waterproof and Lattice) — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Kitchen Remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Foundation - Retrofit — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Roofing — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Carpet — scope of work",
+        "source": "Scope of Work PDF"
+      }
+    ]
+  },
+  "score": {
+    "caseId": "08-popcorn-ceiling-interior-paint",
+    "projectTitle": "Popcorn Ceiling Removal + Interior Paint",
+    "engine": "claude-sonnet",
+    "coveragePct": 100,
+    "requiredHits": 8,
+    "requiredTotal": 8,
+    "requiredResults": [
+      {
+        "id": "asbestos_test",
+        "label": "Test for asbestos before touching ceiling (pre-1990 home)",
+        "hit": true,
+        "evidence": "asbestos"
+      },
+      {
+        "id": "cover_protect",
+        "label": "Cover furniture/floors before work",
+        "hit": true,
+        "evidence": "cover"
+      },
+      {
+        "id": "wet_scrape",
+        "label": "Wet-scrape the texture",
+        "hit": true,
+        "evidence": "scrape"
+      },
+      {
+        "id": "skim_coat",
+        "label": "Skim coat / patch / re-texture ceiling",
+        "hit": true,
+        "evidence": "texture"
+      },
+      {
+        "id": "sand",
+        "label": "Sand ceiling/walls",
+        "hit": true,
+        "evidence": "sand"
+      },
+      {
+        "id": "primer",
+        "label": "Apply primer",
+        "hit": true,
+        "evidence": "prime"
+      },
+      {
+        "id": "two_coats_paint",
+        "label": "Two coats of paint",
+        "hit": true,
+        "evidence": "apply paint"
+      },
+      {
+        "id": "clean_haul",
+        "label": "Clean up / haul away debris",
+        "hit": true,
+        "evidence": "clean"
+      }
+    ],
+    "forbiddenHits": [],
+    "lines": 24,
+    "lengthBand": {
+      "min": 10,
+      "max": 28
+    },
+    "lengthOk": true,
+    "structure": {
+      "ok": true,
+      "issues": []
+    },
+    "pass": true,
+    "elapsedSec": 30.1
+  }
+}

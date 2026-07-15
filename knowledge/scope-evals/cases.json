@@ -1,0 +1,216 @@
+{
+  "_readme": "Test cases for the draft-scope practice loop. Each `required` item is either {patterns:[...]} (pass if ANY pattern matches anywhere in the scope text) or {groups:[[...],[...]]} (pass only if EVERY group has at least one match — used for compound gold-doc lines like 'tar paper + wire mesh'). Patterns are regex source strings, case-insensitive, matched against the full scope text (all trade section lines + notes joined). Every required item here is traced to a specific line in the Platinum Scope of Work PDF chunks or the SoCal job playbooks — see the comment above each case for the source. lengthBand counts total scope LINES (sum of every section's lines array, notes excluded).",
+  "cases": [
+    {
+      "id": "01-bathroom-tub-to-shower",
+      "source": "Platinum 'Bathroom remodeling — scope of work' chunk",
+      "projectTitle": "Hall Bathroom Remodel",
+      "description": "Hall bathroom — demo the existing tub/shower combo and floor tile down to studs/subfloor, convert to a walk-in shower with new tile. Vanity and toilet stay in the same footprint but get reconnected. Homeowner wants everything fully up to code.",
+      "lengthBand": { "min": 18, "max": 45 },
+      "required": [
+        { "id": "permit", "label": "Pull city permit", "patterns": ["\\bpermit\\b"] },
+        { "id": "demo", "label": "Demo tub/shower/floor to studs/subfloor", "patterns": ["\\bdemo\\b"] },
+        { "id": "hot_mop", "label": "Hot mop waterproofing in shower", "patterns": ["hot[- ]?mop"] },
+        { "id": "water_test_24hr", "label": "24-hour water test", "patterns": ["24[- ]?hour", "24[- ]?hr", "water test"] },
+        { "id": "tar_paper_wire_mesh", "label": "Tar/waterproof paper + wire mesh/chicken wire before tile", "groups": [["tar paper", "waterproof paper", "building paper"], ["wire mesh", "chicken wire"]] },
+        { "id": "gfi_outlets", "label": "GFI/GFCI outlets", "patterns": ["\\bgfi\\b", "gfci"] },
+        { "id": "p_trap", "label": "P-trap / drain cover upgrade", "patterns": ["p-trap", "p trap"] },
+        { "id": "wax_ring", "label": "Toilet wax ring", "patterns": ["wax ring"] },
+        { "id": "tile_to_ceiling", "label": "Tile floor-to-ceiling in shower", "patterns": ["floor.to.ceiling", "floor to ceiling"] },
+        { "id": "prime_two_coats", "label": "Prime + 2 coats paint", "groups": [["prime", "primer"], ["2 coats", "two coats"]] },
+        { "id": "haul_away", "label": "Clean up / haul away debris", "patterns": ["haul.away", "haul away", "debris"] }
+      ]
+    },
+    {
+      "id": "02-kitchen-full-remodel-wall-opening",
+      "source": "Platinum 'Kitchen Remodeling — scope of work' chunk + JOON-BID-TEMPLATE framing line (wall openings/header beams)",
+      "projectTitle": "Full Kitchen Remodel",
+      "description": "Full kitchen remodel — homeowner wants to open up the wall between the kitchen and the dining room for an open-concept layout, plus all new cabinets, countertops, appliances, and flooring. Kitchen is currently closed off and dark.",
+      "lengthBand": { "min": 22, "max": 55 },
+      "required": [
+        { "id": "permit", "label": "Permit", "patterns": ["\\bpermit\\b"] },
+        { "id": "wall_opening_framing", "label": "Framing for the wall opening (header/beam/structural)", "patterns": ["header", "beam", "structural", "wall.*(open|remov)"] },
+        { "id": "demo", "label": "Demo kitchen complete", "patterns": ["\\bdemo\\b"] },
+        { "id": "electrical_outlets", "label": "Replace/add outlets", "patterns": ["outlet"] },
+        { "id": "new_lighting", "label": "Install new lights", "patterns": ["\\blight"] },
+        { "id": "plumbing_pipes", "label": "Rough plumbing pipes up to code", "groups": [["pipe"], ["copper", "code"]] },
+        { "id": "cabinet_layout", "label": "Cabinet layout/sketch/design", "groups": [["cabinet"], ["layout", "design", "sketch"]] },
+        { "id": "new_flooring", "label": "New flooring", "patterns": ["floor"] },
+        { "id": "drywall", "label": "Drywall install/repair", "patterns": ["drywall"] },
+        { "id": "paint_primer", "label": "Primer + paint kitchen", "patterns": ["prime", "primer"] },
+        { "id": "countertop", "label": "New countertop", "patterns": ["countertop"] },
+        { "id": "backsplash", "label": "Backsplash", "patterns": ["backsplash"] },
+        { "id": "sink_faucet", "label": "Sink + faucet + disposal", "groups": [["sink"], ["faucet"]] },
+        { "id": "appliances", "label": "Reinstall appliances", "patterns": ["appliance"] },
+        { "id": "hood_vent", "label": "Hood vent", "patterns": ["hood vent", "range hood"] },
+        { "id": "clean_site", "label": "Clean job site", "patterns": ["clean"] },
+        { "id": "final_inspection", "label": "Final inspection", "patterns": ["final inspection"] }
+      ]
+    },
+    {
+      "id": "03-kitchen-refacing-countertops",
+      "source": "Platinum 'Kitchen Remodeling — scope of work' (Kitchen refacing sub-section) + 'Countertop — scope of work' chunk",
+      "projectTitle": "Kitchen Refacing + New Countertops",
+      "description": "Kitchen refacing — homeowner wants to keep the existing cabinet boxes but get new solid wood cabinet doors/drawer fronts, new hardware, and a new quartz countertop. No layout changes, no plumbing relocation.",
+      "lengthBand": { "min": 10, "max": 30 },
+      "required": [
+        { "id": "remove_cabinet_doors", "label": "Remove all cabinet doors", "patterns": ["remove.*(cabinet )?doors?", "cabinet doors?"] },
+        { "id": "new_doors", "label": "Build/install new (solid wood) doors", "patterns": ["new doors", "solid wood"] },
+        { "id": "finish_boxes", "label": "Finish/paint existing cabinet boxes", "patterns": ["finish.*box", "paint.*box", "cabinet box"] },
+        { "id": "reinstall_doors", "label": "Install doors back", "patterns": ["install.*doors?", "install.*back"] },
+        { "id": "new_drawers", "label": "New drawers", "patterns": ["drawer"] },
+        { "id": "new_hardware", "label": "New hardware/hinges", "patterns": ["hardware", "hinge"] },
+        { "id": "countertop_demo", "label": "Demo old countertop / haul away", "patterns": ["demo.*countertop", "remove.*countertop"] },
+        { "id": "disconnect_plumbing", "label": "Disconnect sink/plumbing before countertop swap", "patterns": ["disconnect"] },
+        { "id": "select_slab", "label": "Customer selects slab/material", "patterns": ["select", "choose"] },
+        { "id": "new_countertop", "label": "Install new countertop", "patterns": ["install.*countertop", "new countertop"] },
+        { "id": "backsplash", "label": "Backsplash", "patterns": ["backsplash"] },
+        { "id": "sealer", "label": "Apply sealer", "patterns": ["seal"] },
+        { "id": "reconnect_plumbing", "label": "Reconnect plumbing/sink/faucet", "patterns": ["connect.*(plumbing|sink|faucet)", "reconnect"] },
+        { "id": "clean_site", "label": "Clean job site", "patterns": ["clean"] }
+      ]
+    },
+    {
+      "id": "04-composition-shingle-reroof",
+      "source": "SoCal job playbooks 'Playbook: Roofing — Composition Shingle' + Platinum 'Roofing — scope of work' (Roof shingles)",
+      "projectTitle": "Composition Shingle Reroof",
+      "description": "Full reroof — existing composition shingle roof is past its service life (curling, granule loss, a couple of active leaks). Tear off completely and replace with new 30-year composition shingles.",
+      "lengthBand": { "min": 8, "max": 25 },
+      "required": [
+        { "id": "permit", "label": "Roofing permit", "patterns": ["\\bpermit\\b"] },
+        { "id": "tear_off", "label": "Tear off / demo complete roof", "patterns": ["tear.off", "demo.*roof"] },
+        { "id": "sheathing_deck_inspection", "label": "Deck/sheathing repair + nailing inspection", "patterns": ["sheathing", "deck", "damaged wood", "re.?nail"] },
+        { "id": "underlayment", "label": "Underlayment / synthetic waterproof paper", "patterns": ["underlayment", "synthetic.*paper", "felt"] },
+        { "id": "flashing", "label": "New flashing", "patterns": ["flashing"] },
+        { "id": "vents_jacks", "label": "Vents / pipe jacks / boots sealed", "patterns": ["vent", "jack", "boot", "pipe"] },
+        { "id": "ridge", "label": "Ridge (cap/vent)", "patterns": ["ridge"] },
+        { "id": "final_inspection", "label": "Final inspection", "patterns": ["final inspection"] },
+        { "id": "clean_haul", "label": "Clean job site / haul debris", "patterns": ["clean", "haul"] }
+      ]
+    },
+    {
+      "id": "05-exterior-paint-stucco-repair",
+      "source": "Platinum 'Paint: Exterior / Tex-cote / Cool Life' + 'Stucco: New' (Stucco patch) chunks + Exterior Paint / Stucco Repair playbooks",
+      "projectTitle": "Exterior Paint + Stucco Repair",
+      "description": "Exterior repaint plus stucco crack repair — several stucco cracks around the house and peeling paint on the trim. Patch the stucco first, then full exterior repaint. House was built in 1965.",
+      "lengthBand": { "min": 12, "max": 35 },
+      "required": [
+        { "id": "power_wash", "label": "Power wash the house", "patterns": ["power wash", "pressure wash"] },
+        { "id": "lead_test", "label": "Pre-1978 lead-paint precaution", "patterns": ["lead"] },
+        { "id": "stucco_crack_repair", "label": "Stucco crack/patch repair", "groups": [["stucco"], ["crack", "patch"]] },
+        { "id": "scrape_prep", "label": "Scrape damaged/loose material", "patterns": ["scrape"] },
+        { "id": "wood_rot", "label": "Replace/repair damaged wood", "patterns": ["damaged wood", "wood rot", "replace.*wood"] },
+        { "id": "caulking", "label": "Caulk cracks/openings", "patterns": ["caulk"] },
+        { "id": "primer", "label": "Apply primer", "patterns": ["prime", "primer"] },
+        { "id": "customer_selects_color", "label": "Customer selects color", "patterns": ["select.*color", "choose.*color", "customer.*color"] },
+        { "id": "two_coats", "label": "Two coats of paint", "patterns": ["2 coats", "two coats", "apply paint"] },
+        { "id": "clean_site", "label": "Clean job site", "patterns": ["clean"] }
+      ]
+    },
+    {
+      "id": "06-garage-to-adu-conversion",
+      "source": "SoCal job playbooks 'Playbook: Garage-to-ADU Conversion' (full 16-step arc)",
+      "projectTitle": "Garage-to-ADU Conversion",
+      "description": "Convert the existing detached 2-car garage into a permitted ADU — studio layout with a kitchenette and a full bathroom, for a family member to live in.",
+      "lengthBand": { "min": 20, "max": 60 },
+      "required": [
+        { "id": "architect_engineer_plans", "label": "Architect/engineer plan set", "patterns": ["architect", "engineer", "plan set"] },
+        { "id": "permit", "label": "Permit / plan-check", "patterns": ["\\bpermit\\b"] },
+        { "id": "utility_capacity", "label": "Electrical panel + sewer/water lateral capacity check", "patterns": ["panel", "sewer", "lateral", "utility"] },
+        { "id": "asbestos_lead", "label": "Asbestos/lead test before demo", "patterns": ["asbestos", "lead"] },
+        { "id": "demo_infill", "label": "Demo garage door opening / frame infill wall", "patterns": ["garage door", "infill"] },
+        { "id": "insulation", "label": "Insulation to Title 24", "patterns": ["insulat"] },
+        { "id": "rough_plumbing", "label": "Rough plumbing for kitchen/bath fixtures", "patterns": ["rough plumbing", "plumbing"] },
+        { "id": "rough_electrical", "label": "Rough electrical / subpanel / dedicated circuits", "patterns": ["rough electrical", "electrical", "subpanel", "circuit"] },
+        { "id": "mep_inspections", "label": "Rough MEP inspections", "patterns": ["inspection"] },
+        { "id": "drywall", "label": "Drywall", "patterns": ["drywall"] },
+        { "id": "flooring", "label": "Flooring", "patterns": ["floor"] },
+        { "id": "cabinets_countertops", "label": "Cabinets + countertops", "groups": [["cabinet"], ["countertop"]] },
+        { "id": "fixtures", "label": "Set fixtures (sink/toilet/tub/shower/appliances)", "patterns": ["fixture", "sink", "toilet", "shower"] },
+        { "id": "hvac", "label": "HVAC / mini-split", "patterns": ["hvac", "mini.split", "minisplit"] },
+        { "id": "final_inspection", "label": "Final MEP + building inspections", "patterns": ["final.*inspection"] },
+        { "id": "paint", "label": "Paint", "patterns": ["paint"] },
+        { "id": "address_utility_setup", "label": "Separate address/utility setup", "patterns": ["address", "meter", "utility setup"] }
+      ]
+    },
+    {
+      "id": "07-whole-house-repipe",
+      "source": "Platinum 'Re-pipe — scope of work' chunk + 'Playbook: Whole-House Repipe (PEX/Copper)'",
+      "projectTitle": "Whole-House Repipe",
+      "description": "Whole-house repipe — old galvanized supply pipes throughout, low water pressure and occasional leaks. Repipe the entire house with PEX, patch and paint the walls after.",
+      "lengthBand": { "min": 8, "max": 25 },
+      "required": [
+        { "id": "permit", "label": "Plumbing permit", "patterns": ["\\bpermit\\b"] },
+        { "id": "remove_old_pipes", "label": "Remove existing old/galvanized pipes", "patterns": ["remove.*(old|existing).*pipe", "old.*pipe"] },
+        { "id": "new_pipe_material", "label": "New PEX/copper pipes up to code", "patterns": ["pex", "copper"] },
+        { "id": "pressure_test", "label": "Pressure/water test before closing walls", "patterns": ["pressure test", "water test", "air test"] },
+        { "id": "insulate_hot_pipes", "label": "Insulate exposed hot water pipes", "patterns": ["insulat"] },
+        { "id": "connect_fixtures", "label": "Connect all fixtures", "patterns": ["connect.*fixture", "reconnect"] },
+        { "id": "patch_paint", "label": "Patch walls and paint after repipe", "groups": [["patch"], ["paint"]] },
+        { "id": "final_inspection", "label": "Final inspection", "patterns": ["final inspection"] },
+        { "id": "haul_away", "label": "Haul away trash/debris", "patterns": ["haul", "debris"] }
+      ]
+    },
+    {
+      "id": "08-popcorn-ceiling-interior-paint",
+      "source": "Platinum 'Acoustic ceiling removal — scope of work' + 'Paint: Interior — scope of work' chunks",
+      "projectTitle": "Popcorn Ceiling Removal + Interior Paint",
+      "description": "Remove the popcorn/acoustic ceiling texture throughout the house and repaint all ceilings and walls. House was built in 1982.",
+      "lengthBand": { "min": 10, "max": 28 },
+      "required": [
+        { "id": "asbestos_test", "label": "Test for asbestos before touching ceiling (pre-1990 home)", "patterns": ["asbestos"] },
+        { "id": "cover_protect", "label": "Cover furniture/floors before work", "patterns": ["cover", "protect", "plastic", "drop cloth"] },
+        { "id": "wet_scrape", "label": "Wet-scrape the texture", "patterns": ["scrape"] },
+        { "id": "skim_coat", "label": "Skim coat / patch / re-texture ceiling", "patterns": ["skim coat", "texture", "plaster", "patch"] },
+        { "id": "sand", "label": "Sand ceiling/walls", "patterns": ["sand"] },
+        { "id": "primer", "label": "Apply primer", "patterns": ["prime", "primer"] },
+        { "id": "two_coats_paint", "label": "Two coats of paint", "patterns": ["2 coats", "two coats", "apply paint"] },
+        { "id": "clean_haul", "label": "Clean up / haul away debris", "patterns": ["clean", "haul"] }
+      ]
+    },
+    {
+      "id": "09-vinyl-retrofit-windows",
+      "source": "Platinum 'Windows: Vinyl & Aluminum (Retro-Fit) — scope of work' chunk",
+      "projectTitle": "Vinyl Retrofit Windows (8)",
+      "description": "Replace 8 existing aluminum single-pane windows with new vinyl retrofit dual-pane windows throughout the house. Keep the existing frames/openings in place — retrofit install, not new construction.",
+      "lengthBand": { "min": 6, "max": 20 },
+      "required": [
+        { "id": "permit", "label": "Permit", "patterns": ["\\bpermit\\b"] },
+        { "id": "remove_existing_window", "label": "Remove existing window", "patterns": ["remove.*window"] },
+        { "id": "prep_frame", "label": "Prepare existing window frame", "patterns": ["prepare.*frame", "existing.*frame"] },
+        { "id": "install_retrofit_window", "label": "Install new retrofit vinyl window over existing frame", "patterns": ["retro.?fit", "install.*window"] },
+        { "id": "caulking", "label": "Caulk full perimeter (50-year caulk)", "patterns": ["caulk"] },
+        { "id": "dual_pane", "label": "Dual-pane / insulated glass", "patterns": ["dual.pane", "double.pane", "insulated"] },
+        { "id": "haul_away", "label": "Clean up / haul away debris", "patterns": ["haul", "debris"] }
+      ]
+    },
+    {
+      "id": "10-concrete-driveway-replacement",
+      "source": "Platinum 'Driveway/Step Cement — scope of work' chunk + 'Playbook: Concrete Driveway & Steps'",
+      "projectTitle": "Concrete Driveway Replacement",
+      "description": "Replace the existing cracked concrete driveway with new concrete, broom finish. Driveway is roughly 500 sf and extends to the street.",
+      "lengthBand": { "min": 8, "max": 22 },
+      "required": [
+        { "id": "permit", "label": "Permit", "patterns": ["\\bpermit\\b"] },
+        { "id": "demo_existing", "label": "Demo existing driveway", "patterns": ["demo.*driveway", "remove.*(old|existing).*(driveway|surface)"] },
+        { "id": "excavate_grade", "label": "Excavate / grade / slope for drainage", "patterns": ["excavat", "grade", "level", "slope"] },
+        { "id": "compact_base", "label": "Compact the ground/base", "patterns": ["compact"] },
+        { "id": "rebar_mesh", "label": "Install re-bar / wire mesh", "patterns": ["re.?bar", "wire mesh"] },
+        { "id": "pour_concrete", "label": "Pour concrete (PSI spec)", "patterns": ["pour.*concrete", "concrete.*pour"] },
+        { "id": "finish_surface", "label": "Finish surface (broom finish)", "patterns": ["broom finish", "finish surface"] },
+        { "id": "control_joints", "label": "Control/expansion joints", "patterns": ["joint"] },
+        { "id": "clean_site", "label": "Clean job site", "patterns": ["clean"] }
+      ]
+    }
+  ],
+  "globalForbidden": [
+    { "id": "deposit_payment", "label": "Deposit / down payment language", "patterns": ["down payment", "\\bdeposit\\b"] },
+    { "id": "payment_schedule", "label": "Payment schedule / % of contract", "patterns": ["payment schedule", "% of contract", "draw schedule", "contract price"] },
+    { "id": "warranty", "label": "Warranty language", "patterns": ["warranty"] },
+    { "id": "right_to_cancel", "label": "3-day right to cancel notice", "patterns": ["right to cancel"] },
+    { "id": "arbitration", "label": "Arbitration/notice of arbitration", "patterns": ["arbitration"] },
+    { "id": "signature_block", "label": "Signature block", "patterns": ["signature", "sign here", "customer signature"] },
+    { "id": "financing", "label": "Financing terms", "patterns": ["financing"] },
+    { "id": "dollar_amount", "label": "Dollar amounts / pricing in the scope", "patterns": ["\\$\\s?\\d"] }
+  ]
+}

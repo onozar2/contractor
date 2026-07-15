@@ -20,3 +20,5 @@ tmp_*.html
 tmp_*.pdf
 # one-off animation backups
 *.backup-anim.html
+cslb*.html
+yelp*.html

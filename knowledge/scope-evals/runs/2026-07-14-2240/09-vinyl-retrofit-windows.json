@@ -1,0 +1,241 @@
+{
+  "case": {
+    "id": "09-vinyl-retrofit-windows",
+    "source": "Platinum 'Windows: Vinyl & Aluminum (Retro-Fit) — scope of work' chunk",
+    "projectTitle": "Vinyl Retrofit Windows (8)",
+    "description": "Replace 8 existing aluminum single-pane windows with new vinyl retrofit dual-pane windows throughout the house. Keep the existing frames/openings in place — retrofit install, not new construction.",
+    "lengthBand": {
+      "min": 6,
+      "max": 20
+    },
+    "required": [
+      {
+        "id": "permit",
+        "label": "Permit",
+        "patterns": [
+          "\\bpermit\\b"
+        ]
+      },
+      {
+        "id": "remove_existing_window",
+        "label": "Remove existing window",
+        "patterns": [
+          "remove.*window"
+        ]
+      },
+      {
+        "id": "prep_frame",
+        "label": "Prepare existing window frame",
+        "patterns": [
+          "prepare.*frame",
+          "existing.*frame"
+        ]
+      },
+      {
+        "id": "install_retrofit_window",
+        "label": "Install new retrofit vinyl window over existing frame",
+        "patterns": [
+          "retro.?fit",
+          "install.*window"
+        ]
+      },
+      {
+        "id": "caulking",
+        "label": "Caulk full perimeter (50-year caulk)",
+        "patterns": [
+          "caulk"
+        ]
+      },
+      {
+        "id": "dual_pane",
+        "label": "Dual-pane / insulated glass",
+        "patterns": [
+          "dual.pane",
+          "double.pane",
+          "insulated"
+        ]
+      },
+      {
+        "id": "haul_away",
+        "label": "Clean up / haul away debris",
+        "patterns": [
+          "haul",
+          "debris"
+        ]
+      }
+    ]
+  },
+  "response": {
+    "sections": [
+      {
+        "trade": "Permit & Prep",
+        "lines": [
+          "Pull city permit for like-for-like window retrofit replacement.",
+          "Confirm new vinyl windows meet current Title 24 energy requirements (dual-pane, Low-E coating, argon fill).",
+          "Confirm safety glazing (tempered) is specified for any window in a hazardous location (near doors, low sill height, bathrooms)."
+        ]
+      },
+      {
+        "trade": "Window Removal",
+        "lines": [
+          "Remove existing 8 aluminum single-pane windows and sashes, leaving existing frames in place.",
+          "Clean up and haul away debris.",
+          "Prepare existing window frames — clean and inspect opening, check for rot at sill."
+        ]
+      },
+      {
+        "trade": "Window Installation",
+        "lines": [
+          "Install 8 new retro-fitted vinyl dual-pane windows (insulated, argon gas, Low-E) over existing frames per manufacturer instructions.",
+          "Customer to select frame color (white, almond, black, bronze).",
+          "Shim, level, and fasten each window per manufacturer spec.",
+          "Insulate gap between existing and new frames with low-expansion foam or backer rod.",
+          "Apply 50-year caulking all around frame (by city code)."
+        ]
+      },
+      {
+        "trade": "Trim & Clean Up",
+        "lines": [
+          "Touch up interior trim — apply primer and 2 coats of paint at disturbed edge.",
+          "Clean up and haul away debris."
+        ]
+      }
+    ],
+    "notes": [
+      "If any of the 8 windows serve a bedroom, verify the new retrofit unit maintains code-required egress dimensions (net clear opening >= 5.7 sq ft, height >= 24\", width >= 20\", sill height <= 44\") — a retrofit frame can reduce clear opening below the original.",
+      "Client description did not specify frame color — listed as customer selection per standard options (white, almond, black, bronze)."
+    ],
+    "engine": "claude-sonnet",
+    "groundedOn": [
+      {
+        "title": "Windows: Vinyl & Aluminum (Retro-Fit) — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Products: Windows",
+        "source": "Product master list"
+      },
+      {
+        "title": "Playbook: Window Replacement (Retrofit vs. New Construction)",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Foundation - Retrofit — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Playbook: Foundation Retrofit (Bolting & Cripple Wall Bracing)",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Bloom training: Product - Windows",
+        "source": "Josh Bloom training"
+      },
+      {
+        "title": "Playbook: Fences (Vinyl / Iron / Wood)",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Patio Enclosure — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Paint: Interior — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Fence — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Playbook: House Rewire",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Playbook: Insulation (Attic, Wall & Under-House)",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Bolting Retrofit (client deck)",
+        "source": "Client presentation"
+      },
+      {
+        "title": "Re-pipe — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Stucco: New — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Bedroom egress windows - CRC R310",
+        "source": "SoCal code & builder guides"
+      }
+    ]
+  },
+  "score": {
+    "caseId": "09-vinyl-retrofit-windows",
+    "projectTitle": "Vinyl Retrofit Windows (8)",
+    "engine": "claude-sonnet",
+    "coveragePct": 100,
+    "requiredHits": 7,
+    "requiredTotal": 7,
+    "requiredResults": [
+      {
+        "id": "permit",
+        "label": "Permit",
+        "hit": true,
+        "evidence": "\\bpermit\\b"
+      },
+      {
+        "id": "remove_existing_window",
+        "label": "Remove existing window",
+        "hit": true,
+        "evidence": "remove.*window"
+      },
+      {
+        "id": "prep_frame",
+        "label": "Prepare existing window frame",
+        "hit": true,
+        "evidence": "prepare.*frame"
+      },
+      {
+        "id": "install_retrofit_window",
+        "label": "Install new retrofit vinyl window over existing frame",
+        "hit": true,
+        "evidence": "retro.?fit"
+      },
+      {
+        "id": "caulking",
+        "label": "Caulk full perimeter (50-year caulk)",
+        "hit": true,
+        "evidence": "caulk"
+      },
+      {
+        "id": "dual_pane",
+        "label": "Dual-pane / insulated glass",
+        "hit": true,
+        "evidence": "dual.pane"
+      },
+      {
+        "id": "haul_away",
+        "label": "Clean up / haul away debris",
+        "hit": true,
+        "evidence": "haul"
+      }
+    ],
+    "forbiddenHits": [],
+    "lines": 13,
+    "lengthBand": {
+      "min": 6,
+      "max": 20
+    },
+    "lengthOk": true,
+    "structure": {
+      "ok": true,
+      "issues": []
+    },
+    "pass": true,
+    "elapsedSec": 32.1
+  }
+}

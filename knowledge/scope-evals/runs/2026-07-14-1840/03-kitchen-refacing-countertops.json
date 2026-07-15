@@ -1,0 +1,346 @@
+{
+  "case": {
+    "id": "03-kitchen-refacing-countertops",
+    "source": "Platinum 'Kitchen Remodeling — scope of work' (Kitchen refacing sub-section) + 'Countertop — scope of work' chunk",
+    "projectTitle": "Kitchen Refacing + New Countertops",
+    "description": "Kitchen refacing — homeowner wants to keep the existing cabinet boxes but get new solid wood cabinet doors/drawer fronts, new hardware, and a new quartz countertop. No layout changes, no plumbing relocation.",
+    "lengthBand": {
+      "min": 10,
+      "max": 30
+    },
+    "required": [
+      {
+        "id": "remove_cabinet_doors",
+        "label": "Remove all cabinet doors",
+        "patterns": [
+          "remove.*(cabinet )?doors?",
+          "cabinet doors?"
+        ]
+      },
+      {
+        "id": "new_doors",
+        "label": "Build/install new (solid wood) doors",
+        "patterns": [
+          "new doors",
+          "solid wood"
+        ]
+      },
+      {
+        "id": "finish_boxes",
+        "label": "Finish/paint existing cabinet boxes",
+        "patterns": [
+          "finish.*box",
+          "paint.*box",
+          "cabinet box"
+        ]
+      },
+      {
+        "id": "reinstall_doors",
+        "label": "Install doors back",
+        "patterns": [
+          "install.*doors?",
+          "install.*back"
+        ]
+      },
+      {
+        "id": "new_drawers",
+        "label": "New drawers",
+        "patterns": [
+          "drawer"
+        ]
+      },
+      {
+        "id": "new_hardware",
+        "label": "New hardware/hinges",
+        "patterns": [
+          "hardware",
+          "hinge"
+        ]
+      },
+      {
+        "id": "countertop_demo",
+        "label": "Demo old countertop / haul away",
+        "patterns": [
+          "demo.*countertop",
+          "remove.*countertop"
+        ]
+      },
+      {
+        "id": "disconnect_plumbing",
+        "label": "Disconnect sink/plumbing before countertop swap",
+        "patterns": [
+          "disconnect"
+        ]
+      },
+      {
+        "id": "select_slab",
+        "label": "Customer selects slab/material",
+        "patterns": [
+          "select",
+          "choose"
+        ]
+      },
+      {
+        "id": "new_countertop",
+        "label": "Install new countertop",
+        "patterns": [
+          "install.*countertop",
+          "new countertop"
+        ]
+      },
+      {
+        "id": "backsplash",
+        "label": "Backsplash",
+        "patterns": [
+          "backsplash"
+        ]
+      },
+      {
+        "id": "sealer",
+        "label": "Apply sealer",
+        "patterns": [
+          "seal"
+        ]
+      },
+      {
+        "id": "reconnect_plumbing",
+        "label": "Reconnect plumbing/sink/faucet",
+        "patterns": [
+          "connect.*(plumbing|sink|faucet)",
+          "reconnect"
+        ]
+      },
+      {
+        "id": "clean_site",
+        "label": "Clean job site",
+        "patterns": [
+          "clean"
+        ]
+      }
+    ]
+  },
+  "response": {
+    "sections": [
+      {
+        "trade": "Prep & Protection",
+        "lines": [
+          "Cover all working areas."
+        ]
+      },
+      {
+        "trade": "Cabinetry (Refacing)",
+        "lines": [
+          "Remove all cabinet doors.",
+          "Build custom solid wood new doors and drawer fronts (customer to select design).",
+          "Build and install new drawers.",
+          "Apply finish layer or paint to existing cabinet boxes to match new doors (customer to select design and colors).",
+          "Install back all doors.",
+          "Install new hardware and hinges."
+        ]
+      },
+      {
+        "trade": "Countertop Demo & Disconnect",
+        "lines": [
+          "Demo existing countertop and haul away trash.",
+          "Disconnect sink and plumbing."
+        ]
+      },
+      {
+        "trade": "Countertop Fabrication & Install",
+        "lines": [
+          "Install new plywood surface for the new countertop.",
+          "Customer to choose quartz slab from sample.",
+          "Fabrication and cutting.",
+          "Install new countertop.",
+          "Install backsplash 4\"/6\"/all the way up (customer to choose)."
+        ]
+      },
+      {
+        "trade": "Plumbing Reconnect",
+        "lines": [
+          "Install sink.",
+          "Install faucet and garbage disposal.",
+          "Connect all plumbing.",
+          "Install back all appliances."
+        ]
+      },
+      {
+        "trade": "Clean Up",
+        "lines": [
+          "Clean entire job site."
+        ]
+      }
+    ],
+    "notes": [
+      "Sealer line from the countertop scope was omitted — quartz is non-porous and does not require sealing (applies to natural stone slabs); confirm slab material choice before finalizing.",
+      "Scope assumes cabinet boxes are in sound condition with no repairs needed since client only requested doors/fronts/hardware — flag if boxes need reinforcement once doors are removed.",
+      "No permit line included since no plumbing relocation or layout change was described — confirm with estimator if local jurisdiction requires a permit for countertop/sink disconnect-reconnect."
+    ],
+    "engine": "claude-sonnet",
+    "groundedOn": [
+      {
+        "title": "Kitchen Remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Countertop — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Flooring: Wood floor / Engineered wood / Bamboo / Laminate / Waterproof laminate — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Bathroom remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-pipe — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Patio Cover: Wood (Waterproof and Lattice) — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Fence — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Paint: Interior — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Walk-In Tub — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-drain — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Trim Paint — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Patio Enclosure — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Windows: Vinyl & Aluminum (Retro-Fit) — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Retaining Wall — scope of work",
+        "source": "Scope of Work PDF"
+      }
+    ]
+  },
+  "score": {
+    "caseId": "03-kitchen-refacing-countertops",
+    "projectTitle": "Kitchen Refacing + New Countertops",
+    "engine": "claude-sonnet",
+    "coveragePct": 100,
+    "requiredHits": 14,
+    "requiredTotal": 14,
+    "requiredResults": [
+      {
+        "id": "remove_cabinet_doors",
+        "label": "Remove all cabinet doors",
+        "hit": true,
+        "evidence": "remove.*(cabinet )?doors?"
+      },
+      {
+        "id": "new_doors",
+        "label": "Build/install new (solid wood) doors",
+        "hit": true,
+        "evidence": "new doors"
+      },
+      {
+        "id": "finish_boxes",
+        "label": "Finish/paint existing cabinet boxes",
+        "hit": true,
+        "evidence": "finish.*box"
+      },
+      {
+        "id": "reinstall_doors",
+        "label": "Install doors back",
+        "hit": true,
+        "evidence": "install.*doors?"
+      },
+      {
+        "id": "new_drawers",
+        "label": "New drawers",
+        "hit": true,
+        "evidence": "drawer"
+      },
+      {
+        "id": "new_hardware",
+        "label": "New hardware/hinges",
+        "hit": true,
+        "evidence": "hardware"
+      },
+      {
+        "id": "countertop_demo",
+        "label": "Demo old countertop / haul away",
+        "hit": true,
+        "evidence": "demo.*countertop"
+      },
+      {
+        "id": "disconnect_plumbing",
+        "label": "Disconnect sink/plumbing before countertop swap",
+        "hit": true,
+        "evidence": "disconnect"
+      },
+      {
+        "id": "select_slab",
+        "label": "Customer selects slab/material",
+        "hit": true,
+        "evidence": "select"
+      },
+      {
+        "id": "new_countertop",
+        "label": "Install new countertop",
+        "hit": true,
+        "evidence": "install.*countertop"
+      },
+      {
+        "id": "backsplash",
+        "label": "Backsplash",
+        "hit": true,
+        "evidence": "backsplash"
+      },
+      {
+        "id": "sealer",
+        "label": "Apply sealer",
+        "hit": true,
+        "evidence": "seal"
+      },
+      {
+        "id": "reconnect_plumbing",
+        "label": "Reconnect plumbing/sink/faucet",
+        "hit": true,
+        "evidence": "connect.*(plumbing|sink|faucet)"
+      },
+      {
+        "id": "clean_site",
+        "label": "Clean job site",
+        "hit": true,
+        "evidence": "clean"
+      }
+    ],
+    "forbiddenHits": [],
+    "lines": 19,
+    "lengthBand": {
+      "min": 10,
+      "max": 30
+    },
+    "lengthOk": true,
+    "structure": {
+      "ok": true,
+      "issues": []
+    },
+    "pass": true,
+    "elapsedSec": 21.6
+  }
+}

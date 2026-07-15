@@ -1,0 +1,353 @@
+{
+  "case": {
+    "id": "01-bathroom-tub-to-shower",
+    "source": "Platinum 'Bathroom remodeling — scope of work' chunk",
+    "projectTitle": "Hall Bathroom Remodel",
+    "description": "Hall bathroom — demo the existing tub/shower combo and floor tile down to studs/subfloor, convert to a walk-in shower with new tile. Vanity and toilet stay in the same footprint but get reconnected. Homeowner wants everything fully up to code.",
+    "lengthBand": {
+      "min": 18,
+      "max": 45
+    },
+    "required": [
+      {
+        "id": "permit",
+        "label": "Pull city permit",
+        "patterns": [
+          "\\bpermit\\b"
+        ]
+      },
+      {
+        "id": "demo",
+        "label": "Demo tub/shower/floor to studs/subfloor",
+        "patterns": [
+          "\\bdemo\\b"
+        ]
+      },
+      {
+        "id": "hot_mop",
+        "label": "Hot mop waterproofing in shower",
+        "patterns": [
+          "hot[- ]?mop"
+        ]
+      },
+      {
+        "id": "water_test_24hr",
+        "label": "24-hour water test",
+        "patterns": [
+          "24[- ]?hour",
+          "24[- ]?hr",
+          "water test"
+        ]
+      },
+      {
+        "id": "tar_paper_wire_mesh",
+        "label": "Tar/waterproof paper + wire mesh/chicken wire before tile",
+        "groups": [
+          [
+            "tar paper",
+            "waterproof paper",
+            "building paper"
+          ],
+          [
+            "wire mesh",
+            "chicken wire"
+          ]
+        ]
+      },
+      {
+        "id": "gfi_outlets",
+        "label": "GFI/GFCI outlets",
+        "patterns": [
+          "\\bgfi\\b",
+          "gfci"
+        ]
+      },
+      {
+        "id": "p_trap",
+        "label": "P-trap / drain cover upgrade",
+        "patterns": [
+          "p-trap",
+          "p trap"
+        ]
+      },
+      {
+        "id": "wax_ring",
+        "label": "Toilet wax ring",
+        "patterns": [
+          "wax ring"
+        ]
+      },
+      {
+        "id": "tile_to_ceiling",
+        "label": "Tile floor-to-ceiling in shower",
+        "patterns": [
+          "floor.to.ceiling",
+          "floor to ceiling"
+        ]
+      },
+      {
+        "id": "prime_two_coats",
+        "label": "Prime + 2 coats paint",
+        "groups": [
+          [
+            "prime",
+            "primer"
+          ],
+          [
+            "2 coats",
+            "two coats"
+          ]
+        ]
+      },
+      {
+        "id": "haul_away",
+        "label": "Clean up / haul away debris",
+        "patterns": [
+          "haul.away",
+          "haul away",
+          "debris"
+        ]
+      }
+    ]
+  },
+  "response": {
+    "sections": [
+      {
+        "trade": "Demo",
+        "lines": [
+          "Pull city permit",
+          "Protect adjacent areas and shut off water to bathroom",
+          "Demo existing tub/shower combo, wall tile, and floor tile down to studs/subfloor",
+          "Disconnect and cap toilet and vanity plumbing as needed for demo access"
+        ]
+      },
+      {
+        "trade": "Framing",
+        "lines": [
+          "Prepare framing and subfloor, replace damaged wood as needed",
+          "Frame new shower pan for walk-in shower"
+        ]
+      },
+      {
+        "trade": "Plumbing",
+        "lines": [
+          "Upgrade all copper pipes inside bathroom area to be up to code",
+          "Install new shower valve",
+          "Reconnect vanity plumbing (drain, hot/cold lines)",
+          "Reconnect toilet plumbing (drain, cold line)",
+          "Upgrade and replace p-trap and drain cover for shower",
+          "Install toilet and install new wax ring"
+        ]
+      },
+      {
+        "trade": "Electrical",
+        "lines": [
+          "Install exhaust fan at ceiling",
+          "Install all outlets to be GFI",
+          "Install light fixtures (LED light, recessed lighting, shower light)"
+        ]
+      },
+      {
+        "trade": "Waterproofing / Hot Mop",
+        "lines": [
+          "Install waterproof paper and chicken wire on shower walls and shower floor",
+          "Install cement on the paper and chicken wire",
+          "Apply hot mop to shower area and water test for 24 hours"
+        ]
+      },
+      {
+        "trade": "Tile",
+        "lines": [
+          "Install tile on shower walls and floor",
+          "Install tile on bathroom floor",
+          "Apply grout",
+          "Apply sealer on tile"
+        ]
+      },
+      {
+        "trade": "Drywall & Paint",
+        "lines": [
+          "Fix all drywall in bathroom",
+          "Apply primer and 2 coats of paint"
+        ]
+      },
+      {
+        "trade": "Vanity & Fixtures",
+        "lines": [
+          "Reset and reconnect existing vanity with countertop and sink, connect faucet",
+          "Install shower head and all fixtures",
+          "Install shower door",
+          "Install toilet fixtures, vanity knobs",
+          "Install new baseboards"
+        ]
+      },
+      {
+        "trade": "Clean Up",
+        "lines": [
+          "Clean up and haul away debris"
+        ]
+      }
+    ],
+    "notes": [
+      "Assumed vanity and toilet are the client's existing fixtures being reset/reconnected in the same footprint, not new units purchased under this scope.",
+      "Assumed hot-mop pan (company's standard method per scope-of-work template) for the walk-in shower waterproofing; a bonded membrane (Schluter-KERDI/wedi) system is an available alternative if the client wants a curbless entry or to skip the 24-hour water-test wait.",
+      "Shower door style (framed/semi-frameless/frameless) and glass thickness left open for client selection."
+    ],
+    "engine": "claude-sonnet",
+    "groundedOn": [
+      {
+        "title": "Bathroom remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Bathroom shower and tub trends 2026 - walk-in shower is the default, freestanding tub is polarizing",
+        "source": "Building & design trends"
+      },
+      {
+        "title": "Playbook: Bathroom Remodel",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Bathroom Remodeling (client deck)",
+        "source": "Client presentation"
+      },
+      {
+        "title": "Walk-In Tub — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "NKBA Bathroom Clearances: Toilet, Shower, and Fixture Spacing",
+        "source": "Design best practices"
+      },
+      {
+        "title": "Playbook: Sistering Floor Joists & Subfloor Repair",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Products: Bathroom — Wet Area",
+        "source": "Product master list"
+      },
+      {
+        "title": "Bid comparable: Neal Bathroom Remodel — structural exemplar ($26,580)",
+        "source": "Real bid comparables"
+      },
+      {
+        "title": "Playbook: Tile Flooring",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Bid comparable: Starr Bathroom + Bedroom Remodel ($25,000)",
+        "source": "Real bid comparables"
+      },
+      {
+        "title": "Bloom training: Product - Bathroom",
+        "source": "Josh Bloom training"
+      },
+      {
+        "title": "Flooring: Wood floor / Engineered wood / Bamboo / Laminate / Waterproof laminate — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Bathroom Tile Quantity Rules of Thumb",
+        "source": "Design best practices"
+      },
+      {
+        "title": "Bathroom Vanity Widths and Wet-Wall Plumbing Economics",
+        "source": "Design best practices"
+      },
+      {
+        "title": "Playbook: Kitchen Full Remodel",
+        "source": "SoCal job playbooks"
+      }
+    ]
+  },
+  "score": {
+    "caseId": "01-bathroom-tub-to-shower",
+    "projectTitle": "Hall Bathroom Remodel",
+    "engine": "claude-sonnet",
+    "coveragePct": 90.9,
+    "requiredHits": 10,
+    "requiredTotal": 11,
+    "requiredResults": [
+      {
+        "id": "permit",
+        "label": "Pull city permit",
+        "hit": true,
+        "evidence": "\\bpermit\\b"
+      },
+      {
+        "id": "demo",
+        "label": "Demo tub/shower/floor to studs/subfloor",
+        "hit": true,
+        "evidence": "\\bdemo\\b"
+      },
+      {
+        "id": "hot_mop",
+        "label": "Hot mop waterproofing in shower",
+        "hit": true,
+        "evidence": "hot[- ]?mop"
+      },
+      {
+        "id": "water_test_24hr",
+        "label": "24-hour water test",
+        "hit": true,
+        "evidence": "24[- ]?hour"
+      },
+      {
+        "id": "tar_paper_wire_mesh",
+        "label": "Tar/waterproof paper + wire mesh/chicken wire before tile",
+        "hit": true,
+        "evidence": "waterproof paper + chicken wire"
+      },
+      {
+        "id": "gfi_outlets",
+        "label": "GFI/GFCI outlets",
+        "hit": true,
+        "evidence": "\\bgfi\\b"
+      },
+      {
+        "id": "p_trap",
+        "label": "P-trap / drain cover upgrade",
+        "hit": true,
+        "evidence": "p-trap"
+      },
+      {
+        "id": "wax_ring",
+        "label": "Toilet wax ring",
+        "hit": true,
+        "evidence": "wax ring"
+      },
+      {
+        "id": "tile_to_ceiling",
+        "label": "Tile floor-to-ceiling in shower",
+        "hit": false,
+        "evidence": ""
+      },
+      {
+        "id": "prime_two_coats",
+        "label": "Prime + 2 coats paint",
+        "hit": true,
+        "evidence": "prime + 2 coats"
+      },
+      {
+        "id": "haul_away",
+        "label": "Clean up / haul away debris",
+        "hit": true,
+        "evidence": "haul.away"
+      }
+    ],
+    "forbiddenHits": [],
+    "lines": 30,
+    "lengthBand": {
+      "min": 18,
+      "max": 45
+    },
+    "lengthOk": true,
+    "structure": {
+      "ok": true,
+      "issues": []
+    },
+    "pass": true,
+    "elapsedSec": 46
+  }
+}

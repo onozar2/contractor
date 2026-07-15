@@ -1,0 +1,303 @@
+{
+  "case": {
+    "id": "05-exterior-paint-stucco-repair",
+    "source": "Platinum 'Paint: Exterior / Tex-cote / Cool Life' + 'Stucco: New' (Stucco patch) chunks + Exterior Paint / Stucco Repair playbooks",
+    "projectTitle": "Exterior Paint + Stucco Repair",
+    "description": "Exterior repaint plus stucco crack repair — several stucco cracks around the house and peeling paint on the trim. Patch the stucco first, then full exterior repaint. House was built in 1965.",
+    "lengthBand": {
+      "min": 12,
+      "max": 35
+    },
+    "required": [
+      {
+        "id": "power_wash",
+        "label": "Power wash the house",
+        "patterns": [
+          "power wash",
+          "pressure wash"
+        ]
+      },
+      {
+        "id": "lead_test",
+        "label": "Pre-1978 lead-paint precaution",
+        "patterns": [
+          "lead"
+        ]
+      },
+      {
+        "id": "stucco_crack_repair",
+        "label": "Stucco crack/patch repair",
+        "groups": [
+          [
+            "stucco"
+          ],
+          [
+            "crack",
+            "patch"
+          ]
+        ]
+      },
+      {
+        "id": "scrape_prep",
+        "label": "Scrape damaged/loose material",
+        "patterns": [
+          "scrape"
+        ]
+      },
+      {
+        "id": "wood_rot",
+        "label": "Replace/repair damaged wood",
+        "patterns": [
+          "damaged wood",
+          "wood rot",
+          "replace.*wood"
+        ]
+      },
+      {
+        "id": "caulking",
+        "label": "Caulk cracks/openings",
+        "patterns": [
+          "caulk"
+        ]
+      },
+      {
+        "id": "primer",
+        "label": "Apply primer",
+        "patterns": [
+          "prime",
+          "primer"
+        ]
+      },
+      {
+        "id": "customer_selects_color",
+        "label": "Customer selects color",
+        "patterns": [
+          "select.*color",
+          "choose.*color",
+          "customer.*color"
+        ]
+      },
+      {
+        "id": "two_coats",
+        "label": "Two coats of paint",
+        "patterns": [
+          "2 coats",
+          "two coats",
+          "apply paint"
+        ]
+      },
+      {
+        "id": "clean_site",
+        "label": "Clean job site",
+        "patterns": [
+          "clean"
+        ]
+      }
+    ]
+  },
+  "response": {
+    "sections": [
+      {
+        "trade": "Prep & Protection",
+        "lines": [
+          "Pull city permit / plan-check as required",
+          "Home built in 1965 (pre-1978): test for lead-based paint before any scraping or sanding; if present, follow EPA RRP lead-safe work practices — plastic containment/ground sheeting, wet scraping methods, HEPA vacuum cleanup, certified renovator on site",
+          "Cover all working areas: windows, trees, bushes, plants, patio, furniture",
+          "Prepare trench, 6\" deep all the way around the house",
+          "Pressure wash entire exterior to remove chalking, dirt, mildew, and loose material; let dry fully before proceeding"
+        ]
+      },
+      {
+        "trade": "Stucco Repair",
+        "lines": [
+          "Scrape damaged stucco surface; identify and mark all cracked stucco areas around the house",
+          "Open cracks wider and fix cracks; patch walls as needed",
+          "Prepare walls: apply scratch and brown coat cement, allow proper cure time",
+          "Apply new color coat stucco, texture-matched to existing finish; color and texture selected by customer"
+        ]
+      },
+      {
+        "trade": "Wood & Trim Repair",
+        "lines": [
+          "Scrape and sand all loose/peeling paint on trim, fascia, eaves, and window/door molding to a sound edge",
+          "Sand all wood around the house",
+          "Replace damaged wood as needed",
+          "Apply wood sealer to sanded and replaced wood"
+        ]
+      },
+      {
+        "trade": "Exterior Paint",
+        "lines": [
+          "Spot-prime all bare wood, metal, and patched stucco areas with the appropriate primer for the substrate",
+          "Caulk all trim joints, window/door perimeters, and siding seams with paintable exterior caulk",
+          "Apply primer and 2 coats of paint to body/field color; color selected by customer",
+          "Apply primer and 2 coats of paint to trim and accent colors (fascia, eaves, garage door, shutters, front door) after field coat is dry"
+        ]
+      },
+      {
+        "trade": "Clean Up",
+        "lines": [
+          "Final walk: touch up drips, holidays, and overspray; clean overspray off windows, hardscape, and landscaping; remove masking and protection",
+          "Cover back trench around the house",
+          "Clean up and haul away debris"
+        ]
+      }
+    ],
+    "notes": [
+      "Client description is isolated stucco crack patching (not full re-stucco), so scope follows the stucco patch sequence, not new/full stucco replacement — confirm with client that cracks are cosmetic/hairline, not structural.",
+      "Company's own repaint and patch templates state no permit is typically required for this scope; permit/plan-check line included per standard proposal format — confirm with estimator whether it applies here.",
+      "Lead testing assumed necessary given 1965 build date; confirm test results before finalizing prep method and pricing.",
+      "Paint tier assumed standard 2-coat acrylic system; confirm with client whether an elastomeric or Cool Coat upgrade is wanted given the active cracking."
+    ],
+    "engine": "claude-sonnet",
+    "groundedOn": [
+      {
+        "title": "Playbook: Exterior Paint (incl. Cool Coatings)",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Stucco: New — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Products: Exterior Paint & Coatings",
+        "source": "Product master list"
+      },
+      {
+        "title": "Paint: Interior — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Playbook: Stucco Repair & Re-Stucco",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Trim Paint — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Products: Stucco",
+        "source": "Product master list"
+      },
+      {
+        "title": "Exterior Paint / Cool Life (client deck)",
+        "source": "Client presentation"
+      },
+      {
+        "title": "Playbook: Foundation Crack Repair & Underpinning",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Playbook: Termite & Dry-Rot Repair",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Bloom training: Product - Painting",
+        "source": "Josh Bloom training"
+      },
+      {
+        "title": "Playbook: Interior Paint",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Exterior Material Mixing, Entry Emphasis, and Landscape Layering",
+        "source": "Design best practices"
+      },
+      {
+        "title": "Playbook: Hazmat Gate — Asbestos (AQMD Rule 1403) & Lead (EPA RRP)",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Insulation — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Exterior Color: The 60-30-10 Rule",
+        "source": "Design best practices"
+      }
+    ]
+  },
+  "score": {
+    "caseId": "05-exterior-paint-stucco-repair",
+    "projectTitle": "Exterior Paint + Stucco Repair",
+    "engine": "claude-sonnet",
+    "coveragePct": 90,
+    "requiredHits": 9,
+    "requiredTotal": 10,
+    "requiredResults": [
+      {
+        "id": "power_wash",
+        "label": "Power wash the house",
+        "hit": true,
+        "evidence": "pressure wash"
+      },
+      {
+        "id": "lead_test",
+        "label": "Pre-1978 lead-paint precaution",
+        "hit": true,
+        "evidence": "lead"
+      },
+      {
+        "id": "stucco_crack_repair",
+        "label": "Stucco crack/patch repair",
+        "hit": true,
+        "evidence": "stucco + crack"
+      },
+      {
+        "id": "scrape_prep",
+        "label": "Scrape damaged/loose material",
+        "hit": true,
+        "evidence": "scrape"
+      },
+      {
+        "id": "wood_rot",
+        "label": "Replace/repair damaged wood",
+        "hit": true,
+        "evidence": "damaged wood"
+      },
+      {
+        "id": "caulking",
+        "label": "Caulk cracks/openings",
+        "hit": true,
+        "evidence": "caulk"
+      },
+      {
+        "id": "primer",
+        "label": "Apply primer",
+        "hit": true,
+        "evidence": "prime"
+      },
+      {
+        "id": "customer_selects_color",
+        "label": "Customer selects color",
+        "hit": false,
+        "evidence": ""
+      },
+      {
+        "id": "two_coats",
+        "label": "Two coats of paint",
+        "hit": true,
+        "evidence": "2 coats"
+      },
+      {
+        "id": "clean_site",
+        "label": "Clean job site",
+        "hit": true,
+        "evidence": "clean"
+      }
+    ],
+    "forbiddenHits": [],
+    "lines": 20,
+    "lengthBand": {
+      "min": 12,
+      "max": 35
+    },
+    "lengthOk": true,
+    "structure": {
+      "ok": true,
+      "issues": []
+    },
+    "pass": true,
+    "elapsedSec": 60.6
+  }
+}

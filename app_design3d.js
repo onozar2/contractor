@@ -1,17 +1,47 @@
 /* Design view (#/design) — photo-in, chat-out, photorealistic redesign.
-   Ori's brief: no sliders, no finish pickers, no 3D scene, no template feel.
-   The customer's real room photo is the hero; Ori tells a chatbot in plain
-   speech what he wants; the chat composes a structure-preserving render prompt
-   (via POST /api/knowledge/design-brief, haiku); "Generate here" runs the
-   existing /api/knowledge/redesign edit (graceful quota-blocked bridge to
-   Gemini) and "Open in Gemini (free)" hands the same prompt off. Finished
-   before/after pairs save to the photo feed and show in a history strip.
-   Registers view #/design. Uses only the shell's APP helpers + CSS system.
-   (Filename kept — server.js already serves it and the nav points #/design.) */
+   Ori's brief: no 3D scene, no template feel. The customer's real room photo is
+   the hero; Ori tells a chatbot in plain speech what he wants; the chat composes
+   a structure-preserving render prompt (POST /api/knowledge/design-brief, haiku).
+
+   decor8/InteriorAI-level input & output UX layered on top (all optional — the
+   photo + free-text box stay first-class):
+     • Style gallery — 16 tappable pure-CSS style chips; a tap posts "Style: X"
+       through the normal chat flow so the brief updates.
+     • Mode toggle — Redecorate (keep layout/walls/cabinets) vs Remodel (may
+       reconfigure) — flips the preservation clause in the composed prompt.
+     • Variations 1/2/4 — bridge prompt appends "Generate N variations…"; in-app
+       loops N sequential /redesign calls into a variation grid.
+     • Pluggable render backends in /redesign: decor8 → gemini → free bridge.
+     • Before/after comparison SLIDER (draggable) in the result + history viewer.
+     • Failure-mode coaching hint under the result.
+
+   "Generate here" runs /api/knowledge/redesign; "Open in Gemini (free)" hands the
+   same prompt off. Finished before/after pairs save to the photo feed + history.
+   Registers view #/design. Uses only the shell's APP helpers + CSS system. */
 (function () {
   "use strict";
 
-  var RENDER_TAIL = "Photorealistic, consistent shadows and lighting direction, professionally staged, decluttered.";
+  // ── Curated, SoCal-relevant style taxonomy. Each chip is a pure-CSS swatch
+  // (2-3 color gradient + a tiny texture) — NO external images. Tapping posts
+  // "Style: <name>" through the chat so the brief + renderPrompt pick it up.
+  var STYLES = [
+    { name: "Modern Farmhouse", bg: "linear-gradient(135deg,#f4efe6,#d8c3a5 58%,#3d3a34)", pat: "lines" },
+    { name: "Japandi", bg: "linear-gradient(135deg,#e8e2d6,#b9a88f 55%,#5a4d3f)", pat: "dots" },
+    { name: "Coastal", bg: "linear-gradient(135deg,#eaf4f7,#9ec7d8 55%,#3a6ea5)", pat: "lines" },
+    { name: "Mid-Century Modern", bg: "linear-gradient(135deg,#e5c07b,#c1440e 55%,#5b6e4f)", pat: "grid" },
+    { name: "Spanish Revival", bg: "linear-gradient(135deg,#f0dcc0,#c8703c 55%,#7a2e1e)", pat: "grid" },
+    { name: "Contemporary Luxe", bg: "linear-gradient(135deg,#2b2b30,#6b6b73 55%,#c9a24b)", pat: "dots" },
+    { name: "Scandinavian", bg: "linear-gradient(135deg,#ffffff,#eef1f4 55%,#b9c3cc)", pat: "lines" },
+    { name: "Industrial Loft", bg: "linear-gradient(135deg,#6f6f74,#3a3a3d 55%,#a86b3c)", pat: "grid" },
+    { name: "Bohemian", bg: "linear-gradient(135deg,#e8b04b,#c05640 50%,#6a8d73)", pat: "dots" },
+    { name: "Transitional", bg: "linear-gradient(135deg,#efeae2,#c9bfb2 55%,#7d7266)", pat: "lines" },
+    { name: "Minimalist", bg: "linear-gradient(135deg,#fafafa,#e6e6e6 55%,#bcbcbc)", pat: "dots" },
+    { name: "Mediterranean", bg: "linear-gradient(135deg,#f2e6cc,#4e97a8 55%,#2f6d6f)", pat: "grid" },
+    { name: "Craftsman", bg: "linear-gradient(135deg,#c9a66b,#7a4a2b 55%,#3f2d1e)", pat: "lines" },
+    { name: "Desert Modern", bg: "linear-gradient(135deg,#f2ddc6,#d99a6c 55%,#9c5a3c)", pat: "dots" },
+    { name: "Organic Modern", bg: "linear-gradient(135deg,#efe9df,#c2b280 55%,#6f7a5a)", pat: "grid" },
+    { name: "Traditional", bg: "linear-gradient(135deg,#efe3d3,#9c7a4f 55%,#4a3b2a)", pat: "lines" }
+  ];
 
   // ── View state (one flow at a time; reset on every render()) ──
   var st = null;
@@ -22,7 +52,11 @@
       messages: [],           // [{role:'user'|'assistant', text}]
       renderPrompt: "",       // latest composed instruction (chat source of truth)
       chatBusy: false,
-      genAfterUrl: null,      // /uploads path when the API render succeeds
+      mode: "redecorate",     // "redecorate" | "remodel" — preservation clause
+      styleSel: "",           // currently selected style chip name
+      variations: 1,          // 1 | 2 | 4
+      genAfterUrl: null,      // selected /uploads path when an API render succeeds
+      variationUrls: [],      // all rendered variations (in-app path)
       attachFile: null,       // the Gemini render the user attaches back
       attachUrl: null,
       projectId: "design-studio",
@@ -36,18 +70,47 @@
     return String(v || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
   }
 
+  // Client-side fallback prompt (mode-aware) if the /design-brief endpoint is down.
+  function preserveClause(mode) {
+    return mode === "remodel"
+      ? "REMODEL edit: keep the exact camera angle, room envelope and the window and door positions and perspective lines; you MAY reconfigure cabinetry, layout, built-ins and fixtures to suit the new design"
+      : "STRUCTURE-PRESERVING edit: keep the exact camera angle and room envelope — the walls, windows, doors, ceiling and built-in cabinetry stay in their current positions and perspective lines; change only finishes, colors, furniture, decor, textiles and lighting fixtures";
+  }
+  var RENDER_TAIL = "Photorealistic, consistent shadows and lighting direction, magazine-quality interior photography, professionally staged, decluttered.";
   function composeFallbackPrompt() {
     var changes = st.messages.filter(function (m) { return m.role === "user"; })
       .map(function (m) { return m.text; }).filter(Boolean);
     var changeText = changes.length ? changes.join(", ") : "the requested finishes and styling";
-    return "Redesign this room. STRUCTURE-PRESERVING edit: keep the exact camera angle, room layout, window/door positions and perspective lines; " +
-      "change only " + changeText + ". " + RENDER_TAIL;
+    return "Redesign this space. " + preserveClause(st.mode) + ". Apply: " + changeText + ". " + RENDER_TAIL;
   }
 
   /* ============================ CSS ============================ */
 
   var CSS =
-    "#dz{max-width:1120px;margin:0 auto}" +
+    "#dz{max-width:1120px;margin:0 auto;min-width:0;width:100%;box-sizing:border-box}" +  // #dz is a grid item of main#view; margin:0 auto disables stretch, so it must be sized to the track (width:100%) with min-width:0 to shrink on mobile — otherwise it takes its ~1120 max-content width and overflows at 375px
+
+    // Style gallery strip
+    "#dzStyles{margin:0.2rem 0 0.9rem}" +
+    "#dzStyles .dz-lbl{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:0.4rem}" +
+    ".dz-strip{display:flex;gap:0.6rem;overflow-x:auto;padding-bottom:0.45rem;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}" +
+    ".dz-chip{flex:0 0 auto;width:84px;cursor:pointer;border:0;background:transparent;padding:0;text-align:center;scroll-snap-align:start;font:inherit}" +
+    ".dz-swatch{position:relative;height:52px;border-radius:10px;border:2px solid transparent;box-shadow:inset 0 0 0 1px rgba(16,24,40,0.08);overflow:hidden}" +
+    ".dz-swatch::after{content:'';position:absolute;inset:0;opacity:0.5;pointer-events:none}" +
+    ".dz-swatch.p-dots::after{background-image:radial-gradient(rgba(255,255,255,0.4) 1px,transparent 1.4px);background-size:7px 7px}" +
+    ".dz-swatch.p-lines::after{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,0.22) 0 2px,transparent 2px 7px)}" +
+    ".dz-swatch.p-grid::after{background-image:linear-gradient(rgba(255,255,255,0.2) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.2) 1px,transparent 1px);background-size:9px 9px}" +
+    ".dz-chip .nm{display:block;margin-top:0.28rem;font-size:0.66rem;line-height:1.2;color:#3c4658;font-weight:700}" +
+    ".dz-chip.sel .dz-swatch{border-color:var(--blue);box-shadow:0 0 0 2px rgba(37,99,235,0.25)}" +
+    ".dz-chip.sel .nm{color:var(--blue)}" +
+    // Mode toggle + variations segmented controls
+    ".dz-seg{display:inline-flex;border:1px solid #d8dee8;border-radius:9px;overflow:hidden;background:#f5f7fa}" +
+    ".dz-seg button{border:0;background:transparent;padding:0.34rem 0.7rem;font:inherit;font-size:0.8rem;font-weight:700;color:#586074;cursor:pointer;min-height:34px}" +
+    ".dz-seg button.on{background:var(--blue);color:#fff}" +
+    ".dz-seg button+button{border-left:1px solid #d8dee8}" +
+    ".dz-ctrls{display:flex;flex-wrap:wrap;gap:0.7rem 1.1rem;align-items:center;margin-bottom:0.7rem}" +
+    ".dz-ctrl{display:flex;align-items:center;gap:0.45rem}" +
+    ".dz-ctrl>span.k{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted)}" +
+    ".dz-ctrl .hint{font-size:0.72rem;color:var(--muted)}" +
     "#dzTop{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:1.1rem;align-items:start}" +
     // Photo hero / dropzone
     "#dzPhoto{position:relative;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0d1117;min-height:340px;display:flex}" +
@@ -83,14 +146,24 @@
     "#dzBar .note{font-size:0.74rem;color:var(--muted)}" +
     // Result + attach
     "#dzResult{margin-top:1.1rem}" +
-    ".dz-ba{display:grid;grid-template-columns:1fr 1fr;gap:0.7rem}" +
-    ".dz-ba figure{position:relative;margin:0}" +
-    ".dz-ba img{width:100%;border-radius:10px;display:block;background:#f0f2f5}" +
-    ".dz-ba .lab{position:absolute;top:0.5rem;left:0.5rem;background:rgba(16,24,40,0.78);color:#fff;font-size:0.64rem;font-weight:850;text-transform:uppercase;letter-spacing:0.07em;padding:0.12rem 0.5rem;border-radius:999px}" +
-    ".dz-ba .lab.after{background:var(--blue)}" +
     ".dz-calm{background:#f4f8ff;border:1px solid #cfe0fb;border-radius:10px;padding:0.7rem 0.85rem;color:#2b4a7a;font-size:0.86rem;line-height:1.5}" +
+    ".dz-coach{margin-top:0.5rem;font-size:0.74rem;color:var(--muted);line-height:1.45}" +
+    ".dz-vgrid{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.6rem}" +
+    ".dz-vthumb{position:relative;width:82px;height:60px;border-radius:8px;overflow:hidden;border:2px solid transparent;cursor:pointer;background:#f0f2f5;padding:0}" +
+    ".dz-vthumb img{width:100%;height:100%;object-fit:cover;display:block}" +
+    ".dz-vthumb.sel{border-color:var(--blue)}" +
+    ".dz-vthumb .vt-badge{position:absolute;top:2px;left:2px;z-index:2;font-size:0.44rem;font-weight:800;line-height:1.15;color:#fff;background:rgba(17,24,39,0.85);padding:0.07rem 0.26rem;border-radius:4px;pointer-events:none}" +
     "#dzAttachZone{border:2px dashed #c7d0dc;border-radius:10px;padding:1.1rem;text-align:center;cursor:pointer;color:var(--muted);font-size:0.85rem;background:#f8fafc;display:block}" +
     "#dzAttachZone.drag{border-color:var(--blue);background:#eef4fe}" +
+    // Before/after comparison slider
+    ".dz-cmp{position:relative;width:100%;border-radius:10px;overflow:hidden;background:#0d1117;touch-action:none;user-select:none;-webkit-user-select:none;cursor:ew-resize}" +
+    ".dz-cmp img{display:block;width:100%;height:auto;pointer-events:none}" +
+    ".dz-cmp .cmp-top{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}" +
+    ".dz-cmp .cmp-lab{position:absolute;bottom:0.5rem;font-size:0.62rem;font-weight:850;text-transform:uppercase;letter-spacing:0.07em;color:#fff;background:rgba(16,24,40,0.72);padding:0.12rem 0.5rem;border-radius:999px;z-index:3;pointer-events:none}" +
+    ".dz-cmp .cmp-lab.b{left:0.5rem}.dz-cmp .cmp-lab.a{right:0.5rem;background:var(--blue)}" +
+    ".dz-cmp .cmp-ai-badge{position:absolute;top:0.5rem;left:0.5rem;z-index:4;max-width:70%;font-size:0.64rem;font-weight:800;line-height:1.28;color:#fff;background:rgba(17,24,39,0.85);padding:0.22rem 0.55rem;border-radius:8px;pointer-events:none;box-shadow:0 1px 4px rgba(16,24,40,0.4)}" +
+    ".dz-cmp .cmp-handle{position:absolute;top:0;bottom:0;width:2px;background:rgba(255,255,255,0.9);transform:translateX(-1px);z-index:2;pointer-events:none;box-shadow:0 0 0 1px rgba(16,24,40,0.25)}" +
+    ".dz-cmp .cmp-grip{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;background:#fff;color:#2563eb;display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:900;box-shadow:0 2px 8px rgba(16,24,40,0.35)}" +
     // History
     "#dzHistory{margin-top:1.3rem}" +
     ".dz-hstrip{display:flex;gap:0.7rem;overflow-x:auto;padding-bottom:0.4rem}" +
@@ -102,7 +175,7 @@
     ".dz-proj{display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap}" +
     ".dz-proj select{min-height:34px;border:1px solid #d8dee8;border-radius:8px;padding:0 0.5rem;font:inherit;background:#f5f7fa;max-width:100%}" +
     // Drawer viewer
-    ".dz-viewer img{width:100%;border-radius:10px;display:block;margin-bottom:0.7rem;background:#f0f2f5}" +
+    ".dz-viewer .dz-cmp{margin-bottom:0.7rem}" +
     "@media (max-width: 820px){#dzTop{grid-template-columns:1fr}#dzChat{order:2}#dzPhoto{order:1;min-height:0}#dzThread{max-height:44vh}}";
 
   /* ============================ RENDER ============================ */
@@ -118,6 +191,26 @@
     container.innerHTML =
       '<div id="dz">' +
         '<div class="viewhead"><h1>🎨 Design <span class="muted" style="font-weight:700;font-size:0.85rem">— photograph the room, describe the look, get a photoreal redesign</span></h1></div>' +
+        '<div id="dzStyles">' +
+          '<div class="dz-lbl">Tap a style to start (optional — you can just type it too)</div>' +
+          '<div class="dz-strip" id="dzStrip">' + STYLES.map(styleChipHtml).join("") + '</div>' +
+        '</div>' +
+        '<div class="dz-ctrls">' +
+          '<div class="dz-ctrl"><span class="k">Mode</span>' +
+            '<div class="dz-seg" id="dzMode">' +
+              '<button type="button" data-mode="redecorate" class="on">Redecorate</button>' +
+              '<button type="button" data-mode="remodel">Remodel</button>' +
+            '</div>' +
+            '<span class="hint" id="dzModeHint">keep layout, walls &amp; cabinets — restyle only</span>' +
+          '</div>' +
+          '<div class="dz-ctrl"><span class="k">Variations</span>' +
+            '<div class="dz-seg" id="dzVary">' +
+              '<button type="button" data-n="1" class="on">1</button>' +
+              '<button type="button" data-n="2">2</button>' +
+              '<button type="button" data-n="4">4</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
         '<div id="dzTop">' +
           '<div id="dzPhoto">' +
             '<div id="dzReplace" style="display:none"><button class="btn" id="dzReplaceBtn" type="button">↻ New photo</button></div>' +
@@ -152,12 +245,73 @@
         '<div id="dzHistory"></div>' +
       '</div>';
 
+    wireStyles();
+    wireControls();
     wirePhoto();
     wireChat();
     wirePrompt();
     wireActions();
     seedChat();
     loadProjects();
+  }
+
+  /* ============================ STYLE GALLERY ============================ */
+
+  function styleChipHtml(s, i) {
+    return '<button type="button" class="dz-chip" data-style="' + APP.esc(s.name) + '" data-i="' + i + '">' +
+      '<span class="dz-swatch p-' + s.pat + '" style="background:' + s.bg + '"></span>' +
+      '<span class="nm">' + APP.esc(s.name) + '</span>' +
+    '</button>';
+  }
+
+  function wireStyles() {
+    var strip = document.getElementById("dzStrip");
+    strip.addEventListener("click", function (e) {
+      var chip = e.target.closest(".dz-chip");
+      if (!chip) return;
+      var name = chip.getAttribute("data-style");
+      // Select (replaces any prior selection) and post through the normal flow.
+      st.styleSel = name;
+      Array.prototype.forEach.call(strip.querySelectorAll(".dz-chip"), function (c) {
+        c.classList.toggle("sel", c === chip);
+      });
+      sendChat("Style: " + name);
+    });
+  }
+
+  /* ============================ MODE + VARIATIONS ============================ */
+
+  function wireControls() {
+    var modeSeg = document.getElementById("dzMode");
+    var modeHint = document.getElementById("dzModeHint");
+    modeSeg.addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-mode]");
+      if (!b) return;
+      var m = b.getAttribute("data-mode");
+      if (m === st.mode) return;
+      st.mode = m;
+      Array.prototype.forEach.call(modeSeg.querySelectorAll("button"), function (x) {
+        x.classList.toggle("on", x === b);
+      });
+      modeHint.textContent = m === "remodel"
+        ? "may reconfigure cabinets, layout & built-ins — camera & openings held"
+        : "keep layout, walls & cabinets — restyle only";
+      // Re-compose the render prompt under the new preservation clause if the
+      // customer has already said something (so the mode flip is visible now).
+      if (st.messages.some(function (mm) { return mm.role === "user"; })) {
+        refreshBrief("Switched to " + (m === "remodel" ? "Remodel" : "Redecorate") + " — updated the render instruction below.");
+      }
+    });
+
+    var varySeg = document.getElementById("dzVary");
+    varySeg.addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-n]");
+      if (!b) return;
+      st.variations = parseInt(b.getAttribute("data-n"), 10) || 1;
+      Array.prototype.forEach.call(varySeg.querySelectorAll("button"), function (x) {
+        x.classList.toggle("on", x === b);
+      });
+    });
   }
 
   /* ============================ PHOTO IN ============================ */
@@ -216,7 +370,7 @@
   function seedChat() {
     st.messages = [{
       role: "assistant",
-      text: "Add a photo of the room, then tell me what you'd like — cabinets, colors, style, what to keep. Talk to me like you'd text a designer."
+      text: "Add a photo of the room, then tell me what you'd like — cabinets, colors, style, what to keep. Tap a style chip above or just talk to me like you'd text a designer."
     }];
     renderThread();
   }
@@ -250,28 +404,52 @@
     }
   }
 
-  function sendChat(text) {
-    st.messages.push({ role: "user", text: text });
+  // Post current thread to /design-brief with the active mode. If pushText is
+  // given it's added as a new user turn first (chip taps + typed messages).
+  function sendChat(pushText) {
+    if (st.chatBusy) return;
+    if (pushText) st.messages.push({ role: "user", text: pushText });
     st.chatBusy = true;
     renderThread();
-    var payload = st.messages
-      .filter(function (m) { return m.role === "user" || m.role === "assistant"; })
-      .map(function (m) { return { role: m.role, text: m.text }; });
-    APP.fetchJSON("/api/knowledge/design-brief", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: payload, hasPhoto: !!st.photoFile })
-    }).then(function (r) {
+    postBrief().then(function (r) {
       st.chatBusy = false;
       st.messages.push({ role: "assistant", text: r.reply || "Updated your render below." });
       if (r.renderPrompt) setPrompt(r.renderPrompt);
       renderThread();
     }).catch(function () {
-      // Endpoint down — compose the prompt client-side so the flow still works.
       st.chatBusy = false;
       setPrompt(composeFallbackPrompt());
       st.messages.push({ role: "assistant", text: "I composed your render instruction below from what you said — edit it or add another change." });
       renderThread();
+    });
+  }
+
+  // Silent re-compose (no new user turn) — used when the mode toggle flips.
+  function refreshBrief(noteText) {
+    if (st.chatBusy) return;
+    st.chatBusy = true;
+    renderThread();
+    postBrief().then(function (r) {
+      st.chatBusy = false;
+      if (r.renderPrompt) setPrompt(r.renderPrompt);
+      if (noteText) st.messages.push({ role: "hint", text: noteText });
+      renderThread();
+    }).catch(function () {
+      st.chatBusy = false;
+      setPrompt(composeFallbackPrompt());
+      if (noteText) st.messages.push({ role: "hint", text: noteText });
+      renderThread();
+    });
+  }
+
+  function postBrief() {
+    var payload = st.messages
+      .filter(function (m) { return m.role === "user" || m.role === "assistant"; })
+      .map(function (m) { return { role: m.role, text: m.text }; });
+    return APP.fetchJSON("/api/knowledge/design-brief", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: payload, mode: st.mode, hasPhoto: !!st.photoFile })
     });
   }
 
@@ -285,6 +463,12 @@
   function currentPrompt() {
     var box = document.getElementById("dzPrompt");
     return (box && box.value.trim()) || st.renderPrompt || composeFallbackPrompt();
+  }
+  // Prompt handed to the Gemini bridge — appends a variations directive when >1.
+  function bridgePrompt() {
+    var p = currentPrompt();
+    if (st.variations > 1) p += " Generate " + st.variations + " distinct variations of this redesign in one response.";
+    return p;
   }
 
   function wirePrompt() {
@@ -308,56 +492,160 @@
 
   function wireActions() {
     document.getElementById("dzGen").addEventListener("click", generate);
-    document.getElementById("dzGemini").addEventListener("click", function () {
-      copyText(currentPrompt(), "Prompt copied — in Gemini: attach this same photo, paste, send");
-      window.open("https://gemini.google.com/app", "_blank");
-    });
+    document.getElementById("dzGemini").addEventListener("click", openGemini);
+  }
+
+  function openGemini() {
+    copyText(bridgePrompt(), "Prompt copied — in Gemini: attach this same photo, paste, send");
+    window.open("https://gemini.google.com/app", "_blank");
   }
 
   function generate() {
     if (!st.photoFile) { APP.toast("Add a room photo first"); return; }
     var prompt = currentPrompt();
+    var want = st.variations;
     var result = document.getElementById("dzResult");
+    st.variationUrls = [];
+    st.genAfterUrl = null;
     result.innerHTML =
       '<div class="card"><div class="muted" style="display:flex;align-items:center;gap:0.5rem">' +
-        '<span class="dz-typing" style="padding:0.3rem 0.5rem"><i></i><i></i><i></i></span> Rendering your redesign… this can take 30–90 seconds.</div></div>';
-    APP.fetchJSON("/api/knowledge/redesign?prompt=" + encodeURIComponent(prompt), {
-      method: "POST",
-      headers: { "Content-Type": st.photoFile.type || "image/jpeg" },
-      body: st.photoFile
-    }).then(function (r) {
-      if (r.imageUrl) {
-        st.genAfterUrl = r.imageUrl;
-        result.innerHTML =
-          '<div class="card">' +
-            '<h2>Your redesign</h2>' +
-            '<div class="dz-ba">' +
-              '<figure><span class="lab">Before</span><img src="' + APP.esc(st.photoUrl) + '" alt="Before" /></figure>' +
-              '<figure><span class="lab after">After</span><img src="' + APP.esc(r.imageUrl) + '" alt="After" /></figure>' +
-            '</div>' +
-            '<div class="muted" style="font-size:0.72rem;margin-top:0.5rem">Photoreal concept — structure preserved from your photo.</div>' +
-          '</div>';
-        renderSaveCard();
-      } else if (r.quotaBlocked || r.configured === false) {
-        result.innerHTML =
-          '<div class="card">' +
-            '<div class="dz-calm">In-app rendering activates if API billing is ever enabled — meanwhile Gemini renders this free:' +
-              '<div style="margin-top:0.6rem"><button class="btn primary" id="dzCalmGem" type="button">🖼️ Open in Gemini (free)</button></div>' +
-            '</div>' +
-          '</div>';
-        document.getElementById("dzCalmGem").addEventListener("click", function () {
-          copyText(currentPrompt(), "Prompt copied — in Gemini: attach this same photo, paste, send");
-          window.open("https://gemini.google.com/app", "_blank");
-        });
-        renderSaveCard();
+        '<span class="dz-typing" style="padding:0.3rem 0.5rem"><i></i><i></i><i></i></span> Rendering your redesign' +
+        (want > 1 ? " (" + want + " variations)" : "") + "… this can take 30–90 seconds.</div></div>";
+
+    // Loop N sequential /redesign calls. The first call reveals which backend is
+    // live; if it can't render (bridge/quota), we stop and show the bridge state.
+    var got = [];
+    function callOne() {
+      return APP.fetchJSON("/api/knowledge/redesign?prompt=" + encodeURIComponent(prompt), {
+        method: "POST",
+        headers: { "Content-Type": st.photoFile.type || "image/jpeg" },
+        body: st.photoFile
+      });
+    }
+    // Sequentially call /redesign until we have `want` images. A single decor8
+    // call may already return several; if a call can't render (bridge/quota) we
+    // stop and surface the bridge state.
+    function loop() {
+      return callOne().then(function (r) {
+        if (r && r.imageUrl) {
+          var imgs = (r.images && r.images.length) ? r.images : [r.imageUrl];
+          imgs.forEach(function (u) { if (got.length < want) got.push(u); });
+          if (got.length < want) return loop();
+          return { images: got, backend: r.backend };
+        }
+        return { bridge: r };
+      });
+    }
+
+    loop().then(function (out) {
+      if (out.images && out.images.length) {
+        st.variationUrls = out.images;
+        st.genAfterUrl = out.images[0];
+        renderResult(out.backend);
       } else {
-        result.innerHTML = '<div class="card"><div class="dz-calm">' + APP.esc(r.message || r.error || "Rendering is unavailable right now — use Open in Gemini (free) above.") + "</div></div>";
-        renderSaveCard();
+        renderBridge(out.bridge || {});
       }
     }).catch(function (e) {
       result.innerHTML = '<div class="card"><div class="dz-calm">Couldn\'t render here (' + APP.esc(e.message) + "). Use <b>Open in Gemini (free)</b> above — it renders the same prompt free.</div></div>";
       renderSaveCard();
     });
+  }
+
+  // Successful in-app render: draggable before/after slider + variation thumbs +
+  // the failure-mode coaching hint + save card.
+  function renderResult(backend) {
+    var result = document.getElementById("dzResult");
+    var badge = backend === "decor8" ? "decor8" : (backend === "gemini" ? "Gemini" : "");
+    var aiBadge = aiBadgeText(st.mode);
+    var thumbs = "";
+    if (st.variationUrls.length > 1) {
+      thumbs = '<div class="dz-vgrid">' + st.variationUrls.map(function (u, i) {
+        return '<button type="button" class="dz-vthumb' + (i === 0 ? " sel" : "") + '" data-u="' + APP.esc(u) + '">' +
+          '<span class="vt-badge">' + APP.esc(aiBadge) + '</span>' +
+          '<img src="' + APP.esc(u) + '" alt="Variation ' + (i + 1) + '" /></button>';
+      }).join("") + '</div>';
+    }
+    result.innerHTML =
+      '<div class="card">' +
+        '<h2>Your redesign' + (badge ? ' <span class="muted" style="font-weight:600;font-size:0.7rem">via ' + badge + '</span>' : "") + '</h2>' +
+        '<div id="dzCmpHost">' + cmpHtml(st.photoUrl, st.genAfterUrl, aiBadge) + '</div>' +
+        thumbs +
+        '<div class="dz-coach">Check: window positions, door placement, furniture scale — regenerate if anything moved. Images are AI concept visualizations — always present them as concepts, not photos.</div>' +
+      '</div>';
+    wireCmp(document.getElementById("dzCmpHost"));
+    var grid = result.querySelector(".dz-vgrid");
+    if (grid) grid.addEventListener("click", function (e) {
+      var t = e.target.closest(".dz-vthumb");
+      if (!t) return;
+      st.genAfterUrl = t.getAttribute("data-u");
+      Array.prototype.forEach.call(grid.querySelectorAll(".dz-vthumb"), function (x) { x.classList.toggle("sel", x === t); });
+      var host = document.getElementById("dzCmpHost");
+      host.innerHTML = cmpHtml(st.photoUrl, st.genAfterUrl, aiBadge);
+      wireCmp(host);
+    });
+    renderSaveCard();
+  }
+
+  function renderBridge(r) {
+    var result = document.getElementById("dzResult");
+    var msg = r && (r.message || r.error);
+    result.innerHTML =
+      '<div class="card">' +
+        '<div class="dz-calm">In-app rendering activates once a render backend is configured (DECOR8_API_KEY or Gemini billing) — meanwhile Gemini renders this free:' +
+          (msg ? '<div class="muted" style="font-size:0.72rem;margin-top:0.35rem">' + APP.esc(msg) + '</div>' : "") +
+          '<div style="margin-top:0.6rem"><button class="btn primary" id="dzCalmGem" type="button">🖼️ Open in Gemini (free)</button></div>' +
+        '</div>' +
+      '</div>';
+    document.getElementById("dzCalmGem").addEventListener("click", openGemini);
+    renderSaveCard();
+  }
+
+  /* ============================ BEFORE / AFTER SLIDER ============================ */
+
+  // Base layer = BEFORE (defines the box height). Top layer = AFTER, clipped from
+  // the left by the handle position, so the left of the handle shows before, the
+  // right shows after. Pointer-driven; touch-friendly (touch-action:none).
+  function cmpHtml(beforeUrl, afterUrl, badgeText) {
+    return '<div class="dz-cmp" data-pos="50">' +
+      '<img class="cmp-base" src="' + APP.esc(beforeUrl) + '" alt="Before" />' +
+      '<img class="cmp-top" src="' + APP.esc(afterUrl) + '" alt="After" style="clip-path:inset(0 0 0 50%)" />' +
+      '<span class="cmp-lab b">Before</span><span class="cmp-lab a">After</span>' +
+      '<span class="cmp-ai-badge">' + APP.esc(badgeText || aiBadgeText("redecorate")) + '</span>' +
+      '<div class="cmp-handle" style="left:50%"><span class="cmp-grip">⟺</span></div>' +
+    '</div>';
+  }
+
+  // Legal/trust rule: never let an AI render read as a photograph. Redecorate
+  // renders keep the room's real layout so a plain "AI concept" badge is honest;
+  // Remodel may reconfigure the room, so the badge must say layout can vary.
+  function aiBadgeText(mode) {
+    return mode === "remodel" ? "Design concept — layout may vary" : "AI concept";
+  }
+
+  function wireCmp(host) {
+    if (!host) return;
+    var cmp = host.querySelector ? (host.classList && host.classList.contains("dz-cmp") ? host : host.querySelector(".dz-cmp")) : null;
+    if (!cmp) return;
+    var top = cmp.querySelector(".cmp-top");
+    var handle = cmp.querySelector(".cmp-handle");
+    var dragging = false;
+    function setPos(clientX) {
+      var rect = cmp.getBoundingClientRect();
+      if (!rect.width) return;
+      var pos = ((clientX - rect.left) / rect.width) * 100;
+      pos = Math.max(2, Math.min(98, pos));
+      cmp.setAttribute("data-pos", String(Math.round(pos)));
+      top.style.clipPath = "inset(0 0 0 " + pos + "%)";
+      handle.style.left = pos + "%";
+    }
+    cmp.addEventListener("pointerdown", function (e) {
+      dragging = true;
+      try { cmp.setPointerCapture(e.pointerId); } catch (_e) {}
+      setPos(e.clientX);
+    });
+    cmp.addEventListener("pointermove", function (e) { if (dragging) setPos(e.clientX); });
+    cmp.addEventListener("pointerup", function () { dragging = false; });
+    cmp.addEventListener("pointercancel", function () { dragging = false; });
   }
 
   /* ============================ SAVE BEFORE/AFTER ============================ */
@@ -438,6 +726,59 @@
     }).then(function (r) { return r.url; });
   }
 
+  // Mode label baked into the caption bar's right side (distinct from the
+  // on-screen badge text — this one names the mode, not the "layout may vary" warning).
+  function modeCaptionLabel(mode) {
+    return mode === "remodel" ? "Remodel concept" : "Redecorate concept";
+  }
+
+  function loadImageEl(src) {
+    return new Promise(function (resolve, reject) {
+      var img = new Image();
+      img.onload = function () { resolve(img); };
+      img.onerror = function () { reject(new Error("Couldn't load the render to caption it")); };
+      img.src = src;
+    });
+  }
+
+  // Legal/trust requirement: a CSLB-licensed contractor must never present an AI
+  // render as a photograph. Bakes a slim semi-transparent charcoal bar onto the
+  // bottom edge of the AFTER image — "AI concept visualization — JOON Design
+  // Studio" (left) + the mode label (right). Also conveniently covers Gemini's
+  // bottom-right sparkle watermark in most cases. Exported as JPEG q0.9. The
+  // BEFORE image is never touched.
+  function compositeAiCaption(src, mode) {
+    return loadImageEl(src).then(function (img) {
+      var w = img.naturalWidth || img.width;
+      var h = img.naturalHeight || img.height;
+      var canvas = document.createElement("canvas");
+      canvas.width = w; canvas.height = h;
+      var ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, w, h);
+
+      var barH = Math.max(Math.round(h * 0.045), 24);
+      var barY = h - barH;
+      ctx.fillStyle = "rgba(24,26,30,0.82)";
+      ctx.fillRect(0, barY, w, barH);
+
+      var fontSize = Math.max(11, Math.round(w * 0.016));
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "700 " + fontSize + "px Arial, Helvetica, sans-serif";
+      ctx.textBaseline = "middle";
+      var midY = barY + barH / 2;
+      ctx.textAlign = "left";
+      ctx.fillText("AI concept visualization — JOON Design Studio", w * 0.02, midY);
+      ctx.textAlign = "right";
+      ctx.fillText(modeCaptionLabel(mode), w * 0.98, midY);
+
+      return new Promise(function (resolve, reject) {
+        canvas.toBlob(function (blob) {
+          if (blob) resolve(blob); else reject(new Error("Couldn't export the captioned image"));
+        }, "image/jpeg", 0.9);
+      });
+    });
+  }
+
   function savePair() {
     var msg = document.getElementById("dzSaveMsg");
     var saveBtn = document.getElementById("dzSave");
@@ -445,9 +786,12 @@
     if (!st.genAfterUrl && !st.attachFile) { msg.textContent = "Attach the render first."; return; }
     saveBtn.disabled = true;
     msg.textContent = "Saving…";
-    uploadImage(st.photoFile).then(function (beforeUrl) {
-      if (st.genAfterUrl) return { beforeUrl: beforeUrl, afterUrl: st.genAfterUrl };
-      return uploadImage(st.attachFile).then(function (afterUrl) { return { beforeUrl: beforeUrl, afterUrl: afterUrl }; });
+    var afterSrc = st.genAfterUrl || st.attachUrl;
+    Promise.all([
+      uploadImage(st.photoFile),
+      compositeAiCaption(afterSrc, st.mode).then(function (blob) { return uploadImage(blob); })
+    ]).then(function (urls) {
+      return { beforeUrl: urls[0], afterUrl: urls[1] };
     }).then(function (pair) {
       var caption = st.renderPrompt ? st.renderPrompt.split(".")[0].slice(0, 120) : "Redesign concept";
       return APP.fetchJSON("/api/photofeed", {
@@ -457,7 +801,7 @@
           projectId: st.projectId,
           projectName: st.projectName,
           caption: caption,
-          tags: ["design"],
+          tags: ["design", st.mode],
           phase: "finish",
           beforeAfterPair: pair
         })
@@ -511,7 +855,7 @@
       var strip = host.querySelector(".dz-hstrip");
       if (strip) strip.addEventListener("click", function (e) {
         var c = e.target.closest(".dz-hcard");
-        if (c) openViewer(c.dataset.before, c.dataset.after, c.dataset.cap);
+        if (c) openViewer(c.dataset.before, c.dataset.after, c.dataset.cap, c.dataset.mode);
       });
     }).catch(function (e) {
       host.innerHTML = '<div class="card"><h2>Recent redesigns</h2><div class="empty">Couldn\'t load history: ' + APP.esc(e.message) + "</div></div>";
@@ -520,7 +864,9 @@
 
   function historyCard(entry) {
     var p = entry.beforeAfterPair || {};
-    return '<div class="dz-hcard" data-before="' + APP.esc(p.beforeUrl) + '" data-after="' + APP.esc(p.afterUrl) + '" data-cap="' + APP.esc(entry.caption || "") + '">' +
+    var tags = entry.tags || [];
+    var mode = tags.indexOf("remodel") >= 0 ? "remodel" : "redecorate";
+    return '<div class="dz-hcard" data-before="' + APP.esc(p.beforeUrl) + '" data-after="' + APP.esc(p.afterUrl) + '" data-cap="' + APP.esc(entry.caption || "") + '" data-mode="' + mode + '">' +
       '<div class="pair">' +
         '<img src="' + APP.esc(p.beforeUrl) + '" alt="Before" loading="lazy" />' +
         '<img src="' + APP.esc(p.afterUrl) + '" alt="After" loading="lazy" />' +
@@ -529,17 +875,17 @@
     '</div>';
   }
 
-  function openViewer(before, after, cap) {
+  function openViewer(before, after, cap, mode) {
     APP.openDrawer(
       '<div style="padding:1.2rem" class="dz-viewer">' +
         '<h2 style="margin-bottom:0.8rem">' + APP.esc(cap || "Redesign") + "</h2>" +
-        '<div style="font-size:0.7rem;font-weight:850;text-transform:uppercase;letter-spacing:0.07em;color:#687587;margin-bottom:0.3rem">Before</div>' +
-        '<img src="' + APP.esc(before) + '" alt="Before" />' +
-        '<div style="font-size:0.7rem;font-weight:850;text-transform:uppercase;letter-spacing:0.07em;color:#2563eb;margin-bottom:0.3rem">After</div>' +
-        '<img src="' + APP.esc(after) + '" alt="After" />' +
+        '<div id="dzViewCmp">' + cmpHtml(before, after, aiBadgeText(mode)) + '</div>' +
+        '<div class="dz-coach" style="margin-bottom:0.7rem">Drag the handle to compare. Check window positions, door placement and furniture scale. Images are AI concept visualizations — always present them as concepts, not photos.</div>' +
         '<button class="btn" type="button" onclick="window.APP.closeDrawer()">Close</button>' +
       '</div>'
     );
+    // The drawer HTML is injected synchronously; wire the slider on the next tick.
+    setTimeout(function () { wireCmp(document.getElementById("dzViewCmp")); }, 0);
   }
 
   APP.registerView("design", { title: "Design", render: render });

@@ -53,6 +53,31 @@ function driveView(fileId) {
   return `https://drive.google.com/file/d/${fileId}/view`;
 }
 
+// Decor8.ai paid render backend (~$0.20/image). Prompt-based room redesign:
+// POST https://api.decor8.ai/generate_designs_for_room with a data:base64 input
+// image + a free-text `prompt` (overrides room_type/design_style). Returns hosted
+// URLs at info.images[].url. num_images 1-4. Docs: https://api-docs.decor8.ai
+async function callDecor8(apiKey, imageB64, mime, prompt, num) {
+  const n = Math.min(Math.max(parseInt(num, 10) || 1, 1), 4);
+  const response = await fetch("https://api.decor8.ai/generate_designs_for_room", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      input_image_url: `data:${mime};base64,${imageB64}`,
+      room_type: "livingroom",   // required by the API; the free-text prompt overrides it
+      design_style: "minimalist", // required by the API; the free-text prompt overrides it
+      num_images: n,
+      prompt: String(prompt || "").slice(0, 2000)
+    }),
+    signal: AbortSignal.timeout(120000)
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error((data && (data.message || data.error)) || `HTTP ${response.status}`);
+  const urls = ((((data.info || {}).images) || []).map((im) => im && im.url).filter(Boolean));
+  if (!urls.length) throw new Error("decor8 returned no image");
+  return urls;
+}
+
 // collection is passed explicitly (same pattern as retrieve() below) since this
 // function lives outside the module.exports(collection) closure.
 function runClaudeCli(collection, prompt, timeoutMs = 150000, model = "claude-haiku-4-5-20251001", feature = "unknown") {
@@ -309,6 +334,7 @@ module.exports = (collection) => {
       if (!req.body || !req.body.length) return res.status(400).json({ error: "send the room photo as the request body (image/*)" });
       const style = String(req.query.style || "modern light").trim().slice(0, 120);
       const room = String(req.query.room || "room").trim().slice(0, 60);
+      const decorKey = process.env.DECOR8_API_KEY;
       const key = process.env.GEMINI_API_KEY;
       // The new Design view composes its own full render prompt from the chat
       // (via /design-brief) and passes it here as ?prompt=. Fall back to the
@@ -317,41 +343,74 @@ module.exports = (collection) => {
       const redesignPrompt = custom ||
         (`Redesign this ${room} in a ${style} style. STRUCTURE-PRESERVING edit: keep the exact camera angle, room layout, window/door positions and perspective lines; ` +
         "change only finishes, cabinetry/fixture styles, colors, materials and lighting. Photorealistic, consistent shadows and lighting direction, professionally staged, decluttered.");
-      if (!key) {
-        return res.json({ configured: false, prompt: redesignPrompt, message: "Add GEMINI_API_KEY to contractor/.env and restart." });
-      }
       const mime = /png/.test(String(req.headers["content-type"])) ? "image/png" : "image/jpeg";
       const imageB64 = Buffer.from(req.body).toString("base64");
+      const dir = path.join(__dirname, "uploads", "knowledge-gen");
       let lastError = "";
-      for (const model of GEMINI_IMAGE_MODELS) {
+
+      // ── Backend (a): Decor8.ai paid API ($0.20/img), purpose-built for this job.
+      // Download the hosted results into /uploads so they persist like the Gemini
+      // path (decor8 URLs are ephemeral). ?n= requests 1-4 variations in one call.
+      if (decorKey) {
         try {
-          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ parts: [
-                { inlineData: { mimeType: mime, data: imageB64 } },
-                { text: redesignPrompt }
-              ] }]
-            }),
-            signal: AbortSignal.timeout(120000)
-          });
-          const data = await response.json();
-          if (!response.ok) { lastError = (data.error && data.error.message) || `HTTP ${response.status}`; continue; }
-          const part = (((data.candidates || [])[0] || {}).content || {}).parts?.find((p) => p.inlineData && p.inlineData.data);
-          if (!part) { lastError = "model returned no image"; continue; }
-          const dir = path.join(__dirname, "uploads", "knowledge-gen");
+          const urls = await callDecor8(decorKey, imageB64, mime, redesignPrompt, req.query.n);
           fs.mkdirSync(dir, { recursive: true });
-          const fileName = `redesign-${Date.now().toString(36)}.png`;
-          fs.writeFileSync(path.join(dir, fileName), Buffer.from(part.inlineData.data, "base64"));
-          return res.json({ configured: true, model, imageUrl: `/uploads/knowledge-gen/${fileName}`, prompt: redesignPrompt });
+          const saved = [];
+          for (const u of urls) {
+            try {
+              const imgResp = await fetch(u, { signal: AbortSignal.timeout(60000) });
+              if (!imgResp.ok) continue;
+              const buf = Buffer.from(await imgResp.arrayBuffer());
+              const fileName = `redesign-${Date.now().toString(36)}-${saved.length}.png`;
+              fs.writeFileSync(path.join(dir, fileName), buf);
+              saved.push(`/uploads/knowledge-gen/${fileName}`);
+            } catch (_e) { /* skip a single bad url */ }
+          }
+          if (saved.length) {
+            return res.json({ configured: true, backend: "decor8", imageUrl: saved[0], images: saved, prompt: redesignPrompt });
+          }
+          lastError = "decor8: could not fetch generated images";
         } catch (error) {
-          lastError = error.message;
+          lastError = "decor8: " + error.message; // fall through to Gemini / bridge
         }
       }
-      // Quota wall: hand back the composed prompt so the UI can bridge to
-      // gemini.google.com where Ori's AI Pro plan does the same edit free.
-      res.json({ configured: true, quotaBlocked: true, prompt: redesignPrompt, error: `API image quota unavailable: ${lastError}` });
+
+      // ── Backend (b): Gemini image edit (free key / billing).
+      if (key) {
+        for (const model of GEMINI_IMAGE_MODELS) {
+          try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [{ parts: [
+                  { inlineData: { mimeType: mime, data: imageB64 } },
+                  { text: redesignPrompt }
+                ] }]
+              }),
+              signal: AbortSignal.timeout(120000)
+            });
+            const data = await response.json();
+            if (!response.ok) { lastError = (data.error && data.error.message) || `HTTP ${response.status}`; continue; }
+            const part = (((data.candidates || [])[0] || {}).content || {}).parts?.find((p) => p.inlineData && p.inlineData.data);
+            if (!part) { lastError = "model returned no image"; continue; }
+            fs.mkdirSync(dir, { recursive: true });
+            const fileName = `redesign-${Date.now().toString(36)}.png`;
+            fs.writeFileSync(path.join(dir, fileName), Buffer.from(part.inlineData.data, "base64"));
+            return res.json({ configured: true, backend: "gemini", model, imageUrl: `/uploads/knowledge-gen/${fileName}`, images: [`/uploads/knowledge-gen/${fileName}`], prompt: redesignPrompt });
+          } catch (error) {
+            lastError = error.message;
+          }
+        }
+      }
+
+      // ── Backend (c): no key, or every paid attempt failed → graceful bridge.
+      // Hand back the composed prompt so the UI can bridge to gemini.google.com
+      // where Ori's AI Pro plan does the same edit free.
+      if (!decorKey && !key) {
+        return res.json({ configured: false, backend: "bridge", prompt: redesignPrompt, message: "Add DECOR8_API_KEY or GEMINI_API_KEY to contractor/.env and restart to generate in-app." });
+      }
+      res.json({ configured: true, backend: "bridge", quotaBlocked: true, prompt: redesignPrompt, error: `Image generation unavailable: ${lastError}` });
     } catch (error) {
       res.status(502).json({ error: error.message });
     }
@@ -419,11 +478,24 @@ module.exports = (collection) => {
   // sends to /redesign (?prompt=) or hands to Gemini. Always returns valid JSON;
   // if the CLI fails or emits non-JSON, we compose a fallback from the raw
   // messages using the same proven formula so the flow never dead-ends.
-  const RENDER_TAIL = "Photorealistic, consistent shadows and lighting direction, professionally staged, decluttered.";
-  function composeRenderPrompt(room, changes, keep) {
+  const RENDER_TAIL = "Photorealistic, consistent shadows and lighting direction, magazine-quality interior photography, professionally staged, decluttered.";
+  // Mode-dependent preservation clause (axis (e) of the 5-axis scaffold).
+  // Redecorate = keep everything structural, restyle only. Remodel = may
+  // reconfigure cabinetry/layout/built-ins, but camera + room envelope + the
+  // window/door openings are always held.
+  // Round-1 realism review hardening (2026-07-14): remodel mode silently widened
+  // a galley kitchen ~5ft and rebuilt the window — the guardrails below are the
+  // fix. Both modes: REPLACE fixtures rather than adding competing ones (the
+  // review caught a surviving chrome faucet + a second ceiling light).
+  const PRESERVE_REDECORATE = "STRUCTURE-PRESERVING edit: keep the exact camera angle and room envelope — the walls, windows, doors, ceiling and built-in cabinetry stay in their current positions and perspective lines, and the view through every window stays exactly as it is; change only finishes, colors, furniture, decor, textiles and lighting fixtures. When a finish or fixture is changed it REPLACES the old one — never leave the old faucet, light fixture, or hardware alongside the new; remove wall-mounted accessories that no longer belong. Plumbing fixtures keep their existing mounting type (floor-mounted stays floor-mounted, wall-hung stays wall-hung) unless the customer explicitly asked to change it, and frosted or privacy glass stays frosted — never invent a new view through any glass";
+  const PRESERVE_REMODEL = "REMODEL edit: keep the exact camera angle and the room's true footprint — do NOT widen the room, raise the ceiling, or move, resize, or re-trim any window or exterior door, and keep the exact view through the glass; the new layout must fit the existing footprint with realistic 36-42 inch walkway clearances (if an island cannot fit, use a peninsula or skip it), counters with seating need proper overhang for knee space; within those limits you MAY reconfigure cabinetry, layout, built-ins and fixtures. Replaced fixtures REPLACE the old ones — never both. Plumbing fixtures keep their existing mounting type (floor-mounted stays floor-mounted, wall-hung stays wall-hung) unless the customer explicitly asked to change it, and frosted or privacy glass stays frosted — never invent a new view through any glass";
+  function preserveClause(mode) {
+    return String(mode) === "remodel" ? PRESERVE_REMODEL : PRESERVE_REDECORATE;
+  }
+  function composeRenderPrompt(mode, room, changes, keep) {
     const changeText = (Array.isArray(changes) && changes.length) ? changes.join(", ") : "the requested finishes and styling";
-    const keepText = (Array.isArray(keep) && keep.length) ? " and " + keep.join(", ") : "";
-    return `Redesign this ${room || "space"}. STRUCTURE-PRESERVING edit: keep the exact camera angle, room layout, window/door positions and perspective lines${keepText}; change only ${changeText}. ${RENDER_TAIL}`;
+    const keepText = (Array.isArray(keep) && keep.length) ? " Also keep " + keep.join(", ") + "." : "";
+    return `Redesign this ${room || "space"}. ${preserveClause(mode)}.${keepText} Apply: ${changeText}. ${RENDER_TAIL}`;
   }
   function extractJson(text) {
     if (!text) return null;
@@ -440,6 +512,8 @@ module.exports = (collection) => {
     try {
       const messages = Array.isArray(req.body.messages) ? req.body.messages : [];
       if (!messages.length) return res.status(400).json({ error: "messages is required" });
+      const mode = String(req.body.mode || "redecorate").toLowerCase() === "remodel" ? "remodel" : "redecorate";
+      const preserve = preserveClause(mode);
       const userTexts = messages
         .filter((m) => m && String(m.role) !== "assistant")
         .map((m) => String((m && m.text) || "").trim())
@@ -448,11 +522,19 @@ module.exports = (collection) => {
         .map((m) => (String(m && m.role) === "assistant" ? "Designer: " : "Customer: ") + String((m && m.text) || "").trim())
         .join("\n");
       const prompt = [
-        "You are the design-brief assistant inside a Los Angeles remodeling contractor's photo-redesign tool. The customer has uploaded a PHOTO of a real room and is telling you in plain speech what they want changed. You maintain a running structured design brief across the whole conversation and compose ONE image-edit instruction that a photorealistic, STRUCTURE-PRESERVING image model will run on their photo.",
+        "You are the design-brief assistant inside a Los Angeles remodeling contractor's photo-redesign tool. The customer has uploaded a PHOTO of a real room and is telling you in plain speech what they want. You maintain a running structured design brief across the whole conversation and compose ONE image-edit instruction that a photorealistic, STRUCTURE-PRESERVING image model will run on their photo.",
         "READ THE ENTIRE CONVERSATION and merge every request into one coherent brief. Later messages refine or override earlier ones.",
-        "Ask AT MOST ONE short clarifying question, and ONLY when something essential is missing or two requests conflict (e.g. you genuinely cannot tell what room it is). Otherwise DO NOT ask a question — warmly confirm and proceed.",
-        "Infer the room type ONLY from what the customer's own words state or clearly imply (\"cabinets and counters\" implies kitchen; \"vanity and shower\" implies bathroom). You CANNOT see the photo — if their words don't identify the room, use the neutral word \"space\" in renderPrompt (never guess: the photo may be an exterior, yard, or any room) and let your one clarifying question ask which room it is. Infer a coherent style from what they say; never make them pick from a menu.",
-        "renderPrompt MUST follow this exact formula, filling the blanks: \"Redesign this <room> <as/in a ...>. STRUCTURE-PRESERVING edit: keep the exact camera angle, room layout, window/door positions and perspective lines<, plus any specific things to keep>; change only <the requested changes as a comma list>. " + RENDER_TAIL + "\"",
+        "Ask AT MOST ONE short clarifying question, and ONLY when something essential is missing or two requests conflict (e.g. you genuinely cannot tell what room it is). Otherwise DO NOT ask a question — warmly confirm and proceed. Never make them pick from a menu.",
+        "You CANNOT see the photo. Infer the room type ONLY from the customer's own words (\"cabinets and counters\" implies kitchen; \"vanity and shower\" implies bathroom). If their words don't identify the room, use the neutral word \"space\" in renderPrompt and let your one clarifying question ask which room it is — never guess (the photo may be an exterior, a yard, or any room).",
+        "This session's MODE is \"" + mode + "\". The camera/structure clause you MUST copy VERBATIM into renderPrompt is: \"" + preserve + "\".",
+        "Compose renderPrompt on FIVE explicit axes, woven into ONE flowing instruction (not a bulleted list):",
+        "  (a) STYLE — name the style the customer implies, and cite 2-3 signature elements of that named style (e.g. Japandi -> low-profile wood furniture, muted earth tones, paper-shade lighting; Modern Farmhouse -> shaker cabinetry, apron sink, black-metal accents).",
+        "  (b) LIGHTING — natural light quality, fixtures, and time-of-day warmth (e.g. bright airy daylight; warm layered evening glow).",
+        "  (c) MATERIALS — specific named materials/finishes for the surfaces being changed (e.g. white oak, honed quartz, matte-black hardware) — never the phrase 'nice materials'.",
+        "  (d) MOOD — 2-3 adjectives (e.g. serene, warm, sophisticated).",
+        "  (e) CAMERA/STRUCTURE — the VERBATIM clause above, then end with: \"" + RENDER_TAIL + "\".",
+        "EVERY specific change the customer asked for MUST appear in renderPrompt using their own key nouns — if they said \"walk-in shower\", \"island\", or \"farmhouse sink\", those exact words appear in the instruction (a lost request is the worst failure this tool can make). Weave them into the materials/changes sentence.",
+        "renderPrompt template (fill the blanks): \"Redesign this <room> in <named style> (<2-3 signature elements>). <the customer's specific requested changes, their own nouns kept>. <lighting sentence>. <materials sentence>. Mood: <adjectives>. " + preserve + ". " + RENDER_TAIL + "\"",
         "reply is 1-2 warm, conversational sentences to the customer, like texting — never JSON, never a bulleted list.",
         "Return ONLY a single minified JSON object, no markdown fences, no text before or after it:",
         '{"reply":"...","brief":{"room":"...","style":"...","changes":["..."],"keep":["..."]},"renderPrompt":"..."}',
@@ -472,6 +554,7 @@ module.exports = (collection) => {
         const brief = parsed.brief && typeof parsed.brief === "object" ? parsed.brief : {};
         return res.json({
           reply: String(parsed.reply || "").trim() || "Got it — your render brief is updated below.",
+          mode,
           brief: {
             room: String(brief.room || "").trim(),
             style: String(brief.style || "").trim(),
@@ -482,11 +565,12 @@ module.exports = (collection) => {
           engine: "claude-haiku"
         });
       }
-      // Fallback: compose from the raw customer messages with the same formula.
+      // Fallback: compose from the raw customer messages with the mode-correct clause.
       return res.json({
         reply: "Here's your render brief — tweak it below or tell me another change.",
+        mode,
         brief: { room: "", style: "", changes: userTexts, keep: [] },
-        renderPrompt: composeRenderPrompt("room", userTexts, []),
+        renderPrompt: composeRenderPrompt(mode, "space", userTexts, []),
         engine: "fallback"
       });
     } catch (error) {

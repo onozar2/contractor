@@ -1,0 +1,297 @@
+{
+  "case": {
+    "id": "05-exterior-paint-stucco-repair",
+    "source": "Platinum 'Paint: Exterior / Tex-cote / Cool Life' + 'Stucco: New' (Stucco patch) chunks + Exterior Paint / Stucco Repair playbooks",
+    "projectTitle": "Exterior Paint + Stucco Repair",
+    "description": "Exterior repaint plus stucco crack repair — several stucco cracks around the house and peeling paint on the trim. Patch the stucco first, then full exterior repaint. House was built in 1965.",
+    "lengthBand": {
+      "min": 12,
+      "max": 35
+    },
+    "required": [
+      {
+        "id": "power_wash",
+        "label": "Power wash the house",
+        "patterns": [
+          "power wash",
+          "pressure wash"
+        ]
+      },
+      {
+        "id": "lead_test",
+        "label": "Pre-1978 lead-paint precaution",
+        "patterns": [
+          "lead"
+        ]
+      },
+      {
+        "id": "stucco_crack_repair",
+        "label": "Stucco crack/patch repair",
+        "groups": [
+          [
+            "stucco"
+          ],
+          [
+            "crack",
+            "patch"
+          ]
+        ]
+      },
+      {
+        "id": "scrape_prep",
+        "label": "Scrape damaged/loose material",
+        "patterns": [
+          "scrape"
+        ]
+      },
+      {
+        "id": "wood_rot",
+        "label": "Replace/repair damaged wood",
+        "patterns": [
+          "damaged wood",
+          "wood rot",
+          "replace.*wood"
+        ]
+      },
+      {
+        "id": "caulking",
+        "label": "Caulk cracks/openings",
+        "patterns": [
+          "caulk"
+        ]
+      },
+      {
+        "id": "primer",
+        "label": "Apply primer",
+        "patterns": [
+          "prime",
+          "primer"
+        ]
+      },
+      {
+        "id": "customer_selects_color",
+        "label": "Customer selects color",
+        "patterns": [
+          "select.*color",
+          "choose.*color",
+          "customer.*color"
+        ]
+      },
+      {
+        "id": "two_coats",
+        "label": "Two coats of paint",
+        "patterns": [
+          "2 coats",
+          "two coats",
+          "apply paint"
+        ]
+      },
+      {
+        "id": "clean_site",
+        "label": "Clean job site",
+        "patterns": [
+          "clean"
+        ]
+      }
+    ]
+  },
+  "response": {
+    "sections": [
+      {
+        "trade": "Protection & Site Prep",
+        "lines": [
+          "Cover working areas: all windows, trees, bushes, plants, patio, furniture.",
+          "Power wash the house.",
+          "Prepare 4\"-6\" trench around the exterior walls where cracks reach grade (where possible)."
+        ]
+      },
+      {
+        "trade": "Stucco Crack Repair (Patch)",
+        "lines": [
+          "Scrape damaged stucco surface at crack locations.",
+          "Open all cracks wider.",
+          "Fix cracks and patch walls as needed.",
+          "Prepare walls (brown coat, cement) at patched areas.",
+          "Apply new color coat stucco to patched areas; color and texture to match existing, selected by customer.",
+          "Apply caulking and bondo as needed.",
+          "Seal all openings and seal around windows and doors.",
+          "Clean up and haul away debris."
+        ]
+      },
+      {
+        "trade": "Wood Trim Repair",
+        "lines": [
+          "Sand all wood around the house.",
+          "Sand the trim: fascia board, eaves, molding around windows, door frames.",
+          "Patch all wood as needed.",
+          "Replace damaged wood (quantity and location to be confirmed with customer)."
+        ]
+      },
+      {
+        "trade": "Exterior Paint",
+        "lines": [
+          "Mask all windows and doors.",
+          "Customer to select paint colors and brand (Benjamin Moore, Sherwin-Williams, Dunn-Edwards, Behr or other customer preference).",
+          "Apply primer to all stucco walls and trim.",
+          "Apply paint to all stucco walls.",
+          "Paint trim: fascia board, eaves, molding around windows, door frames."
+        ]
+      },
+      {
+        "trade": "Clean Up",
+        "lines": [
+          "Cover back the trench around the house.",
+          "Remove all plastics and paper.",
+          "Clean up and haul away debris.",
+          "Clean job site."
+        ]
+      }
+    ],
+    "notes": [
+      "House built in 1965 (pre-1978): exterior surfaces likely contain lead-based paint. Lead-safe scraping/sanding containment practices recommended; confirm with customer whether testing is required.",
+      "Extent and location of stucco cracks not itemized by customer — estimator to walk the site and confirm crack count/locations, and whether any reach grade (trench needed) before finalizing scope."
+    ],
+    "engine": "claude-sonnet",
+    "groundedOn": [
+      {
+        "title": "Stucco: New — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Paint: Interior — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Trim Paint — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Insulation — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Patio Cover: Wood (Waterproof and Lattice) — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Acoustic ceiling removal — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Windows: Vinyl & Aluminum (Retro-Fit) — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-Wire — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-pipe — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Retaining Wall — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Kitchen Remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Bathroom remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Foundation - Retrofit — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Flooring: Wood floor / Engineered wood / Bamboo / Laminate / Waterproof laminate — scope of work",
+        "source": "Scope of Work PDF"
+      }
+    ]
+  },
+  "score": {
+    "caseId": "05-exterior-paint-stucco-repair",
+    "projectTitle": "Exterior Paint + Stucco Repair",
+    "engine": "claude-sonnet",
+    "coveragePct": 100,
+    "requiredHits": 10,
+    "requiredTotal": 10,
+    "requiredResults": [
+      {
+        "id": "power_wash",
+        "label": "Power wash the house",
+        "hit": true,
+        "evidence": "power wash"
+      },
+      {
+        "id": "lead_test",
+        "label": "Pre-1978 lead-paint precaution",
+        "hit": true,
+        "evidence": "lead"
+      },
+      {
+        "id": "stucco_crack_repair",
+        "label": "Stucco crack/patch repair",
+        "hit": true,
+        "evidence": "stucco + crack"
+      },
+      {
+        "id": "scrape_prep",
+        "label": "Scrape damaged/loose material",
+        "hit": true,
+        "evidence": "scrape"
+      },
+      {
+        "id": "wood_rot",
+        "label": "Replace/repair damaged wood",
+        "hit": true,
+        "evidence": "damaged wood"
+      },
+      {
+        "id": "caulking",
+        "label": "Caulk cracks/openings",
+        "hit": true,
+        "evidence": "caulk"
+      },
+      {
+        "id": "primer",
+        "label": "Apply primer",
+        "hit": true,
+        "evidence": "prime"
+      },
+      {
+        "id": "customer_selects_color",
+        "label": "Customer selects color",
+        "hit": true,
+        "evidence": "select.*color"
+      },
+      {
+        "id": "two_coats",
+        "label": "Two coats of paint",
+        "hit": true,
+        "evidence": "apply paint"
+      },
+      {
+        "id": "clean_site",
+        "label": "Clean job site",
+        "hit": true,
+        "evidence": "clean"
+      }
+    ],
+    "forbiddenHits": [],
+    "lines": 24,
+    "lengthBand": {
+      "min": 12,
+      "max": 35
+    },
+    "lengthOk": true,
+    "structure": {
+      "ok": true,
+      "issues": []
+    },
+    "pass": true,
+    "elapsedSec": 39.3
+  }
+}

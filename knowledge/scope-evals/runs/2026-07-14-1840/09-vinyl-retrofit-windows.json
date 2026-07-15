@@ -1,0 +1,221 @@
+{
+  "case": {
+    "id": "09-vinyl-retrofit-windows",
+    "source": "Platinum 'Windows: Vinyl & Aluminum (Retro-Fit) — scope of work' chunk",
+    "projectTitle": "Vinyl Retrofit Windows (8)",
+    "description": "Replace 8 existing aluminum single-pane windows with new vinyl retrofit dual-pane windows throughout the house. Keep the existing frames/openings in place — retrofit install, not new construction.",
+    "lengthBand": {
+      "min": 6,
+      "max": 20
+    },
+    "required": [
+      {
+        "id": "permit",
+        "label": "Permit",
+        "patterns": [
+          "\\bpermit\\b"
+        ]
+      },
+      {
+        "id": "remove_existing_window",
+        "label": "Remove existing window",
+        "patterns": [
+          "remove.*window"
+        ]
+      },
+      {
+        "id": "prep_frame",
+        "label": "Prepare existing window frame",
+        "patterns": [
+          "prepare.*frame",
+          "existing.*frame"
+        ]
+      },
+      {
+        "id": "install_retrofit_window",
+        "label": "Install new retrofit vinyl window over existing frame",
+        "patterns": [
+          "retro.?fit",
+          "install.*window"
+        ]
+      },
+      {
+        "id": "caulking",
+        "label": "Caulk full perimeter (50-year caulk)",
+        "patterns": [
+          "caulk"
+        ]
+      },
+      {
+        "id": "dual_pane",
+        "label": "Dual-pane / insulated glass",
+        "patterns": [
+          "dual.pane",
+          "double.pane",
+          "insulated"
+        ]
+      },
+      {
+        "id": "haul_away",
+        "label": "Clean up / haul away debris",
+        "patterns": [
+          "haul",
+          "debris"
+        ]
+      }
+    ]
+  },
+  "response": {
+    "sections": [
+      {
+        "trade": "Demolition & Preparation",
+        "lines": [
+          "Remove existing 8 aluminum single-pane windows, clean up and haul away debris.",
+          "Prepare existing window frames for retro-fit installation."
+        ]
+      },
+      {
+        "trade": "Window Installation",
+        "lines": [
+          "Install 8 new retro-fitted vinyl dual-pane, insulated windows (argon gas, Low-E) over existing frames.",
+          "Color selected by customer (white, almond, black, or bronze).",
+          "Apply 50-year caulking all around each of the 8 frames, per city code."
+        ]
+      },
+      {
+        "trade": "Clean Up",
+        "lines": [
+          "Clean up and haul away all debris."
+        ]
+      }
+    ],
+    "notes": [
+      "Client description did not specify glass upgrades — assumed argon gas / Low-E per company standard retrofit spec; confirm with customer or remove if not wanted.",
+      "Window color not specified by client — confirm selection (white, almond, black, bronze) before ordering."
+    ],
+    "engine": "claude-sonnet",
+    "groundedOn": [
+      {
+        "title": "Windows: Vinyl & Aluminum (Retro-Fit) — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Foundation - Retrofit — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Patio Enclosure — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Paint: Interior — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Fence — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-pipe — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Stucco: New — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Trim Paint — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Rain Gutters — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Patio Cover: Wood (Waterproof and Lattice) — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-Wire — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Insulation — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Bathroom remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Air duct replacement — scope of work",
+        "source": "Scope of Work PDF"
+      }
+    ]
+  },
+  "score": {
+    "caseId": "09-vinyl-retrofit-windows",
+    "projectTitle": "Vinyl Retrofit Windows (8)",
+    "engine": "claude-sonnet",
+    "coveragePct": 85.7,
+    "requiredHits": 6,
+    "requiredTotal": 7,
+    "requiredResults": [
+      {
+        "id": "permit",
+        "label": "Permit",
+        "hit": false,
+        "evidence": ""
+      },
+      {
+        "id": "remove_existing_window",
+        "label": "Remove existing window",
+        "hit": true,
+        "evidence": "remove.*window"
+      },
+      {
+        "id": "prep_frame",
+        "label": "Prepare existing window frame",
+        "hit": true,
+        "evidence": "prepare.*frame"
+      },
+      {
+        "id": "install_retrofit_window",
+        "label": "Install new retrofit vinyl window over existing frame",
+        "hit": true,
+        "evidence": "retro.?fit"
+      },
+      {
+        "id": "caulking",
+        "label": "Caulk full perimeter (50-year caulk)",
+        "hit": true,
+        "evidence": "caulk"
+      },
+      {
+        "id": "dual_pane",
+        "label": "Dual-pane / insulated glass",
+        "hit": true,
+        "evidence": "dual.pane"
+      },
+      {
+        "id": "haul_away",
+        "label": "Clean up / haul away debris",
+        "hit": true,
+        "evidence": "haul"
+      }
+    ],
+    "forbiddenHits": [],
+    "lines": 6,
+    "lengthBand": {
+      "min": 6,
+      "max": 20
+    },
+    "lengthOk": true,
+    "structure": {
+      "ok": true,
+      "issues": []
+    },
+    "pass": true,
+    "elapsedSec": 16.3
+  }
+}

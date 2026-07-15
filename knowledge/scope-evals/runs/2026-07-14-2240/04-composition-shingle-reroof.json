@@ -1,0 +1,276 @@
+{
+  "case": {
+    "id": "04-composition-shingle-reroof",
+    "source": "SoCal job playbooks 'Playbook: Roofing — Composition Shingle' + Platinum 'Roofing — scope of work' (Roof shingles)",
+    "projectTitle": "Composition Shingle Reroof",
+    "description": "Full reroof — existing composition shingle roof is past its service life (curling, granule loss, a couple of active leaks). Tear off completely and replace with new 30-year composition shingles.",
+    "lengthBand": {
+      "min": 8,
+      "max": 25
+    },
+    "required": [
+      {
+        "id": "permit",
+        "label": "Roofing permit",
+        "patterns": [
+          "\\bpermit\\b"
+        ]
+      },
+      {
+        "id": "tear_off",
+        "label": "Tear off / demo complete roof",
+        "patterns": [
+          "tear.off",
+          "demo.*roof"
+        ]
+      },
+      {
+        "id": "sheathing_deck_inspection",
+        "label": "Deck/sheathing repair + nailing inspection",
+        "patterns": [
+          "sheathing",
+          "deck",
+          "damaged wood",
+          "re.?nail"
+        ]
+      },
+      {
+        "id": "underlayment",
+        "label": "Underlayment / synthetic waterproof paper",
+        "patterns": [
+          "underlayment",
+          "synthetic.*paper",
+          "felt"
+        ]
+      },
+      {
+        "id": "flashing",
+        "label": "New flashing",
+        "patterns": [
+          "flashing"
+        ]
+      },
+      {
+        "id": "vents_jacks",
+        "label": "Vents / pipe jacks / boots sealed",
+        "patterns": [
+          "vent",
+          "jack",
+          "boot",
+          "pipe"
+        ]
+      },
+      {
+        "id": "ridge",
+        "label": "Ridge (cap/vent)",
+        "patterns": [
+          "ridge"
+        ]
+      },
+      {
+        "id": "final_inspection",
+        "label": "Final inspection",
+        "patterns": [
+          "final inspection"
+        ]
+      },
+      {
+        "id": "clean_haul",
+        "label": "Clean job site / haul debris",
+        "patterns": [
+          "clean",
+          "haul"
+        ]
+      }
+    ]
+  },
+  "response": {
+    "sections": [
+      {
+        "trade": "Permit & Testing",
+        "lines": [
+          "Pull city roofing permit",
+          "Test existing roofing/underlayment for asbestos before tear-off (per South Coast AQMD Rule 1403)",
+          "Confirm Cool Roof (Title 24 CRRC) compliance for the new shingle product before ordering material"
+        ]
+      },
+      {
+        "trade": "Demo / Tear-Off",
+        "lines": [
+          "Tarp landscaping, protect gutters, and stage debris chute/dumpster",
+          "Demo complete roof: tear off old shingles, underlayment, and flashing down to the deck",
+          "Inspect the deck and fix all damaged wood on roof surface",
+          "Schedule and pass deck/nailing inspection before covering with underlayment"
+        ]
+      },
+      {
+        "trade": "Roofing Installation",
+        "lines": [
+          "Install synthetic waterproof underlayment (30-lb synthetic/black paper), with self-adhered ice-and-water membrane at eaves and valleys",
+          "Install new drip edge at eaves and rakes",
+          "Install all new flashing, including step and valley flashing at all walls, chimneys, and roof-to-wall transitions",
+          "Replace all metal cover vents; replace/install new vents per code",
+          "Install new 30-year composition shingles per manufacturer's nailing pattern and exposure, starting from the eave; brand and color chosen by customer",
+          "Install ridge vent, pipe boots, and all penetration flashing details",
+          "Seal all around vents and penetrations with lifetime silicone"
+        ]
+      },
+      {
+        "trade": "Final Inspection & Clean Up",
+        "lines": [
+          "Schedule final roofing inspection",
+          "Magnetic nail sweep of entire property, including driveway and adjacent walkways",
+          "Clean entire job site and haul away all debris"
+        ]
+      }
+    ],
+    "notes": [
+      "Assumed existing roof is a single layer (standard tear-off/reroof); if a second layer is found underneath, code caps over-layers at 2 max and full tear-off is already the correct scope here regardless.",
+      "Deck repair is written as a standard inspect-and-fix line per the roofing playbook; actual extent of rotted/undersided sheathing (if any) won't be known until tear-off exposes the deck."
+    ],
+    "engine": "claude-sonnet",
+    "groundedOn": [
+      {
+        "title": "Playbook: Roofing — Composition Shingle",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Roofing — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Playbook: Roofing — Tile",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Re-Decking (Waterproof Layer) — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Bloom training: Product - Roofing",
+        "source": "Josh Bloom training"
+      },
+      {
+        "title": "Patio Cover: Wood (Waterproof and Lattice) — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Pitched Roof (client deck)",
+        "source": "Client presentation"
+      },
+      {
+        "title": "Waterproofing: Balcony — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Paint: Interior — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Bloom training: Sales playbook (consolidated)",
+        "source": "Josh Bloom training"
+      },
+      {
+        "title": "Playbook: Roof Re-Decking",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Trim Paint — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Pool Re-Plaster — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Kitchen Remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Playbook: Roofing — Flat/Torch-Down",
+        "source": "SoCal job playbooks"
+      },
+      {
+        "title": "Windows: Vinyl & Aluminum (Retro-Fit) — scope of work",
+        "source": "Scope of Work PDF"
+      }
+    ]
+  },
+  "score": {
+    "caseId": "04-composition-shingle-reroof",
+    "projectTitle": "Composition Shingle Reroof",
+    "engine": "claude-sonnet",
+    "coveragePct": 100,
+    "requiredHits": 9,
+    "requiredTotal": 9,
+    "requiredResults": [
+      {
+        "id": "permit",
+        "label": "Roofing permit",
+        "hit": true,
+        "evidence": "\\bpermit\\b"
+      },
+      {
+        "id": "tear_off",
+        "label": "Tear off / demo complete roof",
+        "hit": true,
+        "evidence": "tear.off"
+      },
+      {
+        "id": "sheathing_deck_inspection",
+        "label": "Deck/sheathing repair + nailing inspection",
+        "hit": true,
+        "evidence": "sheathing"
+      },
+      {
+        "id": "underlayment",
+        "label": "Underlayment / synthetic waterproof paper",
+        "hit": true,
+        "evidence": "underlayment"
+      },
+      {
+        "id": "flashing",
+        "label": "New flashing",
+        "hit": true,
+        "evidence": "flashing"
+      },
+      {
+        "id": "vents_jacks",
+        "label": "Vents / pipe jacks / boots sealed",
+        "hit": true,
+        "evidence": "vent"
+      },
+      {
+        "id": "ridge",
+        "label": "Ridge (cap/vent)",
+        "hit": true,
+        "evidence": "ridge"
+      },
+      {
+        "id": "final_inspection",
+        "label": "Final inspection",
+        "hit": true,
+        "evidence": "final inspection"
+      },
+      {
+        "id": "clean_haul",
+        "label": "Clean job site / haul debris",
+        "hit": true,
+        "evidence": "clean"
+      }
+    ],
+    "forbiddenHits": [],
+    "lines": 17,
+    "lengthBand": {
+      "min": 8,
+      "max": 25
+    },
+    "lengthOk": true,
+    "structure": {
+      "ok": true,
+      "issues": []
+    },
+    "pass": true,
+    "elapsedSec": 33.9
+  }
+}

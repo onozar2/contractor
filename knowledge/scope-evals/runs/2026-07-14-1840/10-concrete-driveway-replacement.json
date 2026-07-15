@@ -1,0 +1,266 @@
+{
+  "case": {
+    "id": "10-concrete-driveway-replacement",
+    "source": "Platinum 'Driveway/Step Cement — scope of work' chunk + 'Playbook: Concrete Driveway & Steps'",
+    "projectTitle": "Concrete Driveway Replacement",
+    "description": "Replace the existing cracked concrete driveway with new concrete, broom finish. Driveway is roughly 500 sf and extends to the street.",
+    "lengthBand": {
+      "min": 8,
+      "max": 22
+    },
+    "required": [
+      {
+        "id": "permit",
+        "label": "Permit",
+        "patterns": [
+          "\\bpermit\\b"
+        ]
+      },
+      {
+        "id": "demo_existing",
+        "label": "Demo existing driveway",
+        "patterns": [
+          "demo.*driveway",
+          "remove.*(old|existing).*(driveway|surface)"
+        ]
+      },
+      {
+        "id": "excavate_grade",
+        "label": "Excavate / grade / slope for drainage",
+        "patterns": [
+          "excavat",
+          "grade",
+          "level",
+          "slope"
+        ]
+      },
+      {
+        "id": "compact_base",
+        "label": "Compact the ground/base",
+        "patterns": [
+          "compact"
+        ]
+      },
+      {
+        "id": "rebar_mesh",
+        "label": "Install re-bar / wire mesh",
+        "patterns": [
+          "re.?bar",
+          "wire mesh"
+        ]
+      },
+      {
+        "id": "pour_concrete",
+        "label": "Pour concrete (PSI spec)",
+        "patterns": [
+          "pour.*concrete",
+          "concrete.*pour"
+        ]
+      },
+      {
+        "id": "finish_surface",
+        "label": "Finish surface (broom finish)",
+        "patterns": [
+          "broom finish",
+          "finish surface"
+        ]
+      },
+      {
+        "id": "control_joints",
+        "label": "Control/expansion joints",
+        "patterns": [
+          "joint"
+        ]
+      },
+      {
+        "id": "clean_site",
+        "label": "Clean job site",
+        "patterns": [
+          "clean"
+        ]
+      }
+    ]
+  },
+  "response": {
+    "sections": [
+      {
+        "trade": "Demo & Removal",
+        "lines": [
+          "Demo existing driveway (approx. 500 sf).",
+          "Remove and trash old surface."
+        ]
+      },
+      {
+        "trade": "Excavation & Site Prep",
+        "lines": [
+          "Dig surface 4\"-6\".",
+          "Level the surface and create slope for water to drain.",
+          "Compact the ground."
+        ]
+      },
+      {
+        "trade": "Forming & Reinforcement",
+        "lines": [
+          "Install wooden frame.",
+          "Install re-bars up to code."
+        ]
+      },
+      {
+        "trade": "Concrete Pour & Finish",
+        "lines": [
+          "Pour 3000 PSI concrete.",
+          "Apply broom finish surface.",
+          "Wash concrete.",
+          "Remove wooden frame."
+        ]
+      },
+      {
+        "trade": "Clean Up",
+        "lines": [
+          "Clean entire job site."
+        ]
+      }
+    ],
+    "notes": [
+      "Sealer is an extra cost, not included in this scope.",
+      "Driveway extends to the street — confirm whether work in the public right-of-way (parkway/apron) requires a city encroachment permit; add if applicable.",
+      "Concrete PSI (3000) and broom finish per client description; smooth or stamp finish available at different cost if client prefers."
+    ],
+    "engine": "claude-sonnet",
+    "groundedOn": [
+      {
+        "title": "Driveway/Step Cement — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Retaining Wall — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Patio Cover: Wood (Waterproof and Lattice) — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Patio Enclosure — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Air duct replacement — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Kitchen Remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Paint: Interior — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Pool Re-Plaster — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Bathroom remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Waterproofing: Balcony — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Foundation - Retrofit — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Trim Paint — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-Wire — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Roofing — scope of work",
+        "source": "Scope of Work PDF"
+      }
+    ]
+  },
+  "score": {
+    "caseId": "10-concrete-driveway-replacement",
+    "projectTitle": "Concrete Driveway Replacement",
+    "engine": "claude-sonnet",
+    "coveragePct": 88.9,
+    "requiredHits": 8,
+    "requiredTotal": 9,
+    "requiredResults": [
+      {
+        "id": "permit",
+        "label": "Permit",
+        "hit": true,
+        "evidence": "\\bpermit\\b"
+      },
+      {
+        "id": "demo_existing",
+        "label": "Demo existing driveway",
+        "hit": true,
+        "evidence": "demo.*driveway"
+      },
+      {
+        "id": "excavate_grade",
+        "label": "Excavate / grade / slope for drainage",
+        "hit": true,
+        "evidence": "excavat"
+      },
+      {
+        "id": "compact_base",
+        "label": "Compact the ground/base",
+        "hit": true,
+        "evidence": "compact"
+      },
+      {
+        "id": "rebar_mesh",
+        "label": "Install re-bar / wire mesh",
+        "hit": true,
+        "evidence": "re.?bar"
+      },
+      {
+        "id": "pour_concrete",
+        "label": "Pour concrete (PSI spec)",
+        "hit": true,
+        "evidence": "pour.*concrete"
+      },
+      {
+        "id": "finish_surface",
+        "label": "Finish surface (broom finish)",
+        "hit": true,
+        "evidence": "broom finish"
+      },
+      {
+        "id": "control_joints",
+        "label": "Control/expansion joints",
+        "hit": false,
+        "evidence": ""
+      },
+      {
+        "id": "clean_site",
+        "label": "Clean job site",
+        "hit": true,
+        "evidence": "clean"
+      }
+    ],
+    "forbiddenHits": [],
+    "lines": 12,
+    "lengthBand": {
+      "min": 8,
+      "max": 22
+    },
+    "lengthOk": true,
+    "structure": {
+      "ok": true,
+      "issues": []
+    },
+    "pass": true,
+    "elapsedSec": 13.8
+  }
+}

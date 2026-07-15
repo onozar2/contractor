@@ -1,0 +1,443 @@
+{
+  "case": {
+    "id": "02-kitchen-full-remodel-wall-opening",
+    "source": "Platinum 'Kitchen Remodeling — scope of work' chunk + JOON-BID-TEMPLATE framing line (wall openings/header beams)",
+    "projectTitle": "Full Kitchen Remodel",
+    "description": "Full kitchen remodel — homeowner wants to open up the wall between the kitchen and the dining room for an open-concept layout, plus all new cabinets, countertops, appliances, and flooring. Kitchen is currently closed off and dark.",
+    "lengthBand": {
+      "min": 22,
+      "max": 55
+    },
+    "required": [
+      {
+        "id": "permit",
+        "label": "Permit",
+        "patterns": [
+          "\\bpermit\\b"
+        ]
+      },
+      {
+        "id": "wall_opening_framing",
+        "label": "Framing for the wall opening (header/beam/structural)",
+        "patterns": [
+          "header",
+          "beam",
+          "structural",
+          "wall.*(open|remov)"
+        ]
+      },
+      {
+        "id": "demo",
+        "label": "Demo kitchen complete",
+        "patterns": [
+          "\\bdemo\\b"
+        ]
+      },
+      {
+        "id": "electrical_outlets",
+        "label": "Replace/add outlets",
+        "patterns": [
+          "outlet"
+        ]
+      },
+      {
+        "id": "new_lighting",
+        "label": "Install new lights",
+        "patterns": [
+          "\\blight"
+        ]
+      },
+      {
+        "id": "plumbing_pipes",
+        "label": "Rough plumbing pipes up to code",
+        "groups": [
+          [
+            "pipe"
+          ],
+          [
+            "copper",
+            "code"
+          ]
+        ]
+      },
+      {
+        "id": "cabinet_layout",
+        "label": "Cabinet layout/sketch/design",
+        "groups": [
+          [
+            "cabinet"
+          ],
+          [
+            "layout",
+            "design",
+            "sketch"
+          ]
+        ]
+      },
+      {
+        "id": "new_flooring",
+        "label": "New flooring",
+        "patterns": [
+          "floor"
+        ]
+      },
+      {
+        "id": "drywall",
+        "label": "Drywall install/repair",
+        "patterns": [
+          "drywall"
+        ]
+      },
+      {
+        "id": "paint_primer",
+        "label": "Primer + paint kitchen",
+        "patterns": [
+          "prime",
+          "primer"
+        ]
+      },
+      {
+        "id": "countertop",
+        "label": "New countertop",
+        "patterns": [
+          "countertop"
+        ]
+      },
+      {
+        "id": "backsplash",
+        "label": "Backsplash",
+        "patterns": [
+          "backsplash"
+        ]
+      },
+      {
+        "id": "sink_faucet",
+        "label": "Sink + faucet + disposal",
+        "groups": [
+          [
+            "sink"
+          ],
+          [
+            "faucet"
+          ]
+        ]
+      },
+      {
+        "id": "appliances",
+        "label": "Reinstall appliances",
+        "patterns": [
+          "appliance"
+        ]
+      },
+      {
+        "id": "hood_vent",
+        "label": "Hood vent",
+        "patterns": [
+          "hood vent",
+          "range hood"
+        ]
+      },
+      {
+        "id": "clean_site",
+        "label": "Clean job site",
+        "patterns": [
+          "clean"
+        ]
+      },
+      {
+        "id": "final_inspection",
+        "label": "Final inspection",
+        "patterns": [
+          "final inspection"
+        ]
+      }
+    ]
+  },
+  "response": {
+    "sections": [
+      {
+        "trade": "Protection & Prep",
+        "lines": [
+          "Cover all working areas."
+        ]
+      },
+      {
+        "trade": "Demolition",
+        "lines": [
+          "Demo kitchen complete.",
+          "Remove wall between kitchen and dining room for open-concept layout.",
+          "Remove all floors in kitchen area.",
+          "Demo countertop and haul away trash.",
+          "Disconnect sink and plumbing."
+        ]
+      },
+      {
+        "trade": "Framing / Structural",
+        "lines": [
+          "Pull city permits for wall removal and remodel.",
+          "Install engineered header/beam to support opening where kitchen/dining wall is removed, per structural engineer's plans.",
+          "Frame new opening between kitchen and dining room.",
+          "Prepare framing and subfloor, replace damaged wood as needed."
+        ]
+      },
+      {
+        "trade": "Plumbing",
+        "lines": [
+          "Replace all pipes in walls to be copper and new valves.",
+          "Replace drain vents to be up to code.",
+          "Install new sink.",
+          "Install new faucet and garbage disposal.",
+          "Connect all plumbing.",
+          "Connect sink."
+        ]
+      },
+      {
+        "trade": "Electrical",
+        "lines": [
+          "Replace all outlets.",
+          "Install new lights."
+        ]
+      },
+      {
+        "trade": "Drywall & Paint",
+        "lines": [
+          "Install new drywall / repair drywall as needed.",
+          "Apply plaster, primer and paint.",
+          "Primer and paint kitchen."
+        ]
+      },
+      {
+        "trade": "Flooring",
+        "lines": [
+          "Fix subfloor as needed.",
+          "Install waterproof paper on surface.",
+          "Install new floor in kitchen (customer to choose material), carried through into dining room for open-concept transition.",
+          "Install new baseboards all around the new floor area.",
+          "Prime and paint baseboards."
+        ]
+      },
+      {
+        "trade": "Cabinetry",
+        "lines": [
+          "Create cabinet sketch layout.",
+          "Build cabinets (customer will select design and colors).",
+          "Install new cabinets.",
+          "Install door knobs."
+        ]
+      },
+      {
+        "trade": "Countertop",
+        "lines": [
+          "Customer choose slab from sample.",
+          "Fabrication and cutting.",
+          "Install new countertop.",
+          "Install backsplash 4\"/6\"/all the way up (customer to choose).",
+          "Apply sealer."
+        ]
+      },
+      {
+        "trade": "Appliances",
+        "lines": [
+          "Install back all appliances.",
+          "Install hood vent.",
+          "Install microwave-hood or hood."
+        ]
+      },
+      {
+        "trade": "Clean Up & Final",
+        "lines": [
+          "Clean entire job site.",
+          "Final inspection."
+        ]
+      }
+    ],
+    "notes": [
+      "Assumed the kitchen/dining wall may be load-bearing; scope includes engineered header/beam and permit pull for structural review — estimator to confirm with engineer once wall is opened.",
+      "Flooring material carried from kitchen into dining room per open-concept intent; confirm with customer whether dining room floor is in scope/budget or kitchen-only."
+    ],
+    "engine": "claude-sonnet",
+    "groundedOn": [
+      {
+        "title": "Kitchen Remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Countertop — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Bathroom remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Retaining Wall — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Flooring: Wood floor / Engineered wood / Bamboo / Laminate / Waterproof laminate — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Walk-In Tub — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Block Wall — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-pipe — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Blueprints — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Insulation — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Paint: Interior — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-Wire — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Acoustic ceiling removal — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Carpet — scope of work",
+        "source": "Scope of Work PDF"
+      }
+    ]
+  },
+  "score": {
+    "caseId": "02-kitchen-full-remodel-wall-opening",
+    "projectTitle": "Full Kitchen Remodel",
+    "engine": "claude-sonnet",
+    "coveragePct": 100,
+    "requiredHits": 17,
+    "requiredTotal": 17,
+    "requiredResults": [
+      {
+        "id": "permit",
+        "label": "Permit",
+        "hit": true,
+        "evidence": "\\bpermit\\b"
+      },
+      {
+        "id": "wall_opening_framing",
+        "label": "Framing for the wall opening (header/beam/structural)",
+        "hit": true,
+        "evidence": "header"
+      },
+      {
+        "id": "demo",
+        "label": "Demo kitchen complete",
+        "hit": true,
+        "evidence": "\\bdemo\\b"
+      },
+      {
+        "id": "electrical_outlets",
+        "label": "Replace/add outlets",
+        "hit": true,
+        "evidence": "outlet"
+      },
+      {
+        "id": "new_lighting",
+        "label": "Install new lights",
+        "hit": true,
+        "evidence": "\\blight"
+      },
+      {
+        "id": "plumbing_pipes",
+        "label": "Rough plumbing pipes up to code",
+        "hit": true,
+        "evidence": "pipe + copper"
+      },
+      {
+        "id": "cabinet_layout",
+        "label": "Cabinet layout/sketch/design",
+        "hit": true,
+        "evidence": "cabinet + layout"
+      },
+      {
+        "id": "new_flooring",
+        "label": "New flooring",
+        "hit": true,
+        "evidence": "floor"
+      },
+      {
+        "id": "drywall",
+        "label": "Drywall install/repair",
+        "hit": true,
+        "evidence": "drywall"
+      },
+      {
+        "id": "paint_primer",
+        "label": "Primer + paint kitchen",
+        "hit": true,
+        "evidence": "prime"
+      },
+      {
+        "id": "countertop",
+        "label": "New countertop",
+        "hit": true,
+        "evidence": "countertop"
+      },
+      {
+        "id": "backsplash",
+        "label": "Backsplash",
+        "hit": true,
+        "evidence": "backsplash"
+      },
+      {
+        "id": "sink_faucet",
+        "label": "Sink + faucet + disposal",
+        "hit": true,
+        "evidence": "sink + faucet"
+      },
+      {
+        "id": "appliances",
+        "label": "Reinstall appliances",
+        "hit": true,
+        "evidence": "appliance"
+      },
+      {
+        "id": "hood_vent",
+        "label": "Hood vent",
+        "hit": true,
+        "evidence": "hood vent"
+      },
+      {
+        "id": "clean_site",
+        "label": "Clean job site",
+        "hit": true,
+        "evidence": "clean"
+      },
+      {
+        "id": "final_inspection",
+        "label": "Final inspection",
+        "hit": true,
+        "evidence": "final inspection"
+      }
+    ],
+    "forbiddenHits": [],
+    "lines": 40,
+    "lengthBand": {
+      "min": 22,
+      "max": 55
+    },
+    "lengthOk": true,
+    "structure": {
+      "ok": true,
+      "issues": []
+    },
+    "pass": true,
+    "elapsedSec": 21
+  }
+}

@@ -1,0 +1,357 @@
+{
+  "case": {
+    "id": "01-bathroom-tub-to-shower",
+    "source": "Platinum 'Bathroom remodeling — scope of work' chunk",
+    "projectTitle": "Hall Bathroom Remodel",
+    "description": "Hall bathroom — demo the existing tub/shower combo and floor tile down to studs/subfloor, convert to a walk-in shower with new tile. Vanity and toilet stay in the same footprint but get reconnected. Homeowner wants everything fully up to code.",
+    "lengthBand": {
+      "min": 18,
+      "max": 45
+    },
+    "required": [
+      {
+        "id": "permit",
+        "label": "Pull city permit",
+        "patterns": [
+          "\\bpermit\\b"
+        ]
+      },
+      {
+        "id": "demo",
+        "label": "Demo tub/shower/floor to studs/subfloor",
+        "patterns": [
+          "\\bdemo\\b"
+        ]
+      },
+      {
+        "id": "hot_mop",
+        "label": "Hot mop waterproofing in shower",
+        "patterns": [
+          "hot[- ]?mop"
+        ]
+      },
+      {
+        "id": "water_test_24hr",
+        "label": "24-hour water test",
+        "patterns": [
+          "24[- ]?hour",
+          "24[- ]?hr",
+          "water test"
+        ]
+      },
+      {
+        "id": "tar_paper_wire_mesh",
+        "label": "Tar/waterproof paper + wire mesh/chicken wire before tile",
+        "groups": [
+          [
+            "tar paper",
+            "waterproof paper",
+            "building paper"
+          ],
+          [
+            "wire mesh",
+            "chicken wire"
+          ]
+        ]
+      },
+      {
+        "id": "gfi_outlets",
+        "label": "GFI/GFCI outlets",
+        "patterns": [
+          "\\bgfi\\b",
+          "gfci"
+        ]
+      },
+      {
+        "id": "p_trap",
+        "label": "P-trap / drain cover upgrade",
+        "patterns": [
+          "p-trap",
+          "p trap"
+        ]
+      },
+      {
+        "id": "wax_ring",
+        "label": "Toilet wax ring",
+        "patterns": [
+          "wax ring"
+        ]
+      },
+      {
+        "id": "tile_to_ceiling",
+        "label": "Tile floor-to-ceiling in shower",
+        "patterns": [
+          "floor.to.ceiling",
+          "floor to ceiling"
+        ]
+      },
+      {
+        "id": "prime_two_coats",
+        "label": "Prime + 2 coats paint",
+        "groups": [
+          [
+            "prime",
+            "primer"
+          ],
+          [
+            "2 coats",
+            "two coats"
+          ]
+        ]
+      },
+      {
+        "id": "haul_away",
+        "label": "Clean up / haul away debris",
+        "patterns": [
+          "haul.away",
+          "haul away",
+          "debris"
+        ]
+      }
+    ]
+  },
+  "response": {
+    "sections": [
+      {
+        "trade": "Permits",
+        "lines": [
+          "Pull city permits."
+        ]
+      },
+      {
+        "trade": "Demolition",
+        "lines": [
+          "Demo existing tub/shower combo, floor tile, and wall tile around tub/shower down to studs and subfloor.",
+          "Remove existing shower pan."
+        ]
+      },
+      {
+        "trade": "Framing",
+        "lines": [
+          "Prepare framing and subfloor, replace damaged wood.",
+          "Frame niche/bench (customer to choose placement and size)."
+        ]
+      },
+      {
+        "trade": "Plumbing",
+        "lines": [
+          "Upgrade all plumbing inside bathroom area: upgrade all copper pipes to be up to code.",
+          "Install new shower valve.",
+          "Reconnect plumbing for toilet in existing footprint; install new ring wax.",
+          "Reconnect plumbing for vanity in existing footprint, connect faucet.",
+          "Upgrade and replace p-trap and drain cover for shower.",
+          "Install new shower pan."
+        ]
+      },
+      {
+        "trade": "Electrical",
+        "lines": [
+          "Install ceiling exhaust fan.",
+          "Upgrade all outlets in bathroom to GFI.",
+          "Install light fixtures (LED light, recessed lighting, shower light)."
+        ]
+      },
+      {
+        "trade": "Waterproofing / Hot Mop",
+        "lines": [
+          "Apply hot mop to complete shower area and water test for 24 hours.",
+          "Install waterproof paper and chicken wire on walls and floor where tile goes around shower.",
+          "Install cement over the paper and chicken wire."
+        ]
+      },
+      {
+        "trade": "Tile",
+        "lines": [
+          "Install tile on shower walls and shower floor.",
+          "Install tile on bathroom floor.",
+          "Apply grout.",
+          "Apply sealer on tile."
+        ]
+      },
+      {
+        "trade": "Drywall & Paint",
+        "lines": [
+          "Fix all drywall in bathroom.",
+          "Apply primer and paint."
+        ]
+      },
+      {
+        "trade": "Vanity, Fixtures & Trim",
+        "lines": [
+          "Reinstall/reset vanity with countertop and sink in existing footprint, connect faucet.",
+          "Reinstall toilet in existing footprint with new ring wax.",
+          "Install mirror.",
+          "Install grab bars per request.",
+          "Install shower head and all fixtures.",
+          "Install shower door or curtains (customer to choose).",
+          "Install toilet fixtures and vanity knobs.",
+          "Install new baseboards."
+        ]
+      },
+      {
+        "trade": "Inspections",
+        "lines": [
+          "Plumbing rough inspection.",
+          "Electrical rough inspection.",
+          "Framing rough inspection.",
+          "Hot mop rough inspection.",
+          "Walls rough inspection.",
+          "Final inspection."
+        ]
+      }
+    ],
+    "notes": [
+      "Toilet and toilet water supply line are listed under both Plumbing (rough reconnection/valve work) and Vanity/Fixtures (final reset) per the source scope's structure — this is intentional, not a duplicate charge.",
+      "Niche/bench and grab bars included as optional lines pending customer selection/request, per standard company scope wording — confirm with client whether either is wanted before finalizing.",
+      "Shower door vs. curtain, tile selection, and vanity/countertop finish are customer-selected; per source note, set a budget expectation for vanity + countertop, tile, and fixtures separately from this scope."
+    ],
+    "engine": "claude-sonnet",
+    "groundedOn": [
+      {
+        "title": "Bathroom remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Walk-In Tub — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Flooring: Wood floor / Engineered wood / Bamboo / Laminate / Waterproof laminate — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Roofing — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Kitchen Remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Waterproofing: Balcony — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-Decking (Waterproof Layer) — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Pool Re-Plaster — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Retaining Wall — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Driveway/Step Cement — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-pipe — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Patio Cover: Wood (Waterproof and Lattice) — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Paint: Interior — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-drain — scope of work",
+        "source": "Scope of Work PDF"
+      }
+    ]
+  },
+  "score": {
+    "caseId": "01-bathroom-tub-to-shower",
+    "projectTitle": "Hall Bathroom Remodel",
+    "engine": "claude-sonnet",
+    "coveragePct": 54.5,
+    "requiredHits": 6,
+    "requiredTotal": 11,
+    "requiredResults": [
+      {
+        "id": "permit",
+        "label": "Pull city permit",
+        "hit": false,
+        "evidence": ""
+      },
+      {
+        "id": "demo",
+        "label": "Demo tub/shower/floor to studs/subfloor",
+        "hit": true,
+        "evidence": "\\bdemo\\b"
+      },
+      {
+        "id": "hot_mop",
+        "label": "Hot mop waterproofing in shower",
+        "hit": true,
+        "evidence": "hot[- ]?mop"
+      },
+      {
+        "id": "water_test_24hr",
+        "label": "24-hour water test",
+        "hit": true,
+        "evidence": "24[- ]?hour"
+      },
+      {
+        "id": "tar_paper_wire_mesh",
+        "label": "Tar/waterproof paper + wire mesh/chicken wire before tile",
+        "hit": true,
+        "evidence": "waterproof paper + chicken wire"
+      },
+      {
+        "id": "gfi_outlets",
+        "label": "GFI/GFCI outlets",
+        "hit": true,
+        "evidence": "\\bgfi\\b"
+      },
+      {
+        "id": "p_trap",
+        "label": "P-trap / drain cover upgrade",
+        "hit": true,
+        "evidence": "p-trap"
+      },
+      {
+        "id": "wax_ring",
+        "label": "Toilet wax ring",
+        "hit": false,
+        "evidence": ""
+      },
+      {
+        "id": "tile_to_ceiling",
+        "label": "Tile floor-to-ceiling in shower",
+        "hit": false,
+        "evidence": ""
+      },
+      {
+        "id": "prime_two_coats",
+        "label": "Prime + 2 coats paint",
+        "hit": false,
+        "evidence": "prime"
+      },
+      {
+        "id": "haul_away",
+        "label": "Clean up / haul away debris",
+        "hit": false,
+        "evidence": ""
+      }
+    ],
+    "forbiddenHits": [],
+    "lines": 37,
+    "lengthBand": {
+      "min": 18,
+      "max": 45
+    },
+    "lengthOk": true,
+    "structure": {
+      "ok": true,
+      "issues": []
+    },
+    "pass": false,
+    "elapsedSec": 30.8
+  }
+}

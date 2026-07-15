@@ -1,0 +1,483 @@
+{
+  "case": {
+    "id": "06-garage-to-adu-conversion",
+    "source": "SoCal job playbooks 'Playbook: Garage-to-ADU Conversion' (full 16-step arc)",
+    "projectTitle": "Garage-to-ADU Conversion",
+    "description": "Convert the existing detached 2-car garage into a permitted ADU — studio layout with a kitchenette and a full bathroom, for a family member to live in.",
+    "lengthBand": {
+      "min": 20,
+      "max": 60
+    },
+    "required": [
+      {
+        "id": "architect_engineer_plans",
+        "label": "Architect/engineer plan set",
+        "patterns": [
+          "architect",
+          "engineer",
+          "plan set"
+        ]
+      },
+      {
+        "id": "permit",
+        "label": "Permit / plan-check",
+        "patterns": [
+          "\\bpermit\\b"
+        ]
+      },
+      {
+        "id": "utility_capacity",
+        "label": "Electrical panel + sewer/water lateral capacity check",
+        "patterns": [
+          "panel",
+          "sewer",
+          "lateral",
+          "utility"
+        ]
+      },
+      {
+        "id": "asbestos_lead",
+        "label": "Asbestos/lead test before demo",
+        "patterns": [
+          "asbestos",
+          "lead"
+        ]
+      },
+      {
+        "id": "demo_infill",
+        "label": "Demo garage door opening / frame infill wall",
+        "patterns": [
+          "garage door",
+          "infill"
+        ]
+      },
+      {
+        "id": "insulation",
+        "label": "Insulation to Title 24",
+        "patterns": [
+          "insulat"
+        ]
+      },
+      {
+        "id": "rough_plumbing",
+        "label": "Rough plumbing for kitchen/bath fixtures",
+        "patterns": [
+          "rough plumbing",
+          "plumbing"
+        ]
+      },
+      {
+        "id": "rough_electrical",
+        "label": "Rough electrical / subpanel / dedicated circuits",
+        "patterns": [
+          "rough electrical",
+          "electrical",
+          "subpanel",
+          "circuit"
+        ]
+      },
+      {
+        "id": "mep_inspections",
+        "label": "Rough MEP inspections",
+        "patterns": [
+          "inspection"
+        ]
+      },
+      {
+        "id": "drywall",
+        "label": "Drywall",
+        "patterns": [
+          "drywall"
+        ]
+      },
+      {
+        "id": "flooring",
+        "label": "Flooring",
+        "patterns": [
+          "floor"
+        ]
+      },
+      {
+        "id": "cabinets_countertops",
+        "label": "Cabinets + countertops",
+        "groups": [
+          [
+            "cabinet"
+          ],
+          [
+            "countertop"
+          ]
+        ]
+      },
+      {
+        "id": "fixtures",
+        "label": "Set fixtures (sink/toilet/tub/shower/appliances)",
+        "patterns": [
+          "fixture",
+          "sink",
+          "toilet",
+          "shower"
+        ]
+      },
+      {
+        "id": "hvac",
+        "label": "HVAC / mini-split",
+        "patterns": [
+          "hvac",
+          "mini.split",
+          "minisplit"
+        ]
+      },
+      {
+        "id": "final_inspection",
+        "label": "Final MEP + building inspections",
+        "patterns": [
+          "final.*inspection"
+        ]
+      },
+      {
+        "id": "paint",
+        "label": "Paint",
+        "patterns": [
+          "paint"
+        ]
+      },
+      {
+        "id": "address_utility_setup",
+        "label": "Separate address/utility setup",
+        "patterns": [
+          "address",
+          "meter",
+          "utility setup"
+        ]
+      }
+    ]
+  },
+  "response": {
+    "sections": [
+      {
+        "trade": "Design & Permits",
+        "lines": [
+          "Measure existing garage and take pictures.",
+          "Measure and design new ADU layout: studio living area, kitchenette, and full bathroom.",
+          "Prepare survey of property line, and mark.",
+          "Engineer and calculate frame and support for converted structure.",
+          "Prepare sketch for customer to be approved and signed.",
+          "Prepare blueprints to be approved by the city.",
+          "Prepare soil report and geological report if necessary.",
+          "Pull city permits."
+        ]
+      },
+      {
+        "trade": "Demolition",
+        "lines": [
+          "Cover all working areas.",
+          "Remove existing garage door and track, clean up and haul away debris.",
+          "Demo interior surfaces, floors, and any damaged wood as needed.",
+          "Haul away trash."
+        ]
+      },
+      {
+        "trade": "Framing",
+        "lines": [
+          "Frame in existing garage door opening with new exterior wall assembly.",
+          "Frame new window and door openings per approved plans.",
+          "Frame interior partition walls to separate kitchenette, bathroom, and studio living area.",
+          "Frame niche/bench in shower (customer will choose).",
+          "Prepare framing and subfloor, replace damaged wood.",
+          "Insulate exterior and interior walls and ceiling per code."
+        ]
+      },
+      {
+        "trade": "Plumbing",
+        "lines": [
+          "Run and install new copper water supply pipes up to code to new kitchenette and bathroom.",
+          "Run new drain, waste and vent lines up to code and connect to sewer lateral.",
+          "Install new valve in shower, toilet, kitchenette sink, and vanity.",
+          "Install new p-trap and drain cover for shower.",
+          "Install toilet and install new ring wax.",
+          "Connect kitchenette sink plumbing, connect faucet and garbage disposal.",
+          "Install foam insulation on all exposed hot water pipes."
+        ]
+      },
+      {
+        "trade": "Electrical",
+        "lines": [
+          "Install new dedicated subpanel/circuit as required to serve the ADU.",
+          "Install all outlets to be GFI.",
+          "Install light fixtures (LED light, recessed lighting, shower light).",
+          "Install exhaust fan ceiling in bathroom.",
+          "Install dedicated circuits for kitchenette appliances.",
+          "Install ductless mini-split system circuit for heating and cooling of habitable space."
+        ]
+      },
+      {
+        "trade": "Waterproofing / Hot Mop (Shower)",
+        "lines": [
+          "Install waterproof paper and chicken wire where tile goes around shower walls and shower floor.",
+          "Install cement on the paper and chicken wire.",
+          "Apply hot mop all shower area + water test for 24 hours."
+        ]
+      },
+      {
+        "trade": "Tile",
+        "lines": [
+          "Install tile on shower walls and floor.",
+          "Apply grout.",
+          "Apply sealer on tile."
+        ]
+      },
+      {
+        "trade": "Drywall & Paint",
+        "lines": [
+          "Fix all drywall in bathroom, kitchenette, and studio area.",
+          "Apply primer and paint throughout unit.",
+          "Paint trim around walls/baseboards."
+        ]
+      },
+      {
+        "trade": "Kitchenette / Cabinetry",
+        "lines": [
+          "Create cabinet sketch layout for kitchenette.",
+          "Build cabinets (customer will select design and colors).",
+          "Install new countertop.",
+          "Install backsplash.",
+          "Install new sink.",
+          "Install new faucet and garbage disposal.",
+          "Install back all appliances (compact refrigerator, cooktop, microwave-hood)."
+        ]
+      },
+      {
+        "trade": "Bathroom Fixtures",
+        "lines": [
+          "Install vanity with countertop and sink, connect faucet.",
+          "Install medicine cabinet upon request.",
+          "Install mirror.",
+          "Install grab bars per request.",
+          "Install shower head and all fixtures.",
+          "Install shower door or curtains.",
+          "Install toilet fixtures, vanity knobs."
+        ]
+      },
+      {
+        "trade": "Flooring",
+        "lines": [
+          "Fix subfloor as needed.",
+          "Install tile floor in bathroom and kitchenette (level surface, floating cement, tile, grout, sealer).",
+          "Install wood/laminate floor in studio living area (customer will choose material).",
+          "Install new baseboards throughout unit.",
+          "Prime and paint baseboards."
+        ]
+      },
+      {
+        "trade": "Windows & Exterior",
+        "lines": [
+          "Remove existing garage window(s), clean up and haul away debris.",
+          "Install new retro-fitted or new-construction vinyl/aluminum windows per approved plans (customer to select color).",
+          "Install new entry door.",
+          "Apply 50-year caulking all around window and door frames.",
+          "Install tar paper and wire mesh, apply cement scratch coat and brown coat, apply stucco color coat to match existing exterior."
+        ]
+      },
+      {
+        "trade": "Final Inspections & Clean Up",
+        "lines": [
+          "Schedule and pass rough inspections: plumbing, electrical, framing, hot mop, walls.",
+          "Schedule and pass final inspection.",
+          "Clean up and haul away debris.",
+          "Clean entire job site."
+        ]
+      }
+    ],
+    "notes": [
+      "Assumed ductless mini-split for heating/cooling since equipment was not specified — confirm unit size/count with client.",
+      "Assumed existing electrical service needs a new subpanel to feed the ADU — confirm main panel capacity before bid.",
+      "Assumed a walk-in shower (no tub) for the full bathroom per studio ADU norms — confirm with client.",
+      "Assumed sewer/water lines can tie into existing house lines near the garage — confirm during rough plumbing walk."
+    ],
+    "engine": "claude-sonnet",
+    "groundedOn": [
+      {
+        "title": "Bathroom remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Blueprints — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Walk-In Tub — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Kitchen Remodeling — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Re-pipe — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Fence — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Flooring: Wood floor / Engineered wood / Bamboo / Laminate / Waterproof laminate — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Carpet — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Patio Cover: Wood (Waterproof and Lattice) — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Paint: Interior — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Patio Enclosure — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Waterproofing: Balcony — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Windows: Vinyl & Aluminum (Retro-Fit) — scope of work",
+        "source": "Scope of Work PDF"
+      },
+      {
+        "title": "Air duct replacement — scope of work",
+        "source": "Scope of Work PDF"
+      }
+    ]
+  },
+  "score": {
+    "caseId": "06-garage-to-adu-conversion",
+    "projectTitle": "Garage-to-ADU Conversion",
+    "engine": "claude-sonnet",
+    "coveragePct": 82.4,
+    "requiredHits": 14,
+    "requiredTotal": 17,
+    "requiredResults": [
+      {
+        "id": "architect_engineer_plans",
+        "label": "Architect/engineer plan set",
+        "hit": true,
+        "evidence": "engineer"
+      },
+      {
+        "id": "permit",
+        "label": "Permit / plan-check",
+        "hit": false,
+        "evidence": ""
+      },
+      {
+        "id": "utility_capacity",
+        "label": "Electrical panel + sewer/water lateral capacity check",
+        "hit": true,
+        "evidence": "panel"
+      },
+      {
+        "id": "asbestos_lead",
+        "label": "Asbestos/lead test before demo",
+        "hit": false,
+        "evidence": ""
+      },
+      {
+        "id": "demo_infill",
+        "label": "Demo garage door opening / frame infill wall",
+        "hit": true,
+        "evidence": "garage door"
+      },
+      {
+        "id": "insulation",
+        "label": "Insulation to Title 24",
+        "hit": true,
+        "evidence": "insulat"
+      },
+      {
+        "id": "rough_plumbing",
+        "label": "Rough plumbing for kitchen/bath fixtures",
+        "hit": true,
+        "evidence": "rough plumbing"
+      },
+      {
+        "id": "rough_electrical",
+        "label": "Rough electrical / subpanel / dedicated circuits",
+        "hit": true,
+        "evidence": "electrical"
+      },
+      {
+        "id": "mep_inspections",
+        "label": "Rough MEP inspections",
+        "hit": true,
+        "evidence": "inspection"
+      },
+      {
+        "id": "drywall",
+        "label": "Drywall",
+        "hit": true,
+        "evidence": "drywall"
+      },
+      {
+        "id": "flooring",
+        "label": "Flooring",
+        "hit": true,
+        "evidence": "floor"
+      },
+      {
+        "id": "cabinets_countertops",
+        "label": "Cabinets + countertops",
+        "hit": true,
+        "evidence": "cabinet + countertop"
+      },
+      {
+        "id": "fixtures",
+        "label": "Set fixtures (sink/toilet/tub/shower/appliances)",
+        "hit": true,
+        "evidence": "fixture"
+      },
+      {
+        "id": "hvac",
+        "label": "HVAC / mini-split",
+        "hit": true,
+        "evidence": "mini.split"
+      },
+      {
+        "id": "final_inspection",
+        "label": "Final MEP + building inspections",
+        "hit": true,
+        "evidence": "final.*inspection"
+      },
+      {
+        "id": "paint",
+        "label": "Paint",
+        "hit": true,
+        "evidence": "paint"
+      },
+      {
+        "id": "address_utility_setup",
+        "label": "Separate address/utility setup",
+        "hit": false,
+        "evidence": ""
+      }
+    ],
+    "forbiddenHits": [],
+    "lines": 68,
+    "lengthBand": {
+      "min": 20,
+      "max": 60
+    },
+    "lengthOk": false,
+    "structure": {
+      "ok": true,
+      "issues": []
+    },
+    "pass": false,
+    "elapsedSec": 56.3
+  }
+}
