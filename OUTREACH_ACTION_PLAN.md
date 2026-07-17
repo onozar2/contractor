@@ -2,4 +2,4 @@
 
 Superseded 2026-07-16 — merged into [JOON_ACTION_PLAN.md](JOON_ACTION_PLAN.md).
 
-The full original content is preserved in git history.
+Its supplier and sub outreach content lives in JOON_ACTION_PLAN.md Part 2.

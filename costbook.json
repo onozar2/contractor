@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-11",
+  "updated": "2026-07-16",
   "region": "Los Angeles / SoCal",
   "disclaimer": "Planning ranges for LA market, contractor all-in (labor+material) unless noted. All figures [EST] - validate against sub quotes before fixed bids. Edit this file to tune the book.",
   "items": [
@@ -469,23 +469,26 @@
       "trade": "Full home renovations",
       "description": "Garage conversion ADU - full build",
       "unit": "sqft",
-      "low": 200,
-      "high": 400,
+      "low": 250,
+      "high": 500,
       "benchmark": {
-        "lowUSD": 200,
-        "highUSD": 400,
+        "lowUSD": 250,
+        "highUSD": 500,
         "laborShare": 0.55,
         "sources": [
+          "https://www.gatheradu.com/blog/los-angeles-garage-conversion-adu-cost",
+          "https://silverhammerbuilders.com/garage-conversion-vs-adu-cost-in-los-angeles",
           "https://greenrenovationgroup.com/4763/cost-to-convert-a-garage-to-an-adu/",
           "https://groundupbuilders.com/blog/how-much-does-an-adu-garage-conversion-cost-in-la/",
-          "https://gsadus.com/blog/garage-conversion-cost/",
-          "https://axeconstruction.com/is-a-garage-conversion-adu-worth-it-in-los-angeles-2025-roi-permit-guide/"
+          "https://gsadus.com/blog/garage-conversion-cost/"
         ],
-        "confidence": "high",
-        "notes": "2025-26 LA sources cluster at $250-$400/sqft (avg $300-$400), with budget builds from ~$125-$300. Typical finished garage-conversion ADU totals $95K-$225K on a 350-600 sqft footprint ($125K-$190K common). Prior placeholder of $95-$160/sqft is well below current LA market.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: Two 2026 LA-specific sources put garage conversions at $250-400/sqft and $300-500/sqft (calculated from $120-220K totals on 400-500sqft garages); current $200-400 undershoots both the low and high end.",
         "region": "SoCal",
-        "asOf": "2026-07-11"
-      }
+        "asOf": "2026-07",
+        "auditNote": "Two 2026 LA-specific sources put garage conversions at $250-400/sqft and $300-500/sqft (calculated from $120-220K totals on 400-500sqft garages); current $200-400 undershoots both the low and high end."
+      },
+      "notes": "2026-07 accuracy audit: Two 2026 LA-specific sources put garage conversions at $250-400/sqft and $300-500/sqft (calculated from $120-220K totals on 400-500sqft garages); current $200-400 undershoots both the low and high end."
     },
     {
       "id": "adu-detached",
@@ -702,21 +705,23 @@
       "description": "200A panel upgrade incl. permit",
       "unit": "job",
       "low": 3000,
-      "high": 6500,
+      "high": 7500,
       "benchmark": {
         "lowUSD": 3000,
-        "highUSD": 6500,
+        "highUSD": 7500,
         "laborShare": 0.6,
         "sources": [
           "https://karmicelectrical.com/cost-of-upgrading-to-200-amp-service-in-los-angeles/",
           "https://laproelectrical.com/electrical-panel-upgrade-cost-los-angeles/",
           "https://www.tikelectric.com/200-amp-panel-upgrade"
         ],
-        "confidence": "high",
-        "notes": "LA-specific: $2,500-$4,000 like-for-like, $4,000-$6,500+ with LADWP service upgrade; permits $200-$800. Book range confirmed.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: LA sources show $2,500-6,500 and $4,800-7,500 (incl. new 2026 CEC surge-protection device requirement); high end of benchmark was underselling current cost, raised to 7500.",
         "region": "SoCal",
-        "asOf": "2026-07-08"
-      }
+        "asOf": "2026-07",
+        "auditNote": "LA sources show $2,500-6,500 and $4,800-7,500 (incl. new 2026 CEC surge-protection device requirement); high end of benchmark was underselling current cost, raised to 7500."
+      },
+      "notes": "2026-07 accuracy audit: LA sources show $2,500-6,500 and $4,800-7,500 (incl. new 2026 CEC surge-protection device requirement); high end of benchmark was underselling current cost, raised to 7500."
     },
     {
       "id": "elec-rewire",
@@ -724,22 +729,24 @@
       "trade": "Electrical",
       "description": "Whole-house rewire",
       "unit": "sqft",
-      "low": 5,
-      "high": 10,
+      "low": 6,
+      "high": 15,
       "benchmark": {
-        "lowUSD": 5,
-        "highUSD": 10,
+        "lowUSD": 6,
+        "highUSD": 15,
         "laborShare": 0.7,
         "sources": [
           "https://karmicelectrical.com/how-much-does-it-cost-to-rewire-a-house-in-los-angeles/",
           "https://homeguide.com/costs/cost-to-rewire-a-house",
           "https://www.aaaes.com/post/cost-to-rewire-a-house-in-california"
         ],
-        "confidence": "medium",
-        "notes": "LA totals $8K-$15K typical; CA $2-$6/sqft, Homeguide $4-$8/sqft; book $8-$13 is above sourced range unless drywall repair/patching is included in scope.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: LA-specific breakdown by home size runs ~$7-18/sqft (small homes $8-12, large/knob-and-tube $11-18); benchmark's $10 ceiling was too low, widened to 6-15.",
         "region": "SoCal",
-        "asOf": "2026-07-08"
-      }
+        "asOf": "2026-07",
+        "auditNote": "LA-specific breakdown by home size runs ~$7-18/sqft (small homes $8-12, large/knob-and-tube $11-18); benchmark's $10 ceiling was too low, widened to 6-15."
+      },
+      "notes": "2026-07 accuracy audit: LA-specific breakdown by home size runs ~$7-18/sqft (small homes $8-12, large/knob-and-tube $11-18); benchmark's $10 ceiling was too low, widened to 6-15."
     },
     {
       "id": "elec-can",
@@ -1175,7 +1182,8 @@
         "confidence": "medium",
         "notes": "CA-installed retaining walls run $60-$150/LF (2025); a ~3ft CMU wall with footing, rebar and drainage in LA lands $100-$250/LF -- the current book's $250-$450 reads like a 4-6ft engineered/permitted wall, not a 3ft wall.",
         "region": "SoCal",
-        "asOf": "2026-07-08"
+        "asOf": "2026-07-08",
+        "reviewNote": "2026-07 accuracy audit: proposed $25-65/LF rejected — unit confusion (per-sqft-face/material-only figures); installed 3ft CMU wall in LA holds at $100-250/LF"
       }
     },
     {
@@ -1184,22 +1192,25 @@
       "trade": "Turf & Synthetic Grass",
       "description": "Artificial turf supplied + installed",
       "unit": "sqft",
-      "low": 9,
-      "high": 17,
+      "low": 12,
+      "high": 22,
       "benchmark": {
-        "lowUSD": 9,
-        "highUSD": 17,
+        "lowUSD": 12,
+        "highUSD": 22,
         "laborShare": 0.5,
         "sources": [
           "https://www.installartificial.com/how/cost-to-install-artificial-grass-los-angeles",
+          "https://www.lawnstarter.com/blog/cost/artificial-grass-price/",
           "https://www.socalswg.com/artificial-grass-play-areas/price-of-artificial-grass-in-los-angeles-and-southern-california",
           "https://bigbullyturf.com/how-much-does-turf-cost-in-california/"
         ],
-        "confidence": "high",
-        "notes": "LA installers quote $8-$15/sqft (InstallArtificial 2026) and $12-$17/sqft (SoCal SWG) supplied+installed; practical LA range up to $25/sqft with slopes, demo, pet systems, drainage. Typical project totals $6K-$26K. Input range of $9-$14 is on target; high end nudged to $17.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: $12-$22/sqft installed LA. installartificial cites $9-$25 ($9-20 realistic planning); LA installers cluster $13-$22. $12 floor = budget product tier; sub-$12 quotes usually mean thin base prep.",
         "region": "SoCal",
-        "asOf": "2026-07-11"
-      }
+        "asOf": "2026-07",
+        "auditNote": "2026-07 audit: $12-$22/sqft installed LA. installartificial cites $9-$25 ($9-20 realistic planning); LA installers cluster $13-$22. $12 floor = budget product tier; sub-$12 quotes usually mean thin base prep."
+      },
+      "notes": "2026-07 accuracy audit: 2-$22/sqft installed LA. installartificial cites $9-$25 ($9-20 realistic planning); LA installers cluster $13-$22. $12 floor = budget product tier; sub-$12 quotes usually mean thin base prep."
     },
     {
       "id": "fence-wood",
@@ -1321,22 +1332,25 @@
       "trade": "Demolition & Grading",
       "description": "Interior non-structural demo",
       "unit": "sqft",
-      "low": 4,
-      "high": 10,
+      "low": 3,
+      "high": 9,
       "benchmark": {
-        "lowUSD": 4,
-        "highUSD": 10,
+        "lowUSD": 3,
+        "highUSD": 9,
         "laborShare": 0.75,
         "sources": [
-          "https://www.angi.com/articles/how-much-does-it-cost-demo-interior.htm",
+          "https://homeguide.com/costs/interior-demolition-cost",
           "https://www.fixr.com/costs/interior-demolition",
+          "https://www.angi.com/articles/how-much-does-it-cost-demo-interior.htm",
           "https://www.homeadvisor.com/cost/additions-and-remodels/gut-a-house/"
         ],
-        "confidence": "medium",
-        "notes": "National gut demo $2-$8/sqft adjusted ~+20% for LA labor/dump fees; kitchens/baths and pre-1980 hazmat (asbestos ~$2,100 avg) push the high end.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: National interior (non-structural) demo runs $2-8/sqft; with a +15-25% LA labor adjustment that lands near $3-9/sqft vs benchmark's higher $4 floor.",
         "region": "SoCal",
-        "asOf": "2026-07-08"
-      }
+        "asOf": "2026-07",
+        "auditNote": "National interior (non-structural) demo runs $2-8/sqft; with a +15-25% LA labor adjustment that lands near $3-9/sqft vs benchmark's higher $4 floor."
+      },
+      "notes": "2026-07 accuracy audit: National interior (non-structural) demo runs $2-8/sqft; with a +15-25% LA labor adjustment that lands near $3-9/sqft vs benchmark's higher $4 floor."
     },
     {
       "id": "dumpster",
@@ -1573,21 +1587,24 @@
       "trade": "Demolition & Grading",
       "description": "Swimming pool demolition + backfill (partial removal, LADBS permit) [EXT]",
       "unit": "job",
-      "low": 8000,
-      "high": 20000,
+      "low": 6000,
+      "high": 16000,
       "benchmark": {
-        "lowUSD": 8000,
-        "highUSD": 20000,
+        "lowUSD": 6000,
+        "highUSD": 16000,
         "sources": [
           "https://www.toppoolremoval.com/pool-removal/ca/los-angeles",
+          "https://homeguide.com/costs/cost-to-fill-in-a-pool",
           "https://www.toppoolremoval.com/blog/pool-removal-cost-guide-2026",
           "https://www.angi.com/articles/pool-removal-cost.htm"
         ],
-        "confidence": "high",
-        "notes": "LA average $12,000-$19,500 for gunite pools incl. permit ($300-$800 LADBS); tight backyard access is the big multiplier; full removal costs more than partial fill-in.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: LA full pool removal averages $12,000-19,500; partial removal saves $3,000-8,000 off that per current guides, implying ~$6,000-16,000 for a LADBS-permitted partial job vs benchmark's richer $8,000-20,000 (which overlappe",
         "region": "SoCal",
-        "asOf": "2026-07-08"
-      }
+        "asOf": "2026-07",
+        "auditNote": "LA full pool removal averages $12,000-19,500; partial removal saves $3,000-8,000 off that per current guides, implying ~$6,000-16,000 for a LADBS-permitted partial job vs benchmark's richer $8,000-20,000 (which overlappe"
+      },
+      "notes": "2026-07 accuracy audit: LA full pool removal averages $12,000-19,500; partial removal saves $3,000-8,000 off that per current guides, implying ~$6,000-16,000 for a LADBS-permitted partial job vs benchmark's richer $8,000-20,000 (which overlappe"
     },
     {
       "id": "ext-lot-grading-yard-leveling-machine-grade-",
@@ -1683,21 +1700,24 @@
       "trade": "Masonry & Hardscape",
       "description": "Engineered retaining wall 4-6ft (permit, drainage, waterproofing) [EXT]",
       "unit": "lf",
-      "low": 150,
-      "high": 350,
+      "low": 200,
+      "high": 500,
       "benchmark": {
-        "lowUSD": 150,
-        "highUSD": 350,
+        "lowUSD": 200,
+        "highUSD": 500,
         "sources": [
-          "https://www.topretainingwalls.com/retaining-wall-cost-california/",
           "https://homeguide.com/costs/retaining-wall-cost",
+          "https://salandbros.com/blog/landscaping/retaining-wall-costs-in-san-diego",
+          "https://www.topretainingwalls.com/retaining-wall-cost-california/",
           "https://www.bensonconstructiongroup.com/retaining-walls-los-angeles"
         ],
-        "confidence": "low",
-        "notes": "CA-installed walls top out ~$150/LF at 3-4ft; over 4ft triggers engineering + permit in most LA jurisdictions and hillside surcharges add 25-40%, pushing quotes to $150-$350/LF -- verify against local structural bids.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: CA-specific data shows $250-900/lf for engineered walls (San Diego: concrete block $250-400, poured $350-600/lf) vs national ~$50-150/lf; old $150-350 benchmark runs low for a permitted/waterproofed 4-6ft SoCal wall.",
         "region": "SoCal",
-        "asOf": "2026-07-08"
-      }
+        "asOf": "2026-07",
+        "auditNote": "CA-specific data shows $250-900/lf for engineered walls (San Diego: concrete block $250-400, poured $350-600/lf) vs national ~$50-150/lf; old $150-350 benchmark runs low for a permitted/waterproofed 4-6ft SoCal wall."
+      },
+      "notes": "2026-07 accuracy audit: CA-specific data shows $250-900/lf for engineered walls (San Diego: concrete block $250-400, poured $350-600/lf) vs national ~$50-150/lf; old $150-350 benchmark runs low for a permitted/waterproofed 4-6ft SoCal wall."
     },
     {
       "id": "ext-foundation-underpinning-push-piers-hills",
@@ -1726,20 +1746,24 @@
       "trade": "Foundation & Retrofit",
       "description": "Full foundation replacement (raise house, demo, re-pour) [EXT]",
       "unit": "job",
-      "low": 25000,
-      "high": 60000,
+      "low": 35000,
+      "high": 120000,
       "benchmark": {
-        "lowUSD": 25000,
-        "highUSD": 60000,
+        "lowUSD": 35000,
+        "highUSD": 120000,
         "sources": [
+          "https://homeguide.com/costs/house-lifting-cost",
+          "https://goldenretrofit.com/foundation-replacement-cost",
           "https://goldenretrofit.com/foundation-repair-cost-in-los-angeles-2025",
           "https://silverhammerbuilders.com/foundation-repair-cost-in-los-angeles"
         ],
-        "confidence": "medium",
-        "notes": "LA guides quote $25,000-$60,000+ for lift + demo + new stem-wall foundation on a standard SFR; hillside or large homes exceed the range.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: Full scope (lift+demo+re-pour) runs $50k-100k+ nationally (lifting $10-40k + foundation $25-40k); Golden Retrofit's own LA page cites $20k-$100k+. Old $25k-60k undercounts the combined-scope high end.",
         "region": "SoCal",
-        "asOf": "2026-07-08"
-      }
+        "asOf": "2026-07",
+        "auditNote": "Full scope (lift+demo+re-pour) runs $50k-100k+ nationally (lifting $10-40k + foundation $25-40k); Golden Retrofit's own LA page cites $20k-$100k+. Old $25k-60k undercounts the combined-scope high end."
+      },
+      "notes": "2026-07 accuracy audit: Full scope (lift+demo+re-pour) runs $50k-100k+ nationally (lifting $10-40k + foundation $25-40k); Golden Retrofit's own LA page cites $20k-$100k+. Old $25k-60k undercounts the combined-scope high end."
     },
     {
       "id": "ext-hillside-caisson-grade-beam-foundation-s",
@@ -1747,20 +1771,22 @@
       "trade": "Foundation & Retrofit",
       "description": "Hillside caisson + grade beam foundation system (drilled piers to bedrock) [EXT]",
       "unit": "job",
-      "low": 120000,
-      "high": 400000,
+      "low": 250000,
+      "high": 1000000,
       "benchmark": {
-        "lowUSD": 120000,
-        "highUSD": 400000,
+        "lowUSD": 250000,
+        "highUSD": 1000000,
         "sources": [
-          "https://www.dwdbuilders.com/intel/what-is-a-caisson-foundation-los-angeles",
-          "https://www.bensonconstructiongroup.com/la-construction-cost"
+          "https://www.bensonconstructiongroup.com/la-construction-cost",
+          "https://www.dwdbuilders.com/intel/what-is-a-caisson-foundation-los-angeles"
         ],
-        "confidence": "low",
-        "notes": "LA builders cite $120K (flat-lot baseline) to $400K+ for hillside caisson systems, occasionally $1M; entirely driven by soils report, pier count/depth (20-60ft) and rig access.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: Benson's own LA cost data cites $500K-$1.5M+ for piles+grade beams on hillside sites; DWD cites $15-50k/caisson x 15-40 caissons ($225k-$2M+). Old $120k-400k badly understates a full hillside caisson+grade-beam system.",
         "region": "SoCal",
-        "asOf": "2026-07-08"
-      }
+        "asOf": "2026-07",
+        "auditNote": "Benson's own LA cost data cites $500K-$1.5M+ for piles+grade beams on hillside sites; DWD cites $15-50k/caisson x 15-40 caissons ($225k-$2M+). Old $120k-400k badly understates a full hillside caisson+grade-beam system."
+      },
+      "notes": "2026-07 accuracy audit: Benson's own LA cost data cites $500K-$1.5M+ for piles+grade beams on hillside sites; DWD cites $15-50k/caisson x 15-40 caissons ($225k-$2M+). Old $120k-400k badly understates a full hillside caisson+grade-beam system."
     },
     {
       "id": "ext-automatic-driveway-gate-installed-gate-o",
@@ -1944,21 +1970,23 @@
       "trade": "HVAC",
       "description": "Mini-split additional zone (multi-zone system, per indoor head) [EXT]",
       "unit": "each",
-      "low": 2500,
-      "high": 6000,
+      "low": 1800,
+      "high": 4000,
       "benchmark": {
-        "lowUSD": 2500,
-        "highUSD": 6000,
+        "lowUSD": 1800,
+        "highUSD": 4000,
         "sources": [
           "https://www.angi.com/articles/how-much-does-it-cost-install-ductless-mini-split-ac/ca/los-angeles",
-          "https://contractorplus.app/resources/construction-costs/ductless-mini-split-installation/los-angeles-ca",
-          "https://homeguide.com/costs/ductless-mini-split-ac-cost"
+          "https://homeguide.com/costs/ductless-mini-split-ac-cost",
+          "https://contractorplus.app/resources/construction-costs/ductless-mini-split-installation/los-angeles-ca"
         ],
-        "confidence": "medium",
-        "notes": "LA per-zone pricing $2,500-$6,000 incl. head, line set, and share of condenser; drops toward low end when added to an existing multi-zone condenser.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: Marginal cost of an additional head on an existing multi-zone system is consistently $1,500-3,000 nationally ($600-2,200 in LA-specific quotes); old $2,500-6,000 benchmark overshoots, especially the $6,000 top end.",
         "region": "SoCal",
-        "asOf": "2026-07-08"
-      }
+        "asOf": "2026-07",
+        "auditNote": "Marginal cost of an additional head on an existing multi-zone system is consistently $1,500-3,000 nationally ($600-2,200 in LA-specific quotes); old $2,500-6,000 benchmark overshoots, especially the $6,000 top end."
+      },
+      "notes": "2026-07 accuracy audit: Marginal cost of an additional head on an existing multi-zone system is consistently $1,500-3,000 nationally ($600-2,200 in LA-specific quotes); old $2,500-6,000 benchmark overshoots, especially the $6,000 top end."
     },
     {
       "id": "ext-smart-thermostat-supplied-installed-nest",
@@ -2098,21 +2126,23 @@
       "trade": "Roofing",
       "description": "Title-24 cool roof coating restoration (elastomeric/silicone, clean + 2 coats) [EXT]",
       "unit": "sqft",
-      "low": 2,
-      "high": 5,
+      "low": 1.5,
+      "high": 4,
       "benchmark": {
-        "lowUSD": 2,
-        "highUSD": 5,
+        "lowUSD": 1.5,
+        "highUSD": 4,
         "sources": [
           "https://hproofingpro.com/cool-roof-coatings-and-california-s-title-24-what-alhambra-and-san-gabriel-valle/",
           "https://usmadesupply.com/resources/guides/roof-coating-guide-for-los-angeles-county",
           "https://gauntletroofing.com/roof-coating/roof-coating-cost/"
         ],
-        "confidence": "high",
-        "notes": "Basic Title-24 elastomeric $1.50-$2.50/sqft; warrantied seamless restoration $3-$5/sqft; LA reflective coatings $3-$5/sqft.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: LA-area source states a roof needing only cleaning + 2 coats (the exact scope described) runs $1.50-2.50/sqft; more elaborate restoration reaches $3-5/sqft. Old $2-5 benchmark's low end runs high for this specific scope.",
         "region": "SoCal",
-        "asOf": "2026-07-08"
-      }
+        "asOf": "2026-07",
+        "auditNote": "LA-area source states a roof needing only cleaning + 2 coats (the exact scope described) runs $1.50-2.50/sqft; more elaborate restoration reaches $3-5/sqft. Old $2-5 benchmark's low end runs high for this specific scope."
+      },
+      "notes": "2026-07 accuracy audit: LA-area source states a roof needing only cleaning + 2 coats (the exact scope described) runs $1.50-2.50/sqft; more elaborate restoration reaches $3-5/sqft. Old $2-5 benchmark's low end runs high for this specific scope."
     },
     {
       "id": "ext-skylight-replacement-in-existing-opening",
@@ -2142,19 +2172,22 @@
       "trade": "Roofing",
       "description": "Standing seam / metal roof replacement [EXT]",
       "unit": "square",
-      "low": 2000,
-      "high": 2700,
+      "low": 1400,
+      "high": 2500,
       "benchmark": {
-        "lowUSD": 2000,
-        "highUSD": 2700,
+        "lowUSD": 1400,
+        "highUSD": 2500,
         "sources": [
+          "https://bestlaroofing.com/blog/metal-roof-cost-los-angeles/",
           "https://horizonroofingca.com/real-cost-of-roof-repair-irvine-anaheim-2025/"
         ],
-        "confidence": "medium",
-        "notes": "OC/SoCal 2025 guide: metal roof replacement $20-$27/sqft installed, 40-70 yr life; single source.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: LA-specific data: mainstream steel/Galvalume standing seam runs $12-22/sqft ($1,200-2,200/square), premium coastal aluminum $18-28/sqft ($1,800-2,800/square). Old $2,000-2,700/square skews to the premium-only tier and un",
         "region": "SoCal",
-        "asOf": "2026-07-08"
-      }
+        "asOf": "2026-07",
+        "auditNote": "LA-specific data: mainstream steel/Galvalume standing seam runs $12-22/sqft ($1,200-2,200/square), premium coastal aluminum $18-28/sqft ($1,800-2,800/square). Old $2,000-2,700/square skews to the premium-only tier and un"
+      },
+      "notes": "2026-07 accuracy audit: LA-specific data: mainstream steel/Galvalume standing seam runs $12-22/sqft ($1,200-2,200/square), premium coastal aluminum $18-28/sqft ($1,800-2,800/square). Old $2,000-2,700/square skews to the premium-only tier and un"
     },
     {
       "id": "ext-whole-house-re-stucco-traditional-3-coat",
@@ -2271,20 +2304,22 @@
       "description": "SB-326/SB-721 balcony waterproofing repair (new system + flashing, sound-to-moderate substrate) [EXT]",
       "unit": "sqft",
       "low": 36,
-      "high": 80,
+      "high": 60,
       "benchmark": {
         "lowUSD": 36,
-        "highUSD": 80,
+        "highUSD": 60,
         "sources": [
           "https://usmadesupply.com/resources/guides/walking-deck-cost-by-project-type",
           "https://deckflex.com/california-balcony-waterproofing-sb-721-sb-326/",
           "https://www.baycitiesconstruction.com/balcony-waterproofing-cost-breakdown"
         ],
-        "confidence": "high",
-        "notes": "Published CA tiers: new AC39 system $36-$42/sqft; +flashing $50-$60; +subfloor $75-$80; structural/engineered repairs run $120-$200/sqft.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: Trade-tier pricing: Tier 1 (sound substrate) $36-42/sqft, Tier 2 (moderate) $50-60/sqft; the $80 top end belongs to severe/structural tier, not 'sound-to-moderate' scope.",
         "region": "SoCal",
-        "asOf": "2026-07-08"
-      }
+        "asOf": "2026-07",
+        "auditNote": "Trade-tier pricing: Tier 1 (sound substrate) $36-42/sqft, Tier 2 (moderate) $50-60/sqft; the $80 top end belongs to severe/structural tier, not 'sound-to-moderate' scope."
+      },
+      "notes": "2026-07 accuracy audit: Trade-tier pricing: Tier 1 (sound substrate) $36-42/sqft, Tier 2 (moderate) $50-60/sqft; the $80 top end belongs to severe/structural tier, not 'sound-to-moderate' scope."
     },
     {
       "id": "ext-full-waterproof-membrane-tear-off-and-re",
@@ -2313,21 +2348,23 @@
       "trade": "Windows and doors",
       "description": "Exterior entry/front door replacement (fiberglass or steel, existing frame) [EXT]",
       "unit": "job",
-      "low": 650,
-      "high": 2500,
+      "low": 600,
+      "high": 1800,
       "benchmark": {
-        "lowUSD": 650,
-        "highUSD": 2500,
+        "lowUSD": 600,
+        "highUSD": 1800,
         "sources": [
           "https://www.handoff.ai/construction-costs/replace-a-front-door/los-angeles-ca",
           "https://www.angi.com/articles/how-much-does-it-cost-install-new-front-door/ca/los-angeles",
           "https://www.homeadvisor.com/cost/doors-and-windows/exterior-door/"
         ],
-        "confidence": "high",
-        "notes": "LA replace-in-frame $622-$1,744 incl. labor; wood/custom slabs push to $2,500-$3,000+; removal adds $70-$200.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: LA-specific existing-frame door swap prices at $622-$1,744/door; the $2,500 top end better fits jobs that include frame replacement or custom wood doors.",
         "region": "SoCal",
-        "asOf": "2026-07-08"
-      }
+        "asOf": "2026-07",
+        "auditNote": "LA-specific existing-frame door swap prices at $622-$1,744/door; the $2,500 top end better fits jobs that include frame replacement or custom wood doors."
+      },
+      "notes": "2026-07 accuracy audit: LA-specific existing-frame door swap prices at $622-$1,744/door; the $2,500 top end better fits jobs that include frame replacement or custom wood doors."
     },
     {
       "id": "ext-garage-door-torsion-spring-replacement-p",
@@ -2335,20 +2372,22 @@
       "trade": "Garage Doors",
       "description": "Garage door torsion spring replacement (pair, incl. tune-up) [EXT]",
       "unit": "job",
-      "low": 200,
-      "high": 700,
+      "low": 400,
+      "high": 1400,
       "benchmark": {
-        "lowUSD": 200,
-        "highUSD": 700,
+        "lowUSD": 400,
+        "highUSD": 1400,
         "sources": [
-          "https://www.angi.com/articles/how-much-should-garage-door-spring-replacement-cost/ca/los-angeles",
-          "https://californiagaragerepair.com/blog/garage-door-spring-replacement-cost-guide/"
+          "https://californiagaragerepair.com/blog/garage-door-spring-replacement-cost-guide/",
+          "https://www.angi.com/articles/how-much-should-garage-door-spring-replacement-cost/ca/los-angeles"
         ],
-        "confidence": "high",
-        "notes": "LA single spring $200-$700, dual $400-$1,400; Angi LA avg $284 ($170-$398) - GC/service-company pricing at the top of that.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: LA source quotes dual/pair torsion spring replacement at $400-$1,400 depending on door complexity - the $200 low end reflects single-spring jobs, not a pair with tune-up.",
         "region": "SoCal",
-        "asOf": "2026-07-08"
-      }
+        "asOf": "2026-07",
+        "auditNote": "LA source quotes dual/pair torsion spring replacement at $400-$1,400 depending on door complexity - the $200 low end reflects single-spring jobs, not a pair with tune-up."
+      },
+      "notes": "2026-07 accuracy audit: LA source quotes dual/pair torsion spring replacement at $400-$1,400 depending on door complexity - the $200 low end reflects single-spring jobs, not a pair with tune-up."
     },
     {
       "id": "ext-garage-door-opener-replacement-only-belt",
@@ -2356,20 +2395,24 @@
       "trade": "Garage Doors",
       "description": "Garage door opener replacement only (belt/chain drive, existing door) [EXT]",
       "unit": "each",
-      "low": 400,
-      "high": 1200,
+      "low": 300,
+      "high": 900,
       "benchmark": {
-        "lowUSD": 400,
-        "highUSD": 1200,
+        "lowUSD": 300,
+        "highUSD": 900,
         "sources": [
+          "https://californiagaragerepair.com/blog/garage-door-opener-installation-cost-guide/",
+          "https://www.angi.com/articles/how-much-does-garage-door-opener-cost/ca/los-angeles",
           "https://californiagaragerepair.com/blog/garage-door-replacement-cost-guide/",
           "https://www.homeadvisor.com/cost/garages/install-a-garage-door/"
         ],
-        "confidence": "medium",
-        "notes": "Opener adds $500-$1,200 in 2025 CA guide; national $200-$1,300 depending on drive type and smart features.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: LA-specific belt-drive installed runs $330-$820, chain drive $270-$550, premium up to ~$900; the $1,200 top end overshoots belt/chain and reaches into jackshaft/premium territory.",
         "region": "SoCal",
-        "asOf": "2026-07-08"
-      }
+        "asOf": "2026-07",
+        "auditNote": "LA-specific belt-drive installed runs $330-$820, chain drive $270-$550, premium up to ~$900; the $1,200 top end overshoots belt/chain and reaches into jackshaft/premium territory."
+      },
+      "notes": "2026-07 accuracy audit: LA-specific belt-drive installed runs $330-$820, chain drive $270-$550, premium up to ~$900; the $1,200 top end overshoots belt/chain and reaches into jackshaft/premium territory."
     },
     {
       "id": "ext-failed-foggy-insulated-glass-unit-igu-re",
@@ -2528,20 +2571,24 @@
       "trade": "Flooring",
       "description": "Carpet + pad supplied and installed (mid-grade) [EXT]",
       "unit": "sqft",
-      "low": 3,
-      "high": 10,
+      "low": 4,
+      "high": 8,
       "benchmark": {
-        "lowUSD": 3,
-        "highUSD": 10,
+        "lowUSD": 4,
+        "highUSD": 8,
         "sources": [
+          "https://www.homewyse.com/services/cost_to_install_carpet.html",
+          "https://carpetexchange.com/flooring-school/carpet-installation-cost-2026",
           "https://homeguide.com/costs/carpet-installation-cost",
           "https://www.homeadvisor.com/cost/flooring/install-carpeting/"
         ],
-        "confidence": "medium",
-        "notes": "HomeGuide $2-$9/sf installed national; adjusted +15-20% for LA; berber/wool pushes high end.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: Multiple 2026 sources converge on mid-grade carpet+pad+labor at $4.50-$8/sqft (one cites $3.80-7.10); the $3-10 benchmark is wider than the market on both ends.",
         "region": "SoCal",
-        "asOf": "2026-07-08"
-      }
+        "asOf": "2026-07",
+        "auditNote": "Multiple 2026 sources converge on mid-grade carpet+pad+labor at $4.50-$8/sqft (one cites $3.80-7.10); the $3-10 benchmark is wider than the market on both ends."
+      },
+      "notes": "2026-07 accuracy audit: Multiple 2026 sources converge on mid-grade carpet+pad+labor at $4.50-$8/sqft (one cites $3.80-7.10); the $3-10 benchmark is wider than the market on both ends."
     },
     {
       "id": "ext-level-5-smooth-finish-skim-coat-over-exi",
@@ -2745,20 +2792,24 @@
       "trade": "Pool Construction",
       "description": "Pool coping replacement (concrete/stone/tile) [EXT]",
       "unit": "lf",
-      "low": 15,
-      "high": 50,
+      "low": 40,
+      "high": 90,
       "benchmark": {
-        "lowUSD": 15,
-        "highUSD": 50,
+        "lowUSD": 40,
+        "highUSD": 90,
         "sources": [
+          "https://homeguide.com/costs/pool-coping-cost",
+          "https://pacificpavers.com/blog/pool-coping-cost-per-linear-foot/",
           "https://www.provalet.io/guides-posts/guide-to-understanding-the-costs-associated-with-replacing-pool-coping-including-labor-and-materials",
           "https://www.angi.com/articles/pool-tile-cost.htm"
         ],
-        "confidence": "medium",
-        "notes": "Replacement runs $15-$50/lf by material: concrete $15-$30/lf, tile $20-$45/lf, natural stone $30-$50/lf; labor $10-$30/lf of that. Waterline tile replacement is $25-$30/lf installed. National data; add ~15-25% for LA.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: 2026 sources show coping install at $40-$80/lf by material (concrete low, natural stone high) plus $5-$12/lf for replacement demo/removal, i.e. ~$40-$90/lf; benchmark's $15-$50 floor is stale-low.",
         "region": "SoCal",
-        "asOf": "2026-07-11"
-      }
+        "asOf": "2026-07",
+        "auditNote": "2026 sources show coping install at $40-$80/lf by material (concrete low, natural stone high) plus $5-$12/lf for replacement demo/removal, i.e. ~$40-$90/lf; benchmark's $15-$50 floor is stale-low."
+      },
+      "notes": "2026-07 accuracy audit: 2026 sources show coping install at $40-$80/lf by material (concrete low, natural stone high) plus $5-$12/lf for replacement demo/removal, i.e. ~$40-$90/lf; benchmark's $15-$50 floor is stale-low."
     },
     {
       "id": "ext-pool-heater-replacement-gas-heat-pump-in",
@@ -2830,21 +2881,24 @@
       "trade": "Full home renovations",
       "description": "Bathroom remodel (LA) - secondary bath through primary suite [EXT]",
       "unit": "job",
-      "low": 15000,
-      "high": 60000,
+      "low": 22000,
+      "high": 65000,
       "benchmark": {
-        "lowUSD": 15000,
-        "highUSD": 60000,
+        "lowUSD": 22000,
+        "highUSD": 65000,
         "sources": [
           "https://www.greatbuildz.com/blog/los-angeles-bathroom-remodel-costs-tips/",
+          "https://esvconstruction.com/blog/bathroom-remodel-cost-los-angeles-2026",
           "https://www.angi.com/articles/how-much-does-bathroom-remodel-cost/ca/los-angeles",
           "https://www.revive.realestate/post/how-much-does-a-bathroom-renovation-cost-in-los-angeles"
         ],
-        "confidence": "high",
-        "notes": "LA 2025: typical spend $18K-$40K (Angi LA avg ~$20K); smaller secondary baths ~$25K, larger primaries ~$40K, ranging $25K-$60K (Revive) and $32K-$85K on higher-end scopes (GreatBuildz). Moving plumbing fixtures is the biggest cost adder; labor is 40-60% of budget.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: $22k-$65k. Secondary/guest baths ~$22k-40k (GreatBuildz/ESV); primary suites $40k-70k (ESV $35-70k). Agent-proposed $85k top rejected as luxury-spa tier.",
         "region": "SoCal",
-        "asOf": "2026-07-11"
-      }
+        "asOf": "2026-07",
+        "auditNote": "2026-07 audit: $22k-$65k. Secondary/guest baths ~$22k-40k (GreatBuildz/ESV); primary suites $40k-70k (ESV $35-70k). Agent-proposed $85k top rejected as luxury-spa tier."
+      },
+      "notes": "2026-07 accuracy audit: 2026-07 audit: $22k-$65k. Secondary/guest baths ~$22k-40k (GreatBuildz/ESV); primary suites $40k-70k (ESV $35-70k). Agent-proposed $85k top rejected as luxury-spa tier."
     },
     {
       "id": "ext-whole-house-remodel-gut-renovation-la",
@@ -2852,21 +2906,24 @@
       "trade": "Full home renovations",
       "description": "Whole-house remodel / gut renovation (LA) [EXT]",
       "unit": "sqft",
-      "low": 150,
-      "high": 600,
+      "low": 200,
+      "high": 700,
       "benchmark": {
-        "lowUSD": 150,
-        "highUSD": 600,
+        "lowUSD": 200,
+        "highUSD": 700,
         "sources": [
           "https://sweeten.com/renovation-cost-guides/home-renovation-costs-per-square-foot-in-los-angeles/",
+          "https://nplinedesign.com/full-home-renovation-cost-los-angeles-2026",
           "https://www.luxdevla.com/home-remodeling-costs-los-angeles/",
           "https://www.wedoconstructions.com/remodel-cost-in-los-angeles-home-renovation-remodel-costs-guide"
         ],
-        "confidence": "high",
-        "notes": "LA 2025: light remodels $150-$300/sqft; mid-range $300-$600/sqft; high-end structural work $700+/sqft. Gut renovation demo/base starts $100-$200/sqft. Wet rooms (kitchen/bath) start closer to $400/sqft. LA runs 20-40% above national.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: $200-$700/sqft. Sources split cosmetic refresh ($150-250/sqft, not a true gut) from mid-range gut ($300-450/sqft) and high-end/structural gut ($450-700/sqft); the old $150 floor mixed cosmetic scope into a gut item.",
         "region": "SoCal",
-        "asOf": "2026-07-11"
-      }
+        "asOf": "2026-07",
+        "auditNote": "2026-07 audit: $200-$700/sqft. Sources split cosmetic refresh ($150-250/sqft, not a true gut) from mid-range gut ($300-450/sqft) and high-end/structural gut ($450-700/sqft); the old $150 floor mixed cosmetic scope into a gut item."
+      },
+      "notes": "2026-07 accuracy audit: 00-$700/sqft. Sources split cosmetic refresh ($150-250/sqft, not a true gut) from mid-range gut ($300-450/sqft) and high-end/structural gut ($450-700/sqft); the old $150 floor mixed cosmetic scope into a gut item."
     },
     {
       "id": "ext-second-story-addition-build-up-la",
@@ -2875,19 +2932,23 @@
       "description": "Second-story addition / build-up (LA) [EXT]",
       "unit": "sqft",
       "low": 400,
-      "high": 1000,
+      "high": 700,
       "benchmark": {
         "lowUSD": 400,
-        "highUSD": 1000,
+        "highUSD": 700,
         "sources": [
+          "https://www.mycalibuilders.com/blog/second-story-addition-cost-california",
+          "https://www.angi.com/articles/cost-add-second-story/ca/los-angeles",
           "https://www.revive.realestate/post/room-addition-cost-los-angeles",
           "https://www.angi.com/articles/how-much-do-home-additions-cost/ca/los-angeles"
         ],
-        "confidence": "medium",
-        "notes": "Building up costs $400-$600/sqft (Revive LA) to $600-$1,000/sqft (Angi LA) due to structural/foundation reinforcement, shoring, and living-through-construction logistics. Quote from $400 with structural review; wide sourced spread, hence medium confidence.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: 2026 sources consistently cap second-story additions at $650-$700/sqft (structural/foundation reinforcement being the main driver); benchmark's $1,000/sqft ceiling is above what current guides support.",
         "region": "SoCal",
-        "asOf": "2026-07-11"
-      }
+        "asOf": "2026-07",
+        "auditNote": "2026 sources consistently cap second-story additions at $650-$700/sqft (structural/foundation reinforcement being the main driver); benchmark's $1,000/sqft ceiling is above what current guides support."
+      },
+      "notes": "2026-07 accuracy audit: 2026 sources consistently cap second-story additions at $650-$700/sqft (structural/foundation reinforcement being the main driver); benchmark's $1,000/sqft ceiling is above what current guides support."
     },
     {
       "id": "ext-architectural-design-fees-room-addition-",
@@ -2980,20 +3041,24 @@
       "trade": "Handyman Services",
       "description": "Handyman hourly rate (LA) [EXT]",
       "unit": "hour",
-      "low": 50,
-      "high": 100,
+      "low": 65,
+      "high": 150,
       "benchmark": {
-        "lowUSD": 50,
-        "highUSD": 100,
+        "lowUSD": 65,
+        "highUSD": 150,
         "sources": [
+          "https://goldkeyrepairs.com/blog/handyman-cost-los-angeles.html",
+          "https://zomgthehandyman.com/blog/handyman-hourly-rate-california",
           "https://www.homeyou.com/ca/handyman-services-los-angeles-costs",
           "https://handyman.promatcher.com/cost/los-angeles-ca-handyman-costs-prices.aspx"
         ],
-        "confidence": "high",
-        "notes": "LA customer-facing handyman rates: $50-$100/hr; typical LA project totals $180-$650. Flat-rate pricing common on defined scopes.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: 2026 LA-specific sources now cite $75-$150/hr (insured handymen $95-$125/hr), notably above national ~$60-65/hr; benchmark's $50-$100 is stale-low for current LA rates.",
         "region": "SoCal",
-        "asOf": "2026-07-11"
-      }
+        "asOf": "2026-07",
+        "auditNote": "2026 LA-specific sources now cite $75-$150/hr (insured handymen $95-$125/hr), notably above national ~$60-65/hr; benchmark's $50-$100 is stale-low for current LA rates."
+      },
+      "notes": "2026-07 accuracy audit: 2026 LA-specific sources now cite $75-$150/hr (insured handymen $95-$125/hr), notably above national ~$60-65/hr; benchmark's $50-$100 is stale-low for current LA rates."
     },
     {
       "id": "ext-half-day-handyman-service-call-4-hours-l",
@@ -3021,20 +3086,23 @@
       "trade": "Handyman Services",
       "description": "Drywall patch/repair (holes, cracks, small sections) [EXT]",
       "unit": "job",
-      "low": 300,
-      "high": 800,
+      "low": 150,
+      "high": 700,
       "benchmark": {
-        "lowUSD": 300,
-        "highUSD": 800,
+        "lowUSD": 150,
+        "highUSD": 700,
         "sources": [
-          "https://www.homeadvisor.com/cost/walls-and-ceilings/repair-drywall/",
-          "https://homeguide.com/costs/drywall-repair-cost"
+          "https://www.angi.com/articles/how-much-does-drywall-repair-cost-small-holes.htm",
+          "https://homeguide.com/costs/drywall-repair-cost",
+          "https://www.homeadvisor.com/cost/walls-and-ceilings/repair-drywall/"
         ],
-        "confidence": "medium",
-        "notes": "2025 national: typical repair ~$350; small-hole patches $300-$500, larger holes needing framing and multi-coat finish $500-$800+; simple cracks from $60-$400. Water-damage repairs $600-$1,550. National data - LA runs ~15-25% higher.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: 2026 sources put small-hole professional patches at $75-$160 and larger crack/section repairs at $300-$472, with texture matching adding $100-$300; benchmark's $300 floor overstates the small-job end.",
         "region": "SoCal",
-        "asOf": "2026-07-11"
-      }
+        "asOf": "2026-07",
+        "auditNote": "2026 sources put small-hole professional patches at $75-$160 and larger crack/section repairs at $300-$472, with texture matching adding $100-$300; benchmark's $300 floor overstates the small-job end."
+      },
+      "notes": "2026-07 accuracy audit: 2026 sources put small-hole professional patches at $75-$160 and larger crack/section repairs at $300-$472, with texture matching adding $100-$300; benchmark's $300 floor overstates the small-job end."
     },
     {
       "id": "ext-interior-door-installation-slab-or-prehu",
@@ -3064,20 +3132,22 @@
       "description": "Electrical panel upgrade to 200A (like-for-like location) [EXT]",
       "unit": "job",
       "low": 2000,
-      "high": 6000,
+      "high": 4500,
       "benchmark": {
         "lowUSD": 2000,
-        "highUSD": 6000,
+        "highUSD": 4500,
         "sources": [
           "https://karmicelectrical.com/cost-of-upgrading-to-200-amp-service-in-los-angeles/",
-          "https://www.tikelectric.com/200-amp-panel-upgrade",
-          "https://turtlecreekelectric.com/cost-to-upgrade-electrical-panel-to-200-amps-in-los-angeles-90066/"
+          "https://turtlecreekelectric.com/cost-to-upgrade-electrical-panel-to-200-amps-in-los-angeles-90066/",
+          "https://www.tikelectric.com/200-amp-panel-upgrade"
         ],
-        "confidence": "high",
-        "notes": "LA: $2,000-$4,500 typical ($1,800-$4,500 per Tik Electric); basic 100A-to-200A swap $3,000-$3,800; panel relocation to meet code $4,000-$6,000; full service upgrade with new meter base $5,000+. Old-wiring remediation adds $500-$2,000. Qualifies for LADBS express permit.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: $2,000-$4,500. Turtle Creek (LA) quotes $3,000-$4,800 overall / $3,000-$3,800 basic same-location swap; low end from budget like-for-like quotes (verify on site). Distinct from elec-panel ($3,000-$7,500) which includes permit + 2026 CEC surge-protection.",
         "region": "SoCal",
-        "asOf": "2026-07-11"
-      }
+        "asOf": "2026-07",
+        "auditNote": "2026-07 audit: $2,000-$4,500. Turtle Creek (LA) quotes $3,000-$4,800 overall / $3,000-$3,800 basic same-location swap; low end from budget like-for-like quotes (verify on site). Distinct from elec-panel ($3,000-$7,500) which includes permit + 2026 CEC surge-protection."
+      },
+      "notes": "2026-07 accuracy audit: ,000-$4,500. Turtle Creek (LA) quotes $3,000-$4,800 overall / $3,000-$3,800 basic same-location swap; low end from budget like-for-like quotes (verify on site). Distinct from elec-panel ($3,000-$7,500) which includes permit + 2026 CEC surge-protection."
     },
     {
       "id": "ext-water-heater-replacement-standard-tank-l",
@@ -3085,20 +3155,23 @@
       "trade": "General",
       "description": "Water heater replacement, standard tank (like-for-like) [EXT]",
       "unit": "job",
-      "low": 900,
-      "high": 4500,
+      "low": 1200,
+      "high": 3400,
       "benchmark": {
-        "lowUSD": 900,
-        "highUSD": 4500,
+        "lowUSD": 1200,
+        "highUSD": 3400,
         "sources": [
           "https://ogradyplumbing.com/how-much-does-it-cost-to-replace-a-water-heater-in-california/",
+          "https://homeguide.com/costs/water-heater-installation-cost",
           "https://www.thewaterheatercompany.com/blog/how-much-does-a-new-water-heater-cost-in-california/"
         ],
-        "confidence": "medium",
-        "notes": "California 2025: $900-$4,500 installed for tank replacement depending on size, code upgrades (seismic straps, expansion tank, venting). LADBS water heater permit itself is ~$28 plus ~$30 earthquake valve fee - express permit, no plan check.",
+        "confidence": "verified-2026-07",
+        "notes": "2026-07 accuracy audit: 2026 California-specific guides show standard tank replacement installed at $1,300-$2,400 typical (most jobs $1,500-$1,900), with complex/code-upgrade cases reaching ~$3,400; benchmark's $900-$4,500 is both stale-low and",
         "region": "SoCal",
-        "asOf": "2026-07-11"
-      }
+        "asOf": "2026-07",
+        "auditNote": "2026 California-specific guides show standard tank replacement installed at $1,300-$2,400 typical (most jobs $1,500-$1,900), with complex/code-upgrade cases reaching ~$3,400; benchmark's $900-$4,500 is both stale-low and"
+      },
+      "notes": "2026-07 accuracy audit: 2026 California-specific guides show standard tank replacement installed at $1,300-$2,400 typical (most jobs $1,500-$1,900), with complex/code-upgrade cases reaching ~$3,400; benchmark's $900-$4,500 is both stale-low and"
     },
     {
       "id": "ext-tankless-water-heater-installation-tank-",

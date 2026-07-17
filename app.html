@@ -240,6 +240,61 @@
     @media (max-width: 560px) {
       .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
+
+    /* ---------- Mobile: table card mode + tap targets (≤700px) ---------- */
+    @media (max-width: 700px) {
+      #view { padding: 1rem 0.7rem 2.5rem; gap: 0.9rem; }
+      .viewhead { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+      .btn { min-height: 40px; }
+      .drawer { width: 100vw; }
+      /* Inline repeat(4) KPI grids (e.g. AI-usage card) still collapse on phones. */
+      .kpis[style] { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+
+      /* Wide list tables -> stacked cards. data-cardify + data-label are stamped
+         by the shell enhancer below, so every current & future view inherits this
+         without touching the view modules. Value stays in normal block flow (rich
+         cells with <b>/pills/<br> keep working); the header label is absolutely
+         positioned in the left gutter. */
+      .tablewrap { max-height: none; overflow: visible; }
+      table.table[data-cardify] { display: block; width: 100%; }
+      table.table[data-cardify] > thead {
+        position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+        overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+      }
+      table.table[data-cardify] > tbody { display: block; }
+      table.table[data-cardify] > tbody > tr {
+        display: block; background: var(--paper);
+        border: 1px solid var(--line); border-radius: 10px;
+        padding: 0.45rem 0.7rem; margin-bottom: 0.6rem;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+      }
+      table.table[data-cardify] > tbody > tr:hover { background: var(--paper); }
+      table.table[data-cardify] > tbody > tr > td {
+        display: block; position: relative; text-align: left;
+        padding: 0.3rem 0 0.3rem 42%; border: 0;
+        border-bottom: 1px solid #f1f4f8; min-height: 1.7rem;
+        white-space: normal !important; overflow-wrap: anywhere;
+      }
+      table.table[data-cardify] > tbody > tr > td:last-child { border-bottom: 0; }
+      table.table[data-cardify] > tbody > tr > td::before {
+        content: attr(data-label); position: absolute; left: 0; top: 0.3rem;
+        width: 38%; padding-right: 0.6rem;
+        font-size: 0.64rem; font-weight: 800; text-transform: uppercase;
+        letter-spacing: 0.03em; color: var(--muted); white-space: normal;
+      }
+      /* Cells with no label (checkbox / spacer columns) span the full card width. */
+      table.table[data-cardify] > tbody > tr > td[data-label=""],
+      table.table[data-cardify] > tbody > tr > td:not([data-label]) { padding-left: 0; }
+      table.table[data-cardify] > tbody > tr > td[data-label=""]::before,
+      table.table[data-cardify] > tbody > tr > td:not([data-label])::before { content: none; }
+    }
+
+    /* Bigger tap targets on touch + small screens only (desktop stays untouched). */
+    @media (max-width: 940px) and (pointer: coarse) {
+      .chip { padding: 0.32rem 0.85rem; }
+      .tab { padding: 0.6rem 0.95rem; }
+      .btn { min-height: 40px; }
+    }
   </style>
 </head>
 <body>
@@ -678,6 +733,62 @@
         return '<div class="kpi"' + (accent ? ' data-accent="' + accent + '"' : "") + "><b>" +
           esc(value === null || value === undefined ? "—" : value) + "</b><span>" + esc(label) + "</span></div>";
       }
+
+      /* ---------- mobile table card-mode enhancer ----------
+         Post-render pass: for every list table rendered into #view, copy each
+         column's header text onto its body cells as data-label="…" (by column
+         index) and flag the table with data-cardify. The ≤700px CSS above then
+         turns wide tables into stacked, labeled cards. This lets ALL current and
+         future views inherit card mode without editing any of the 13 modules.
+         Idempotent + cheap: only stamps cells that lack a label, debounced via
+         one animation frame, and observes childList only (our attribute writes
+         never re-trigger it). */
+      (function () {
+        var host = document.getElementById("view");
+        if (!host || typeof MutationObserver === "undefined") return;
+
+        function cardify() {
+          var tables = host.querySelectorAll("table.table");
+          for (var t = 0; t < tables.length; t++) {
+            var table = tables[t];
+            var headCells = table.querySelectorAll("thead tr:first-child > th");
+            var labels = [];
+            for (var h = 0; h < headCells.length; h++) {
+              // strip sort arrows so the label reads cleanly on cards
+              labels.push((headCells[h].textContent || "").replace(/[▾▴]/g, "").trim());
+            }
+            if (!table.dataset.cardify) table.dataset.cardify = "1";
+            var bodyRows = table.querySelectorAll("tbody > tr");
+            for (var r = 0; r < bodyRows.length; r++) {
+              var cells = bodyRows[r].children;
+              var col = 0;
+              for (var c = 0; c < cells.length; c++) {
+                var cell = cells[c];
+                if (cell.tagName !== "TD") continue;
+                var span = parseInt(cell.getAttribute("colspan"), 10) || 1;
+                if (span > 1) { col += span; continue; }      // skip spanning cells
+                if (!cell.hasAttribute("data-label")) {
+                  cell.setAttribute("data-label", labels[col] || "");
+                }
+                col += 1;
+              }
+            }
+          }
+        }
+
+        var pending = false;
+        function schedule() {
+          if (pending) return;
+          pending = true;
+          // setTimeout (not rAF) so a view that renders while the tab is hidden
+          // still gets stamped — rAF is paused in background tabs. The 0ms delay
+          // still coalesces the burst of mutations from one innerHTML assignment.
+          window.setTimeout(function () { pending = false; cardify(); }, 0);
+        }
+
+        new MutationObserver(schedule).observe(host, { childList: true, subtree: true });
+        schedule(); // initial pass
+      })();
 
       /* ---------- boot ---------- */
 

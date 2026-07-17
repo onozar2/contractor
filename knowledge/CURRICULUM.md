@@ -221,6 +221,17 @@ inspector who fails a rough inspection stops the job cold until it's corrected a
 — this is why "we're waiting on inspection" is the most common excuse and also the most common
 real delay.
 
+**Smoke & CO alarms — verified at every final, on any permitted work.** CRC R314 requires
+interconnected smoke alarms in every bedroom, in the hallway/area outside each group of
+bedrooms, and on every level of the dwelling (including basements); CRC R315 requires
+carbon-monoxide alarms outside each separate sleeping area and on every level. This isn't
+scope-limited to the room you're working in — pulling *any* permit (a water heater swap, a
+panel upgrade, a re-roof) puts the whole house's alarm compliance on the table at final
+inspection, which makes this the single most common final-inspection correction. Many SoCal
+cities accept a CSLB/permit-card self-certification form (check the permit card) in lieu of
+the inspector personally testing every alarm — confirm the local jurisdiction's practice
+before scheduling the final.
+
 **9. Final walkthrough & punch list.** Homeowner and PM walk the completed job, list anything
 incomplete or wrong, contractor corrects it — see Day 33 for the full punch-list methodology
 (three-bucket sorting of incomplete/defective/client-requested-change, a real close-out date, and
@@ -258,6 +269,7 @@ re-roof) vs. what needs plan check.
 3. Why can't you drywall before rough electrical and plumbing inspections pass?
 4. Name two things that most commonly blow up a job's timeline.
 5. What is a punch list and when does it happen?
+6. Why does a simple water heater swap put the whole house's smoke/CO alarm compliance on the table at final inspection?
 
 ---
 
@@ -1792,8 +1804,10 @@ flashing-at-penetrations discipline from Day 6 applies directly.
 
 **This exact waterproofing scope is also a hard legal requirement on multifamily buildings.**
 SB721 (3+ unit rentals) and SB326 (condo/HOA developments) mandate periodic inspection of
-elevated decks/balconies by a qualified inspector, both sharing a January 1, 2026 initial
-deadline — see Day 29 for the full SB721/SB326 breakdown, including who's qualified to sign each.
+elevated decks/balconies by a qualified inspector. AB 2579 extended only SB721's initial-
+inspection deadline to January 1, 2026; SB326's initial deadline was January 1, 2025 and was
+never extended, so a qualifying HOA without a completed inspection is already out of compliance
+— see Day 29 for the full SB721/SB326 breakdown, including who's qualified to sign each.
 
 **Rough LA costs:** pool equipment replacement (pump/filter/heater): $2,500-$6,000; pool
 re-plaster (average pool, excluding tile): $6,000-$12,000; wood patio cover with roofing:
@@ -2520,6 +2534,20 @@ before the department issues a Certificate of Occupancy (CofO) — the legal doc
 allowing occupancy. No CofO, no legal move-in, and it's often a sale-closing condition.
 Build it into the schedule as its own milestone.
 
+**Residential fire sprinklers (CRC R313).** California has required automatic fire
+sprinkler systems in all new one- and two-family dwellings and townhouses since 2011 —
+every new-construction SFR in this day's scope needs one, it's not just a multifamily/
+commercial requirement. Systems are almost always designed to **NFPA 13D**, the lighter
+residential standard sized for occupant escape time (not full property protection like
+commercial NFPA 13). Rough cost: $1.50-$4/SF of new construction [EST], run off a
+dedicated supply line sized by the sprinkler contractor's own hydraulic calc. This is
+licensed scope for a dedicated **C-16** (fire protection) sub, not something the general
+framing or plumbing crew self-performs, and it needs its own inspection tied into the
+rough sequence before drywall. Additions/remodels generally do **not** trigger a
+whole-house retrofit unless the local AHJ (city/county fire marshal or building
+department) determines the scope is substantial enough to require it — verify locally
+before assuming a remodel is exempt.
+
 ### Watch / Read
 - Full playbook: `knowledge/playbooks/53-zoning-basics-la.md` —
 zoning/setback/hillside/HPOZ/coastal gate; read before quoting any new-build lot
@@ -2546,6 +2574,7 @@ for more than a standard footing.
 4. What's the difference between cut, fill, and compaction testing?
 5. When would an engineer specify a hillside caisson/grade-beam foundation?
 6. What's required before a new SFR gets its Certificate of Occupancy?
+7. What does CRC R313 require, and which trade licenses/installs it?
 
 ---
 
@@ -2610,8 +2639,12 @@ on 3+ unit rentals fall under **SB721**; condo/HOA developments fall under **SB3
 — single-family homes aren't covered, though the dry-rot risk is real regardless. 
 SB721 allows a licensed architect, engineer, or qualified contractor to inspect; SB326
 requires a licensed structural engineer or architect — a contractor cannot sign a
-valid SB326 inspection. Both share a hard **January 1, 2026** initial-inspection
-deadline, then re-inspection every 6 years (SB721) or 9 years (SB326). The report goes
+valid SB326 inspection. **AB 2579** (Sept. 2024) extended only **SB721**'s
+initial-inspection deadline to **January 1, 2026**; **SB326**'s initial deadline was
+**January 1, 2025** and was never extended — it has already passed, so a qualifying
+condo/HOA property without a completed inspection is currently out of compliance.
+Re-inspection then runs every 6 years (SB721) or 9 years (SB326) after each statute's
+own initial inspection. The report goes
 to the owner or HOA board, not routinely the city — code enforcement is notified only
 on an immediate hazard. Open any deck job on a qualifying building with "has this had
 its SB721/SB326 inspection." Full playbooks:
@@ -2644,7 +2677,7 @@ defect?
 3. What does a hold-down do, and why does a two-story building need it?
 4. What must be checked/upgraded before second-story framing begins?
 5. What's the key inspector-eligibility difference between SB721 and SB326?
-6. What's the shared deadline, and the re-inspection cycle after it for each statute?
+6. What are SB721's and SB326's respective initial-inspection deadlines, and why is it wrong to call them "shared"?
 
 ---
 
@@ -3103,6 +3136,7 @@ plausible items and sort each into incomplete / defective / client-requested-cha
 3. Because those systems must be inspected before they're covered/hidden by drywall — code requires visible inspection first.
 4. Permit/plan-check delays and unpermitted verbal change orders (also: material back-order, missing engineer letter).
 5. A final list of incomplete/incorrect items the homeowner and PM identify on a walkthrough of the finished job, done before final payment.
+6. Because CRC R314/R315 smoke and CO alarm requirements apply to the whole dwelling, not just the room being worked on — any permitted work puts the entire house's alarm compliance in scope for the final inspection.
 
 **Day 3**
 1. LADBS (City of LA), LA County Building & Safety, and individual city building departments (e.g., Santa Monica, Burbank) — each has its own process/timeline/fees.
@@ -3273,6 +3307,7 @@ plausible items and sort each into incomplete / defective / client-requested-cha
 4. Cut removes soil to grade, fill adds/compacts soil to grade, and compaction testing confirms the fill hit the specified density before foundation work proceeds.
 5. When the soils report finds weak near-surface bearing or the lot is sloped, requiring the foundation to reach competent soil/bedrock via deep piers.
 6. Final structural, MEP, building, and often zoning sign-off — a full occupancy determination, not just a scope-specific final inspection.
+7. Automatic fire sprinklers to NFPA 13D in every new one- and two-family dwelling/townhouse (CRC R313, required statewide since 2011); it's licensed scope for a dedicated C-16 fire-protection sub, not self-performed by general trades — and additions/remodels generally don't trigger a retrofit unless the local AHJ requires it.
 
 **Day 29**
 1. The load path from roof to foundation must be continuous; if the upper wall doesn't line up with support below, load lands on framing never designed to carry it — showing up later as sag or failure.
@@ -3280,7 +3315,7 @@ plausible items and sort each into incomplete / defective / client-requested-cha
 3. A hold-down is a steel connector resisting a shear wall overturning under lateral force; two-story buildings need it because seismic force must transfer between two stacked diaphragms/shear walls, a path a single-story retrofit doesn't have.
 4. The existing foundation and first-floor framing must be evaluated and, if inadequate, reinforced to carry the new load.
 5. SB721 allows an architect, engineer, or qualified contractor; SB326 requires a licensed structural engineer or architect — a contractor cannot sign a valid SB326 inspection.
-6. January 1, 2026 for both; then every 6 years for SB721 and every 9 years for SB326.
+6. SB721 (apartments): January 1, 2026, per AB 2579's extension. SB326 (condo/HOA): January 1, 2025, and it was never extended — that deadline has already passed, so a non-compliant HOA is already in violation, not "on track." Calling them shared is wrong and could mislead an HOA into thinking it has more time than it does. Re-inspection then runs every 6 years (SB721) or 9 years (SB326) after each statute's own initial inspection.
 
 **Day 30**
 1. Ignition-resistant materials/assemblies (roofing, vents, siding, glazing, eaves) for construction in/near a VHFHSZ; triggered by the parcel's location on the fire hazard map, not project type.

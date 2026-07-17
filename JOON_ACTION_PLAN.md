@@ -518,7 +518,7 @@ One product-specific line per target (the supplier record's brands/notes fields 
 
 ## 2.4 Suppliers — cadence and KPI
 - Batch of 6-8 emails/applications per week, Wave order above. All 34 researched records are on the Suppliers page with status `not_started`.
-- 30-day goal (matches the existing growth plan): **8 open accounts** — realistic mix: HD Pro + Lowe's + Urban Bathroom + Ferguson + James Martin + Waterstone + Icera + LaCantina.
+- 30-day goal (matches the existing growth plan): **8 open accounts** — realistic mix: HD Pro + Lowe's + Cartisan Design + Ferguson + James Martin + Waterstone + Icera + LaCantina.
 - KPI on the Suppliers page: % records with minimum/lead-time/discount fields filled after first contact call.
 
 ---

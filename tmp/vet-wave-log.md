@@ -22,3 +22,9 @@
 - QA: 0 aggregator-rule violations across 1,288. Spot-checks 3/3 (1006718, 994120, 928864 — all active, names match exactly).
 - Scores: accuracy 10/10, completeness 10/10, consistency 9.5/10.
 - Session total: 2,127 subs deep-vetted across 4 waves (~15M subagent tokens, Sonnet). Queue cleared; nightly sweep handles new arrivals + ori-uploads first.
+
+## Wave 5 — 2026-07-16 (final tail, 18 records, 2 Sonnet agents)
+- accuracy 10/10 (2/2 CSLB spot-checks verified first-party: 708567 suspended-WC ✓, 1107961 active ✓)
+- completeness 10/10 (18/18 ids returned, applied:18 misses:0)
+- consistency 10/10 (13 ghost/placeholder records honestly left "unchecked", no aggregator assertions)
+- Queue after wave: 0 visible unvetted. Roster fully deep-vetted.

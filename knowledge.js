@@ -258,7 +258,36 @@ async function pricingContextFor(question, extraTerms = "") {
   return include ? built.block : "";
 }
 
-const PRICING_INSTRUCTION = "PRICING: a PRICING DATA block is included below — it is the PRIMARY, authoritative source for ANY dollar figure (price, cost, quote, charge, rate). Quote its numbers first and label each figure you take from it: '(price book)' for the benchmark/blended ranges, '(our jobs)' for the observed medians and trade rates. Only fall back to the NOTES or web for a $ figure the block does NOT contain — and when you do, say so plainly (e.g. 'not in our price book yet — market estimate'). Never let a web price silently override the block.";
+// Mechanical provenance guarantee. The labeling rule alone doesn't hold — the
+// model stamps "(price book)" on notes-sourced figures when a notes chunk reads
+// like a price ladder. So after every answer, verify each provenance label
+// against the dollar figures that are actually in the injected block and
+// rewrite untraceable ones to "(our notes)".
+function extractDollars(text) {
+  const out = new Set();
+  const re = /\$\s?([\d,]+(?:\.\d+)?)\s?([kK])?/g;
+  let m;
+  while ((m = re.exec(String(text || "")))) {
+    let n = parseFloat(m[1].replace(/,/g, ""));
+    if (isNaN(n)) continue;
+    if (m[2]) n *= 1000;
+    out.add(n);
+  }
+  return out;
+}
+function enforcePricingLabels(answer, pricingBlock) {
+  const text = String(answer || "");
+  if (!/\((?:price book|our jobs)/i.test(text)) return text;
+  const blockNums = extractDollars(pricingBlock);
+  // A label is kept only when its sentence carries at least one $ figure that
+  // literally appears in the block; otherwise it becomes "(our notes)".
+  return text.replace(/([^.\n!?]*?)(\((?:price book|our jobs)[^)]{0,80}\))/gi, (full, before, label) => {
+    const nums = [...extractDollars(before + " " + label)];
+    return nums.some((n) => blockNums.has(n)) ? full : before + "(our notes)";
+  });
+}
+
+const PRICING_INSTRUCTION = "PRICING: a PRICING DATA block is included below — it is the PRIMARY, authoritative source for ANY dollar figure (price, cost, quote, charge, rate). Quote its numbers first. LABELING RULE: the labels '(price book)' and '(our jobs)' may ONLY be attached to figures that literally appear in the PRICING DATA block — '(price book)' for its benchmark/blended ranges, '(our jobs)' for its observed medians and trade rates. A figure taken from a NOTES chunk must be labeled '(our notes)'; a figure from the web must be labeled '(web)'; if unsure of a figure's source, use no label. Only fall back to notes or web for a $ figure the block does NOT contain — and say so plainly (e.g. 'not in our price book yet'). Never let a web price silently override the block.";
 
 module.exports = (collection) => {
   const router = express.Router();
@@ -387,7 +416,7 @@ module.exports = (collection) => {
           chunks.map((chunk, index) => `[${index + 1}] ${chunk.title}\n${chunk.text}`).join("\n\n");
       }
       res.json({
-        answer, engine,
+        answer: enforcePricingLabels(answer, pricingBlock), engine,
         sources: chunks.map((chunk, index) => ({ ref: index + 1, title: chunk.title, source: chunk.source, driveUrl: chunk.driveUrl })),
         images
       });
@@ -587,7 +616,7 @@ module.exports = (collection) => {
         engine = "error";
         answer = `Could not analyze the photo: ${error.message}`;
       }
-      res.json({ answer, engine, photoUrl: `/uploads/knowledge-questions/${path.basename(filePath)}`,
+      res.json({ answer: enforcePricingLabels(answer, pricingBlock), engine, photoUrl: `/uploads/knowledge-questions/${path.basename(filePath)}`,
         sources: chunks.map((chunk, index) => ({ ref: index + 1, title: chunk.title, source: chunk.source, driveUrl: chunk.driveUrl })),
         images });
     } catch (error) {
@@ -659,6 +688,15 @@ module.exports = (collection) => {
       // composer its REAL card — signature elements, materials, lighting, mood —
       // so axis (a)/(b)/(c)/(d) come from the library, not the model's memory.
       const matched = matchStyle(userTexts.join(" "));
+      // Advice questions ("what styles would suit this?") deserve real picks from
+      // the library, not a silently composed render clause built from the question.
+      const lastUserText = userTexts.length ? userTexts[userTexts.length - 1] : "";
+      const isAdviceQuestion = /\b(suggest|recommend|which|what)\b[^.?!]*\bstyles?\b/i.test(lastUserText);
+      const styleMenu = (() => {
+        const lib = loadStyles();
+        if (!lib || !Array.isArray(lib.styles)) return "";
+        return lib.styles.map((s) => s.name).filter(Boolean).join(", ");
+      })();
       const styleCard = matched ? [
         `STYLE LIBRARY CARD for "${matched.name}" (use THIS as the ground truth for the style axes — pick the most render-distinctive elements, don't dump the whole card):`,
         `  signature: ${(matched.signature || []).join("; ")}`,
@@ -687,6 +725,7 @@ module.exports = (collection) => {
         "EVERY specific change the customer asked for MUST appear in renderPrompt using their own key nouns — if they said \"walk-in shower\", \"island\", or \"farmhouse sink\", those exact words appear in the instruction (a lost request is the worst failure this tool can make). Weave them into the materials/changes sentence.",
         "renderPrompt template (fill the blanks): \"Redesign this <room> in <named style> (<2-3 signature elements>). <the customer's specific requested changes, their own nouns kept>. <lighting sentence>. <materials sentence>. Mood: <adjectives>. " + preserve + ". " + RENDER_TAIL + "\"",
         "reply is 1-2 warm, conversational sentences to the customer, like texting — never JSON, never a bulleted list.",
+        isAdviceQuestion && styleMenu ? "EXCEPTION — the customer's LATEST message is asking for style suggestions, so ANSWER IT in reply: pick the 3 best-fitting styles for what they've described, by exact NAME from this library only: " + styleMenu + ". One short line on why each fits (reply may run 3-4 sentences for this). Do NOT fold their question into renderPrompt and do NOT assert a chosen style yet — keep renderPrompt as the brief composed from their actual change requests so far (style-neutral if none named)." : "",
         "Return ONLY a single minified JSON object, no markdown fences, no text before or after it:",
         '{"reply":"...","brief":{"room":"...","style":"...","changes":["..."],"keep":["..."]},"renderPrompt":"..."}',
         "",
@@ -712,7 +751,14 @@ module.exports = (collection) => {
             changes: Array.isArray(brief.changes) ? brief.changes.map((c) => String(c || "").trim()).filter(Boolean) : [],
             keep: Array.isArray(brief.keep) ? brief.keep.map((c) => String(c || "").trim()).filter(Boolean) : []
           },
-          renderPrompt: String(parsed.renderPrompt).trim().slice(0, 2000),
+          // Advice-question turns must still return a runnable instruction — the
+          // model sometimes emits a placeholder ("awaiting style selection") that
+          // would go straight to the image model if the user hits Generate.
+          renderPrompt: (isAdviceQuestion && !String(parsed.renderPrompt).includes(RENDER_TAIL.slice(0, 24))
+            ? composeRenderPrompt(mode, String(brief.room || "").trim() || "space",
+                Array.isArray(brief.changes) && brief.changes.length ? brief.changes : userTexts.slice(0, -1),
+                Array.isArray(brief.keep) ? brief.keep : [])
+            : String(parsed.renderPrompt).trim()).slice(0, 2000),
           engine: "claude-haiku"
         });
       }

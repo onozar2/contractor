@@ -2968,7 +2968,7 @@ async function verifyCslbLicense(licNum) {
     let status = "unknown";
     if (/current and active/i.test(statusText)) status = "active";
     else if (/expired/i.test(statusText)) status = "expired";
-    else if (/suspend/i.test(statusText)) status = "suspended";
+    else if (/suspen/i.test(statusText)) status = "suspended"; // "suspension" has no "d" — /suspend/ missed it
     else if (/revok/i.test(statusText)) status = "revoked";
     else if (/cancel/i.test(statusText)) status = "canceled";
 

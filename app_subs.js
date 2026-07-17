@@ -103,8 +103,13 @@
     return html;
   }
   function reviewsCell(s) {
+    // rating-without-count and count-without-rating both happen (source shows one but not the other)
+    if (!s.reviewRating && Number(s.reviewCount) > 0) {
+      return '<span style="' + MUTED + '">unrated (' + esc(s.reviewCount) + " reviews)</span>";
+    }
     if (!s.reviewRating) return '<span style="' + MUTED + '">-</span>';
-    return esc(s.reviewRating) + '★ <span style="' + MUTED + '">(' + esc(s.reviewCount || 0) + ")</span>";
+    if (!Number(s.reviewCount)) return esc(s.reviewRating) + '★ <span style="' + MUTED + '">(count unknown)</span>';
+    return esc(s.reviewRating) + '★ <span style="' + MUTED + '">(' + esc(s.reviewCount) + ")</span>";
   }
   function licenseCell(s) {
     if (!s.licenseNumber) return '<span class="pill red">none</span>';
@@ -1192,13 +1197,207 @@
   // ══════════════════════ COMPARE VIEW ══════════════════════
   // Route is encoded as a single #/subs/:id param — "compare:<id1>,<id2>,..." —
   // since the shell router (app.html parseHash) only ever captures one path segment.
+  // ── "What makes up the score" layer ──────────────────────────────
+  // FACTORS mirrors server.js computeLegitScore() EXACTLY (base 20, clamp 0-100).
+  // The compare view derives the "Why stronger" sentence and the "Score breakdown"
+  // from this one array, so the wording can never drift from the real weights.
+  // See VETTING_SCALE.md for the plain-English reference.
+  var FACTORS = [
+    { key: "base", label: function () { return "Base score"; }, pts: function () { return 20; } },
+    { key: "license",
+      label: function (s) { return s.licenseVerified ? "License CSLB-verified" : "License # on file"; },
+      pts: function (s) { return s.licenseVerified ? 25 : (hasText(s.licenseNumber) ? 12 : 0); } },
+    { key: "licenseStatus",
+      label: function (s) { var st = String(s.licenseStatus || "").toLowerCase(); if (st === "active") return "License active"; if (/expired|suspended|revoked/.test(st)) return "License " + st; if (st === "not_found") return "License not found"; return "License " + (st || "unchecked"); },
+      pts: function (s) { var st = String(s.licenseStatus || "").toLowerCase(); if (st === "active") return 10; if (/expired|suspended|revoked/.test(st)) return -25; if (st === "not_found") return -20; return 0; } },
+    { key: "website",
+      label: function (s) { return s.websiteAlive === true ? "Website live" : "Website dead"; },
+      pts: function (s) { return s.websiteAlive === true ? 8 : s.websiteAlive === false ? -10 : 0; } },
+    { key: "reviewRating",
+      label: function (s) { var r = Number(s.reviewRating || 0); return (r > 0 && r < 3 ? "Low rating " : "Reviews ") + r + "★"; },
+      pts: function (s) { var r = Number(s.reviewRating || 0); if (r >= 4.5) return 15; if (r >= 4) return 10; if (r >= 3.5) return 5; if (r > 0 && r < 3) return -10; return 0; } },
+    { key: "reviewCount",
+      label: function (s) { return "Review volume (" + Number(s.reviewCount || 0) + ")"; },
+      pts: function (s) { var n = Number(s.reviewCount || 0); if (n >= 100) return 10; if (n >= 25) return 7; if (n >= 5) return 4; return 0; } },
+    { key: "owner", label: function () { return "Named owner"; }, pts: function (s) { return hasText(s.ownerName) ? 5 : 0; } },
+    { key: "reach", label: function () { return "Owner-level contact"; }, pts: function (s) { return String(s.reachTier || "") === "owner" ? 5 : 0; } },
+    { key: "insurance", label: function () { return "Insurance verified"; }, pts: function (s) { return s.insuranceVerified ? 5 : 0; } },
+    { key: "workersComp", label: function () { return "Workers comp current"; }, pts: function (s) { return /active|verified|current/i.test(s.workersCompStatus || "") ? 4 : 0; } },
+    { key: "bonded", label: function () { return "Bonded"; }, pts: function (s) { return /bonded|verified|active|yes/i.test(s.bondedStatus || "") ? 3 : 0; } },
+    { key: "sourceConfidence",
+      label: function (s) { return String(s.sourceConfidence || "").toLowerCase() === "low" ? "Low source confidence" : "High source confidence"; },
+      pts: function (s) { var c = String(s.sourceConfidence || "").toLowerCase(); return c === "high" ? 5 : c === "low" ? -5 : 0; } },
+    { key: "jobs",
+      label: function (s) { return Number(s.jobScore) >= 70 ? "Strong job history" : "Job history"; },
+      pts: function (s) { return Number(s.jobCount) > 0 ? (Number(s.jobScore) >= 70 ? 12 : 6) : 0; } },
+    { key: "redFlags",
+      label: function (s) { var n = (s.redFlags || []).length; return "Red flag" + (n === 1 ? "" : "s") + " (" + n + ")"; },
+      pts: function (s) { return -15 * ((s.redFlags || []).length); } }
+  ];
+
+  function capFirst(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1) : str; }
+  function reviewPhrase(s) {
+    var n = Number(s.reviewCount || 0);
+    var r = Number(s.reviewRating || 0);
+    if (r && !n) return r + "★ (review count unknown)";
+    if (!r && n) return n + " reviews (unrated)";
+    return r + "★ across " + n + " review" + (n === 1 ? "" : "s");
+  }
+
+  // One deterministic sentence: top 2-3 positive contributors + the single biggest drag.
+  function whyStronger(s) {
+    var f = {}; FACTORS.forEach(function (x) { f[x.key] = x.pts(s); });
+    var pos = [];
+    var licPts = Math.max(f.license, 0) + Math.max(f.licenseStatus, 0);
+    if (licPts > 0) {
+      var lic = [];
+      if (f.license > 0) lic.push(s.licenseVerified ? "CSLB verified" : "licensed");
+      if (f.licenseStatus > 0) lic.push("active");
+      pos.push({ pts: licPts, text: lic.join(" + ") });
+    }
+    var revPts = Math.max(f.reviewRating, 0) + Math.max(f.reviewCount, 0);
+    if (revPts > 0 && Number(s.reviewRating) > 0) pos.push({ pts: revPts, text: reviewPhrase(s) });
+    if (f.website > 0) pos.push({ pts: f.website, text: "live website" });
+    var ownPts = Math.max(f.owner, 0) + Math.max(f.reach, 0);
+    if (ownPts > 0) pos.push({ pts: ownPts, text: f.reach > 0 ? "named owner, direct reach" : "named owner" });
+    if (f.insurance > 0) pos.push({ pts: f.insurance, text: "insurance on file" });
+    if (f.workersComp > 0) pos.push({ pts: f.workersComp, text: "workers comp current" });
+    if (f.bonded > 0) pos.push({ pts: f.bonded, text: "bonded" });
+    if (f.sourceConfidence > 0) pos.push({ pts: f.sourceConfidence, text: "high-confidence sourcing" });
+    if (f.jobs > 0) pos.push({ pts: f.jobs, text: Number(s.jobScore) >= 70 ? "strong job history" : "job history" });
+    pos.sort(function (a, b) { return b.pts - a.pts; });
+    var lead = pos.length ? capFirst(pos.slice(0, 3).map(function (p) { return p.text; }).join(", ")) : "Little verified evidence yet";
+    var drag = biggestDrag(s);
+    return lead + (drag ? " — held back by: " + drag : "");
+  }
+
+  // The single biggest drag: worst real negative if any, else the most valuable missing signal.
+  function biggestDrag(s) {
+    var negs = [];
+    var flags = (s.redFlags || []).length;
+    if (flags) negs.push({ pts: -15 * flags, text: flags + " red flag" + (flags === 1 ? "" : "s") });
+    var st = String(s.licenseStatus || "").toLowerCase();
+    if (/expired|suspended|revoked/.test(st)) negs.push({ pts: -25, text: "license " + st });
+    else if (st === "not_found") negs.push({ pts: -20, text: "license not found on CSLB" });
+    if (s.websiteAlive === false) negs.push({ pts: -10, text: "dead website" });
+    var r = Number(s.reviewRating || 0);
+    if (r > 0 && r < 3) negs.push({ pts: -10, text: "weak rating (" + r + "★)" });
+    if (String(s.sourceConfidence || "").toLowerCase() === "low") negs.push({ pts: -5, text: "low source confidence" });
+    if (negs.length) { negs.sort(function (a, b) { return a.pts - b.pts; }); return negs[0].text; }
+    if (!s.licenseVerified) return hasText(s.licenseNumber) ? "license not CSLB-verified" : "no license on file";
+    if (!Number(s.reviewCount)) return "no reviews found";
+    if (Number(s.reviewCount) < 5) return "thin review sample";
+    if (!hasText(s.ownerName)) return "no named owner";
+    if (!hasPricingSignal(s)) return "no pricing signal";
+    if (!s.insuranceVerified) return "insurance unverified";
+    return "";
+  }
+
+  // Compact green/red list of only the non-zero contributions, reconciling to the trust score.
+  function scoreBreakdown(s) {
+    var lines = FACTORS.map(function (x) { return { pts: x.pts(s), label: x.label(s) }; })
+      .filter(function (c) { return c.pts !== 0; });
+    var body = lines.map(function (c) {
+      var pos = c.pts > 0;
+      var col = pos ? "#0f766e" : "#b42318";
+      var val = (pos ? "+" : "−") + Math.abs(c.pts);
+      return '<div style="color:' + col + ';display:flex;justify-content:space-between;gap:0.8rem">' +
+        "<span>" + esc(c.label) + "</span><span style=\"font-weight:700\">" + val + "</span></div>";
+    }).join("");
+    return '<div class="js-bd" style="display:none;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:0.72rem;line-height:1.55;margin-top:0.2rem">' +
+      body +
+      '<div style="display:flex;justify-content:space-between;gap:0.8rem;border-top:1px solid #e6e9ef;margin-top:0.25rem;padding-top:0.2rem;color:#101828">' +
+        "<span>Trust score</span><span style=\"font-weight:800\">" + Number(s.legitScore || 0) + "</span></div>" +
+      "</div>";
+  }
+
+  // Review QUALITY lens (separate from trust): rating x volume. See VETTING_SCALE.md.
+  function reviewQuality(s) {
+    var r = Number(s.reviewRating || 0), n = Number(s.reviewCount || 0);
+    if (!n) return "none";
+    if (n < 5) return "thin sample";
+    if (r >= 4.5 && n >= 25) return "strong";
+    return "decent"; // >=5 reviews below the strong bar; the actual star shows sentiment
+  }
+  function reviewQualityPill(s) {
+    var q = reviewQuality(s);
+    if (q === "none") return ' <span style="' + MUTED + ';font-size:0.7rem">none</span>';
+    var cls = { strong: "green", decent: "plum", "thin sample": "amber" }[q] || "";
+    return ' <span class="pill ' + cls + '" style="font-size:0.68rem">' + q + "</span>";
+  }
+
+  // Price lens (separate again): tier + minimum + observed-vs-trade-median. Uses the
+  // pricing-intel cache; mirrors the profile pricing tab's quote-matching (subId or name).
+  function medianOf(arr) {
+    if (!arr.length) return 0;
+    var a = arr.slice().sort(function (x, y) { return x - y; });
+    return a[Math.floor(a.length / 2)];
+  }
+  function collectSubQuotes(s, intel) {
+    if (!intel) return [];
+    var name = String(s.companyName || "").toLowerCase().trim();
+    var seen = {}, out = [];
+    var matches = function (sm) {
+      if (!sm) return false;
+      if (sm.subId && String(sm.subId) === String(s.id)) return true;
+      return !!(name && sm.subName && String(sm.subName).toLowerCase().trim() === name);
+    };
+    var take = function (sm) {
+      if (!matches(sm) || sm.source === "job" || !Number(sm.amount)) return;
+      var key = [sm.source, sm.project, sm.amount, sm.at].join("|");
+      if (seen[key]) return;
+      seen[key] = true;
+      out.push(Number(sm.amount));
+    };
+    Object.keys(intel.trades || {}).forEach(function (t) { ((intel.trades[t] || {}).samples || []).forEach(take); });
+    (intel.items || []).forEach(function (item) { (((item || {}).observed || {}).samples || []).forEach(take); });
+    return out;
+  }
+  function tradeMedianFor(intel, cat) {
+    if (!intel || !intel.trades || !cat) return null;
+    var t = intel.trades[cat];
+    if (!t) {
+      var key = Object.keys(intel.trades).find(function (k) { return k.toLowerCase() === String(cat).toLowerCase(); });
+      if (key) t = intel.trades[key];
+    }
+    return t && Number(t.median) ? Number(t.median) : null;
+  }
+  function priceCompareLine(s, intel) {
+    if (!intel) return "no price data";
+    var tradeMed = tradeMedianFor(intel, s.serviceCategory);
+    var amounts = collectSubQuotes(s, intel);
+    if (amounts.length) {
+      var m = medianOf(amounts);
+      if (tradeMed) {
+        var diff = Math.round((m - tradeMed) / tradeMed * 100);
+        var rel = diff === 0 ? "on par" : Math.abs(diff) + "% " + (diff < 0 ? "cheaper" : "pricier");
+        return "their quotes ~" + APP.fmtMoney(m) + " median vs trade median " + APP.fmtMoney(tradeMed) + " (" + rel + ")";
+      }
+      return "their quotes ~" + APP.fmtMoney(m) + " median (" + amounts.length + " obs)";
+    }
+    if (tradeMed) return "no quotes yet &middot; trade median " + APP.fmtMoney(tradeMed);
+    return "no price data";
+  }
+  function priceCell(s, intel) {
+    var head = [];
+    if (hasText(s.priceTier) && s.priceTier !== "unknown") head.push("<b>" + esc(s.priceTier) + "</b>");
+    else head.push('<span style="' + MUTED + '">tier —</span>');
+    if (hasText(s.minimumJobSize)) head.push('<span style="' + MUTED + '">min job ' + esc(s.minimumJobSize) + "</span>");
+    return head.join(" &middot; ") +
+      '<div style="' + MUTED + ';font-size:0.74rem;margin-top:0.2rem">' + priceCompareLine(s, intel) + "</div>";
+  }
+
   var COMPARE_ROWS = [
     { label: "Trust score", numeric: true, sortVal: function (s) { return Number(s.legitScore || 0); }, value: function (s) { return legitCell(s); } },
     { label: "Record score", numeric: true, sortVal: function (s) { return Number(s.completenessScore || 0); }, value: function (s) { return APP.scoreBadge(s.completenessScore); } },
     { label: "Overall", numeric: true, sortVal: function (s) { return overall(s); }, value: function (s) { return APP.scoreBadge(overall(s)); } },
     { label: "Tier", value: function (s) { return APP.tierPill(s.legitTier || "unverified"); } },
+    { label: "Why stronger", value: function (s) { return '<span style="font-size:0.8rem;line-height:1.45;color:#344054">' + esc(whyStronger(s)) + "</span>"; } },
+    { label: "Score breakdown",
+      labelHtml: 'Score breakdown<br /><a href="#" data-act="toggle-breakdown" style="color:#2563eb;font-size:0.72rem;font-weight:600;text-decoration:none">Show breakdown</a>',
+      value: function (s) { return scoreBreakdown(s); } },
     { label: "License", value: function (s) { return licenseCell(s) + (s.licenseStatus && s.licenseStatus !== "unchecked" ? ' <span style="' + MUTED + '">(' + esc(s.licenseStatus) + ")</span>" : ""); } },
-    { label: "Reviews", numeric: true, sortVal: function (s) { return Number(s.reviewRating || 0); }, value: function (s) { return reviewsCell(s); } },
+    { label: "Reviews", numeric: true, sortVal: function (s) { return Number(s.reviewRating || 0); }, value: function (s) { return reviewsCell(s) + reviewQualityPill(s); } },
     { label: "Contact", value: function (s) {
         var bits = [];
         if (s.ownerName) bits.push(esc(s.ownerName));
@@ -1209,8 +1408,7 @@
         return (bits.length ? bits.join("<br/>") : '<span style="' + MUTED + '">no contact on file</span>') + "<br/>" + pill;
       } },
     { label: "Docs", numeric: true, sortVal: function (s) { return docsSummary(s).received; }, value: function (s) { return docsPill(s); } },
-    { label: "Price tier", value: function (s) { return esc(s.priceTier === "unknown" ? "-" : (s.priceTier || "-")); } },
-    { label: "Minimum job size", value: function (s) { return esc(s.minimumJobSize || "-"); } },
+    { label: "Price", value: function (s, ctx) { return priceCell(s, ctx && ctx.intel); } },
     { label: "Outreach stage", value: function (s) { return stagePill(s.outreachStage); } },
     { label: "Red flags", value: function (s) {
         var flags = s.redFlags || [];
@@ -1228,6 +1426,9 @@
 
   function renderCompare(container, ids) {
     container.innerHTML = '<div class="card"><span style="' + MUTED + '">Loading comparison…</span></div>';
+    // Pricing intel loads in parallel (cached module-wide); a failure just degrades
+    // the Price row to "no price data" — never blocks the comparison.
+    var intelP = fetchPricingIntel().catch(function () { return null; });
     fetchRoster().then(function (rows) {
       var found = ids.map(function (id) { return rows.find(function (s) { return s.id === id; }); }).filter(Boolean);
       if (found.length === ids.length) return found;
@@ -1236,7 +1437,7 @@
         return ids.map(function (id) { return fresh.find(function (s) { return s.id === id; }); }).filter(Boolean);
       });
     }).then(function (subs) {
-      buildCompare(container, subs);
+      return intelP.then(function (intel) { buildCompare(container, subs, intel); });
     }).catch(function (err) {
       container.innerHTML = errorCard(err.message || "Failed to load comparison.");
       var retry = container.querySelector('[data-act="retry"]');
@@ -1244,12 +1445,13 @@
     });
   }
 
-  function buildCompare(container, subs) {
+  function buildCompare(container, subs, intel) {
     if (!subs.length) {
       container.innerHTML = '<div style="margin-bottom:0.6rem"><a href="#/subs" style="' + MUTED + ';font-weight:700;text-decoration:none">← Back to subs</a></div>' +
         '<div class="card"><div class="empty">None of these subs could be found — they may have been deleted.</div></div>';
       return;
     }
+    var ctx = { intel: intel || null };
     var theadCols = subs.map(function (s) {
       return '<th style="min-width:200px">' + esc(s.companyName) +
         (s.trusted ? ' <span title="Your trusted contact">⭐</span>' : "") +
@@ -1268,9 +1470,10 @@
       }
       var cells = subs.map(function (s, i) {
         var hl = bestSet && bestSet[i] ? "background:#f0fdf4;" : "";
-        return '<td style="' + hl + 'min-width:200px">' + r.value(s) + "</td>";
+        return '<td style="' + hl + 'min-width:200px">' + r.value(s, ctx) + "</td>";
       }).join("");
-      return '<tr><td style="font-weight:700;white-space:nowrap;color:#101828;font-size:0.8rem">' + esc(r.label) + "</td>" + cells + "</tr>";
+      var labelCell = r.labelHtml || esc(r.label);
+      return '<tr><td style="font-weight:700;white-space:nowrap;color:#101828;font-size:0.8rem;vertical-align:top">' + labelCell + "</td>" + cells + "</tr>";
     }).join("");
 
     container.innerHTML =
@@ -1281,6 +1484,18 @@
           '<table class="table"><thead><tr><th style="min-width:140px"></th>' + theadCols + "</tr></thead><tbody>" + bodyRows + "</tbody></table>" +
         "</div>" +
       "</div>";
+
+    // Score-breakdown row: one toggle reveals/hides every column's breakdown at once.
+    var bdToggle = container.querySelector('[data-act="toggle-breakdown"]');
+    if (bdToggle) bdToggle.addEventListener("click", function (e) {
+      e.preventDefault();
+      var open = container.getAttribute("data-bd") === "open";
+      container.setAttribute("data-bd", open ? "closed" : "open");
+      Array.prototype.forEach.call(container.querySelectorAll(".js-bd"), function (node) {
+        node.style.display = open ? "none" : "block";
+      });
+      bdToggle.textContent = open ? "Show breakdown" : "Hide breakdown";
+    });
   }
 
   // ── register with the shell ──

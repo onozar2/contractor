@@ -5,8 +5,9 @@
 
    decor.ai/InteriorAI-level input & output UX layered on top (all optional — the
    photo + free-text box stay first-class):
-     • Style gallery — 16 tappable pure-CSS style chips; a tap posts "Style: X"
-       through the normal chat flow so the brief updates.
+     • Style picker — one compact 🎨 pill that opens an overlay sheet (grouped
+       grid of pure-CSS style cards from the shared library); picking a card
+       posts "Style: X" through the normal chat flow so the brief updates.
      • Mode toggle — Redecorate (keep layout/walls/cabinets) vs Remodel (may
        reconfigure) — flips the preservation clause in the composed prompt.
      • Variations 1/2/4 — bridge prompt appends "Generate N variations…"; in-app
@@ -309,7 +310,8 @@
 
   // The one compact control that replaces the old 16-chip strip: 🎨 Style: <sel
   // or "not set">. The whole pill opens the picker sheet; when a style is set it
-  // also shows a ✕ that clears the local selection (posts nothing to the chat).
+  // also shows a ✕ that clears the selection (and, if the composed render
+  // instruction still names that style, recomposes the brief without it).
   function stylePillHtml() {
     if (st.styleSel) {
       return '<button type="button" class="dz-pill set" id="dzStyleOpen" title="Change or clear style">' +
@@ -335,9 +337,21 @@
   function wireStyles() {
     var bar = document.getElementById("dzStyleBar");
     bar.addEventListener("click", function (e) {
-      if (e.target.closest(".pl-x")) {   // clear selection only — nothing posted
+      if (e.target.closest(".pl-x")) {   // clear selection
+        var cleared = st.styleSel;
         st.styleSel = "";
         renderStyleBar();
+        // Selection composed the style into the render instruction by posting a
+        // "Style: <name>" user turn; do the inverse — if the instruction still
+        // names the cleared style, drop that turn and silently recompose.
+        var box = document.getElementById("dzPrompt");
+        var cur = (box && box.value) || st.renderPrompt || "";
+        if (cleared && cur.toLowerCase().indexOf(cleared.toLowerCase()) >= 0) {
+          st.messages = st.messages.filter(function (m) {
+            return !(m.role === "user" && m.text === "Style: " + cleared);
+          });
+          refreshBrief("Cleared " + cleared + " — updated the render instruction below.");
+        }
         return;
       }
       if (e.target.closest("#dzStyleOpen")) openStyleSheet();
@@ -353,7 +367,8 @@
   }
 
   // Opens the overlay sheet: the whole style library as a tidy grouped grid, plus
-  // an optional "Suggest for my photo" row when a photo is already loaded.
+  // a "Suggest styles for me" row that asks the (text-only) brief chat for 3
+  // library picks based on what's been described — it can't see the photo.
   function openStyleSheet() {
     closeStyleSheet();
     var buckets = {};
@@ -368,10 +383,8 @@
       body += '<div class="sheet-grp">' + APP.esc(grp.label) + '</div>' +
         '<div class="sheet-grid">' + items.map(styleCardHtml).join("") + '</div>';
     });
-    var suggest = st.photoFile
-      ? '<button type="button" class="sheet-suggest" id="dzSuggest">✨ Suggest for my photo' +
-          ' <span class="muted" style="font-weight:600">— 3 styles that suit this space</span></button>'
-      : "";
+    var suggest = '<button type="button" class="sheet-suggest" id="dzSuggest">✨ Suggest styles for me' +
+          ' <span class="muted" style="font-weight:600">— 3 picks from what you\'ve described</span></button>';
     var sheet = document.createElement("div");
     sheet.id = "dzSheet";
     sheet.innerHTML =
@@ -386,7 +399,7 @@
       if (e.target === sheet || e.target.closest("#dzSheetX")) { closeStyleSheet(); return; }
       if (e.target.closest("#dzSuggest")) {
         closeStyleSheet();
-        sendChat("What 3 styles would suit this space? Give one line each.");
+        sendChat("Based on what I've told you about this space, suggest 3 styles from the library that would suit it - one line each.");
         return;
       }
       var card = e.target.closest(".sheet-card");

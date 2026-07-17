@@ -292,7 +292,7 @@
         '<li><strong>Log jobs</strong> on <a href="#/subs">sub profiles</a> — contract values feed the trade rates.</li>' +
         '<li><strong>Fill project actuals</strong> under <a href="#/projects">Projects</a> — real line costs calibrate the cost book.</li>' +
       "</ol>" +
-      "<p>Until then the table below shows book prices only — all [EST].</p>" +
+      "<p>No street data yet — open the Price book tab for SoCal benchmark ranges; observed street prices fill in as you log quotes and jobs.</p>" +
     "</div></div>";
   }
 
@@ -335,7 +335,7 @@
           "</div>" +
           '<div class="card"><h2>Live pricing intelligence</h2>' +
             '<div style="display:flex;gap:0.9rem;flex-wrap:wrap;align-items:baseline;">' +
-              "<strong>" + esc(String(itemObs)) + " item observations · " + esc(String(tradeObs)) + " trade observations</strong>" +
+              "<strong>" + esc(String(itemObs)) + (itemObs === 1 ? " item observation" : " item observations") + " · " + esc(String(tradeObs)) + (tradeObs === 1 ? " trade observation" : " trade observations") + "</strong>" +
               '<span style="color:#667085;">cost book updated ' + esc(data.updated ? APP.fmtDate(data.updated) : "—") + "</span>" +
             "</div>" +
             '<p style="color:#667085;margin:0.4rem 0 0;">Benchmarks from SoCal research · your own quotes and job costs sharpen every number automatically.</p>' +
@@ -356,6 +356,7 @@
           // ── Price book panel (renamed Cost book vs street; filtered + paged) ──
           '<div data-panel="pricebook">' +
             '<div class="card"><h2>Price book — SoCal benchmark vs our jobs</h2>' +
+              '<p style="color:#667085;font-size:0.82rem;margin:0.3rem 0 0;">SoCal benchmark = published range · Our jobs = observed median from logged quotes/jobs · Live estimate = the two blended (leans on our data as observations grow).</p>' +
               '<div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;margin:0.4rem 0 0.7rem;">' +
                 '<select data-role="trade-filter" style="padding:0.5rem 0.6rem;border:1px solid var(--line);border-radius:8px;font-family:inherit;"></select>' +
                 '<input type="search" data-role="pb-search" placeholder="Filter the price book…" ' +
@@ -423,7 +424,7 @@
           if (page < 1) page = 1;
           var pageRows = rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
           itemsEmptyEl.hidden = rows.length > 0;
-          pageLabelEl.textContent = rows.length ? ("Page " + page + " of " + totalPages + " · " + rows.length + " items") : "No items";
+          pageLabelEl.textContent = rows.length ? ("Page " + page + " of " + totalPages + " · " + rows.length + (rows.length === 1 ? " item" : " items")) : "No items";
           prevBtn.disabled = page <= 1;
           nextBtn.disabled = page >= totalPages;
           bodyEl.innerHTML = pageRows.map(function (item) {
@@ -459,6 +460,11 @@
           if (!chip) return;
           filter.service = chip.getAttribute("data-service");
           page = 1;
+          // Chips filter the Price book table — surface that tab so the filter is visible.
+          if (filter.service && pricingState.tab !== "pricebook") {
+            pricingState.tab = "pricebook";
+            paintTabs();
+          }
           paintChips();
           paintItems();
         });
@@ -467,6 +473,12 @@
           filter.search = event.target.value.trim();
           if (pbSearchEl.value !== event.target.value) pbSearchEl.value = event.target.value;
           page = 1;
+          // Hero search filters the Price book table — auto-switch so results are visible.
+          // (Clearing the search deliberately does NOT switch tabs back.)
+          if (filter.search && pricingState.tab !== "pricebook") {
+            pricingState.tab = "pricebook";
+            paintTabs();
+          }
           paintItems();
         });
         pbSearchEl.addEventListener("input", function (event) {
