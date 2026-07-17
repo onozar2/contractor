@@ -296,6 +296,9 @@
     "</div></div>";
   }
 
+  // Remembered across re-renders so the active pricing sub-tab sticks. Trade rates first (default).
+  var pricingState = { tab: "trades" };
+
   APP.registerView("pricing", {
     title: "Pricing",
     render: function (container) {
@@ -311,9 +314,16 @@
         items.forEach(function (item) { if (item.service && services.indexOf(item.service) < 0) services.push(item.service); });
         services.sort();
 
-        var filter = { service: "", search: "" };
+        var filter = { service: "", search: "", trade: "" };
         var expanded = {};
         var knowledgeCache = {};
+        var PAGE_SIZE = 25;
+        var page = 1;
+
+        // Distinct trades for the price-book trade filter dropdown.
+        var tradeOptions = [];
+        items.forEach(function (item) { if (item.trade && tradeOptions.indexOf(item.trade) < 0) tradeOptions.push(item.trade); });
+        tradeOptions.sort();
 
         container.innerHTML = "";
         var wrap = APP.el("<div>" +
@@ -331,21 +341,49 @@
             '<p style="color:#667085;margin:0.4rem 0 0;">Benchmarks from SoCal research · your own quotes and job costs sharpen every number automatically.</p>' +
           "</div>" +
           ((itemObs + tradeObs) === 0 ? pricingEmptyStateHTML() : "") +
-          '<div class="card"><h2>Cost book vs street</h2>' +
-            '<div style="overflow-x:auto;"><table class="table">' +
-              "<thead><tr><th>Item</th><th>SoCal benchmark</th><th>Our jobs</th><th>Live estimate</th></tr></thead>" +
-              '<tbody data-role="items-body"></tbody>' +
-            "</table></div>" +
-            '<div class="empty" data-role="items-empty" hidden>No cost book items match this filter.</div>' +
+          '<div class="tabs" data-role="pricing-tabs" style="margin:0.2rem 0 0.9rem;">' +
+            '<button type="button" class="tab" data-tab="trades">Trade rates</button>' +
+            '<button type="button" class="tab" data-tab="pricebook">Price book</button>' +
           "</div>" +
-          '<div class="card"><h2>Trade rates</h2><div data-role="trades" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:0.8rem;margin-top:0.5rem;"></div>' +
-            '<div class="empty" data-role="trades-empty" hidden>No trade-level observations yet.</div>' +
+          // ── Trade rates panel (default, first-class near the top) ──
+          '<div data-panel="trades">' +
+            '<div class="card"><h2>Trade rates</h2>' +
+              '<p style="color:#667085;margin:0.3rem 0 0;">What each trade actually charges us — from logged jobs and quotes. Street record, not a guess.</p>' +
+              '<div data-role="trades" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:0.8rem;margin-top:0.7rem;"></div>' +
+              '<div class="empty" data-role="trades-empty" hidden>No trade-level observations yet.</div>' +
+            "</div>" +
+          "</div>" +
+          // ── Price book panel (renamed Cost book vs street; filtered + paged) ──
+          '<div data-panel="pricebook">' +
+            '<div class="card"><h2>Price book — SoCal benchmark vs our jobs</h2>' +
+              '<div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;margin:0.4rem 0 0.7rem;">' +
+                '<select data-role="trade-filter" style="padding:0.5rem 0.6rem;border:1px solid var(--line);border-radius:8px;font-family:inherit;"></select>' +
+                '<input type="search" data-role="pb-search" placeholder="Filter the price book…" ' +
+                  'style="flex:1 1 220px;min-width:180px;padding:0.5rem 0.7rem;border:1px solid var(--line);border-radius:8px;font-family:inherit;" />' +
+              "</div>" +
+              '<div style="overflow-x:auto;"><table class="table">' +
+                "<thead><tr><th>Item</th><th>SoCal benchmark</th><th>Our jobs</th><th>Live estimate</th></tr></thead>" +
+                '<tbody data-role="items-body"></tbody>' +
+              "</table></div>" +
+              '<div class="empty" data-role="items-empty" hidden>No cost book items match this filter.</div>' +
+              '<div style="display:flex;gap:0.6rem;align-items:center;justify-content:flex-end;margin-top:0.7rem;">' +
+                '<button type="button" class="btn" data-role="prev">Prev</button>' +
+                '<span data-role="page-label" style="color:#667085;font-size:0.85rem;"></span>' +
+                '<button type="button" class="btn" data-role="next">Next</button>' +
+              "</div>" +
+            "</div>" +
           "</div>" +
         "</div>");
 
         var chipsEl = wrap.querySelector('[data-role="service-chips"]');
         var bodyEl = wrap.querySelector('[data-role="items-body"]');
         var itemsEmptyEl = wrap.querySelector('[data-role="items-empty"]');
+        var searchEl = wrap.querySelector('[data-role="search"]');
+        var pbSearchEl = wrap.querySelector('[data-role="pb-search"]');
+        var tradeFilterEl = wrap.querySelector('[data-role="trade-filter"]');
+        var prevBtn = wrap.querySelector('[data-role="prev"]');
+        var nextBtn = wrap.querySelector('[data-role="next"]');
+        var pageLabelEl = wrap.querySelector('[data-role="page-label"]');
 
         function paintChips() {
           var html = '<span class="chip' + (filter.service === "" ? " active" : "") + '" data-service="">All services</span>';
@@ -359,6 +397,7 @@
           var q = filter.search.toLowerCase();
           return items.filter(function (item) {
             if (filter.service && item.service !== filter.service) return false;
+            if (filter.trade && item.trade !== filter.trade) return false;
             if (!q) return true;
             return [item.service, item.trade, item.description, item.id].join(" ").toLowerCase().indexOf(q) >= 0;
           });
@@ -379,8 +418,15 @@
 
         function paintItems() {
           var rows = visibleItems();
+          var totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+          if (page > totalPages) page = totalPages;
+          if (page < 1) page = 1;
+          var pageRows = rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
           itemsEmptyEl.hidden = rows.length > 0;
-          bodyEl.innerHTML = rows.map(function (item) {
+          pageLabelEl.textContent = rows.length ? ("Page " + page + " of " + totalPages + " · " + rows.length + " items") : "No items";
+          prevBtn.disabled = page <= 1;
+          nextBtn.disabled = page >= totalPages;
+          bodyEl.innerHTML = pageRows.map(function (item) {
             var obs = item.observed;
             var blended = item.blended;
             var blendedCell = "—";
@@ -412,13 +458,32 @@
           var chip = event.target.closest("[data-service]");
           if (!chip) return;
           filter.service = chip.getAttribute("data-service");
+          page = 1;
           paintChips();
           paintItems();
         });
-        wrap.querySelector('[data-role="search"]').addEventListener("input", function (event) {
+        // Hero search and the price-book search stay in sync (both drive filter.search).
+        searchEl.addEventListener("input", function (event) {
           filter.search = event.target.value.trim();
+          if (pbSearchEl.value !== event.target.value) pbSearchEl.value = event.target.value;
+          page = 1;
           paintItems();
         });
+        pbSearchEl.addEventListener("input", function (event) {
+          filter.search = event.target.value.trim();
+          if (searchEl.value !== event.target.value) searchEl.value = event.target.value;
+          page = 1;
+          paintItems();
+        });
+        tradeFilterEl.innerHTML = '<option value="">All trades</option>' +
+          tradeOptions.map(function (t) { return '<option value="' + esc(t) + '">' + esc(t) + "</option>"; }).join("");
+        tradeFilterEl.addEventListener("change", function (event) {
+          filter.trade = event.target.value;
+          page = 1;
+          paintItems();
+        });
+        prevBtn.addEventListener("click", function () { if (page > 1) { page--; paintItems(); } });
+        nextBtn.addEventListener("click", function () { page++; paintItems(); });
         bodyEl.addEventListener("click", function (event) {
           if (event.target.closest("a")) return;
           var row = event.target.closest("[data-item-id]");
@@ -465,8 +530,25 @@
           "</div>";
         }).join("");
 
+        // Sub-tab switching — remembered in pricingState so re-renders keep the active tab.
+        var tabsEl = wrap.querySelector('[data-role="pricing-tabs"]');
+        var tradesPanel = wrap.querySelector('[data-panel="trades"]');
+        var pricebookPanel = wrap.querySelector('[data-panel="pricebook"]');
+        function paintTabs() {
+          tabsEl.querySelectorAll(".tab").forEach(function (b) { b.classList.toggle("active", b.dataset.tab === pricingState.tab); });
+          tradesPanel.hidden = pricingState.tab !== "trades";
+          pricebookPanel.hidden = pricingState.tab !== "pricebook";
+        }
+        tabsEl.addEventListener("click", function (event) {
+          var btn = event.target.closest(".tab");
+          if (!btn) return;
+          pricingState.tab = btn.dataset.tab;
+          paintTabs();
+        });
+
         paintChips();
         paintItems();
+        paintTabs();
         container.appendChild(wrap);
       }).catch(function (error) {
         container.innerHTML = "";

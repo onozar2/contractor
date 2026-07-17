@@ -1,4 +1,4 @@
-# Joon Development Group — Lead Generation Business Plan
+# Outreach Action Plan — Suppliers & Subs
 
 Superseded 2026-07-16 — merged into [JOON_ACTION_PLAN.md](JOON_ACTION_PLAN.md).
 

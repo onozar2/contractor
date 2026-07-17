@@ -3,7 +3,7 @@
    the hero; Ori tells a chatbot in plain speech what he wants; the chat composes
    a structure-preserving render prompt (POST /api/knowledge/design-brief, haiku).
 
-   decor8/InteriorAI-level input & output UX layered on top (all optional — the
+   decor.ai/InteriorAI-level input & output UX layered on top (all optional — the
    photo + free-text box stay first-class):
      • Style gallery — 16 tappable pure-CSS style chips; a tap posts "Style: X"
        through the normal chat flow so the brief updates.
@@ -11,7 +11,8 @@
        reconfigure) — flips the preservation clause in the composed prompt.
      • Variations 1/2/4 — bridge prompt appends "Generate N variations…"; in-app
        loops N sequential /redesign calls into a variation grid.
-     • Pluggable render backends in /redesign: decor8 → gemini → free bridge.
+     • Render backend in /redesign: Gemini image edit (billed key), parallel
+       variations, quality Fast/Max ladder; free-bridge fallback if it errors.
      • Before/after comparison SLIDER (draggable) in the result + history viewer.
      • Failure-mode coaching hint under the result.
 
@@ -21,27 +22,46 @@
 (function () {
   "use strict";
 
-  // ── Curated, SoCal-relevant style taxonomy. Each chip is a pure-CSS swatch
-  // (2-3 color gradient + a tiny texture) — NO external images. Tapping posts
+  // ── Style taxonomy. The live list comes from /api/knowledge/styles (the
+  // design-styles.json library shared with the Q&A knowledge base); this
+  // hardcoded set is only the fallback if that endpoint is unavailable.
+  // Each entry carries a pure-CSS swatch (bg + pat), a category (→ picker group)
+  // and a short vibe descriptor. Choosing one from the picker sheet posts
   // "Style: <name>" through the chat so the brief + renderPrompt pick it up.
   var STYLES = [
-    { name: "Modern Farmhouse", bg: "linear-gradient(135deg,#f4efe6,#d8c3a5 58%,#3d3a34)", pat: "lines" },
-    { name: "Japandi", bg: "linear-gradient(135deg,#e8e2d6,#b9a88f 55%,#5a4d3f)", pat: "dots" },
-    { name: "Coastal", bg: "linear-gradient(135deg,#eaf4f7,#9ec7d8 55%,#3a6ea5)", pat: "lines" },
-    { name: "Mid-Century Modern", bg: "linear-gradient(135deg,#e5c07b,#c1440e 55%,#5b6e4f)", pat: "grid" },
-    { name: "Spanish Revival", bg: "linear-gradient(135deg,#f0dcc0,#c8703c 55%,#7a2e1e)", pat: "grid" },
-    { name: "Contemporary Luxe", bg: "linear-gradient(135deg,#2b2b30,#6b6b73 55%,#c9a24b)", pat: "dots" },
-    { name: "Scandinavian", bg: "linear-gradient(135deg,#ffffff,#eef1f4 55%,#b9c3cc)", pat: "lines" },
-    { name: "Industrial Loft", bg: "linear-gradient(135deg,#6f6f74,#3a3a3d 55%,#a86b3c)", pat: "grid" },
-    { name: "Bohemian", bg: "linear-gradient(135deg,#e8b04b,#c05640 50%,#6a8d73)", pat: "dots" },
-    { name: "Transitional", bg: "linear-gradient(135deg,#efeae2,#c9bfb2 55%,#7d7266)", pat: "lines" },
-    { name: "Minimalist", bg: "linear-gradient(135deg,#fafafa,#e6e6e6 55%,#bcbcbc)", pat: "dots" },
-    { name: "Mediterranean", bg: "linear-gradient(135deg,#f2e6cc,#4e97a8 55%,#2f6d6f)", pat: "grid" },
-    { name: "Craftsman", bg: "linear-gradient(135deg,#c9a66b,#7a4a2b 55%,#3f2d1e)", pat: "lines" },
-    { name: "Desert Modern", bg: "linear-gradient(135deg,#f2ddc6,#d99a6c 55%,#9c5a3c)", pat: "dots" },
-    { name: "Organic Modern", bg: "linear-gradient(135deg,#efe9df,#c2b280 55%,#6f7a5a)", pat: "grid" },
-    { name: "Traditional", bg: "linear-gradient(135deg,#efe3d3,#9c7a4f 55%,#4a3b2a)", pat: "lines" }
+    { name: "Modern Farmhouse", bg: "linear-gradient(135deg,#f4efe6,#d8c3a5 58%,#3d3a34)", pat: "lines", cat: "classic", desc: "warm · casual · fresh" },
+    { name: "Japandi", bg: "linear-gradient(135deg,#e8e2d6,#b9a88f 55%,#5a4d3f)", pat: "dots", cat: "organic", desc: "calm · warm · refined" },
+    { name: "Coastal", bg: "linear-gradient(135deg,#eaf4f7,#9ec7d8 55%,#3a6ea5)", pat: "lines", cat: "classic", desc: "breezy · polished · fresh" },
+    { name: "Mid-Century Modern", bg: "linear-gradient(135deg,#e5c07b,#c1440e 55%,#5b6e4f)", pat: "grid", cat: "modern", desc: "retro · clean · optimistic" },
+    { name: "Spanish Revival", bg: "linear-gradient(135deg,#f0dcc0,#c8703c 55%,#7a2e1e)", pat: "grid", cat: "classic", desc: "warm · rustic · storied" },
+    { name: "Contemporary Luxe", bg: "linear-gradient(135deg,#2b2b30,#6b6b73 55%,#c9a24b)", pat: "dots", cat: "luxe", desc: "sleek · dramatic · luxurious" },
+    { name: "Scandinavian", bg: "linear-gradient(135deg,#ffffff,#eef1f4 55%,#b9c3cc)", pat: "lines", cat: "modern", desc: "bright · cozy · simple" },
+    { name: "Industrial Loft", bg: "linear-gradient(135deg,#6f6f74,#3a3a3d 55%,#a86b3c)", pat: "grid", cat: "modern", desc: "raw · urban · masculine" },
+    { name: "Bohemian", bg: "linear-gradient(135deg,#e8b04b,#c05640 50%,#6a8d73)", pat: "dots", cat: "eclectic", desc: "free-spirited · warm · collected" },
+    { name: "Transitional", bg: "linear-gradient(135deg,#efeae2,#c9bfb2 55%,#7d7266)", pat: "lines", cat: "classic", desc: "balanced · timeless · comfortable" },
+    { name: "Minimalist", bg: "linear-gradient(135deg,#fafafa,#e6e6e6 55%,#bcbcbc)", pat: "dots", cat: "modern", desc: "calm · clean · disciplined" },
+    { name: "Mediterranean", bg: "linear-gradient(135deg,#f2e6cc,#4e97a8 55%,#2f6d6f)", pat: "grid", cat: "classic", desc: "sunny · relaxed · elegant" },
+    { name: "Craftsman", bg: "linear-gradient(135deg,#c9a66b,#7a4a2b 55%,#3f2d1e)", pat: "lines", cat: "classic", desc: "handcrafted · warm · honest" },
+    { name: "Desert Modern", bg: "linear-gradient(135deg,#f2ddc6,#d99a6c 55%,#9c5a3c)", pat: "dots", cat: "modern", desc: "sunny · retro · airy" },
+    { name: "Organic Modern", bg: "linear-gradient(135deg,#efe9df,#c2b280 55%,#6f7a5a)", pat: "grid", cat: "organic", desc: "warm · serene · sculptural" },
+    { name: "Traditional", bg: "linear-gradient(135deg,#efe3d3,#9c7a4f 55%,#4a3b2a)", pat: "lines", cat: "classic", desc: "formal · warm · gracious" }
   ];
+
+  // Category (from the shared library) → one of four friendly picker groups,
+  // in display order. The sheet renders only the groups that have styles.
+  var STYLE_GROUPS = [
+    { key: "modern",  label: "Modern & Minimal",      cats: ["modern"] },
+    { key: "organic", label: "Warm & Organic",        cats: ["organic"] },
+    { key: "classic", label: "Classic & Traditional", cats: ["classic"] },
+    { key: "bold",    label: "Bold & Distinct",       cats: ["luxe", "eclectic"] }
+  ];
+  function styleGroupKey(cat) {
+    cat = cat || "classic";
+    for (var i = 0; i < STYLE_GROUPS.length; i++) {
+      if (STYLE_GROUPS[i].cats.indexOf(cat) >= 0) return STYLE_GROUPS[i].key;
+    }
+    return "classic";
+  }
 
   // ── View state (one flow at a time; reset on every render()) ──
   var st = null;
@@ -54,6 +74,7 @@
       chatBusy: false,
       mode: "redecorate",     // "redecorate" | "remodel" — preservation clause
       styleSel: "",           // currently selected style chip name
+      quality: "fast",        // "fast" (flash, ~8s) | "max" (pro model, ~15s)
       variations: 1,          // 1 | 2 | 4
       genAfterUrl: null,      // selected /uploads path when an API render succeeds
       variationUrls: [],      // all rendered variations (in-app path)
@@ -62,7 +83,8 @@
       projectId: "design-studio",
       projectName: "Design Studio",
       projects: [],           // [{projectId, projectName}] for the picker
-      _onPaste: null
+      _onPaste: null,
+      _onSheetKey: null       // Esc handler while the style picker sheet is open
     };
   }
 
@@ -89,19 +111,42 @@
   var CSS =
     "#dz{max-width:1120px;margin:0 auto;min-width:0;width:100%;box-sizing:border-box}" +  // #dz is a grid item of main#view; margin:0 auto disables stretch, so it must be sized to the track (width:100%) with min-width:0 to shrink on mobile — otherwise it takes its ~1120 max-content width and overflows at 375px
 
-    // Style gallery strip
-    "#dzStyles{margin:0.2rem 0 0.9rem}" +
-    "#dzStyles .dz-lbl{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:0.4rem}" +
-    ".dz-strip{display:flex;gap:0.6rem;overflow-x:auto;padding-bottom:0.45rem;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}" +
-    ".dz-chip{flex:0 0 auto;width:84px;cursor:pointer;border:0;background:transparent;padding:0;text-align:center;scroll-snap-align:start;font:inherit}" +
-    ".dz-swatch{position:relative;height:52px;border-radius:10px;border:2px solid transparent;box-shadow:inset 0 0 0 1px rgba(16,24,40,0.08);overflow:hidden}" +
+    // Compact style control — one subtle pill that opens the picker sheet
+    "#dzStyleBar{margin:0.2rem 0 0.9rem}" +
+    ".dz-pill{display:inline-flex;align-items:center;gap:0.5rem;max-width:100%;border:1px solid #d8dee8;background:#f5f7fa;border-radius:999px;padding:0.42rem 0.6rem 0.42rem 0.85rem;cursor:pointer;font:inherit;line-height:1.2}" +
+    ".dz-pill:hover{border-color:#c2ccd8;background:#eef2f7}" +
+    ".dz-pill .pl-ico{font-size:0.95rem;line-height:1}" +
+    ".dz-pill .pl-k{font-weight:800;color:var(--muted);text-transform:uppercase;font-size:0.64rem;letter-spacing:0.05em}" +
+    ".dz-pill .pl-v{font-weight:800;font-size:0.82rem;color:#8a93a3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:15rem}" +
+    ".dz-pill.set .pl-v{color:var(--blue)}" +
+    ".dz-pill .pl-cta{color:var(--muted);font-weight:700;font-size:0.78rem}" +
+    ".dz-pill .pl-x{border:0;background:#e6eaf0;color:#586074;width:20px;height:20px;border-radius:50%;font-size:0.72rem;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;flex:0 0 auto}" +
+    ".dz-pill .pl-x:hover{background:#d8dee8;color:#1d2634}" +
+    // Picker sheet (fixed overlay + backdrop) — grouped grid of style cards
+    "#dzSheet{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-start;justify-content:center;padding:1.1rem;background:rgba(16,24,40,0.38);backdrop-filter:blur(2px)}" +
+    "#dzSheet .sheet{width:100%;max-width:640px;max-height:calc(100% - 2rem);overflow-y:auto;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 60px rgba(16,24,40,0.28);padding:1rem 1.1rem 1.2rem}" +
+    ".sheet-head{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.7rem}" +
+    ".sheet-head h3{margin:0;font-size:1rem;color:#1d2634}" +
+    ".sheet-head .x{margin-left:auto;border:0;background:#f0f2f5;width:30px;height:30px;border-radius:8px;font-size:0.95rem;cursor:pointer;color:#586074}" +
+    ".sheet-head .x:hover{background:#e2e7ee;color:#1d2634}" +
+    ".sheet-suggest{display:flex;align-items:center;gap:0.4rem;width:100%;text-align:left;border:1px solid #cfe0fb;background:#f4f8ff;color:#2b4a7a;border-radius:10px;padding:0.6rem 0.75rem;font:inherit;font-size:0.84rem;font-weight:800;cursor:pointer;margin-bottom:0.9rem}" +
+    ".sheet-suggest:hover{background:#eaf1fe}" +
+    ".sheet-grp{font-size:0.66rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin:0.85rem 0 0.4rem}" +
+    ".sheet-grp:first-of-type{margin-top:0}" +
+    ".sheet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.5rem}" +
+    ".sheet-card{display:flex;gap:0.55rem;align-items:center;text-align:left;border:1px solid #e2e7ee;background:#fff;border-radius:10px;padding:0.5rem 0.6rem;cursor:pointer;font:inherit}" +
+    ".sheet-card:hover{border-color:var(--blue);box-shadow:0 2px 10px rgba(16,24,40,0.08)}" +
+    ".sheet-card.sel{border-color:var(--blue);box-shadow:0 0 0 2px rgba(37,99,235,0.25)}" +
+    ".sheet-card .tx{min-width:0}" +
+    ".sheet-card .tx .nm{display:block;font-size:0.8rem;font-weight:800;color:#1d2634;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}" +
+    ".sheet-card .tx .ds{display:block;font-size:0.7rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}" +
+    ".sheet-card.sel .tx .nm{color:var(--blue)}" +
+    // Pure-CSS style swatch (shared by the sheet cards)
+    ".dz-swatch{position:relative;flex:0 0 auto;width:34px;height:34px;border-radius:8px;box-shadow:inset 0 0 0 1px rgba(16,24,40,0.08);overflow:hidden}" +
     ".dz-swatch::after{content:'';position:absolute;inset:0;opacity:0.5;pointer-events:none}" +
     ".dz-swatch.p-dots::after{background-image:radial-gradient(rgba(255,255,255,0.4) 1px,transparent 1.4px);background-size:7px 7px}" +
     ".dz-swatch.p-lines::after{background-image:repeating-linear-gradient(45deg,rgba(255,255,255,0.22) 0 2px,transparent 2px 7px)}" +
     ".dz-swatch.p-grid::after{background-image:linear-gradient(rgba(255,255,255,0.2) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.2) 1px,transparent 1px);background-size:9px 9px}" +
-    ".dz-chip .nm{display:block;margin-top:0.28rem;font-size:0.66rem;line-height:1.2;color:#3c4658;font-weight:700}" +
-    ".dz-chip.sel .dz-swatch{border-color:var(--blue);box-shadow:0 0 0 2px rgba(37,99,235,0.25)}" +
-    ".dz-chip.sel .nm{color:var(--blue)}" +
     // Mode toggle + variations segmented controls
     ".dz-seg{display:inline-flex;border:1px solid #d8dee8;border-radius:9px;overflow:hidden;background:#f5f7fa}" +
     ".dz-seg button{border:0;background:transparent;padding:0.34rem 0.7rem;font:inherit;font-size:0.8rem;font-weight:700;color:#586074;cursor:pointer;min-height:34px}" +
@@ -182,6 +227,7 @@
 
   function render(container) {
     st = freshState();
+    closeStyleSheet(); // drop any picker sheet left over from a prior view
     if (!document.getElementById("dzCss")) {
       var style = document.createElement("style");
       style.id = "dzCss"; style.textContent = CSS;
@@ -191,10 +237,7 @@
     container.innerHTML =
       '<div id="dz">' +
         '<div class="viewhead"><h1>🎨 Design <span class="muted" style="font-weight:700;font-size:0.85rem">— photograph the room, describe the look, get a photoreal redesign</span></h1></div>' +
-        '<div id="dzStyles">' +
-          '<div class="dz-lbl">Tap a style to start (optional — you can just type it too)</div>' +
-          '<div class="dz-strip" id="dzStrip">' + STYLES.map(styleChipHtml).join("") + '</div>' +
-        '</div>' +
+        '<div id="dzStyleBar">' + stylePillHtml() + '</div>' +
         '<div class="dz-ctrls">' +
           '<div class="dz-ctrl"><span class="k">Mode</span>' +
             '<div class="dz-seg" id="dzMode">' +
@@ -208,6 +251,12 @@
               '<button type="button" data-n="1" class="on">1</button>' +
               '<button type="button" data-n="2">2</button>' +
               '<button type="button" data-n="4">4</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="dz-ctrl"><span class="k">Quality</span>' +
+            '<div class="dz-seg" id="dzQual">' +
+              '<button type="button" data-q="fast" class="on">Fast ~8s</button>' +
+              '<button type="button" data-q="max">Max ~15s</button>' +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -253,30 +302,108 @@
     wireActions();
     seedChat();
     loadProjects();
+    loadStyleLibrary();
   }
 
-  /* ============================ STYLE GALLERY ============================ */
+  /* ============================ STYLE PICKER ============================ */
 
-  function styleChipHtml(s, i) {
-    return '<button type="button" class="dz-chip" data-style="' + APP.esc(s.name) + '" data-i="' + i + '">' +
-      '<span class="dz-swatch p-' + s.pat + '" style="background:' + s.bg + '"></span>' +
-      '<span class="nm">' + APP.esc(s.name) + '</span>' +
-    '</button>';
+  // The one compact control that replaces the old 16-chip strip: 🎨 Style: <sel
+  // or "not set">. The whole pill opens the picker sheet; when a style is set it
+  // also shows a ✕ that clears the local selection (posts nothing to the chat).
+  function stylePillHtml() {
+    if (st.styleSel) {
+      return '<button type="button" class="dz-pill set" id="dzStyleOpen" title="Change or clear style">' +
+          '<span class="pl-ico">🎨</span>' +
+          '<span class="pl-k">Style</span>' +
+          '<span class="pl-v">' + APP.esc(st.styleSel) + '</span>' +
+          '<span class="pl-x" id="dzStyleClear" role="button" aria-label="Clear style" title="Clear style">✕</span>' +
+        '</button>';
+    }
+    return '<button type="button" class="dz-pill" id="dzStyleOpen" title="Choose a style">' +
+        '<span class="pl-ico">🎨</span>' +
+        '<span class="pl-k">Style</span>' +
+        '<span class="pl-v">not set</span>' +
+        '<span class="pl-cta">Choose ▾</span>' +
+      '</button>';
+  }
+
+  function renderStyleBar() {
+    var bar = document.getElementById("dzStyleBar");
+    if (bar) bar.innerHTML = stylePillHtml();
   }
 
   function wireStyles() {
-    var strip = document.getElementById("dzStrip");
-    strip.addEventListener("click", function (e) {
-      var chip = e.target.closest(".dz-chip");
-      if (!chip) return;
-      var name = chip.getAttribute("data-style");
-      // Select (replaces any prior selection) and post through the normal flow.
-      st.styleSel = name;
-      Array.prototype.forEach.call(strip.querySelectorAll(".dz-chip"), function (c) {
-        c.classList.toggle("sel", c === chip);
-      });
-      sendChat("Style: " + name);
+    var bar = document.getElementById("dzStyleBar");
+    bar.addEventListener("click", function (e) {
+      if (e.target.closest(".pl-x")) {   // clear selection only — nothing posted
+        st.styleSel = "";
+        renderStyleBar();
+        return;
+      }
+      if (e.target.closest("#dzStyleOpen")) openStyleSheet();
     });
+  }
+
+  function styleCardHtml(s) {
+    return '<button type="button" class="sheet-card' + (s.name === st.styleSel ? " sel" : "") + '" data-style="' + APP.esc(s.name) + '">' +
+      '<span class="dz-swatch p-' + (s.pat || "dots") + '" style="background:' + (s.bg || "linear-gradient(135deg,#eee,#bbb)") + '"></span>' +
+      '<span class="tx"><span class="nm">' + APP.esc(s.name) + '</span>' +
+        '<span class="ds">' + APP.esc(s.desc || "") + '</span></span>' +
+    '</button>';
+  }
+
+  // Opens the overlay sheet: the whole style library as a tidy grouped grid, plus
+  // an optional "Suggest for my photo" row when a photo is already loaded.
+  function openStyleSheet() {
+    closeStyleSheet();
+    var buckets = {};
+    STYLES.forEach(function (s) {
+      var g = styleGroupKey(s.cat);
+      (buckets[g] = buckets[g] || []).push(s);
+    });
+    var body = "";
+    STYLE_GROUPS.forEach(function (grp) {
+      var items = buckets[grp.key];
+      if (!items || !items.length) return;
+      body += '<div class="sheet-grp">' + APP.esc(grp.label) + '</div>' +
+        '<div class="sheet-grid">' + items.map(styleCardHtml).join("") + '</div>';
+    });
+    var suggest = st.photoFile
+      ? '<button type="button" class="sheet-suggest" id="dzSuggest">✨ Suggest for my photo' +
+          ' <span class="muted" style="font-weight:600">— 3 styles that suit this space</span></button>'
+      : "";
+    var sheet = document.createElement("div");
+    sheet.id = "dzSheet";
+    sheet.innerHTML =
+      '<div class="sheet" role="dialog" aria-label="Choose a style" aria-modal="true">' +
+        '<div class="sheet-head"><h3>🎨 Choose a style</h3>' +
+          '<button type="button" class="x" id="dzSheetX" aria-label="Close">✕</button></div>' +
+        suggest + body +
+      '</div>';
+    document.body.appendChild(sheet);
+
+    sheet.addEventListener("click", function (e) {
+      if (e.target === sheet || e.target.closest("#dzSheetX")) { closeStyleSheet(); return; }
+      if (e.target.closest("#dzSuggest")) {
+        closeStyleSheet();
+        sendChat("What 3 styles would suit this space? Give one line each.");
+        return;
+      }
+      var card = e.target.closest(".sheet-card");
+      if (!card) return;
+      st.styleSel = card.getAttribute("data-style");
+      renderStyleBar();
+      closeStyleSheet();
+      sendChat("Style: " + st.styleSel);
+    });
+    st._onSheetKey = function (ev) { if (ev.key === "Escape") closeStyleSheet(); };
+    document.addEventListener("keydown", st._onSheetKey);
+  }
+
+  function closeStyleSheet() {
+    var s = document.getElementById("dzSheet");
+    if (s && s.parentNode) s.parentNode.removeChild(s);
+    if (st && st._onSheetKey) { document.removeEventListener("keydown", st._onSheetKey); st._onSheetKey = null; }
   }
 
   /* ============================ MODE + VARIATIONS ============================ */
@@ -312,6 +439,36 @@
         x.classList.toggle("on", x === b);
       });
     });
+
+    var qualSeg = document.getElementById("dzQual");
+    qualSeg.addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-q]");
+      if (!b) return;
+      st.quality = b.getAttribute("data-q") === "max" ? "max" : "fast";
+      Array.prototype.forEach.call(qualSeg.querySelectorAll("button"), function (x) {
+        x.classList.toggle("on", x === b);
+      });
+    });
+  }
+
+  // Live style taxonomy from the shared design-styles library; falls back to the
+  // built-in STYLES if the endpoint is missing. Just refreshes the STYLES array
+  // (name + swatch + group category + one-line vibe); the picker sheet is built
+  // from it on open, so there's no live DOM to rebuild here.
+  function loadStyleLibrary() {
+    APP.fetchJSON("/api/knowledge/styles").then(function (lib) {
+      var styles = (lib && lib.styles) || [];
+      if (!styles.length) return;
+      STYLES = styles.map(function (s) {
+        return {
+          name: s.name,
+          bg: (s.chip && s.chip.bg) || "linear-gradient(135deg,#eee,#bbb)",
+          pat: (s.chip && s.chip.pat) || "dots",
+          cat: s.category || "classic",
+          desc: (Array.isArray(s.mood) && s.mood.length) ? s.mood.join(" · ") : ""
+        };
+      });
+    }).catch(function () { /* fallback list already usable */ });
   }
 
   /* ============================ PHOTO IN ============================ */
@@ -370,7 +527,7 @@
   function seedChat() {
     st.messages = [{
       role: "assistant",
-      text: "Add a photo of the room, then tell me what you'd like — cabinets, colors, style, what to keep. Tap a style chip above or just talk to me like you'd text a designer."
+      text: "Add a photo of the room, then tell me what you'd like — cabinets, colors, style, what to keep. Pick a look from the 🎨 Style menu above, or just talk to me like you'd text a designer."
     }];
     renderThread();
   }
@@ -510,40 +667,24 @@
     result.innerHTML =
       '<div class="card"><div class="muted" style="display:flex;align-items:center;gap:0.5rem">' +
         '<span class="dz-typing" style="padding:0.3rem 0.5rem"><i></i><i></i><i></i></span> Rendering your redesign' +
-        (want > 1 ? " (" + want + " variations)" : "") + "… this can take 30–90 seconds.</div></div>";
+        (want > 1 ? " (" + want + " variations, in parallel)" : "") +
+        "… usually " + (st.quality === "max" ? "15–25" : "8–15") + " seconds.</div></div>";
 
-    // Loop N sequential /redesign calls. The first call reveals which backend is
-    // live; if it can't render (bridge/quota), we stop and show the bridge state.
-    var got = [];
-    function callOne() {
-      return APP.fetchJSON("/api/knowledge/redesign?prompt=" + encodeURIComponent(prompt), {
-        method: "POST",
-        headers: { "Content-Type": st.photoFile.type || "image/jpeg" },
-        body: st.photoFile
-      });
-    }
-    // Sequentially call /redesign until we have `want` images. A single decor8
-    // call may already return several; if a call can't render (bridge/quota) we
-    // stop and surface the bridge state.
-    function loop() {
-      return callOne().then(function (r) {
-        if (r && r.imageUrl) {
-          var imgs = (r.images && r.images.length) ? r.images : [r.imageUrl];
-          imgs.forEach(function (u) { if (got.length < want) got.push(u); });
-          if (got.length < want) return loop();
-          return { images: got, backend: r.backend };
-        }
-        return { bridge: r };
-      });
-    }
-
-    loop().then(function (out) {
-      if (out.images && out.images.length) {
-        st.variationUrls = out.images;
-        st.genAfterUrl = out.images[0];
-        renderResult(out.backend);
+    // ONE call — the server renders all variations in parallel on Gemini and
+    // returns them together, so 4 variations cost one render's wall-clock.
+    APP.fetchJSON("/api/knowledge/redesign?prompt=" + encodeURIComponent(prompt) +
+        "&n=" + want + "&quality=" + encodeURIComponent(st.quality), {
+      method: "POST",
+      headers: { "Content-Type": st.photoFile.type || "image/jpeg" },
+      body: st.photoFile
+    }).then(function (r) {
+      if (r && r.imageUrl) {
+        var imgs = (r.images && r.images.length) ? r.images : [r.imageUrl];
+        st.variationUrls = imgs;
+        st.genAfterUrl = imgs[0];
+        renderResult(r.backend);
       } else {
-        renderBridge(out.bridge || {});
+        renderBridge(r || {});
       }
     }).catch(function (e) {
       result.innerHTML = '<div class="card"><div class="dz-calm">Couldn\'t render here (' + APP.esc(e.message) + "). Use <b>Open in Gemini (free)</b> above — it renders the same prompt free.</div></div>";
@@ -555,7 +696,7 @@
   // the failure-mode coaching hint + save card.
   function renderResult(backend) {
     var result = document.getElementById("dzResult");
-    var badge = backend === "decor8" ? "decor8" : (backend === "gemini" ? "Gemini" : "");
+    var badge = backend === "gemini" ? "Gemini" : "";
     var aiBadge = aiBadgeText(st.mode);
     var thumbs = "";
     if (st.variationUrls.length > 1) {
@@ -591,7 +732,7 @@
     var msg = r && (r.message || r.error);
     result.innerHTML =
       '<div class="card">' +
-        '<div class="dz-calm">In-app rendering activates once a render backend is configured (DECOR8_API_KEY or Gemini billing) — meanwhile Gemini renders this free:' +
+        '<div class="dz-calm">In-app rendering couldn\'t complete — meanwhile the Gemini app renders this same prompt free:' +
           (msg ? '<div class="muted" style="font-size:0.72rem;margin-top:0.35rem">' + APP.esc(msg) + '</div>' : "") +
           '<div style="margin-top:0.6rem"><button class="btn primary" id="dzCalmGem" type="button">🖼️ Open in Gemini (free)</button></div>' +
         '</div>' +

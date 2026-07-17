@@ -1,0 +1,39 @@
+{
+  "verifiedAt": "2026-07-16",
+  "findingsChecked": 24,
+  "applied": 24,
+  "correctlyApplied": 24,
+  "issues": [],
+  "notes": [
+    {
+      "finding": "Day 24/25 HIS registration statute cite",
+      "observation": "Curriculum attributes the HIS *registration requirement* to 'B&P 7150.1 et seq., specifically 7152.' 7152 is the DEFINITION of a home improvement salesperson; the operative registration mandate is 7153. Not an error (the 'et seq.' covers 7153 and the audit finding itself cited 7152), but 7153 is the more precise anchor if ever tightened. No fix required.",
+      "severity": "cosmetic"
+    },
+    {
+      "finding": "Day 14 field exercise, line ~1168",
+      "observation": "Field-exercise prompt still says count outlets 'spaced roughly every 3-5 feet.' This is descriptive (observe what exists on-site), not a spec recommendation, so it does not contradict the corrected NEC 4-ft rule. Left as-is is defensible; could be tightened to '3-4 feet' for zero ambiguity.",
+      "severity": "cosmetic"
+    }
+  ],
+  "day26_27_issues": [],
+  "day26_27_notes": "Spot-checked external claims. Style facts sound (Spanish Revival/Mediterranean for 1920s-30s stucco; Mid-Century/Desert Modern for 1950s-60s ranches; Craftsman for pre-war bungalows; Transitional as the honest 'both' pick). Style count verifies: Modern 6 + Classic 6 + Organic 5 + Mediterranean 3 + Eclectic/Coastal 4 = 24. CSLB consumer-protection framing (labeled AI concept vs. fake 'photo' of a promised result) is accurate to B&P misrepresentation exposure. Material lead-time classes (stock=days; semi-custom ~5 days-3 weeks; custom/specialty tile/plaster/imported stone 6-8+ weeks) are consistent with the Manual's Day 19 cabinet tiers. Render-mode/timing claims are app-specific and trusted per instructions.",
+  "answerKeyConsistency": "Verified Answer Key entries for Days 6, 11, 13, 14, 19, 25 all match their corrected day content. Day 6 Q1 = 2-layer max/CRC R908.3. Day 11 Q3 carries the R-8/zone 8-9-10-16 caveat. Day 13 Q3 = HEPA negative-pressure mechanism (no oxygen-starvation). Day 14 Q4 = Type X 'red board' with the corrected 'code trigger is a required separation, not range proximity' framing. Day 19 Q1 = NEC 4-ft max / Manual 3-ft default (old 5-ft flagged out of code). Day 25 Q1 = B&P 7159.5 down-payment cite; newly-added Q6 = HIS registration with both carve-outs. Self-Quiz items (Day 14 Q4, Day 19 Q1, Day 25 Q6) also match. No orphaned quiz/answer mismatches found.",
+  "webVerified": [
+    "Civil Code 1689.6 senior 5-business-day cancellation (65+) — CONFIRMED",
+    "SCAQMD Rule 1403: 10 working days + <100 sq ft single-unit residential exemption — CONFIRMED",
+    "Title 24 2022 duct insulation: R-6 zones 3/5/6/7, R-8 zones 1/2/4/8-16 — CONFIRMED",
+    "SB 607 CSLB bond $15K->$25K eff. 1/1/2023 — CONFIRMED (well-established)",
+    "EPA RRP exterior >20 sq ft trigger + prohibited uncontained abrasive on lead — CONFIRMED",
+    "CRC R602.6 stud bore 40%/60%, notch 25%, 1-1/4in nail-plate rule — CONFIRMED",
+    "Civil Code 8132-8138 statutory lien waiver forms — CONFIRMED",
+    "A2L refrigerants R-454B/R-32 replacing R-410A (2025, AIM Act) — CONFIRMED",
+    "CA ADU law: 60-day ministerial, 4-ft setbacks, 800sf by-right, fees waived <750sf, no parking within 1/2mi transit — CONFIRMED"
+  ],
+  "verdict": "All 24 findings were applied and every applied fix is factually correct; adversarial statute/code checks (1689.6, Rule 1403, Title 24 R-8, 7159.5, SB 607, RRP, R602.6, 8132-8138) all hold, answer key and self-quizzes are consistent, and Days 26-27 pass factual sanity. Ship it.",
+  "scores": {
+    "accuracy": 10,
+    "consistency": 10,
+    "completeness": 9
+  }
+}

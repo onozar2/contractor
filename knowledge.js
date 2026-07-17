@@ -53,29 +53,39 @@ function driveView(fileId) {
   return `https://drive.google.com/file/d/${fileId}/view`;
 }
 
-// Decor8.ai paid render backend (~$0.20/image). Prompt-based room redesign:
-// POST https://api.decor8.ai/generate_designs_for_room with a data:base64 input
-// image + a free-text `prompt` (overrides room_type/design_style). Returns hosted
-// URLs at info.images[].url. num_images 1-4. Docs: https://api-docs.decor8.ai
-async function callDecor8(apiKey, imageB64, mime, prompt, num) {
-  const n = Math.min(Math.max(parseInt(num, 10) || 1, 1), 4);
-  const response = await fetch("https://api.decor8.ai/generate_designs_for_room", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-    body: JSON.stringify({
-      input_image_url: `data:${mime};base64,${imageB64}`,
-      room_type: "livingroom",   // required by the API; the free-text prompt overrides it
-      design_style: "minimalist", // required by the API; the free-text prompt overrides it
-      num_images: n,
-      prompt: String(prompt || "").slice(0, 2000)
-    }),
-    signal: AbortSignal.timeout(120000)
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error((data && (data.message || data.error)) || `HTTP ${response.status}`);
-  const urls = ((((data.info || {}).images) || []).map((im) => im && im.url).filter(Boolean));
-  if (!urls.length) throw new Error("decor8 returned no image");
-  return urls;
+// Design-style library — the single source of truth for style knowledge shared
+// by the render engine (/design-brief prompt composition, /redesign, /styles
+// chips) and the Q&A corpus (the same content is ingested as knowledgeChunks).
+// Authored at knowledge/design-styles.json; hot-reloads on mtime change.
+const STYLES_PATH = path.join(__dirname, "knowledge", "design-styles.json");
+let _stylesCache = { mtimeMs: 0, data: null };
+function loadStyles() {
+  try {
+    const stat = fs.statSync(STYLES_PATH);
+    if (!_stylesCache.data || stat.mtimeMs !== _stylesCache.mtimeMs) {
+      _stylesCache = { mtimeMs: stat.mtimeMs, data: JSON.parse(fs.readFileSync(STYLES_PATH, "utf8")) };
+    }
+    return _stylesCache.data;
+  } catch (_e) {
+    return null;
+  }
+}
+// Match a style by name/alias appearing in the customer's own words.
+function matchStyle(text) {
+  const lib = loadStyles();
+  if (!lib || !Array.isArray(lib.styles)) return null;
+  const t = ` ${String(text || "").toLowerCase().replace(/[^a-z0-9]+/g, " ")} `;
+  let best = null;
+  for (const s of lib.styles) {
+    const names = [s.name, ...(s.aliases || [])].filter(Boolean);
+    for (const n of names) {
+      const needle = ` ${String(n).toLowerCase().replace(/[^a-z0-9]+/g, " ")} `;
+      if (t.includes(needle) && (!best || needle.length > best.needleLen)) {
+        best = { style: s, needleLen: needle.length };
+      }
+    }
+  }
+  return best ? best.style : null;
 }
 
 // collection is passed explicitly (same pattern as retrieve() below) since this
@@ -150,6 +160,105 @@ async function retrieve(collection, question, chunkLimit = 6, imageLimit = 4) {
     }))
   };
 }
+
+// ── Live pricing injector ───────────────────────────────────────────────────
+// Ori: Knowledge is the source of truth for pricing too — "all the questions are
+// gonna be asked, including the pricing ones." For any question that plausibly
+// involves cost/price/quote/charge, or that strongly matches a price-book line,
+// fetch the live /api/pricing-intel (same app, local) and fold the matching
+// items + trade rates into the prompt as the authoritative $ source. Best-effort:
+// an 8s timeout and any failure skip silently, leaving the prompt untouched.
+const PRICING_PORT = process.env.PUBLIC_PORT || process.env.PORT || 4373;
+const PRICE_QUESTION_RE = /(\bcosts?\b|\bpric(?:e|es|ed|ing)\b|\bquotes?\b|\bquoted\b|\bcharges?\b|\bcharging\b|\brates?\b|\bbudget\b|\bestimates?\b|\bexpensive\b|\bcheap\b|\bafford\b|\bmarkup\b|\blabor rate\b|\$|\bdollars?\b|\bper\s*(?:sq|square|foot|ft|lf|linear|unit)\b)/i;
+
+function isPriceQuestion(text) {
+  return PRICE_QUESTION_RE.test(String(text || ""));
+}
+
+async function fetchPricingIntel() {
+  try {
+    const res = await fetch(`http://localhost:${PRICING_PORT}/api/pricing-intel`, { signal: AbortSignal.timeout(8000) });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch { return null; }
+}
+
+function fmtUSD(n) {
+  const v = Number(n);
+  if (!isFinite(v) || v === 0) return null;
+  return "$" + Math.round(v).toLocaleString("en-US");
+}
+
+// Lexically match the question (+ any extra keywords, e.g. photo scene terms)
+// against price-book item names/trades and trade-rate names; return a compact
+// PRICING DATA block plus flags. Caps at ~15 items and ~5 trades so the prompt
+// never bloats. Reuses the same term-overlap idea as chunk retrieval.
+function buildPricingBlock(data, question, extraTerms = "") {
+  if (!data || !Array.isArray(data.items)) return { block: "", matched: false, strong: false };
+  const terms = tokenize(`${question} ${extraTerms}`);
+  if (!terms.length) return { block: "", matched: false, strong: false };
+  const termSet = new Set(terms);
+
+  const scoreText = (text) => {
+    const toks = [...new Set(tokenize(text))];
+    const tokSet = new Set(toks);
+    let s = 0;
+    for (const term of termSet) {
+      if (tokSet.has(term)) s += 2;
+      else if (toks.some((t) => t.startsWith(term) || term.startsWith(t))) s += 1;
+    }
+    return s;
+  };
+
+  const scoredItems = data.items
+    .map((item) => ({ item, score: scoreText(`${item.description || ""} ${item.service || ""} ${item.trade || ""}`) }))
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 15);
+
+  const trades = data.trades || {};
+  const scoredTrades = Object.keys(trades)
+    .map((name) => ({ name, t: trades[name], score: scoreText(name) }))
+    .filter((entry) => entry.score > 0 && Number(entry.t.count) > 0)
+    .sort((a, b) => (b.score - a.score) || (Number(b.t.count) - Number(a.t.count)))
+    .slice(0, 5);
+
+  if (!scoredItems.length && !scoredTrades.length) return { block: "", matched: false, strong: false };
+
+  const strong = scoredItems.length > 0 && scoredItems[0].score >= 4;
+  const lines = ["PRICING DATA (live from our price book + logged jobs — SOURCE OF TRUTH for any $ figure):"];
+  scoredItems.forEach(({ item }) => {
+    const b = item.benchmark || {};
+    const lo = fmtUSD(b.lowUSD != null ? b.lowUSD : item.low);
+    const hi = fmtUSD(b.highUSD != null ? b.highUSD : item.high);
+    const unit = item.unit && item.unit !== "pct-of-subtotal" ? "/" + item.unit : "";
+    let line = `- ${item.description || item.id} (${item.trade || "—"}):`;
+    if (lo && hi) line += ` benchmark ${lo}–${hi}${unit};`;
+    else if (lo) line += ` benchmark from ${lo}${unit};`;
+    const obs = item.observed;
+    if (obs && obs.median) line += ` our observed: ${fmtUSD(obs.median)} median (${obs.count || 0} jobs);`;
+    else line += " our observed: none logged yet;";
+    const bl = item.blended;
+    if (bl && (bl.mid || bl.low)) line += ` blended: ${fmtUSD(bl.mid || bl.low)}`;
+    lines.push(line.replace(/;\s*$/, ""));
+  });
+  scoredTrades.forEach(({ name, t }) => {
+    lines.push(`- Trade rate — ${name}: ${fmtUSD(t.median)} median (${t.count} observations)`);
+  });
+
+  return { block: lines.join("\n"), matched: true, strong };
+}
+
+// Decide + build the pricing block for a prompt: fetch once, gate on price-intent
+// OR a strong item match, so non-pricing prompts stay lean.
+async function pricingContextFor(question, extraTerms = "") {
+  const data = await fetchPricingIntel();
+  const built = buildPricingBlock(data, question, extraTerms);
+  const include = built.matched && (isPriceQuestion(`${question} ${extraTerms}`) || built.strong);
+  return include ? built.block : "";
+}
+
+const PRICING_INSTRUCTION = "PRICING: a PRICING DATA block is included below — it is the PRIMARY, authoritative source for ANY dollar figure (price, cost, quote, charge, rate). Quote its numbers first and label each figure you take from it: '(price book)' for the benchmark/blended ranges, '(our jobs)' for the observed medians and trade rates. Only fall back to the NOTES or web for a $ figure the block does NOT contain — and when you do, say so plainly (e.g. 'not in our price book yet — market estimate'). Never let a web price silently override the block.";
 
 module.exports = (collection) => {
   const router = express.Router();
@@ -255,6 +364,7 @@ module.exports = (collection) => {
       const { chunks, images } = await retrieve(collection, question, 6, 4);
       const context = chunks.map((chunk, index) =>
         `[${index + 1}] ${chunk.title} (${chunk.source})\n${chunk.text}`).join("\n\n---\n\n");
+      const pricingBlock = await pricingContextFor(question);
       const prompt = [
         "You are the construction-knowledge assistant for We The People Construction, a Los Angeles general contractor. The user is the owner, on a jobsite, deciding what to do next.",
         "SOURCES, in order of authority: (1) the company NOTES below - their own scope-of-work docs and sales decks - cite as [1], [2]; (2) " + (useWeb ? "live web search for current Southern California code/permit/practice facts - mark those statements (web)" : "nothing else - notes only") + ". Web facts must never silently contradict the notes - flag any conflict.",
@@ -263,6 +373,8 @@ module.exports = (collection) => {
         "SPEED: run at most 2 web searches before writing - do not keep browsing.",
         "Quote costs/specs from the notes exactly as written. If neither notes nor web settle something, say so plainly.",
         "HARD RULES: never state a permit-fee dollar amount or a code section number as fact unless it appears verbatim in the NOTES below - say \"verify current fee schedule with <authority>\" instead. Whenever the job involves demolition or opening walls/ceilings/floors, carry forward the asbestos/lead hazmat gate (survey required regardless of building age). Never invent an inspection type that isn't in the notes or well-established SoCal practice.",
+        ...(pricingBlock ? [PRICING_INSTRUCTION] : []),
+        ...(pricingBlock ? ["", pricingBlock] : []),
         "", "NOTES:", context || "(no matching notes - answer from web research and say the notes have no coverage on this)", "", `QUESTION: ${question}`, "", "ANSWER:"
       ].join("\n");
       let answer = "";
@@ -284,10 +396,22 @@ module.exports = (collection) => {
     }
   });
 
-  // Illustration via Google's image models ("Nano Banana"). Needs GEMINI_API_KEY
-  // in .env (free at aistudio.google.com/apikey). Tries the Pro image model
-  // first, falls back to the flash image model if unavailable on the key's tier.
-  const GEMINI_IMAGE_MODELS = ["gemini-3.1-flash-lite-image", "gemini-3.1-flash-image", "gemini-2.5-flash-image", "gemini-3-pro-image-preview"]; // cheapest-first; free tier currently allows 0 image calls - works the moment Google opens quota or billing is added
+  // Illustration + redesign via Google's image models ("Nano Banana"), billing
+  // enabled 2026-07-16. QUALITY-FIRST ladder: 3.1-flash-image is the default
+  // (best quality/latency ~8s), with older flash models as fallbacks if a call
+  // errors. ?quality=max prepends the Pro model (~15s, highest fidelity).
+  const GEMINI_IMAGE_MODELS = ["gemini-3.1-flash-image", "gemini-2.5-flash-image", "gemini-3.1-flash-lite-image"];
+  const GEMINI_IMAGE_MODEL_MAX = "gemini-3-pro-image-preview";
+  function imageModelLadder(quality) {
+    return String(quality) === "max" ? [GEMINI_IMAGE_MODEL_MAX, ...GEMINI_IMAGE_MODELS] : GEMINI_IMAGE_MODELS;
+  }
+
+  // The style library, served to the Design view (chips + prompt blocks).
+  router.get("/styles", (_req, res) => {
+    const lib = loadStyles();
+    if (!lib) return res.status(404).json({ error: "design-styles.json not found" });
+    res.json(lib);
+  });
   router.post("/illustrate", async (req, res) => {
     try {
       const promptText = String(req.body.prompt || "").trim();
@@ -326,91 +450,88 @@ module.exports = (collection) => {
     }
   });
 
-  // Room redesign: photo + style -> nano-banana image EDIT (structure-preserving:
-  // keep layout/camera, change finishes). Same quota reality as /illustrate —
-  // returns a graceful message until Google opens image quota or billing exists.
+  // Room redesign: photo -> Gemini image EDIT (structure-preserving: keep
+  // layout/camera, change finishes). Gemini is the ONLY render backend (Ori,
+  // 2026-07-16: billing enabled, drop third-party render APIs).
+  //   ?prompt=  full render instruction from the Design view (preferred)
+  //   ?style= / ?room=  legacy formula — style names resolve through the style
+  //                     library so its signature elements reach the render
+  //   ?n=1-4    variations, generated IN PARALLEL (one photo, n renders)
+  //   ?quality=max  prepend the Pro image model (~15s) over the flash default (~8s)
+  async function geminiEditOnce(key, models, mime, imageB64, prompt) {
+    let lastError = "";
+    for (const model of models) {
+      try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [
+              { inlineData: { mimeType: mime, data: imageB64 } },
+              { text: prompt }
+            ] }]
+          }),
+          signal: AbortSignal.timeout(120000)
+        });
+        const data = await response.json();
+        if (!response.ok) { lastError = (data.error && data.error.message) || `HTTP ${response.status}`; continue; }
+        const part = (((data.candidates || [])[0] || {}).content || {}).parts?.find((p) => p.inlineData && p.inlineData.data);
+        if (!part) { lastError = "model returned no image"; continue; }
+        return { model, buf: Buffer.from(part.inlineData.data, "base64") };
+      } catch (error) {
+        lastError = error.message;
+      }
+    }
+    throw new Error(lastError || "no image model available");
+  }
+
   router.post("/redesign", express.raw({ type: "image/*", limit: "15mb" }), async (req, res) => {
     try {
       if (!req.body || !req.body.length) return res.status(400).json({ error: "send the room photo as the request body (image/*)" });
-      const style = String(req.query.style || "modern light").trim().slice(0, 120);
-      const room = String(req.query.room || "room").trim().slice(0, 60);
-      const decorKey = process.env.DECOR8_API_KEY;
       const key = process.env.GEMINI_API_KEY;
-      // The new Design view composes its own full render prompt from the chat
-      // (via /design-brief) and passes it here as ?prompt=. Fall back to the
-      // room/style formula for the legacy Knowledge-view redesign buttons.
+      if (!key) {
+        return res.json({ configured: false, backend: "bridge", message: "Add GEMINI_API_KEY to contractor/.env and restart to generate in-app." });
+      }
+      const room = String(req.query.room || "room").trim().slice(0, 60);
+      // The Design view composes its own full render prompt from the chat
+      // (via /design-brief) and passes it here as ?prompt=. The legacy
+      // room/style formula resolves the style through the library first so a
+      // bare style name still renders with its real signature elements.
       const custom = String(req.query.prompt || "").trim().slice(0, 2000);
-      const redesignPrompt = custom ||
-        (`Redesign this ${room} in a ${style} style. STRUCTURE-PRESERVING edit: keep the exact camera angle, room layout, window/door positions and perspective lines; ` +
-        "change only finishes, cabinetry/fixture styles, colors, materials and lighting. Photorealistic, consistent shadows and lighting direction, professionally staged, decluttered.");
+      let redesignPrompt = custom;
+      if (!redesignPrompt) {
+        const styleQ = String(req.query.style || "modern light").trim().slice(0, 120);
+        const lib = matchStyle(styleQ);
+        const styleText = lib && lib.interiorPrompt ? lib.interiorPrompt : `a ${styleQ} style`;
+        redesignPrompt =
+          `Redesign this ${room} in ${styleText}. STRUCTURE-PRESERVING edit: keep the exact camera angle, room layout, window/door positions and perspective lines; ` +
+          "change only finishes, cabinetry/fixture styles, colors, materials and lighting. Photorealistic, consistent shadows and lighting direction, professionally staged, decluttered.";
+      }
       const mime = /png/.test(String(req.headers["content-type"])) ? "image/png" : "image/jpeg";
       const imageB64 = Buffer.from(req.body).toString("base64");
       const dir = path.join(__dirname, "uploads", "knowledge-gen");
-      let lastError = "";
+      const models = imageModelLadder(req.query.quality);
+      const n = Math.min(Math.max(parseInt(req.query.n, 10) || 1, 1), 4);
 
-      // ── Backend (a): Decor8.ai paid API ($0.20/img), purpose-built for this job.
-      // Download the hosted results into /uploads so they persist like the Gemini
-      // path (decor8 URLs are ephemeral). ?n= requests 1-4 variations in one call.
-      if (decorKey) {
-        try {
-          const urls = await callDecor8(decorKey, imageB64, mime, redesignPrompt, req.query.n);
-          fs.mkdirSync(dir, { recursive: true });
-          const saved = [];
-          for (const u of urls) {
-            try {
-              const imgResp = await fetch(u, { signal: AbortSignal.timeout(60000) });
-              if (!imgResp.ok) continue;
-              const buf = Buffer.from(await imgResp.arrayBuffer());
-              const fileName = `redesign-${Date.now().toString(36)}-${saved.length}.png`;
-              fs.writeFileSync(path.join(dir, fileName), buf);
-              saved.push(`/uploads/knowledge-gen/${fileName}`);
-            } catch (_e) { /* skip a single bad url */ }
-          }
-          if (saved.length) {
-            return res.json({ configured: true, backend: "decor8", imageUrl: saved[0], images: saved, prompt: redesignPrompt });
-          }
-          lastError = "decor8: could not fetch generated images";
-        } catch (error) {
-          lastError = "decor8: " + error.message; // fall through to Gemini / bridge
-        }
+      // n parallel edits of the same photo — Gemini returns naturally varied
+      // renders per call, so parallel calls ARE the variations (fluid UX: 4
+      // variations cost one render's wall-clock, not four).
+      const settled = await Promise.allSettled(
+        Array.from({ length: n }, () => geminiEditOnce(key, models, mime, imageB64, redesignPrompt))
+      );
+      const wins = settled.filter((s) => s.status === "fulfilled").map((s) => s.value);
+      if (!wins.length) {
+        const reason = settled[0] && settled[0].reason ? settled[0].reason.message : "unknown";
+        return res.json({ configured: true, backend: "bridge", quotaBlocked: true, prompt: redesignPrompt, error: `Image generation unavailable: ${reason}` });
       }
-
-      // ── Backend (b): Gemini image edit (free key / billing).
-      if (key) {
-        for (const model of GEMINI_IMAGE_MODELS) {
-          try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                contents: [{ parts: [
-                  { inlineData: { mimeType: mime, data: imageB64 } },
-                  { text: redesignPrompt }
-                ] }]
-              }),
-              signal: AbortSignal.timeout(120000)
-            });
-            const data = await response.json();
-            if (!response.ok) { lastError = (data.error && data.error.message) || `HTTP ${response.status}`; continue; }
-            const part = (((data.candidates || [])[0] || {}).content || {}).parts?.find((p) => p.inlineData && p.inlineData.data);
-            if (!part) { lastError = "model returned no image"; continue; }
-            fs.mkdirSync(dir, { recursive: true });
-            const fileName = `redesign-${Date.now().toString(36)}.png`;
-            fs.writeFileSync(path.join(dir, fileName), Buffer.from(part.inlineData.data, "base64"));
-            return res.json({ configured: true, backend: "gemini", model, imageUrl: `/uploads/knowledge-gen/${fileName}`, images: [`/uploads/knowledge-gen/${fileName}`], prompt: redesignPrompt });
-          } catch (error) {
-            lastError = error.message;
-          }
-        }
-      }
-
-      // ── Backend (c): no key, or every paid attempt failed → graceful bridge.
-      // Hand back the composed prompt so the UI can bridge to gemini.google.com
-      // where Ori's AI Pro plan does the same edit free.
-      if (!decorKey && !key) {
-        return res.json({ configured: false, backend: "bridge", prompt: redesignPrompt, message: "Add DECOR8_API_KEY or GEMINI_API_KEY to contractor/.env and restart to generate in-app." });
-      }
-      res.json({ configured: true, backend: "bridge", quotaBlocked: true, prompt: redesignPrompt, error: `Image generation unavailable: ${lastError}` });
+      fs.mkdirSync(dir, { recursive: true });
+      const stamp = Date.now().toString(36);
+      const saved = wins.map((w, i) => {
+        const fileName = `redesign-${stamp}-${i}.png`;
+        fs.writeFileSync(path.join(dir, fileName), w.buf);
+        return `/uploads/knowledge-gen/${fileName}`;
+      });
+      res.json({ configured: true, backend: "gemini", model: wins[0].model, imageUrl: saved[0], images: saved, prompt: redesignPrompt });
     } catch (error) {
       res.status(502).json({ error: error.message });
     }
@@ -444,12 +565,15 @@ module.exports = (collection) => {
       } catch { /* keyword pass is best-effort */ }
       const { chunks, images } = await retrieve(collection, `${question} ${sceneTerms}`.trim(), 4, 3);
       const context = chunks.map((chunk, index) => `[${index + 1}] ${chunk.title}\n${chunk.text}`).join("\n\n---\n\n");
+      const pricingBlock = await pricingContextFor(question, sceneTerms);
       const prompt = [
         `First, use your Read tool to look at the image file at: ${filePath}`,
         "Describe what construction element/condition is shown, then answer the question as a practical ordered plan for a Los Angeles GC: engineer/plans if structural -> permit (name the SoCal authority) -> shoring/safety prep -> the work -> inspections -> patch/finish. Write in flowing short paragraphs (numbered lists only for real step sequences); never use markdown tables.",
         "THEN add a section titled 'QUOTING QUANTITIES (rough)': estimate the measurable quantities a GC needs at quoting stage from what's visible - e.g. linear feet of base/upper cabinets and countertop, sqft of backsplash (LF of counter x 1.5ft is the rule of thumb), sqft of flooring/tile, count of fixtures/appliances/windows. Scale off reference objects (door ~80\" tall, counter 36\" AFF, outlet ~12\" AFF, standard appliances) and STATE your assumptions. Rough is fine - these feed a quote with margin, not a cut list.",
         "HARD RULES: never state a permit-fee dollar amount or a code section number as fact unless it appears verbatim in the NOTES below - say \"verify current fee schedule with <authority>\" instead. If the photo shows or the question involves demolition or opening walls/ceilings/floors, always include the asbestos/lead hazmat gate (survey required regardless of building age). Never invent an inspection type that isn't in the notes or well-established SoCal practice.",
         "Use the company NOTES below as the primary reference where relevant (cite [1], [2]); supplement with web search for current SoCal code/permit facts and mark those statements (web).",
+        ...(pricingBlock ? [PRICING_INSTRUCTION] : []),
+        ...(pricingBlock ? ["", pricingBlock] : []),
         "", "NOTES:", context || "(none matched - answer from the image + web research)",
         "", `QUESTION: ${question}`, "", "ANSWER:"
       ].join("\n");
@@ -488,6 +612,11 @@ module.exports = (collection) => {
   // fix. Both modes: REPLACE fixtures rather than adding competing ones (the
   // review caught a surviving chrome faucet + a second ceiling light).
   const PRESERVE_REDECORATE = "STRUCTURE-PRESERVING edit: keep the exact camera angle and room envelope — the walls, windows, doors, ceiling and built-in cabinetry stay in their current positions and perspective lines, and the view through every window stays exactly as it is; change only finishes, colors, furniture, decor, textiles and lighting fixtures. When a finish or fixture is changed it REPLACES the old one — never leave the old faucet, light fixture, or hardware alongside the new; remove wall-mounted accessories that no longer belong. Plumbing fixtures keep their existing mounting type (floor-mounted stays floor-mounted, wall-hung stays wall-hung) unless the customer explicitly asked to change it, and frosted or privacy glass stays frosted — never invent a new view through any glass";
+  // Exterior clause — hardened 2026-07-16 after a Spanish Revival test: the pro
+  // image model zoomed in, cropped the street context, and invented a projecting
+  // arched entry volume. Naming the framing elements (street, sidewalk, driveway,
+  // fence, neighbors) and banning new building volumes fixed it exactly.
+  const PRESERVE_EXTERIOR = "STRUCTURE-PRESERVING edit of a house exterior: this is the SAME photograph re-finished — keep the EXACT camera position, distance and framing including the street, sidewalk, driveway, fences and neighboring context visible in the photo (do NOT zoom in, crop, or move closer); keep the house footprint, massing and rooflines EXACTLY as they are — do NOT add, enlarge or project any entry, tower, porch or addition volume; the front door and every window stay in their exact positions and sizes; change ONLY surface finishes, colors, trim profiles, light fixtures, hardscape surfaces and planting";
   const PRESERVE_REMODEL = "REMODEL edit: keep the exact camera angle and the room's true footprint — do NOT widen the room, raise the ceiling, or move, resize, or re-trim any window or exterior door, and keep the exact view through the glass; the new layout must fit the existing footprint with realistic 36-42 inch walkway clearances (if an island cannot fit, use a peninsula or skip it), counters with seating need proper overhang for knee space; within those limits you MAY reconfigure cabinetry, layout, built-ins and fixtures. Replaced fixtures REPLACE the old ones — never both. Plumbing fixtures keep their existing mounting type (floor-mounted stays floor-mounted, wall-hung stays wall-hung) unless the customer explicitly asked to change it, and frosted or privacy glass stays frosted — never invent a new view through any glass";
   function preserveClause(mode) {
     return String(mode) === "remodel" ? PRESERVE_REMODEL : PRESERVE_REDECORATE;
@@ -513,22 +642,44 @@ module.exports = (collection) => {
       const messages = Array.isArray(req.body.messages) ? req.body.messages : [];
       if (!messages.length) return res.status(400).json({ error: "messages is required" });
       const mode = String(req.body.mode || "redecorate").toLowerCase() === "remodel" ? "remodel" : "redecorate";
-      const preserve = preserveClause(mode);
       const userTexts = messages
         .filter((m) => m && String(m.role) !== "assistant")
         .map((m) => String((m && m.text) || "").trim())
         .filter(Boolean);
+      // Exterior subjects get their own hardened clause (framing + massing bans)
+      // regardless of mode — inferred from the customer's own words, same as room type.
+      const isExterior = /\b(exterior|facade|curb appeal|front of (the )?house|front yard|backyard|back yard|yard|landscap|driveway|stucco|siding|roof|porch|patio|hardscape|garden|fence)\b/i
+        .test(userTexts.join(" "));
+      const preserve = isExterior ? PRESERVE_EXTERIOR : preserveClause(mode);
       const transcript = messages
         .map((m) => (String(m && m.role) === "assistant" ? "Designer: " : "Customer: ") + String((m && m.text) || "").trim())
         .join("\n");
+      // Cross-connectivity: the same style library that powers the Q&A corpus
+      // grounds the render brief. If the customer named a known style, hand the
+      // composer its REAL card — signature elements, materials, lighting, mood —
+      // so axis (a)/(b)/(c)/(d) come from the library, not the model's memory.
+      const matched = matchStyle(userTexts.join(" "));
+      const styleCard = matched ? [
+        `STYLE LIBRARY CARD for "${matched.name}" (use THIS as the ground truth for the style axes — pick the most render-distinctive elements, don't dump the whole card):`,
+        `  signature: ${(matched.signature || []).join("; ")}`,
+        `  materials: ${(matched.materials || []).map((m) => m.item).join("; ")}`,
+        `  palette: ${(matched.palette || []).join("; ")}`,
+        `  lighting: ${matched.lighting || ""}`,
+        `  furniture: ${matched.furniture || ""}`,
+        `  mood: ${(matched.mood || []).join(", ")}`,
+        `  avoid (never render these): ${(matched.avoid || []).join("; ")}`,
+        `  prompt block to build from: ${(isExterior ? matched.exteriorPrompt : matched.interiorPrompt) || matched.interiorPrompt || ""}`
+      ].join("\n") : "";
       const prompt = [
         "You are the design-brief assistant inside a Los Angeles remodeling contractor's photo-redesign tool. The customer has uploaded a PHOTO of a real room and is telling you in plain speech what they want. You maintain a running structured design brief across the whole conversation and compose ONE image-edit instruction that a photorealistic, STRUCTURE-PRESERVING image model will run on their photo.",
         "READ THE ENTIRE CONVERSATION and merge every request into one coherent brief. Later messages refine or override earlier ones.",
         "Ask AT MOST ONE short clarifying question, and ONLY when something essential is missing or two requests conflict (e.g. you genuinely cannot tell what room it is). Otherwise DO NOT ask a question — warmly confirm and proceed. Never make them pick from a menu.",
         "You CANNOT see the photo. Infer the room type ONLY from the customer's own words (\"cabinets and counters\" implies kitchen; \"vanity and shower\" implies bathroom). If their words don't identify the room, use the neutral word \"space\" in renderPrompt and let your one clarifying question ask which room it is — never guess (the photo may be an exterior, a yard, or any room).",
         "This session's MODE is \"" + mode + "\". The camera/structure clause you MUST copy VERBATIM into renderPrompt is: \"" + preserve + "\".",
+        isExterior ? "EXTERIOR RULE: when picking style elements, use ONLY surface-level cues (stucco/siding finish, trim, colors, fixtures, hardscape surfaces, planting) — NEVER cues that change building massing (arched entry surrounds, towers, porticos, added porches) unless the customer explicitly asked for that construction." : "",
+        styleCard,
         "Compose renderPrompt on FIVE explicit axes, woven into ONE flowing instruction (not a bulleted list):",
-        "  (a) STYLE — name the style the customer implies, and cite 2-3 signature elements of that named style (e.g. Japandi -> low-profile wood furniture, muted earth tones, paper-shade lighting; Modern Farmhouse -> shaker cabinetry, apron sink, black-metal accents).",
+        "  (a) STYLE — name the style the customer implies, and cite 2-3 signature elements of that named style" + (styleCard ? " taken from the STYLE LIBRARY CARD above" : " (e.g. Japandi -> low-profile wood furniture, muted earth tones, paper-shade lighting; Modern Farmhouse -> shaker cabinetry, apron sink, black-metal accents)") + ".",
         "  (b) LIGHTING — natural light quality, fixtures, and time-of-day warmth (e.g. bright airy daylight; warm layered evening glow).",
         "  (c) MATERIALS — specific named materials/finishes for the surfaces being changed (e.g. white oak, honed quartz, matte-black hardware) — never the phrase 'nice materials'.",
         "  (d) MOOD — 2-3 adjectives (e.g. serene, warm, sophisticated).",

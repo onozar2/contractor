@@ -1,0 +1,138 @@
+{
+  "auditedAt": "2026-07-16",
+  "range": "days 14-25",
+  "verdict": "Strong, well-sequenced curriculum with excellent waterproofing/cabinet-sequencing/change-order discipline; the load-bearing fixes are the missing HIS salesperson-registration compliance layer and the code-violating 5-ft kitchen-counter GFI spacing, plus a few outdated legal figures (license bond amount, senior cancellation right, down-payment statute cite).",
+  "scores": {
+    "accuracy": 7,
+    "comprehensiveness": 7,
+    "bestPractices": 7
+  },
+  "findings": [
+    {
+      "day": 24,
+      "severity": "high",
+      "type": "gap",
+      "claim": "The entire Days 23-25 sales system trains a 'salesman' (explicitly 'you're not the contractor; you're the salesman', Day 25) to solicit, measure, price, close, and execute home improvement contracts in the client's home.",
+      "problem": "California law (B&P 7152/7153.1) requires anyone who solicits, sells, negotiates, or executes a home improvement contract for a licensed contractor to be registered with CSLB as a Home Improvement Salesperson (HIS) - regardless of contract dollar amount. The only exceptions are officers/members/general-partners of record on the license, or someone who only books appointments. Doing this work unregistered is a misdemeanor, and the contractor employing an unregistered salesperson also violates the law. The curriculum never mentions HIS registration anywhere.",
+      "fix": "Add to Day 25 (and reference in Day 24): 'Before you ever run a paid appointment as a salesman (rather than as an officer/owner of the licensed entity), you must be registered with CSLB as a Home Improvement Salesperson (HIS) - B&P 7150.1 et seq. It applies to anyone who solicits, negotiates, or executes home improvement contracts for the company, at any dollar amount. The company must also file the HIS association form with CSLB before you start. The only carve-outs are an officer/member/general partner listed on the license, or someone who purely books appointments. Selling contracts unregistered is a misdemeanor for both you and the company.'",
+      "source": "https://www.cslb.ca.gov/Contractors/Applicants/Home_Improvement_Registration/Before_Applying_For_HIS.aspx ; B&P 7152"
+    },
+    {
+      "day": 19,
+      "severity": "high",
+      "type": "accuracy",
+      "claim": "Countertop scope: 'Finish with GFI outlets every 5 feet along the counter... both numbers [5 ft and the Day 14 3 ft] are real and reflect that a standalone countertop swap and a full kitchen electrical rough-in are scoped slightly differently... a good reminder to always check the specific job's scope.'",
+      "problem": "For any kitchen countertop, NEC 210.52(C)(1) requires that no point along the counter wall be more than 24 inches from a receptacle, i.e. receptacles a maximum of 48 inches (4 ft) apart. Outlets spaced 'every 5 feet' leave a point 30 inches from a receptacle and fail electrical inspection. Presenting 5-ft spacing as an acceptable per-scope option is a code error that could cause a failed rough/final. The Day 14 '3 feet' figure is conservative and compliant; the 5-ft figure is not.",
+      "fix": "Replace with: 'Kitchen counter receptacles must be no more than 4 feet (48 inches) apart so no point along the counter is more than 24 inches from an outlet (NEC 210.52(C)). Spacing them every 3 feet, as the full-kitchen scope does, is a safe conservative default. Do not exceed 4-foot spacing on a kitchen counter regardless of what an older scope sheet says - 5 feet will fail inspection.'",
+      "source": "https://expertce.com/learn-articles/nec-kitchen-receptacle-placement/ ; NEC 210.52(C)(1)"
+    },
+    {
+      "day": 25,
+      "severity": "medium",
+      "type": "accuracy",
+      "claim": "'By law, the client gets 3 days to cancel before work starts, so the scheduled start date should be at least 3-4 days out from signing.'",
+      "problem": "The 3-business-day right to cancel is correct for most buyers, but California Civil Code 1689.6 gives a SENIOR CITIZEN (65+) FIVE business days to cancel a home-solicitation contract, with different required disclosure wording. This matters directly because Day 25 has an entire '62+ elderly-client' section - a salesman working seniors in-home must schedule start at least 5-6 days out and use the 5-day disclosure, or the contract's cancellation notice is defective.",
+      "fix": "Amend to: 'By law the client gets 3 business days to cancel before work starts - but a buyer 65 or older gets 5 business days (Civil Code 1689.6), with the 5-day language printed in the notice. For seniors, schedule the start at least 5-6 days out and make sure the contract shows the 5-day senior cancellation notice, not the 3-day one.'",
+      "source": "https://codes.findlaw.com/ca/civil-code/civ-sect-1689-6/"
+    },
+    {
+      "day": 25,
+      "severity": "medium",
+      "type": "accuracy",
+      "claim": "'bonds typically cover $10K-$15K if the company disappears mid-job'",
+      "problem": "Outdated. SB 607 raised the CSLB contractor license bond from $15,000 to $25,000 effective January 1, 2023 (the bond of qualifying individual likewise rose to $25,000). The current required license bond is $25,000, not $10K-$15K.",
+      "fix": "Change to: 'the CSLB contractor license bond is $25,000 (raised from $15,000 on Jan 1, 2023 by SB 607) - a recovery pool if the licensed company fails to perform or pay; note it is a floor set by the state, not full damage coverage.'",
+      "source": "https://www.suretybonds.com/blog/california-contractor-bond-increase-effective-january-1-2023/"
+    },
+    {
+      "day": 25,
+      "severity": "medium",
+      "type": "accuracy",
+      "claim": "'this maps to California Business & Professions Code 7159, the state's Home Improvement Contract statute' (re: the $1,000/10% down-payment cap).",
+      "problem": "The down-payment/progress-payment cap ($1,000 or 10% of the contract, whichever is less) lives specifically in B&P 7159.5, not 7159. Section 7159 governs the required content/format of a home improvement contract; 7159.5 is the down-payment and progress-payment restriction (and a violation is a misdemeanor). The dollar rule as taught is correct - only the statute cite is imprecise.",
+      "fix": "Change the cite to: '...maps to California Business & Professions Code 7159.5, the down-payment and progress-payment limit (7159 is the companion statute governing the contract's required content and disclosures).'",
+      "source": "https://codes.findlaw.com/ca/business-and-professions-code/bpc-sect-7159-5/"
+    },
+    {
+      "day": 14,
+      "severity": "medium",
+      "type": "accuracy",
+      "claim": "'Prepare fire-rated drywall (\"red board,\" 25-minute rated - this is code-specific to kitchens near cooking equipment)'",
+      "problem": "The editorial 'code-specific to kitchens near cooking equipment' claim is not accurate. The CRC does not require fire-rated drywall generally around a residential range/cooktop. Fire-rated (Type X, typically 5/8\") gypsum is code-required at specific separations - garage-to-dwelling walls/ceilings, furnace/utility enclosures, and certain occupancy separations - not simply because a wall is near a kitchen stove. Also '25-minute rated' is not a real gypsum rating (assemblies are rated 20-min, 45-min, 1-hr, etc.; 5/8\" Type X yields a 1-hr assembly). Fine to teach the Manual's 'red board' habit, but drop the false code basis.",
+      "fix": "Reword to: 'The Manual calls for fire-rated (Type X, 5/8\") board - \"red board\" - in the kitchen. Note the actual code trigger for fire-rated gypsum is a required separation (garage-to-house, furnace room, occupancy separation), not merely proximity to the range; use it as the Manual specifies, but don't tell a customer it's a range-clearance code rule.'",
+      "source": "CRC R302 (garage/dwelling separation) and gypsum assembly ratings; no CRC requirement for fire-rated board at residential cooking appliances"
+    },
+    {
+      "day": 17,
+      "severity": "medium",
+      "type": "gap",
+      "claim": "Day 17 requires asbestos lab testing before popcorn removal but says nothing about lead paint when sanding/scraping/prepping old painted surfaces.",
+      "problem": "Interior/exterior repaint prep - sanding, scraping, opening cracks, power-washing off old coatings - on a home built before 1978 disturbs lead-based paint and triggers the EPA Renovation, Repair and Painting (RRP) rule: the firm must be EPA/state Lead-Safe certified, use a certified renovator and contained lead-safe work practices, and give the owner the lead pamphlet. This is the paint-specific analog of the asbestos step already taught, and a real liability/fine exposure. It is only glancingly covered by Day 13's general hazmat lesson.",
+      "fix": "Add a bullet: 'Lead check before you sand or scrape a pre-1978 home: paint prep disturbs lead-based paint and falls under the EPA RRP rule - the company must be Lead-Safe (EPA/CDPH) certified, use contained lead-safe work practices, and give the owner the required lead pamphlet before work. Flag pre-1978 homes at the appointment the same way you flag popcorn for asbestos.'",
+      "source": "EPA RRP rule (40 CFR 745 Subpart E); California CDPH lead-related construction rules"
+    },
+    {
+      "day": 18,
+      "severity": "medium",
+      "type": "gap",
+      "claim": "Day 18 covers glazing specs (double-pane, Low-E, argon) and retrofit vs new-construction install, but never states permit or energy-code requirements.",
+      "problem": "In LA-area jurisdictions, replacing windows requires a building permit, and replacement windows must meet California Title 24 fenestration limits (typically U-factor <= 0.30 and SHGC <= 0.23 in most SoCal climate zones), with a CF documentation trail. A trainee could quote and install a full-house window job without knowing it is permitted, code-gated work - a common source of failed final and re-inspection.",
+      "fix": "Add: 'Window replacement is permitted work in most LA jurisdictions and must meet Title 24 fenestration limits (generally U-factor <= 0.30 and SHGC <= 0.23 in SoCal climate zones) - that's why we spec double-pane Low-E as standard. Pull the permit and keep the CF/energy documentation; unpermitted whole-house window swaps get red-tagged.'",
+      "source": "California Title 24 Part 6 fenestration requirements; LADBS permit practice"
+    },
+    {
+      "day": 22,
+      "severity": "medium",
+      "type": "gap",
+      "claim": "'even though California state ADU law has streamlined approval statewide in recent years' - the only summary of ADU entitlement law.",
+      "problem": "Too vague for a GC-in-training who will scope ADUs. Missing the concrete rules a salesperson/estimator needs: ADU applications are ministerial with a 60-day approval clock; 4-ft side/rear setbacks; at least one 800+ sq ft ADU allowed by-right on most single-family lots; impact/development fees waived for ADUs under 750 sq ft; no replacement-parking requirement when converting a garage and no new parking required within 1/2 mile of transit; owner-occupancy generally not required. These directly affect feasibility, timeline, and price conversations.",
+      "fix": "Add a short 'CA ADU law you can quote' box: 'Ministerial 60-day approval (no discretionary hearing); 4-ft side/rear setbacks; an 800 sq ft / 16-ft ADU is allowed by right on most SF lots; impact fees waived under 750 sq ft; no replacement parking when you convert a garage, and no new parking within 1/2 mile of transit. Detached new-build still needs full plan check but rides these same state streamlining rules.'",
+      "source": "California Gov. Code 66314-66342 (ADU statutes)"
+    },
+    {
+      "day": 21,
+      "severity": "low",
+      "type": "accuracy",
+      "claim": "'Any deck over 3-3.5 ft high needs a city permit and an engineering plan.'",
+      "problem": "Imprecise on two counts. Guards/railings are code-required once a walking surface is more than 30 inches (2.5 ft) above grade, not 3-3.5 ft. And an attached deck generally requires a building permit regardless of height in LA-area jurisdictions; freestanding low decks may be exempt only under specific size/height thresholds. Teaching '3-3.5 ft' as the permit line could lead to an unpermitted 3-ft attached deck.",
+      "fix": "Reword to: 'Guards are required once the deck is more than 30 inches above grade. Attached decks generally need a permit regardless of height in LA-area cities; freestanding low decks may be exempt only under narrow size/height limits. Any elevated or attached deck - and anything the city wants engineered - gets a permit and, where required, a stamped plan.'",
+      "source": "CRC R312 (guards at 30 in); LADBS/CRC deck permit practice"
+    },
+    {
+      "day": 25,
+      "severity": "low",
+      "type": "practice",
+      "claim": "Completion-date buffer table (1-month bathroom -> write 6 months; 1-2 day job -> write 1 month) plus 'frame the buffer as protection, not a real estimate.'",
+      "problem": "B&P 7159 requires an 'approximate' start and completion date, understood as a good-faith estimate. Padding a one-month job to a six-month contractual completion date, and coaching the salesman to explain it is 'not a real estimate,' is legally defensible as protection but drifts toward misrepresentation and reads badly to a regulator or in a dispute. A generous but proportionate buffer (e.g., 1-month job -> 2-3 months) achieves the same protection with far less exposure.",
+      "fix": "Soften to: 'Never write a tight completion date - a missed exact date is a breach. Pad to a realistic worst-case, not a fictional one: a 1-month job to ~2-3 months, a 6-month job to ~9-12 months. Explain honestly that it's a protective outside window covering permits, weather, and change orders - keep it a defensible good-faith estimate, since the law requires the date be approximate, not arbitrary.'",
+      "source": "B&P 7159 (required approximate completion date)"
+    },
+    {
+      "day": 16,
+      "severity": "low",
+      "type": "accuracy",
+      "claim": "Josh's pitch: 'hardwood and bamboo can be sanded and refinished 10-20 times and last 200-300 years.'",
+      "problem": "Sales hyperbole. Solid 3/4\" hardwood realistically tolerates roughly 4-10 sandings over its life and can last 100+ years with care; '10-20 times' and '200-300 years' overstate it and could be quoted back as a promise. It is flagged as Josh's pitch (the company's sales voice), so acceptable as an aspirational talking point, but worth a factual footnote so a trainee doesn't repeat it as a warranty-grade claim.",
+      "fix": "Add a footnote to the pitch: '(As a factual matter, solid hardwood realistically refinishes ~4-10 times and lasts 100+ years - use the long-life story to sell durability, but don't put a specific refinish count or year figure in writing as a promise.)'",
+      "source": "National Wood Flooring Association guidance on refinishing limits of 3/4\" solid hardwood"
+    },
+    {
+      "day": 22,
+      "severity": "low",
+      "type": "accuracy",
+      "claim": "Garage-conversion ADU scope: 'insulate at R-13' walls.",
+      "problem": "R-13 cavity insulation alone often does not meet current Title 24 (2022) prescriptive wall requirements, which in most SoCal climate zones call for higher performance (e.g., R-15 cavity in 2x4, or R-13/R-15 plus continuous insulation, zone dependent). It is quoted from the Manual's real scope, and Day 12's answer key already caveats 'check current Title 24,' so low severity - but the Day 22 scope should carry the same caveat.",
+      "fix": "Append: '(R-13 is the Manual's figure; confirm against current Title 24 for the project's climate zone - 2x4 walls commonly need R-15 cavity or R-13 plus continuous insulation to pass energy compliance.)'",
+      "source": "California Title 24 Part 6 (2022) prescriptive envelope requirements"
+    },
+    {
+      "day": 20,
+      "severity": "low",
+      "type": "accuracy",
+      "claim": "Retaining-wall process: '1/4\" rebar in an X pattern vertically every 3 feet' and 'engineered accordingly on anything beyond a low garden wall.'",
+      "problem": "1/4\" (#2) rebar is very light for a structural retaining wall; engineered block walls typically call for #4 (1/2\") minimum vertical/horizontal steel. More usefully for a trainee: the permit/engineering trigger should be stated concretely - retaining walls over 4 feet measured from the bottom of the footing to the top (or any wall supporting a surcharge/slope) require a permit and stamped engineering in California. 'Beyond a low garden wall' is vague. Fine as the Manual's block sequence, but give the real threshold and don't teach 1/4\" bar as the structural standard.",
+      "fix": "Add: 'Rule of thumb: a retaining wall over 4 feet (bottom of footing to top), or any wall holding back a slope or surcharge, needs a permit and stamped engineering - the engineer sizes the rebar (usually #4 / 1/2\" minimum, not 1/4\"). Price the plans first, then the wall.'",
+      "source": "CRC/CBC retaining-wall permit threshold (4 ft or surcharge); typical engineered rebar sizing"
+    }
+  ]
+}

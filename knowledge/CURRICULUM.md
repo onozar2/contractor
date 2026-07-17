@@ -1,12 +1,17 @@
-# 25-Day Residential Construction Curriculum
+# 33-Day Residential Construction Curriculum
 ### We The People Construction / Joon — from zero to running the business
 
-This is your ground-up training course: 25 days, roughly 60-90 minutes of study each, plus a
-field exercise you actually go do. It is built entirely around the real materials you already
-have — your scope-of-work document, your 2023 Construction Manual, Josh Bloom's sales
-training videos, the whiteboard lesson photos, and the client-presentation decks. Nothing here
-is invented; where a technique or number is stated as "the company way," it's pulled straight
-from the Construction Manual.
+This is your ground-up training course: 33 days, roughly 60-90 minutes of study each, plus a
+field exercise you actually go do. Days 1-25 are the core trade + business curriculum, Days 26-27
+are the Design Track, and Days 28-33 close out full-lifecycle coverage — ground-up new
+construction, two-story structural, SoCal hazard/compliance overlays, the other repair verticals,
+the annual maintenance product, and running a job after the sale. It is built entirely around the
+real materials you already have — your scope-of-work document, your 2023 Construction Manual,
+Josh Bloom's sales training videos, the whiteboard lesson photos, the client-presentation decks,
+and the full `knowledge/playbooks/` and `knowledge/sales-training/` corpus. Nothing here is
+invented; where a technique or number is stated as "the company way," it's pulled straight from
+the Construction Manual, and where a figure is estimated rather than sourced from company
+material, it's flagged **[EST]**.
 
 ### The sales thread
 
@@ -69,6 +74,20 @@ sourcing.
 - [Day 23 — Estimating & Pricing: The Anchor-and-Close Formula](#day-23)
 - [Day 24 — The Soup & Closing: The Josh Bloom Sales System](#day-24)
 - [Day 25 — Write a Contract + Capstone: Run the Full Appointment](#day-25)
+
+**Design Track**
+- [Day 26 — Design Styles: the 24-Style Library & Reading a Client's Taste](#day-26)
+- [Day 27 — The Design Studio: AI Renders, Design-to-Scope & Sourcing](#day-27)
+
+**Ground-Up & Compliance**
+- [Day 28 — Ground-Up New Construction: Lot to Foundation](#day-28)
+- [Day 29 — Two-Story & Multi-Level Structural](#day-29)
+- [Day 30 — SoCal Hazard & Compliance Overlays](#day-30)
+
+**Advanced Repair & Business Systems**
+- [Day 31 — Repair Verticals: Termite, Drainage, Chimney, Restoration](#day-31)
+- [Day 32 — The Annual Home Care Program (Maintenance as a Product)](#day-32)
+- [Day 33 — Running the Job After the Sale](#day-33)
 
 - [Answer Key](#answer-key)
 
@@ -203,11 +222,18 @@ inspector who fails a rough inspection stops the job cold until it's corrected a
 real delay.
 
 **9. Final walkthrough & punch list.** Homeowner and PM walk the completed job, list anything
-incomplete or wrong, contractor corrects it.
+incomplete or wrong, contractor corrects it — see Day 33 for the full punch-list methodology
+(three-bucket sorting of incomplete/defective/client-requested-change, a real close-out date, and
+how an open-ended list strands a retention holdback).
 
-**10. Final payment & close-out.** Final invoice, unconditional lien waiver (the Manual
-explicitly calls this out for the garage conversion job — CSLB has a standard form), warranty
-paperwork.
+**10. Final payment & close-out.** Final invoice, unconditional lien waiver (the Manual calls
+this out for the garage conversion job — use the statutory release forms in California Civil
+Code §§8132-8138; a non-conforming waiver may not be enforceable), warranty paperwork.
+
+**11. Maintenance hand-off.** A good close-out doesn't have to end the relationship — Day 32
+covers turning the final walkthrough into the first pitch for a recurring annual maintenance
+membership, and Day 33 covers the kickoff/scheduling mechanics (`sales-training/11-open-a-job.md`)
+that keep every stage above running smoothly on a live job.
 
 Where things blow up: undersized deposits collected illegally (CSLB violation), no engineer
 letter when a wall is removed, material on back-order stalling the trim-out sequence, and
@@ -262,6 +288,12 @@ upgrade or rewire, gas line, water heater replacement, HVAC replacement, re-roof
 scope) generally does. Garage conversions, ADUs, and pool/spa installs always require permits
 and usually plan check. When in doubt, pull the permit — an unpermitted job is a liability the
 company carries forever and kills a home sale down the line when a buyer's inspector finds it.
+New construction and many additions also trigger **CalGreen** (Part 11 of Title 24) — a separate
+mandatory green-building code layered on top of the Title 24 *energy* requirements in Days 11, 12,
+18, 22, covering construction-waste diversion, low-VOC materials, and water-efficient fixtures;
+see Day 30 for the full breakdown. Before quoting any job, also check the parcel for a Very High
+Fire Hazard Severity Zone (VHFHSZ)/WUI flag — it changes the required construction spec (Day 30),
+not just the paperwork.
 
 **When you need a licensed engineer or architect.** Any structural change — removing/altering a
 load-bearing wall, adding a room, foundation repair beyond routine bolting, a new second story —
@@ -270,6 +302,11 @@ report (called out explicitly in the Manual's Blueprints section). An architect 
 for design-heavy projects or when the jurisdiction requires architectural drawings for planning
 approval (setbacks, height limits, historic overlay zones — LA has many). A structural engineer
 alone is enough for most straightforward wall removals and additions once a floor plan exists.
+Three overlays are common enough in SoCal to check by parcel before quoting anything: a hillside
+HCR/BHO designation, an HPOZ (Historic Preservation Overlay Zone — a Certificate of
+Appropriateness is required for any street-visible exterior change before a permit issues), and
+the Coastal Zone (may require a Coastal Development Permit) — see Day 30 for the full
+hillside/HPOZ/coastal overlay sequence and what each one adds to cost and timeline.
 
 **Licenses.** In California, any contractor performing work over $500 (labor + materials) must
 hold an active **CSLB (Contractors State License Board)** license. The classification that
@@ -323,7 +360,10 @@ diagnose a foundation issue believe everything else you tell them.
 joists over a crawl space; and monolithic or stem-wall slab-on-grade (common in newer
 construction and additions) where the concrete floor is poured directly over compacted fill and
 a vapor barrier. A raised foundation is generally easier and cheaper to retrofit because you
-can access it from the crawl space; a slab is far harder to modify after the fact.
+can access it from the crawl space; a slab is far harder to modify after the fact. This day covers
+existing-house retrofit and repair only — ground-up foundation types for new construction,
+including hillside caisson/pier-and-grade-beam systems where the soils report calls for a deep
+foundation, are covered in Day 28.
 
 **Foundation repair (per the Manual's actual scope):** the process is to inspect the crawl
 space, raise the house with jacks up to 12" as needed, cover and reinforce pillars/posts with
@@ -346,6 +386,15 @@ blocking. **Critical field note straight from the Manual:** if the crawl space i
 high, you physically cannot bolt from inside — you have to remove the exterior stucco and bolt
 from the outside, which means the stucco patch/repair has to be included in the bid or you'll
 eat that cost. Jacking the house is a separate, not-included scope.
+
+**Sales/scope notes worth knowing:** point income-eligible homeowners to the California
+Earthquake Brace + Bolt (EBB) program — a California Residential Mitigation Program grant that
+pays up to roughly $3,000 toward exactly this bolting/cripple-wall retrofit (higher supplemental
+grants exist for income-qualified households). It's a legitimate closing tool and trust signal,
+not a sales gimmick. Also, most standard cripple-wall/bolting retrofits qualify for a
+jurisdiction's prescriptive pre-approved plan set (CEBC Appendix A / LADBS Standard Plan), which
+means no stamped engineer is needed — unlike the wall-removal and addition work covered in Days
+1 and 3.
 
 **What fails and what inspectors check:** missing or under-spaced anchor bolts, bare (unbraced)
 cripple walls, rotted mudsills from long-term moisture intrusion, rusted/undersized post
@@ -389,15 +438,19 @@ misunderstand a framing scope, every downstream trade (drywall, electrical, HVAC
 problem — and framing errors are the most expensive to unwind after the fact.
 
 ### Learn
+**This day is written single-story-default.** For engineered second-floor systems (I-joists/TJI,
+point-load stacking floor-to-floor), stair code, and two-story seismic load path, see Day 29.
+
 **Standard wall framing** (per the Manual's "Walls: New" spec, which is the company's actual
 process): before removing any existing wall, first reinforce the ceiling-to-roof framing per
 engineering so nothing sags or drops when the wall comes out — this order matters and is a
 common rookie mistake (demo first, brace second = a caved-in ceiling). Then: install the sole
 (bottom) plate horizontally, install 2x4 studs vertically at 16" on center, install posts (4x4,
 6x4, 8x4, or steel where a heavier point load needs it) at bearing locations, install the top
-plate horizontally, then run electrical/plumbing through the studs (code limits how much you
-can notch or bore a stud — generally no more than roughly a third of its width without a
-protective plate, and holes have edge-distance limits). Special brackets go around the framing
+plate horizontally, then run electrical/plumbing through the studs (per CRC R602.6, bored holes
+can be up to 40% of stud width — 60% in doubled studs — while a notch in a bearing-wall stud is
+limited to 25% of width; whenever the hole or notch comes within 1-1/4 inch of the stud edge, a
+16-gauge steel nail plate is required to protect the wiring/pipe). Special brackets go around the framing
 at connection points, plywood sheathing goes on where the wall needs to act as a shear or fire
 wall, and drywall goes up last — green board (moisture-resistant) in kitchens/baths, and
 fire-rated ("red") board where code requires a fire separation (commonly at a garage-to-house
@@ -460,9 +513,16 @@ your credibility on what's actually wrong up there is the entire sale.
 ### Learn
 **Three roof systems you'll sell constantly.** *Composition shingle* (asphalt shingle) —
 the most common pitched-roof system in LA, rated 30 or 50-year, installed over 30 lb tar paper
-with new edge metal and metal flashing at every pipe and vent penetration; the Manual caps
-overlay at a maximum of 3 shingle layers before a full tear-off is required (weight and code
-limits). *Tile (clay or concrete)* — heavier, longer-lived, common on Spanish/Mediterranean
+with new edge metal and metal flashing at every pipe and vent penetration; the Manual's older
+training note caps overlay at up to 3 shingle layers, but California code (CRC R908.3) allows a
+maximum of **two** layers of asphalt shingles — you may overlay only if the roof currently has a
+single layer, and once two layers exist, a full tear-off to the deck is mandatory. Treat the
+Manual's 3-layer figure as a history note, not practice: a third layer fails re-roof inspection.
+On a parcel in a Very High Fire Hazard Severity Zone, the roofing assembly itself is also
+regulated by CBC Chapter 7A (Class A ignition-resistant rating, ember-resistant details) —
+`knowledge/products/01-roofing-shingles.md` already flags impact-resistance for wildfire-adjacent
+lots; see Day 30 for the full WUI/wildfire-hardening picture.
+*Tile (clay or concrete)* — heavier, longer-lived, common on Spanish/Mediterranean
 style SoCal homes; requires 2 layers of 30 lb tar paper underneath and the roof structure must
 be engineered/verified to carry the extra weight, which is a common oversight when a homeowner
 wants to switch from shingle to tile. *Flat roof* — common on additions, garage conversions,
@@ -474,8 +534,8 @@ instead — cheaper, faster, but doesn't fix a bad deck underneath and has a sho
 life.
 
 **Roof-over vs. tear-off — how you decide:** roof-over (overlay) is faster and cheaper but
-hides the condition of the deck, adds weight, and is capped by code/manual at a max layer
-count; tear-off exposes the plywood deck so you can find and replace rot before it becomes a
+hides the condition of the deck, adds weight, and is capped by code at two layers maximum;
+tear-off exposes the plywood deck so you can find and replace rot before it becomes a
 structural problem, and it's mandatory once the layer limit is hit or the deck is suspect. Always
 walk (or ladder-inspect) the roof yourself before quoting overlay vs. tear-off — sight-unseen
 overlay quotes are how contractors eat change orders.
@@ -531,8 +591,9 @@ handyman.
 **Reading a sag correctly.** A visible dip in a floor or roofline has one of a few causes:
 an undersized beam or joist for its span (built wrong originally), long-term moisture damage
 rotting a structural member, a failed or missing post/support below a beam, termite damage
-(structural wood loss, not just cosmetic), or foundation settlement (Day 4) pulling the whole
-system down at one point. The fix is different for each, so the first job is diagnosis, not
+(structural wood loss, not just cosmetic — see Day 31 for the actual WDO inspection,
+fumigation/tenting sequencing, and repair process behind a termite-caused sag), or foundation
+settlement (Day 4) pulling the whole system down at one point. The fix is different for each, so the first job is diagnosis, not
 demo — use a level or a string line across the suspect area to quantify the sag (how many
 inches over how many feet), and go look underneath/above if you can before committing to a
 scope.
@@ -608,7 +669,11 @@ coat** in the finish texture the customer picks. That's roughly a 10-day minimum
 before finish color goes on — a homeowner asking "why can't this be done in 3 days" needs to
 hear this explicitly. **Re-stucco** (existing house) adds sandblasting or hydro-blasting the old
 stucco off first (pressure and method depend on the city's requirements), patching cracks in the
-brown coat, then the same color-coat finish.
+brown coat, then the same color-coat finish. **Before blasting old coatings off a pre-1978
+home, apply the Day 13 hazmat lens first:** exterior disturbance over 20 sq ft triggers EPA RRP,
+and open/dry sandblasting of leaded coatings is a prohibited RRP practice — use lead-safe
+methods (wet methods, HEPA-shrouded tools, ground containment) with an EPA Lead-Safe Certified
+crew, and price that containment into the bid.
 
 **Why stucco cracks and what it means:** hairline cracking is normal (stucco is cementitious and
 shrinks slightly as it cures) and is cosmetic; cracks that are wide, stepped (diagonal, following
@@ -767,8 +832,12 @@ expectations up front.
 
 **GFI/GFCI and AFCI — know the difference:** GFI (ground-fault) outlets protect against
 shock by cutting power when current leaks to ground (required near water: kitchens, baths,
-garages, exterior, within 6 ft of a sink) — the Manual specifies **GFI outlets every 5 feet**
-along a kitchen countertop and every 3 feet of counter run on a full kitchen remodel. AFCI
+garages, exterior, within 6 ft of a sink). Code sets the real spacing number: NEC 210.52(C)
+requires kitchen counter receptacles placed so no point along the counter is more than 24
+inches from an outlet — effectively **no more than about 4 feet apart** — and every
+counter-serving receptacle must be GFCI-protected. The Manual's habit of setting one roughly
+every 3 feet on a full kitchen remodel stays safely inside that rule; a spacing anywhere near 5
+feet would leave a gap that fails inspection. AFCI
 (arc-fault) breakers protect against electrical fires from damaged wiring and are increasingly
 required on bedroom and living-space circuits by current code.
 
@@ -832,12 +901,19 @@ GFI electrical circuit in the furnace area; pour a concrete pad outside for the 
 set the condenser on the pad; install a dedicated electrical breaker/disconnect on the wall next
 to the condenser; connect the refrigerant lines between coil and condenser. The furnace/coil
 handles heating and moves air through the ducts; the condenser (outside) handles the
-compression/heat-exchange side of cooling.
+compression/heat-exchange side of cooling. **Note (2025+):** new residential AC/heat-pump
+systems now ship with A2L (mildly flammable) refrigerants — R-454B or R-32 — as R-410A is phased
+down under the EPA's HFC phasedown. This affects equipment cost/availability and adds
+refrigerant-leak-detection requirements on new installs, so factor it into any new-system quote.
 
 **Ductwork:** flexible duct (the Manual specifies **R-6 rated flex duct**) run from the
 furnace/plenum to each room's supply register, sealed at every joint with mastic or foil tape
 (not standard cloth duct tape, which fails over time) plus a silicone bead for extra seal per
-the Manual's repair spec, with elbows added at direction changes. Leaky, poorly sealed, or
+the Manual's repair spec, with elbows added at direction changes. **Caution:** R-6 only meets
+Title 24 in mild coastal climate zones (3, 5, 6, 7). Most LA-area work — climate zones 8, 9, and
+10 in the basin/valleys, plus mountain zone 16 — requires **R-8** duct insulation in
+unconditioned attics/crawl space under the 2022 Energy Code. Confirm the property's climate zone
+and spec R-8 where required; R-6 in the wrong zone fails HERS/Title 24 verification. Leaky, poorly sealed, or
 crushed ductwork is one of the most common and invisible energy-waste problems in older homes —
 a duct pressure/leakage test is a strong diagnostic upsell tool. **Asbestos note (ties to Day
 13):** any duct replacement in a pre-1990s home requires checking for asbestos-containing duct
@@ -983,6 +1059,15 @@ what makes it dangerous — intact and undisturbed, it's typically left in place
 otherwise a nuisance, which is also a legitimate, cost-saving option to offer a homeowner instead
 of automatic removal.
 
+**SoCal-specific layer beyond the lab test — SCAQMD Rule 1403.** South Coast AQMD Rule 1403
+governs asbestos on top of the lab-test step above: a certified-consultant asbestos survey is
+required before any demolition or renovation, and AQMD must be notified electronically (with a
+fee) at least 10 working days before work begins — a copy of that notification is required
+before the city will issue a demolition permit. The one residential carve-out is a single-unit
+dwelling disturbing less than 100 sq ft of intact material. The trigger is the activity and the
+area being disturbed, not simply whether the house predates 1990, so build the 10-day AQMD lead
+time into your schedule the same way you build in lab turnaround.
+
 **Lead — the pre-1978 trigger.** Any home built before 1978 is presumed to have lead-based
 paint until tested otherwise (this is federal EPA RRP — Renovation, Repair, and Painting — rule
 territory, not optional). Contractors disturbing more than a minimal area of painted surface in
@@ -997,9 +1082,10 @@ being certified is a legitimate credibility item to mention to a cautious homeow
 demolish the contaminated material (drywall, plywood, whatever mold has grown into — mold on a
 hard, cleanable surface can sometimes be cleaned, but mold that has grown into a porous material
 has to be removed), install a negative-air machine that exhausts to the outside for a **minimum
-of 3 days** (this starves the contained space of oxygen so the mold can't continue spreading
-while creating negative pressure that keeps spores from escaping into the rest of the house),
-sand affected beams, disinfect the entire room, apply a special mold-treatment paint to all
+of 3 days** (the HEPA-filtered machine keeps the sealed containment under negative pressure and
+continuously scrubs airborne spores, so nothing escapes into the rest of the house while the
+demo and treatment proceed — the mold itself is stopped by removing the moisture and the
+contaminated material, not by any lack of oxygen), sand affected beams, disinfect the entire room, apply a special mold-treatment paint to all
 affected beams/surfaces, clean up, and **order third-party air testing** to confirm the space is
 clear before closing it back up. All work must be done in suits and respirator masks. The
 Manual's field note on where to expect mold is worth memorizing verbatim: **bathroom walls,
@@ -1009,6 +1095,10 @@ with regular moisture exposure.**
 **What connects all three:** they're all about *not disturbing a hazard before you've confirmed
 what it is and controlled it* — the discipline is identical even though the materials and
 remediation methods differ.
+
+**Mold above assumes the moisture source is otherwise contained.** Where the loss is an active
+water or fire/smoke event instead, that's a distinct restoration vertical with its own
+mitigation-vs-rebuild split, insurance-claim flow, and IICRC certification — see Day 31.
 
 ### 🗣️ How Josh sells this
 
@@ -1072,8 +1162,11 @@ any demo. Then order cabinets (**custom takes up to 3 weeks; semi-custom takes u
 this lead-time gap is a critical scheduling fact, and a damaged custom cabinet takes another 3
 weeks to replace vs. 1 day for in-stock semi-custom, so cabinet choice is a timeline decision as
 much as a style one). Cover work areas, then demo the existing cabinets, countertop, backsplash,
-floor tile, and baseboards. Prepare fire-rated drywall (**"red board," 25-minute rated** — this
-is code-specific to kitchens near cooking equipment), patch/prime/paint. Rough electrical:
+floor tile, and baseboards. Prepare fire-rated drywall (Type X, 5/8" — **"red board"** — per the
+Manual's kitchen spec; the actual code trigger for fire-rated gypsum is a required separation —
+garage-to-house, furnace room, occupancy separation — not simply proximity to a range, so use it
+here because the Manual specifies it, not because it's a code-mandated range-clearance rule),
+patch/prime/paint. Rough electrical:
 recessed lights, under-counter lights, ceiling lights, **GFI outlets every 3 feet** of counter,
 switches, dimmers, and dedicated circuits for the dishwasher and garbage disposal. Relocate/
 replace plumbing in copper, up to code. Prepare the range hood system (duct and panels). Install
@@ -1127,7 +1220,7 @@ real takeoff and price.
 1. What are the three kitchen tiers, and what's the lead-time difference between custom and semi-custom cabinets?
 2. What GFI spacing does the Manual specify along a kitchen counter?
 3. What must you check before demolishing a kitchen soffit, and why?
-4. What drywall type does the Manual specify near cooking equipment, and what does the rating mean?
+4. What drywall type does the Manual specify near cooking equipment, and what's the actual code trigger for fire-rated gypsum (hint: it's not proximity to the stove)?
 5. Why does countertop installation typically happen after, not with, cabinet installation?
 
 ---
@@ -1265,7 +1358,9 @@ Josh's pitch for upselling hardwood over laminate: hardwood and bamboo can be sa
 refinished 10-20 times and last 200-300 years, while laminate's anti-scratch coating can't be
 refinished at all once it scratches — it has to be replaced, and shows real wear by year 30-40.
 Engineered wood splits the difference: real hardwood veneer, but only refinishable 2-3 times.
-On tile jobs, he never puts tile directly on plywood — plywood absorbs moisture and the tiles
+(As a factual matter, solid hardwood realistically refinishes roughly 4-10 times and lasts
+100+ years with care — use the long-life story to sell durability, but don't put a specific
+refinish count or year figure in writing as a promise.) On tile jobs, he never puts tile directly on plywood — plywood absorbs moisture and the tiles
 pop loose; cement board is the required moisture barrier first, every time. (Source:
 `04.02-product-flooring.md`)
 
@@ -1317,6 +1412,14 @@ below grade, matching the stucco-install trench concept from Day 8). Apply one c
 both trim and stucco, then two coats of finish paint on the stucco and two coats of oil-based
 finish paint on the trim (trim gets oil-based for its extra durability and sheen against
 weather). Backfill the trench, clean up.
+
+**Lead check before you sand or scrape a pre-1978 home.** Interior and exterior paint prep —
+sanding, scraping, opening cracks, pressure-washing off old coatings — on a home built before
+1978 disturbs lead-based paint and falls under the EPA Renovation, Repair and Painting (RRP)
+rule, the paint-specific analog of the asbestos step below: the company must be Lead-Safe
+(EPA/CDPH) certified, use contained lead-safe work practices, and give the homeowner the
+required lead pamphlet before work begins. Flag a pre-1978 home at the appointment the same way
+you flag popcorn ceilings for asbestos.
 
 **Popcorn/acoustic ceiling — install:** cover everything, prep the ceiling (fix cracks, patch as
 needed), spray on acoustic material in the customer's chosen texture (orange peel, eggshell, or
@@ -1407,6 +1510,13 @@ windows** (used for basement/garage/utility openings — smaller, often obscure 
 into the framed opening with wood or foil trim rather than a full stucco rebuild). Standard
 frame color options per the Manual: white, almond, black, and bronze.
 
+**Permits and energy code — don't skip this in the pitch.** Window replacement is permitted work
+in most LA-area jurisdictions, and replacement windows must meet California Title 24 fenestration
+limits — generally U-factor ≤ 0.30 and SHGC ≤ 0.23 in most SoCal climate zones — which is exactly
+why double-pane Low-E is the standard spec above, not just a nice-to-have. Pull the permit and
+keep the CF/energy compliance documentation; an unpermitted whole-house window swap is a common
+way to get red-tagged.
+
 **Doors** follow the same logic set — exterior doors need weatherstripping and proper flashing
 at the header to keep water out of the framing above (a poorly flashed exterior door header is
 a very common, slow-developing rot source); interior doors are largely a style/budget choice
@@ -1474,12 +1584,12 @@ backsplash, disconnect plumbing, clean up. Install new ¾" plywood substrate wit
 sealer, cut the sink opening (if the sink is on-site at time of template/install), then set the
 new slab on the plywood, glued down with special epoxy. Install the sink (under-mount or
 top-mount), plumbing for the garbage disposal, and electrical outlets. Install the backsplash
-(same slab material, epoxy-glued). Finish with **GFI outlets every 5 feet** along the counter —
-note this is a slightly different spacing than the 3-foot spacing called out in the full kitchen
-remodel scope on Day 14; both numbers are real and reflect that a standalone countertop swap and
-a full kitchen electrical rough-in are scoped slightly differently in the Manual, which is a good
-reminder to always check the specific job's scope rather than assuming one number applies
-everywhere.
+(same slab material, epoxy-glued). Finish with **GFI outlets spaced no more than 4 feet (48
+inches) apart**, so no point along the counter is more than 24 inches from a receptacle (NEC
+210.52(C)) — the Manual's older "every 5 feet" figure for a standalone countertop job is out of
+code and will fail rough/final inspection. Spacing them every 3 feet, as the full-kitchen scope
+on Day 14 does, is a safe conservative default that stays inside the 4-foot maximum. Do not
+exceed 4-foot spacing on a kitchen counter regardless of what an older scope sheet says.
 
 **Countertop tile (the budget/DIY-friendly alternative to slab):** frame a wood substrate,
 install chicken wire lifted about ½" off the surface with special plates (this creates a
@@ -1519,13 +1629,13 @@ $18,000; full custom: $18,000-$40,000+.
 
 ### Field Exercise
 Measure a countertop in linear feet (front edge run) and square feet (total surface including
-any island or peninsula), and count the outlets along the backsplash — do they meet the 5-foot
-(or 3-foot, kitchen-remodel) spacing? Identify the cabinet tier (re-finish/re-facing/replace
+any island or peninsula), and count the outlets along the backsplash — do they meet the 4-foot
+code maximum (or the 3-foot kitchen-remodel default)? Identify the cabinet tier (re-finish/re-facing/replace
 candidate) the same way you did on Day 14, and note the countertop material (laminate, tile,
 slab) — this feeds directly into your Day 23 takeoff practice.
 
 ### Self-Quiz
-1. What are the two GFI spacing numbers mentioned across the Manual's kitchen scopes, and which job type does each apply to?
+1. What's the code-required maximum GFI spacing on a kitchen counter, and what's the Manual's safe default spacing on a full kitchen remodel?
 2. Why is a slab countertop always measured/templated after cabinets are installed, not before?
 3. What's the reinforcement step in a tile countertop that a slab countertop doesn't need, and why?
 4. What substrate does the Manual specify under a slab countertop, and what's it treated with?
@@ -1568,14 +1678,21 @@ infill (privacy or open-style), with optional integrated post-cap lighting (requ
 electrical to the fence line first).
 
 **Retaining walls (per the Manual's real block-wall process):** demo the existing wall/fence,
-prep an 18"x18" trench, set ¼" rebar in an "X" pattern vertically every 3 feet plus horizontal
-rebar tied to it, fill the trench with 2,500 PSI concrete to the top, and — before that concrete
-cures — set the first course of concrete block into it so the blocks sink and key into the wet
-concrete. Continue stacking block with vertical rebar run through the block cores and mortar
-between courses, fill the block cores solid with 2,500 PSI concrete, install a finished cap
-course, and finish with stucco in the customer's chosen color. This is genuinely structural
-work — a retaining wall holding back soil that fails can undermine a foundation or a slope, so
-it's priced and engineered accordingly on anything beyond a low garden wall.
+prep an 18"x18" trench, set rebar in an "X" pattern vertically every 3 feet plus horizontal
+rebar tied to it (the Manual's shorthand for this is ¼" bar, but any wall that needs a permit
+gets its rebar sized by the engineer — typically #4 / ½" minimum, not ¼"), fill the trench with
+2,500 PSI concrete to the top, and — before that concrete cures — set the first course of
+concrete block into it so the blocks sink and key into the wet concrete. Continue stacking block
+with vertical rebar run through the block cores and mortar between courses, fill the block cores
+solid with 2,500 PSI concrete, install a finished cap course, and finish with stucco in the
+customer's chosen color. This is genuinely structural work — a retaining wall holding back soil
+that fails can undermine a foundation or a slope. Rule of thumb: a wall over 4 feet (measured
+from the bottom of the footing to the top), or any wall holding back a slope or surcharge, needs
+a permit and stamped engineering — price the plans first, then the wall.
+
+**None of the systems above manage water intentionally.** If a yard pools, or a retaining wall
+traps runoff against a foundation, that's a French-drain/site-grading job, not a hardscape one —
+see Day 31 for the full drainage-fix process (`playbooks/31-french-drain-site-drainage.md`).
 
 **Artificial turf (per the Manual):** spray the area with weed killer, remove 2-4" of topsoil
 and compact, plan drainage and install a border, install a weed barrier, install a crushed-
@@ -1673,6 +1790,11 @@ edge metal, then 30/50-year fiberglass shingles as the wear surface, with new me
 every pipe/vent. This is functionally a small flat roof built as a walkable deck — the same
 flashing-at-penetrations discipline from Day 6 applies directly.
 
+**This exact waterproofing scope is also a hard legal requirement on multifamily buildings.**
+SB721 (3+ unit rentals) and SB326 (condo/HOA developments) mandate periodic inspection of
+elevated decks/balconies by a qualified inspector, both sharing a January 1, 2026 initial
+deadline — see Day 29 for the full SB721/SB326 breakdown, including who's qualified to sign each.
+
 **Rough LA costs:** pool equipment replacement (pump/filter/heater): $2,500-$6,000; pool
 re-plaster (average pool, excluding tile): $6,000-$12,000; wood patio cover with roofing:
 $12,000-$25,000 depending on size/roof type; aluminum insulated patio cover: $18-$28/SF; deck/
@@ -1680,8 +1802,12 @@ re-deck with waterproof membrane: $20-$35/SF.
 
 ### 🗣️ How Josh sells this
 
-Any deck over 3-3.5 ft high needs a city permit and an engineering plan — if a client wants to
-skip that and self-handle it, Josh writes an exact liability-shield line into the contract:
+Guards are code-required once a deck's walking surface is more than 30 inches above grade (CRC
+R312), and an attached deck generally needs a permit regardless of height in LA-area
+jurisdictions — freestanding low decks may be exempt only under narrow size/height limits. Any
+elevated or attached deck — and anything the city wants engineered — needs a permit and, where
+required, a stamped plan. If a client wants to skip that and self-handle it, Josh writes an
+exact liability-shield line into the contract:
 "Owner will provide engineer plan and city permit plus call city inspector," which protects the
 contractor if an inspector ever stops by. On room additions vs. patio enclosures, he steers
 budget- or timeline-tight clients toward the enclosure: it takes under a month and doesn't count
@@ -1750,7 +1876,9 @@ existing attached or detached garage into livable space, which the Manual's own 
 walks through end to end: demo interior/exterior walls and old fixtures (water heater, windows,
 closet), frame the new addition per approved architectural plans with new load-bearing posts
 and a flush beam replacing any removed wall, install shear walls per engineering, frame in new
-windows and doors, insulate at R-13. Then site work: relocate the electrical panel and gas
+windows and doors, insulate at R-13 (the Manual's figure — confirm against current Title 24 for
+the project's climate zone; 2x4 walls commonly need R-15 cavity, or R-13 plus continuous
+insulation, to pass energy compliance). Then site work: relocate the electrical panel and gas
 meter per utility requirements, install a new high-efficiency tankless water heater, match new
 stucco to the existing house, install a new torch-down roof section, and — a detail worth
 remembering — **identify and protect existing sewer/water/electrical lines before pouring any
@@ -1767,6 +1895,13 @@ all-systems build (essentially a small house) rather than converting existing sp
 carries its own, generally more involved planning/zoning review (setbacks, height limits, parking
 requirements vary significantly by jurisdiction) even though California state ADU law has
 streamlined approval statewide in recent years.
+
+**CA ADU law you can quote at the appointment:** approval is ministerial with a 60-day clock (no
+discretionary hearing); side/rear setbacks can be as low as 4 feet; an 800 sq ft / 16-ft-tall ADU
+is allowed by right on most single-family lots; impact/development fees are waived under 750 sq
+ft; converting a garage requires no replacement parking, and no new parking is required within
+1/2 mile of transit; owner-occupancy is generally not required. A detached new-build still needs
+full plan check, but it rides these same state streamlining rules.
 
 **What inspectors/jurisdictions specifically watch on ADUs and garage conversions:** confirmed
 egress (a legal bedroom needs an operable window meeting minimum size for emergency exit),
@@ -1948,6 +2083,12 @@ interpretation is unverified beyond Ori's own notes.
 These 6 tools are framed as "Rebuttals/Loops" — meant to be cycled through if the client keeps
 objecting, not a single one-shot close.
 
+**Before you run any of this as paid work, not training:** everything in this day assumes you're
+legally allowed to sell home improvement contracts as a salesperson. California requires anyone
+who solicits, negotiates, or executes a home improvement contract for a licensed contractor to be
+registered with CSLB as a Home Improvement Salesperson (HIS) — see Day 25 for the exact rule
+before you ever run a live, unsupervised appointment.
+
 **Objection-handling scripts, tagged to their source module (00-sales-playbook §5):**
 - Price is $20K+ higher than other bids → sell personal service and dedicated specialist crews
   over one generalist; brain-surgeon analogy; horror stories of cheap contractors taking 6-12+
@@ -1981,6 +2122,8 @@ diagnostic information it generates exists yet.
 ### Watch / Read
 - `knowledge/sales-training/06-the-soup.md` and `07-closing.md` — the primary sourced material for today; both are built from whiteboard transcriptions, so the underlying video scripts for the 6 closing tools are only partially captured
 - `knowledge/sales-training/00-sales-playbook.md` §5 — the consolidated objection-script list
+- `knowledge/sales-training/11-open-a-job.md` — kickoff video/photo record, staggered sub-bidding, site-visit cadence (Day 33 teaches this in full)
+- `knowledge/sales-training/12-upsell-the-client.md` — the Subcontractor Hand-off and Free Gift Upfront referral/upsell approaches (Days 32-33 build on this directly)
 - [Ori's Construction Sales Notes](https://docs.google.com/document/d/16PMU4xuGZwRIaVFGovdoTGlldmT1dBhsVHbowcb1A5g/edit) — independent cross-reference for the Soup's rapport method and pricing numbers
 - [Client-presentation decks](https://drive.google.com/drive/folders/1-D49QXyRanE5U3B12A77U2YTbijBkMPU) — study how a proposal deck supports this system
 
@@ -2012,10 +2155,22 @@ from the load path in Day 1 to the closing tools in Day 24 gets used in one real
 If you can do both convincingly, you can run a real appointment start to finish.
 
 ### Learn
+**Before any of this: HIS registration.** Everything on this page assumes you're legally
+entitled to solicit, price, and sign home improvement contracts as a salesperson. California law
+(B&P §7150.1 et seq., specifically §7152) requires anyone who solicits, negotiates, or executes a
+home improvement contract for a licensed contractor to be registered with CSLB as a Home
+Improvement Salesperson (HIS) — at any dollar amount, regardless of experience. The only
+carve-outs are an officer, member, or general partner listed on the license itself, or someone
+who purely books appointments without pricing or closing. The company must also file the HIS
+association form with CSLB before you start selling. Running appointments unregistered is a
+misdemeanor for both you and the company — get your HIS registration confirmed before you're
+ever alone in a client's home with a contract to sign.
+
 **The down payment cap is real California law, not a company preference
 (05-write-a-contract).** A home improvement contract cannot legally take a down payment larger
 than **$1,000 or 10% of the contract price, whichever is LESS** — this maps to California
-Business & Professions Code §7159, the state's Home Improvement Contract statute, and it's the
+Business & Professions Code §7159.5, the down-payment and progress-payment limit (§7159 is the
+companion statute governing the contract's required content and disclosures), and it's the
 practical rule Josh's training teaches salesmen to apply on every deal. On a $450,000 ADU, the
 cap is $1,000 (not $45,000 — 10% would be far more, so "whichever is less" caps it at $1,000);
 on an $8,000 job, the cap is 10% = $800. If a client won't give the full legal max, still try to
@@ -2029,9 +2184,16 @@ no more than $1,500. Exact milestone wording matters: first milestone = **"Upon 
 delivery of some materials"**; final milestone = **"Upon job completion."**
 
 **Completion-date buffer table — never write a tight date (05-write-a-contract).** Missing an
-exact completion date is a breach of contract, so pad generously: a 1-2 day job → give yourself
-1 month; a 1-month job (bathroom, kitchen) → 6 months; a 6-month-to-1-year job (room addition,
-ADU) → 2 years. If a client questions a buffer that looks long for a short job: "Listen, you
+exact completion date is a breach of contract, so pad generously: the Manual's own numbers are a
+1-2 day job → give yourself 1 month; a 1-month job (bathroom, kitchen) → 6 months; a
+6-month-to-1-year job (room addition, ADU) → 2 years. Know the legal boundary on this: B&P §7159
+requires the completion date be "approximate" — a good-faith estimate, not an arbitrary
+placeholder — so padding this generous is defensible as weather/permit/change-order protection,
+but coaching a client that it "isn't a real estimate" drifts toward misrepresentation if a
+regulator or a dispute ever looks at it. A more proportionate buffer (a 1-month job → 2-3 months,
+a 6-month job → 9-12 months) gives the same protection with far less exposure, and is worth using
+if a client pushes back hard on the longer numbers. If a client questions a buffer that looks
+long for a short job: "Listen, you
 never know what could happen. Something will happen, God forbid, and we don't want to [be in
 breach]" — frame the buffer as protection, not a real estimate.
 
@@ -2039,10 +2201,13 @@ breach]" — frame the buffer as protection, not a real estimate.
 name/phone/email in the contractor-info block — "you're not the contractor; you're the
 salesman" — personal info only goes at the bottom. List all owners by name (husband + wife;
 note a co-signing adult child in parentheses) and get 2-3 phone numbers plus email. By law, the
-client gets **3 days to cancel** before work starts, so the scheduled start date should be at
-least 3-4 days out from signing; for a genuine emergency (leak, crumbling foundation), have the
-client sign a specific waiver of that 3-day right, on which they write WHY they're waiving it.
-Mark all required disclosure checkboxes (Home Improvement Contract, Arbitration Notice, 3-Day
+client gets **3 business days to cancel** before work starts, so the scheduled start date should
+be at least 3-4 days out from signing — but a buyer 65 or older gets **5 business days** to
+cancel (Civil Code §1689.6), with the 5-day language printed in the notice; for a senior client,
+schedule the start at least 5-6 days out and make sure the contract shows the 5-day senior
+cancellation notice, not the 3-day one. For a genuine emergency (leak, crumbling foundation),
+have the client sign a specific waiver of the cancellation right, on which they write WHY they're
+waiving it. Mark all required disclosure checkboxes (Home Improvement Contract, Arbitration Notice, 3-Day
 Cancellation Notice, Liability/Insurance Disclosure, Workers' Comp Insurance, License copy,
 Mechanic's Lien Warning) and collect all mandatory initials before leaving. If a client objects
 to the arbitration clause, explain it resolves disputes faster than court (though pricier); if
@@ -2060,13 +2225,24 @@ parent being signed up alone.
   100% (Day 17; 04.05-painting).
 - **Wood-damage contingency clause** — base price covers "up to two to three pieces of wood";
   more found = change order (Day 17; 04.05-painting).
-- **>3.5ft engineering liability shield** — "Owner will provide engineer plan and city permit
-  plus call city inspector," written whenever a client self-handles engineering on a deck or
-  wall over 3-3.5 ft (Day 20, 21; 04.04-walls-fences, 04.07-deck-patio).
+- **Engineering liability shield** — "Owner will provide engineer plan and city permit plus call
+  city inspector," written whenever a client self-handles engineering on a deck or wall (Day 20,
+  21; 04.04-walls-fences, 04.07-deck-patio). Josh's rough trigger is height ("3-3.5 ft"), but the
+  actual rules are stricter: deck guards are code-required past 30 inches, attached decks
+  generally need a permit at any height, and a retaining wall needs a permit/engineer past 4 feet
+  or when it holds back a slope/surcharge — use this clause any time engineering is in play, not
+  just past a height guess.
+
+These clauses all work the same way: they pre-authorize a change order the moment a stated
+threshold is crossed, rather than leaving it to an on-site argument. See Day 33 for the full
+change-order document mechanics — pricing convention, unforeseen-conditions clause language, and
+the rule that work never proceeds on changed scope until the client has signed.
 
 **Post-sale protection you're already carrying, tied together:** general liability insurance
-typically covers $500K-$2M in home damage; bonds typically cover $10K-$15K if the company
-disappears mid-job; Workers' Comp absorbs medical liability if a worker is hurt on the property.
+typically covers $500K-$2M in home damage; the CSLB contractor license bond is **$25,000**
+(raised from $15,000 on January 1, 2023 by SB 607) — a recovery pool if the licensed company
+fails to perform or pay, and a floor set by the state, not full damage coverage; Workers' Comp
+absorbs medical liability if a worker is hurt on the property.
 If unpaid, a mechanic's lien must be filed within **90 days** of completion, then enforced via
 court/arbitration within another **90 days** after filing.
 
@@ -2120,6 +2296,794 @@ deposit? If the honest answer is no anywhere, go back to that day's lesson and t
 3. What script protects a contractor working alone with a 62+ client, and what exactly do they hand-write?
 4. Name three protective contract clauses covered this course and what each one protects the contractor against.
 5. For the kitchen job: what structural detail must be checked before quoting an "open concept" request, and why?
+6. Before you can run a paid appointment as a salesman, what must you be registered as with CSLB, and what are the two carve-outs from that requirement?
+
+---
+
+<a id="day-26"></a>
+## Day 26 — Design Styles: the 24-Style Library & Reading a Client's Taste
+
+**Why it matters:** Every remodel sale is secretly a design sale — the client isn't buying
+drywall and cabinets, they're buying a picture of how their house will feel. A GC who can name
+the style a client is gesturing at, cite its three signature elements, and spec real, sourceable
+materials for it closes against contractors who say "we can do whatever you want." This day
+plugs you into the same style library that powers the app's Design Studio and the Knowledge Q&A
+— one knowledge base, three doors into it.
+
+### Learn
+**The library.** The company style library lives in the app (`knowledge/design-styles.json`,
+served at the Design view's style chips, and queryable in Knowledge Q&A — ask it "what defines
+Japandi?"). It holds 24 styles across five families:
+
+- **Modern:** Mid-Century Modern, Minimalist, Contemporary Luxe, Industrial Loft, Organic Modern, Desert Modern (Palm Springs)
+- **Classic:** Traditional, Transitional, Craftsman, French Country, Art Deco, Resort / Country Club
+- **Organic:** Japandi, Japanese Zen, Scandinavian, Wabi-Sabi, California Casual
+- **Mediterranean/Revival:** Spanish Revival, Mediterranean, Tuscan
+- **Eclectic/Coastal:** Modern Farmhouse, Coastal (Hamptons), Bohemian, Moroccan
+
+For each style the library carries: 5-7 signature elements, 6-9 real sourceable materials with
+rough SoCal installed costs, a palette, lighting and furniture guidance, a mood, what to AVOID
+(the tells that make a style read fake or cheap), and designer notes you can say to a client
+verbatim.
+
+**Reading a client's taste (the skill, not the list).** Never open with "what style do you
+want?" — most clients don't have the vocabulary and will freeze or guess wrong. Instead read
+three concrete sources: (1) **their saved images** — ask to see their Pinterest board or
+screenshots folder; you're looking for repeated elements (always white kitchens? always warm
+wood? always black windows?), not the labels they put on them; (2) **their existing furniture
+and objects** — what they own and love survives the remodel and constrains the palette; (3)
+**the house's own architecture** — a 1920s Craftsman bungalow fights a Contemporary Luxe
+interior, and SoCal housing stock has natural pairings (Spanish Revival and Mediterranean for
+1920s-30s stucco; Mid-Century and Desert Modern for 1950s-60s ranches and post-and-beams;
+Craftsman for pre-war bungalows; almost anything for 1980s+ boxes). When the client's cues
+conflict, Transitional is the honest recommendation — it's the style built for "some of both."
+
+**Style families as a sales tool.** Clients say adjectives, not styles: "warm but modern" →
+Japandi / Organic Modern / California Casual; "clean, no clutter" → Minimalist / Scandinavian;
+"like a Santa Barbara hotel" → Spanish Revival / Mediterranean; "cozy, like a cabin but nicer"
+→ Craftsman / Modern Farmhouse. Learn the adjective-to-family map and you can steer any
+conversation to 2-3 named candidates, then let the Design Studio's renders settle it.
+
+**What "sourceable" means.** Every material in the library is something you can actually buy
+and install in LA — if a client falls in love with a render, the spec behind it can't be
+fantasy. That's the standard for anything you promise: name the material, know its rough
+installed cost, know its lead time class (stock, 2-3 weeks, or 6-8+ weeks).
+
+### Watch / Read
+- Open the app → Knowledge → ask "compare Japandi and Scandinavian" and "what defines Spanish Revival" — read the cited style chunks
+- Skim 3 styles you don't know in the Design view's chip strip, then ask the Q&A for each one's avoid-list
+- Re-read Day 14 (kitchen) and Day 19 (counters/cabinets) — notice how every style decision lands on those scope items
+
+### Field Exercise
+Pick two houses you know (yours, a friend's, a lead's). For each: identify the architecture era
+and its natural style pairings, then pull up the client's (or your own) five favorite interior
+photos and extract the repeated elements. Name the style family, then the 2-3 candidate styles,
+and check your read against the library's signature elements in the Q&A.
+
+### Self-Quiz
+1. What are the three concrete sources you read a client's taste from, and why not just ask "what style do you want?"
+2. A client with a 1958 ranch says they want "warm but modern, nothing cold." Which 2-3 styles do you shortlist and why?
+3. What does the library's "avoid" list exist for — what failure does it prevent in renders and in real specs?
+4. Why does every material in the library carry a rough SoCal installed cost and a real supplier reference?
+5. Which style is the honest recommendation when a couple's cues genuinely conflict, and what defines it?
+
+---
+
+<a id="day-27"></a>
+## Day 27 — The Design Studio: AI Renders, Design-to-Scope & Sourcing
+
+**Why it matters:** The Design view (`app → 🎨 Design`) turns a phone photo of the client's
+actual room into a photoreal restyled render in ~10 seconds, in any of the 24 styles — in the
+client's living room, on your iPhone or iPad, mid-appointment. Used right it's the strongest
+closing tool the company has; used wrong (renders presented as photos, specs that can't be
+sourced) it's a liability. This day is how to run it right, and how to turn an approved concept
+into a scope of work.
+
+### Learn
+**The tool, end to end.** Photograph the room (landscape, from a corner, lights on, declutter
+what you can — the render preserves what the camera sees). Tap a style chip or type plain
+speech ("white shaker cabinets, brass hardware, keep the window"). The chat composes a render
+instruction on five axes — style, lighting, materials, mood, camera/structure preservation —
+grounded in the style library's card for the named style. Modes: **Redecorate** (walls,
+cabinets, layout all stay — finishes and furnishings change) vs **Remodel** (cabinetry/layout
+may reconfigure inside the same footprint). **Variations** 1/2/4 render in parallel (4 costs
+the same wait as 1, ~10s). **Quality** Fast (~8-15s) for live appointments, Max (~15-25s) for
+the send-home version. Exteriors get their own structure lock: the tool keeps the camera
+framing, footprint, rooflines, and window/door positions, and only re-finishes surfaces,
+fixtures, hardscape and planting.
+
+**The legal/trust line (non-negotiable).** Every render is an AI **concept**, never a photo,
+and never a promise: the app bakes an "AI concept visualization — JOON Design Studio" caption
+onto every saved after-image, and you SAY it in the room ("this is a concept of the direction —
+the finish schedule is what we actually contract"). A CSLB-licensed contractor showing a
+homeowner a fake "photo" of a promised result is a consumer-protection problem; a contractor
+showing a labeled concept next to a written allowance schedule is a professional.
+
+**Design-to-scope (where the money is).** An approved concept converts to a contract through a
+**finishes schedule**: walk the render surface by surface and write the line items — cabinet
+fronts (door style, material, finish), counters (material, edge, thickness), backsplash,
+flooring, paint (walls/trim/ceiling), lighting fixtures (count + type), plumbing fixtures,
+hardware — each with either a firm spec (material named, cost known) or an **allowance** (a
+dollar bucket the client shops within, e.g. "tile allowance $12/sqft installed"). The style
+library's materials-with-costs exist precisely so your allowances are realistic on day one.
+Rule: anything visible in the render the client fell in love with must appear in the schedule
+— a render element with no scope line is a future change-order fight.
+
+**Sourcing reality.** Stock/quick-ship (paint, big-box tile, stock hardware): days. Semi-custom
+cabinets: ~5 days to 3 weeks (Manual's tiers, Day 19). Custom cabinets, specialty tile, plaster
+finishes, imported stone: 6-8+ weeks — flag these in the appointment so the schedule
+conversation happens BEFORE the contract. Tie back to Day 23 pricing: the finishes schedule is
+the "build the product" step with real numbers attached.
+
+**Failure modes to catch before the client does.** Check every render before presenting:
+window/door positions moved? furniture scale believable? duplicated fixtures (old faucet AND
+new)? a view through a window that changed? If yes — regenerate; it takes 10 seconds. Never
+hand-wave a broken render; it undercuts every real photo in your portfolio.
+
+### Watch / Read
+- Run the Design view once on your own kitchen before ever running it live
+- Re-read Day 23 (anchor pricing) and Day 25 (contract clauses) — the finishes schedule feeds both
+- Ask the Knowledge Q&A: "how do I present AI design renders to clients" and "turn a Japandi concept into a scope of work"
+
+### Field Exercise
+Full dry run: photograph one room in your own home, generate 4 variations in one style (Fast),
+pick the best, regenerate it once at Max quality, then write the complete finishes schedule for
+it — every visible changed surface as a line item with a firm spec or an allowance number from
+the style library. Time yourself: photo-to-schedule under 30 minutes is the bar.
+
+### Self-Quiz
+1. What are the two render modes and exactly what may change in each?
+2. Why do 4 variations cost the same wait as 1, and when do you use Fast vs Max quality?
+3. What's baked onto every saved after-image, and what's the sentence you say out loud with it?
+4. What's the rule linking render elements to the finishes schedule, and what fight does it prevent?
+5. Name the three sourcing lead-time classes and one material in each.
+
+---
+
+<a id="day-28"></a>
+## Day 28 — Ground-Up New Construction: Lot to Foundation
+
+**Why it matters:** Building a house from a bare lot is the highest-dollar job type in
+the business, and every mistake made before the first stud goes up — a bad soils
+assumption, a missed setback, an unpermitted grading cut — compounds for the life of
+the house. Every other day in this course assumes a foundation already exists; this is
+the front half that makes it legal and buildable.
+
+### Learn
+**Lot due diligence.** Pull zoning first — ZIMAS (zimas.lacity.org) for City of LA,
+the applicable city/county planning portal elsewhere (see Day 3). Confirm the buildable
+envelope (setbacks, height limit for the zone/height district) and the Floor Area Ratio
+(FAR) or lot-coverage cap, which caps house size independent of setbacks. Cross-check
+the parcel against CAL FIRE's Very High Fire Hazard Severity Zone (VHFHSZ) map — a
+hit changes the construction spec (Chapter 7A, defensible space — Day 30) and can
+affect insurability before a permit is pulled. Hillside lots add a Hillside
+Construction Regulation (HCR)/Baseline Hillside Ordinance (BHO) overlay — grading
+limits and height-from-grade rules. Full playbook:
+`knowledge/playbooks/53-zoning-basics-la.md`.
+
+**Soils & geotechnical report.** Required on essentially every new-SFR plan check. A
+licensed geotechnical engineer drills borings, tests bearing capacity (how much load
+the soil can carry before it compresses or fails), checks for expansive clay (soil that
+swells/shrinks and can crack a slab if undesigned-for), and flags groundwater depth and
+slope stability on hillside lots. The foundation type gets picked from this report — not
+the other way around. Rough cost/timeline: $2,500-$6,000 [EST], 2-4 weeks [EST] for a
+flat-lot SFR; hillside runs higher and longer.
+
+**Land/boundary survey.** Pulled before design, not after. A licensed surveyor
+establishes legal property lines, easements, and a benchmark elevation the architect
+uses for finish-floor height. Designing off an assumed lot line instead is how a
+foundation ends up encroaching a setback or easement — often an unfixable
+mid-construction discovery. Rough cost: $1,500-$4,000 [EST].
+
+**Plan check for new SFR construction.** A new house needs a full sheet set:
+architectural, structural (stamped by a licensed engineer), Title 24 energy (Day 11),
+plus a civil/grading sheet on hillside/complex lots. Expect a longer plan-check cycle
+than an addition — commonly 2-3 correction/resubmittal rounds [EST] versus one or two
+for a remodel, since the department reviews the whole structure, not a tie-in. Set
+client timeline expectations early.
+
+**Demolition of an existing structure.** A separate demolition permit, with its own
+sequence: an AQMD Rule 1403 asbestos survey before any disturbance regardless of
+building age (see the hazmat-gate playbook), utility disconnect by the utility/a
+licensed sub (not just switched off), tree-protection for protected native species
+(verify with local urban forestry), and erosion/sediment control once the lot is bare.
+Full playbook: `knowledge/playbooks/54-hazmat-gate.md`.
+
+**Grading & excavation.** A grading plan specifies cut (soil removed) and fill (soil
+added/compacted) to reach design pad elevation; compaction testing confirms fill
+density before foundation work — a real inspection point. Sites disturbing 1+ acre
+trigger the federal NPDES Construction General Permit and a SWPPP (silt fencing, fiber
+rolls, inlet protection); most SFR lots stay under that, but many jurisdictions still
+require a local grading/erosion plan — verify, don't assume it's exempt.
+
+**Underground utilities — new stub-outs.** Distinct from a lateral *replacement*:
+fresh water/gas/electrical/sewer connections run from the street main to the house.
+Call DigAlert first. The sewer lateral gets a new stub-out and cleanout, sized/sloped
+correctly from day one (compare `knowledge/playbooks/43-sewer-lateral-replacement.md`).
+Electrical/gas need utility coordination (DWP/SCE, SoCalGas) and inspection before
+backfill — never bury before inspection.
+
+**Foundation types.** *Slab-on-grade* — monolithic slab over compacted fill/vapor
+barrier; cheapest, fastest, but plumbing is embedded (a future repipe means breaking
+concrete). *Raised* — perimeter footing, stem wall, mudsill, joists over a crawl
+space; costs more, gives future plumbing/electrical access (Day 4). *Hillside
+caisson/pier-and-grade-beam* — where the soils report finds weak near-surface bearing
+or the lot is sloped, deep drilled caissons reach competent soil/bedrock, tied together
+above grade by a grade beam carrying the structure's loads — fully engineered, no
+prescriptive option. Type is set by the soils report and slope, not preference. Rough
+cost: slab, $15-$25/SF [EST]; raised, $20-$35/SF [EST]; hillside caisson/grade-beam,
+$40-$80+/SF [EST].
+
+**Path to Certificate of Occupancy.** Unlike a remodel's single final inspection, a new
+SFR needs final structural, final MEP, final building, and often final zoning sign-off
+before the department issues a Certificate of Occupancy (CofO) — the legal document
+allowing occupancy. No CofO, no legal move-in, and it's often a sale-closing condition.
+Build it into the schedule as its own milestone.
+
+### Watch / Read
+- Full playbook: `knowledge/playbooks/53-zoning-basics-la.md` —
+zoning/setback/hillside/HPOZ/coastal gate; read before quoting any new-build lot
+- Full playbook: `knowledge/playbooks/54-hazmat-gate.md` — asbestos/lead survey
+sequence ahead of demolition
+- Full playbook: `knowledge/playbooks/50-detached-adu-new-build.md` — closest
+existing ground-up sequence in the corpus; same foundation-to-CofO shape, smaller scale
+- ZIMAS (zimas.lacity.org) — source of record for LA zone, height district, overlay
+flags
+- No training video exists yet for lot-to-foundation new construction — flag to Ori
+for a future shoot on a live ground-up job
+
+### Field Exercise
+Pick any SFR lot you have access to. Pull the zone, height district, front setback, and
+any overlay flags (hillside, HPOZ, coastal, fire hazard) from ZIMAS or the local
+planning portal. Sketch the buildable envelope on a rough site plan and note whether
+the slope looks flat, moderate, or steep enough that the soils report would likely call
+for more than a standard footing.
+
+### Self-Quiz
+1. What does a soils report determine, and why is the foundation type picked from it?
+2. Name two things a boundary survey establishes and what happens if you skip it.
+3. Why does demolishing a newer house still trigger an asbestos survey?
+4. What's the difference between cut, fill, and compaction testing?
+5. When would an engineer specify a hillside caisson/grade-beam foundation?
+6. What's required before a new SFR gets its Certificate of Occupancy?
+
+---
+
+<a id="day-29"></a>
+## Day 29 — Two-Story & Multi-Level Structural
+
+**Why it matters:** A second story isn't "framing but taller" — every load has to
+travel through one more floor and one more seismic connection than a single-story house
+needs, and a stair built to the wrong numbers is both a code failure and a real injury
+risk. This is what separates a company that can competently run a two-story job from
+one that only does single-story remodels.
+
+### Learn
+**Second-floor framing & floor systems.** A second-story wall or post must land on a
+header/beam/post that runs unbroken down to the foundation — the Day 1 load path, one
+story higher. A second-floor bearing wall that doesn't stack over a first-floor bearing
+wall or sized beam is the most common two-story framing defect, and exactly what the
+second-story-addition sequence below checks for first. Engineered I-joists (TJI — OSB
+web, laminated-veneer or solid-sawn flanges) span farther than dimensional lumber at
+less weight and resist crowning/shrinkage. Every hole cut through a TJI web for MEP
+must follow the manufacturer's punch-out chart or get engineering approval — cutting
+freehand is Day 5's "don't cut a truss chord" lesson applied to floors, and it can
+silently weaken the system for years. Dimensional-lumber floors are still common on
+shorter spans, sized by the same span tables as Day 5.
+
+**Stair code — checked with a tape measure at inspection.** Under CRC R311.7 (verify
+the current code-cycle's exact subsection numbers): max riser height 7-3/4"; min tread
+depth 10"; min clear width 36"; min headroom 80" (6'8"), measured from the nosing.
+Guards are required wherever a walking surface sits more than 30" above grade, with
+openings limited so a 4-inch sphere can't pass through. Handrails are required at 4+
+risers, mounted 34"-38" above the nosing, graspable profile (roughly 1-1/4" to 2"),
+continuous, returning to a wall or newel post at each end. Get any of these wrong and
+framing inspection fails on the spot.
+
+**Two-story seismic load path — distinct from Day 4's cripple-wall retrofit.** A
+single-story house only keeps its walls bolted to the foundation; a two-story house
+also has to transfer lateral force between floors without the connection tearing loose.
+The floor acts as a diaphragm — a rigid plane that collects seismic force and
+delivers it to the shear walls below — and that force must be positively connected at
+the diaphragm-to-shear-wall boundary. Where a shear wall is tall and narrow, force can
+try to overturn it; **hold-downs** (steel connectors bolted through end studs, anchored
+to the foundation/framing below) resist that. This load path — roof diaphragm to
+upper shear wall to floor diaphragm to lower shear wall to foundation — must be
+continuous and engineered end to end; verify the hold-down schedule with the project
+engineer rather than assuming a standard answer.
+
+**Second-story additions — the sequence, distilled.** Full architect/engineer plan
+set, including whether the existing foundation and first floor can carry the new load
+— both commonly need upgrading first. Permit with a longer plan-check given the
+structural complexity. Shore the first floor per engineering before demo. Reinforce the
+existing foundation/framing. Remove/modify the roof to build the new platform, frame
+walls and new roof, dry-in fast — the house is far less livable with the roof open,
+flag this to the client. Rough MEP for the new floor often routes a brand-new stack up
+through the house, planned before framing closes it off. Rough inspections, insulate to
+Title 24, exterior finish, windows, interior finish, final inspections. Rough cost:
+$450-$750+/SF [EST] for the new floor area; a modest 600-800 SF second story commonly
+runs $350,000-$600,000+ [EST]. Full playbook:
+`knowledge/playbooks/52-second-story-addition.md`.
+
+**Balconies & decks — the compliance layer behind Day 21.** Elevated balconies/decks
+on 3+ unit rentals fall under **SB721**; condo/HOA developments fall under **SB326**
+— single-family homes aren't covered, though the dry-rot risk is real regardless. 
+SB721 allows a licensed architect, engineer, or qualified contractor to inspect; SB326
+requires a licensed structural engineer or architect — a contractor cannot sign a
+valid SB326 inspection. Both share a hard **January 1, 2026** initial-inspection
+deadline, then re-inspection every 6 years (SB721) or 9 years (SB326). The report goes
+to the owner or HOA board, not routinely the city — code enforcement is notified only
+on an immediate hazard. Open any deck job on a qualifying building with "has this had
+its SB721/SB326 inspection." Full playbooks:
+`knowledge/playbooks/33-balcony-deck-waterproofing.md` and
+`knowledge/playbooks/55-balcony-inspection-law.md`.
+
+### Watch / Read
+- Full playbook: `knowledge/playbooks/52-second-story-addition.md` — the complete
+sequence
+- Full playbooks: `knowledge/playbooks/33-balcony-deck-waterproofing.md` and
+`knowledge/playbooks/55-balcony-inspection-law.md` — SB721/SB326 cheat sheet plus
+construction sequence
+- Re-read Day 5 (Framing) and Day 4 (Foundations & Seismic) — this day builds
+directly on both
+- CRC R311.7 (stairways) and R312 (guards) — verify exact current-cycle subsection
+numbers before quoting stair dimensions
+- No training video exists yet for two-story framing/stair layout — flag to Ori for a
+future shoot
+
+### Field Exercise
+Measure any staircase you have access to. Record riser height, tread depth, clear
+width, headroom, guard height, and handrail height. Compare against this day's numbers
+and note anything out of spec — older SoCal houses commonly have out-of-code risers
+or missing handrails, a real teachable finding.
+
+### Self-Quiz
+1. Why is a misaligned second-floor bearing wall the most common two-story framing
+defect?
+2. Name four of the six stair dimensions in this day and their code minimums/maximums.
+3. What does a hold-down do, and why does a two-story building need it?
+4. What must be checked/upgraded before second-story framing begins?
+5. What's the key inspector-eligibility difference between SB721 and SB326?
+6. What's the shared deadline, and the re-inspection cycle after it for each statute?
+
+---
+
+<a id="day-30"></a>
+## Day 30 — SoCal Hazard & Compliance Overlays
+
+**Why it matters:** SoCal construction sits under a stack of overlays a building permit
+doesn't tell you about — fire, green-building, hillside, historic, and coastal rules
+that can add real cost and months of schedule to an otherwise straightforward job. A
+permit is not proof of zoning or hazard-overlay compliance, and missing one is how a
+job stalls at plan-check or gets built non-compliant.
+
+### Learn
+**Wildfire / Wildland-Urban Interface (WUI) hardening.** Any parcel in or near a Very
+High Fire Hazard Severity Zone (VHFHSZ) — CAL FIRE and local jurisdictions publish
+the maps — triggers **California Building Code Chapter 7A**, the ignition-resistant
+construction standard for new construction and qualifying additions/re-roofs there.
+Chapter 7A governs materials most exposed to ember/radiant-heat attack: Class A
+roofing, ember-resistant vents (mesh-screened or baffled, not open louvers),
+non-combustible or ignition-resistant siding near grade, multi-pane/tempered glazing,
+and enclosed eaves. **Defensible space** is the separate property-wide layer — CAL
+FIRE's zones run roughly Zone 1 (0-30 ft: lean/clean/green) and Zone 2 (30-100 ft:
+reduced fuel load); verify current distances with CAL FIRE or the local fire
+department, since ordinances are set locally on top of the state baseline. **Zone 0**
+(0-5 ft, the ember-resistant zone) was created by **AB 3074 (2020)**, directing the
+Board of Forestry to adopt rules keeping this perimeter essentially free of combustible
+material in VHFHSZ areas — the adopted rule text and compliance date have shifted
+more than once, so say "verify current Zone 0 regulation and deadline with CAL FIRE"
+rather than quoting one from memory. WUI hardening is increasingly tied to
+insurability, not just code — carriers have been non-renewing hillside/foothill
+policies over this exact gap, a real, timely sales angle for re-roofs, siding, vents,
+and fencing/landscape work in these zones.
+
+**CalGreen (Part 11 of Title 24)** — distinct from the Title 24 *energy* code in Days
+11, 12, 18. CalGreen is California's mandatory green-building code, applying to new
+construction and many additions alongside (not instead of) Title 24 energy. Three areas
+matter most: **construction waste diversion** — a minimum diversion rate (commonly
+cited around 65%, though local ordinances can set it higher — verify current
+edition/local override) of C&D debris from landfill, documented via a waste-management
+plan that can hold up closeout if missing; **low-VOC materials** — limits on volatile
+organic compounds in paints, adhesives, sealants, and flooring, meaning a sub can't
+grab any bucket off the shelf on a permitted job; **water-efficient fixtures** —
+low-flow toilets, showerheads, and faucets to current CalGreen flow-rate limits,
+stricter than big-box-store defaults. Checked at plan-check and again at final —
+missing waste-diversion receipts at closeout is a common, avoidable hold-up (see
+`knowledge/playbooks/50-detached-adu-new-build.md`).
+
+**Hillside, HPOZ, and Coastal overlays.** All three are invisible until you look them
+up — the house "looking normal" tells you nothing. *Hillside* — HCR/BHO overlays
+add grading limits, height-from-grade rules, retaining-wall restrictions, and often
+trigger the soils report from Day 28 even where it wouldn't otherwise apply. *HPOZ
+(Historic Preservation Overlay Zone)* — any street-visible exterior change (windows,
+doors, siding, roofing, fences) typically needs a **Certificate of Appropriateness**
+from the HPOZ board before a permit issues, constraining material choices and adding
+review time. *Coastal Zone* — parcels near the coast (Venice, Pacific Palisades,
+Playa del Rey, and similar) may need a **Coastal Development Permit (CDP)** from the
+California Coastal Commission or a delegated local authority, a separate, often slower
+track the building code doesn't trigger on its own. Full playbook:
+`knowledge/playbooks/53-zoning-basics-la.md`.
+
+**When each overlay triggers, and what it adds.** VHFHSZ/WUI: triggered by location on
+the fire hazard map, not project scope — changes material specs and can affect
+underwriting; added cost is mostly a materials-spec premium, not a separate fee.
+CalGreen: triggered by project type/scope — added cost is documentation plus modestly
+pricier low-VOC materials/fixtures, smaller than a discretionary approval. Hillside:
+triggered by slope/overlay designation — adds engineering/geotechnical scope and can
+reshape the design via grading limits. HPOZ: triggered by location inside a historic
+district — adds a discretionary review cycle (weeks to months) before a permit can be
+pulled. Coastal: triggered by proximity to the coastal boundary — the slowest, most
+expensive track, sometimes months and real consultant/attorney cost if contested.
+Document which overlays apply, with the source, before quoting price or timeline near a
+fire-hazard edge, hillside, historic district, or coast.
+
+### Watch / Read
+- Full playbook: `knowledge/playbooks/53-zoning-basics-la.md` — hillside, HPOZ, and
+coastal overlay sequence in full
+- Full playbook: `knowledge/playbooks/54-hazmat-gate.md` — the other cross-cutting
+gate (asbestos/lead) that runs alongside these on demo-involving jobs
+- `knowledge/products/01-roofing-shingles.md` and `knowledge/products/04-windows.md`
+— existing notes on wildfire-adjacent roofing/glazing; read alongside Chapter 7A
+- CAL FIRE's fire hazard severity zone viewer and the Board of Forestry's Zone 0
+rulemaking page — check current status before quoting defensible-space/Zone 0 work
+- No training video exists yet for WUI/Chapter 7A, CalGreen, or historic/coastal
+overlays — flag to Ori for future production
+
+### Field Exercise
+Pick a SoCal address you know — your own house, a relative's, or a past job. Check
+CAL FIRE's fire hazard severity zone map for a VHFHSZ hit. If it's a City of LA parcel,
+pull it in ZIMAS for hillside/HPOZ/coastal flags. Write down what each applicable
+overlay (or the nearest one that would apply a few blocks closer to a boundary) would
+change about a re-roof or addition on that property.
+
+### Self-Quiz
+1. What does CBC Chapter 7A regulate, and what triggers it?
+2. What's the difference between defensible-space zones and Zone 0, and what law
+created Zone 0?
+3. Name the three CalGreen residential requirements here, and how CalGreen differs from
+Title 24 energy.
+4. What's required before a permit can issue on a parcel inside an HPOZ?
+5. What approval applies near the coast, and who issues it?
+6. Why isn't a building permit sufficient proof of zoning/overlay compliance?
+
+---
+
+<a id="day-31"></a>
+## Day 31 — Repair Verticals: Termite, Drainage, Chimney, Restoration
+
+**Why it matters:** These four verticals share a pattern that makes them some of the best leads
+you'll ever get: they're usually discovered by someone else first (an escrow WDO inspector, a
+homeowner's own eyes after a storm, an insurance adjuster) and they close fast because the
+homeowner didn't go looking for a remodel — a real problem found them. Less competition than
+kitchens/baths, higher trust once you can speak the language correctly, and — for restoration —
+a completely different payer (the insurance company, not the homeowner's wallet) that changes
+how the whole job is priced and scheduled.
+
+### Learn
+**Termite & dry-rot repair.** A WDO (wood-destroying organism) inspection — usually triggered by
+a real estate sale — identifies drywood termite, subterranean termite, or fungal dry-rot damage
+to structural wood, and it is regulated by the Structural Pest Control Board, a completely
+separate licensing track from your LADBS building permit. Treat the pest company and the repair
+contractor as two different vendors on two different clocks: if whole-structure fumigation/
+tenting is called for, that has to happen and clear *before* your framing crew opens the wall,
+not concurrently. Once treatment is done (or if it's localized and doesn't require tenting), pull
+a structural permit, remove the damaged members — sill plates, studs, joists, fascia, rafter
+tails — sistering where damage is partial and fully replacing where it's extensive per the WDO
+report's scope, treat and seal the sound wood at the repair joint, and — critically — find and
+fix the moisture source that let rot take hold in the first place (bad drainage, a roof leak,
+failed flashing); repairing the wood without fixing the water is a guaranteed repeat call.
+Full playbook: `knowledge/playbooks/44-termite-dry-rot-repair.md`. **Rough LA cost:** $1,500-$4,000 for localized
+sill/stud repair; $6,000-$15,000+ for extensive framing replacement; fumigation/tenting bills
+separately, typically $2,000-$5,000+ depending on structure size.
+
+**Site drainage & grading fixes.** A yard that ponds, or a low spot that never drains, is a
+design problem, not a "wait for it to dry" problem — and if it's pooling against the foundation
+it's feeding the moisture that causes the dry rot above. A French drain is usually the fix: locate
+the low point and water source, call DigAlert before trenching, and pick a legal discharge point
+— the street, a dry well, or an approved easement, **never** onto a neighbor's property (this is
+the single most common neighbor-dispute trigger in this trade). Trench with a consistent slope
+the entire run, line with filter fabric, bed in gravel, lay perforated pipe, wrap in more gravel,
+close the fabric over the top (prevents silt clogging years later), cap to finish grade, and
+always hose-test before backfilling — skipping the hose test is how a flat spot doesn't show up
+until the next storm. Full playbook: `knowledge/playbooks/31-french-drain-site-drainage.md`. **Rough LA cost:**
+$25-$50 per linear foot depending on trench depth and discharge complexity.
+
+**Chimney & fireplace repair.** Masonry chimneys are a well-documented soft-point failure in LA
+earthquakes, so a seismic strap retrofit is a legitimate standalone sale even on a chimney with no
+visible damage — don't treat it as an upsell add-on, treat it as its own lead. Pull a structural
+permit (LADBS is typically over-the-counter for a straightforward strap/brace job; full removal
+down to or below the roofline can trigger plan check if it touches roof framing). If materials
+look old, test for asbestos before any demo. On the repair path: assess mortar/brick/flue
+condition, tuckpoint limited cracking or rebuild damaged sections, then strap the chimney to roof
+and wall framing. On the removal ("chop and cap") path: disconnect any active appliance venting
+first, remove to the roofline, frame/sheathe/flash the new roof section to match, and patch the
+interior ceiling/wall where the chimney passed through. Full playbook: `knowledge/playbooks/21-chimney-repair.md`.
+**Rough LA cost:** $2,500-$6,000 for masonry repair plus seismic strap; $6,000-$15,000+ for full
+removal with roof/ceiling patch.
+
+**Water, fire & mold restoration — this is a distinct vertical from a Day 13 mold job, and it
+runs on a different clock and a different payer.** [EST throughout this section — restoration
+pricing and process detail below reflects general industry practice, not a Joon-specific source;
+verify current figures before quoting.] The industry splits every loss into two phases:
+**mitigation** (stop the damage from getting worse — extract standing water, set air movers and
+dehumidifiers, moisture-map framing with a meter, remove unsalvageable porous material, and for
+fire/smoke, scrub soot and neutralize odor) and **rebuild** (the actual reconstruction —
+drywall, flooring, paint, cabinets — which only starts once mitigation is signed off and the
+space reads dry/clean). Treat them as two engagements even if your company runs both: mitigation
+has to start within hours of the loss — most homeowner policies have a "duty to mitigate" clause
+— delay can reduce the claim payout — while rebuild waits on an agreed scope.
+
+**The insurance-claim flow you're actually working inside:** homeowner reports the loss →
+insurer assigns an adjuster → the adjuster or your own estimator writes the scope in
+**Xactimate** (the industry-standard estimating software both insurers and restoration
+contractors use, priced by ZIP/county, so a well-documented Xactimate estimate is far harder to
+dispute than a generic bid) → homeowner signs a work authorization → mitigation starts
+immediately, often before the adjuster has even inspected in person → a **supplement** gets
+filed if demo reveals hidden damage the initial scope missed (very common — expect it) → rebuild
+scope gets agreed and proceeds like any other contract, with the insurer's approved scope
+functioning as your bid. Know two terms homeowners won't understand: **ACV** (actual cash value —
+depreciated payout) vs. **RCV** (replacement cost value — full payout, released once work is
+complete) — a homeowner confused by a "recoverable depreciation" holdback is asking a real,
+answerable question.
+
+**IICRC certification is the credential that matters in this vertical**, the way EPA Lead-Safe
+matters in Day 13 — the Institute of Inspection Cleaning and Restoration Certification issues
+WRT (Water Damage Restoration Technician), ASD (Applied Structural Drying), FSRT (Fire and Smoke
+Restoration Technician), and AMRT (Applied Microbial Remediation Technician) credentials, and the
+industry's own published standards — ANSI/IICRC S500 (water) and S520 (mold) — are what a
+structural-drying or clearance-testing dispute gets measured against if a claim is ever contested.
+A tech-level WRT course runs roughly $500-$700 and 2-3 days [EST]; a shop doing any real volume of
+water/fire work should have at least one IICRC-certified lead on staff before marketing the
+service, the same way you wouldn't market lead-safe work without the EPA certification.
+**Rough LA cost:** contained-room water mitigation, $3-$8/sq ft [EST] for extraction and
+structural drying (equipment rental alone runs roughly $35-$50/day per air mover and $75-$150/day
+per dehumidifier [EST]); fire/smoke mitigation on a single contained room, $3,000-$15,000+ [EST];
+whole-house smoke/soot remediation, $20,000-$75,000+ [EST] — all separate from the rebuild scope
+that follows.
+
+### Watch / Read
+- No dedicated Josh Bloom video maps to any of these four — this is a "Learn" day; termite,
+  drainage, and chimney are sourced from `playbooks/44-termite-dry-rot-repair.md`,
+  `playbooks/31-french-drain-site-drainage.md`, and `playbooks/21-chimney-repair.md`
+- The restoration/insurance-claim section is new material — verify current IICRC requirements
+  and Xactimate access before quoting this work in the field
+- Re-read Day 13 (Hazmat) — its mold-remediation process is the template this section extends
+  into water and fire
+
+### Field Exercise
+Pick a house you have access to and do three checks in sequence: (1) walk the yard after
+(or simulate) a hose test — does water pool anywhere, and if so, toward or away from the
+foundation; (2) check any chimney for visible seismic strapping — if there is none, note it as a
+standalone lead, not just an observation; (3) if there's a crawl space or attic access, look for
+any staining, soft wood, or past repair patch that could be old termite or water damage. Then
+write a one-paragraph mock mitigation-vs-rebuild scope for a hypothetical burst-pipe event in a
+single bathroom — list what happens in the first 24 hours (mitigation) separately from what
+happens after the space is confirmed dry (rebuild).
+
+### Self-Quiz
+1. Why must fumigation/tenting be sequenced before, not during, a termite structural repair?
+2. What is the single most common cause of a French-drain neighbor dispute, and how do you design around it?
+3. Why is a chimney seismic-strap retrofit treated as a standalone sale rather than an upsell?
+4. What is the practical difference between "mitigation" and "rebuild" in a restoration job, and why does that split matter for scheduling and payment?
+5. What does Xactimate do for you in an insurance-claim job that a generic handwritten bid doesn't?
+
+---
+
+<a id="day-32"></a>
+## Day 32 — The Annual Home Care Program (Maintenance as a Product)
+
+**Why it matters:** Every other day in this course sells a project with a start and an end.
+This day sells something different — a *relationship* that doesn't end, priced as a recurring
+membership instead of a one-time invoice. It's also the cheapest lead-generation channel you'll
+ever build: a maintenance visit puts your own tech inside a homeowner's house on a schedule you
+control, which is exactly the setup Day 24's upsell training (and `sales-training/12-upsell-the-
+client.md`) already teaches you to convert into the next big remodel.
+
+### Learn
+**The SoCal seasonal calendar is built around two seasons, not four** — a wet season (roughly
+November-March) and a long dry season (April-October) that overlaps with peak fire risk
+(roughly May-December depending on rain year). Sequence the calendar around what fails when:
+
+- **Pre-rainy-season (September-October), the single most important visit of the year:** clean
+  and inspect gutters and downspouts, walk the roof for slipped tile/cracked shingles/failed
+  flashing (Day 6), check the weep screed and stucco for gaps (Day 8), and re-test yard drainage
+  and any French drain discharge with a hose (Day 31) — every item on this list is cheap to fix
+  in October and expensive to fix in January after a storm has already gotten behind it.
+- **HVAC service cadence:** homeowner-level filter changes every 1-3 months depending on filter
+  type and pets [EST]; a professional tune-up twice a year — spring before AC season, fall before
+  heating season — covering coil cleaning, refrigerant-level check, and blower/duct inspection
+  (Day 11) [EST].
+- **Water heater flush:** annually, to clear sediment buildup that's worse in SoCal's hard-water
+  areas and shortens tank life; tankless units need an annual descaling (vinegar) flush too
+  (Day 9) [EST].
+- **Caulk & seal maintenance:** inspect exterior caulking at windows, doors, and penetrations
+  annually; SoCal sun/UV dries and cracks sealant faster than people expect, so plan to recaulk
+  every 2-3 years even with no visible leak yet [EST].
+- **Termite inspection cadence:** there's no legal mandate outside a real estate transaction, but
+  a voluntary annual or every-other-year visual WDO-style check catches drywood/subterranean
+  activity and dry rot (Day 31) long before it's a structural repair — position this as cheap
+  insurance, not an upsell.
+- **Drainage checks:** re-walk the yard and hose-test any French drain before the first rain of
+  the season (Day 31) — the same discharge point that worked fine in a dry year can silt up over
+  a summer.
+- **Fire-hardening / defensible-space upkeep:** before fire season, clear dead vegetation and
+  debris from the roof, gutters, and the zone immediately around the structure, and check ember-
+  resistant venting where it's been installed. [EST] — defensible-space and ember-resistant-zone
+  rules are actively evolving at the state level; confirm the current CAL FIRE/local requirement
+  before quoting this as a compliance item rather than general prevention.
+- **Sewer hydro-jet cadence:** for older clay or cast-iron laterals with known root intrusion,
+  a preventive hydro-jet every 1-2 years plus a camera check every 2-3 years is cheaper than an
+  emergency backup and a full lateral replacement (Day 9, Day 31) [EST].
+
+**Packaging it as a membership, not a to-do list.** The mechanics you already know from HVAC
+"club" plans and pest-control quarterly contracts translate directly to a whole-house program —
+the shift is charging one annual (or monthly) fee that bundles several trades' cadences into
+scheduled visits, instead of selling each visit separately. [EST tiers below — build final
+pricing off your actual crew-hour cost, not these numbers directly.]
+
+| Tier | Annual price [EST] | Visits/year | What's included |
+|---|---|---|---|
+| **Basic** | $349-$499 | 2 | Pre-rainy-season gutter/roof/drainage walk + one HVAC filter/tune-up visit; priority scheduling for repairs |
+| **Plus** | $799-$1,200 | 4 | Basic, plus water-heater flush, caulk/seal check, and a termite/dry-rot visual pass; discounted rate (10-15%) on any repair found |
+| **Premier** | $1,800-$2,800+ | 6+ | Plus, plus sewer camera/hydro-jet cadence and seasonal fire-hardening debris clearance; first-priority emergency response and an annual comprehensive written condition report |
+
+Homeowners who've owned 15-20+ years and are used to paying a landscaper or pool guy monthly
+already understand this pricing model — frame it exactly that way ("this is like your pool
+service, but for the house itself") rather than as insurance or a warranty, which invites
+different (and harder) objections.
+
+**The upsell path is the real reason to build this product.** A maintenance visit is the
+"Subcontractor Hand-off" and "Free Gift Upfront" approaches from `sales-training/12-upsell-the-
+client.md` running on autopilot: your tech is inside the attic, crawl space, or under the sink on
+a schedule *you* set, and finds the next real job — a cracked flue liner, a water heater at end
+of life, a stucco crack that's stepped, not hairline. Report findings back to the office the same
+day (the same rule as the sub hand-off: follow up same-day or next-day, not a week later), and
+size the follow-on quote using the Multiplier Rule (2-2.5x, minimum) as a separate contract, never
+folded into the membership fee itself — the Contract Separatist Rule applies here exactly as it
+does to any other referral upsell.
+
+### Watch / Read
+- `sales-training/12-upsell-the-client.md` — the Subcontractor Hand-off and Free Gift Upfront
+  approaches this day's upsell path is built on
+- Day 24 (The Soup & Closing) — the neighborhood-credibility and referral mindset that makes a
+  membership program easy to pitch during a normal appointment
+- Re-read Days 6, 8, 9, 11, and 31 for the underlying trade content behind each cadence item above
+
+### Field Exercise
+Build a one-page annual maintenance calendar for a real or hypothetical single-story SoCal SFR:
+list every item above with a specific month (or month range) it should happen. Then price out
+your own version of the three-tier table — use a real or estimated crew-hour cost for each visit
+type and confirm each tier's annual price still covers cost plus a reasonable margin before any
+repair upsell. Finally, write out loud how you'd pitch "Plus" to a homeowner who says "I'll just
+call you when something breaks."
+
+### Self-Quiz
+1. Why is the pre-rainy-season visit (September-October) the single highest-priority item on the
+   calendar?
+2. Name three trades a whole-house maintenance membership bundles that are normally sold as
+   separate service contracts.
+3. Why should a repair found during a maintenance visit be quoted as a separate contract instead
+   of added into the membership invoice?
+4. What upsell rule from Day 24/sales-training-12 caps how small a follow-on job should be relative
+   to the original sale?
+5. Why does framing the membership like a "pool service" work better on a long-tenured homeowner
+   than framing it as insurance?
+
+---
+
+<a id="day-33"></a>
+## Day 33 — Running the Job After the Sale
+
+**Why it matters:** Day 25 taught you how to write the contract that starts a job. This day
+teaches you how to run it without bleeding money or trust between the signature and the final
+walkthrough — the four skills here (change orders, scheduling, punch list, warranty) are where a
+profitable job quietly turns unprofitable, or where a satisfied client turns into your next
+referral. Both directions run through the same handful of documents and habits.
+
+### Learn
+**Change orders: the document, not the verbal "sure, we'll just add that."** Day 2 already named
+verbal change orders as one of the two things that most commonly blow up a job's profitability —
+this is the fix. Every change order is a **written, separately signed document**, executed and
+signed by the client **before** the added or changed work proceeds, that states: the specific
+scope being added or changed, the price, and the effect (if any) on the completion date. The
+pricing convention follows the same logic as your original bid, not a discount version of it —
+this is added-scope work discovered mid-job, with the same overhead, sales, and warranty-reserve
+load as anything else you price (Day 23), so price it at your normal margin, not "at cost as a
+favor." **Unforeseen-conditions language is what makes a change order defensible instead of a
+fight:** you've already seen this pattern twice this course without naming it as a system — the
+85% paint-match clause and the "up to two to three pieces of wood" wood-damage contingency
+(Day 17, Day 25) are both unforeseen-conditions clauses, written into the *original* contract, that
+pre-authorize a change order the moment the stated threshold is crossed. Build every bid this way
+going forward: state what's included, state the threshold where a condition becomes "more than
+expected," and let that threshold — not an argument on-site — trigger the change order. **The
+one rule that can't bend:** work never proceeds on the changed scope until the client has signed
+the change order and, where the added cost is material, adjusted the payment schedule to match —
+proceeding on a verbal "go ahead" is exactly the exposure Day 2 flagged.
+
+**Scheduling & trade sequencing on a live job.** The kickoff moves fast and follows a fixed
+pattern: record a full video/photo walkthrough of the scope the day the job is sold and send it
+to the office, the project manager, and the subcontractor so everyone shares one understanding of
+the job before anyone shows up — this single habit prevents more disputes than any contract
+clause. Bid the subcontractor work by scheduling **2-3 contractors** to walk and bid the same
+job, staggered in roughly one-hour windows, with your strongest sub going first; expect one of
+the three to no-show, which is exactly why you never schedule just one. Write every task the
+winning sub is responsible for in explicit, itemized detail in their own written agreement — the
+same unforeseen-conditions discipline above, one level down the chain, because an undocumented
+sub scope is where "who pays to replace this piece of wood" disputes start. On day one, introduce
+the sub to the client personally as your foreman/company crew, hand over a project manager's
+direct phone number, and have the crew mask floors and protect vulnerable surfaces before a
+single tool comes out — a clean, professional first day buys you patience for whatever goes wrong
+later. Once the job is running, the project lead needs to physically show up on site at least
+every 2-3 days — oversight, not micromanagement, but frequent enough that a small problem doesn't
+become a client complaint before you've heard about it. **One tactic from the source training —
+"spiking the job" (starting a sliver of visible work, like pulling a few kitchen doors "for
+measurements," during the legally required 3-business-day cancellation window so the client feels
+the job is already underway and is less likely to cancel) — is flagged here as a compliance risk,
+not a technique to use.** It directly undermines the consumer-protection purpose of the
+cancellation right from Day 25 and is not something to teach as a clean best practice. Full
+source: `sales-training/11-open-a-job.md`.
+
+**Punch-list methodology.** A punch list is the final walkthrough — homeowner and PM together —
+that lists everything incomplete, incorrect, or below spec before final payment (Day 2). Run it
+as a structured walk, not a casual stroll: go room by room in one consistent order, and write
+down every item as you find it rather than trying to remember them at the end. Sort what you find
+into three buckets, because they're handled differently: **incomplete** (a fixture not yet
+installed, a final coat not yet applied — expected, just finish it), **defective/incorrect** (the
+wrong tile, a crooked cabinet door, paint that didn't hit the 85% match threshold — your cost to
+fix), and **client-requested change** (something the homeowner wants different from what was
+contracted — that's a change order, not a punch-list item, and gets priced as one). Give the punch
+list a real close-out date, not "we'll get to it" — an open-ended punch list is exactly what
+strands a retention holdback (a percentage, commonly 5-10% [EST], withheld from final payment
+until the punch list clears) and turns a happy client into an impatient one during the exact week
+you want a five-star review and a referral.
+
+**Warranty policy & callback handling.** A warranty is a *policy*, not just the sales-floor talking
+point about "years in business to back it up" (Day 14) — define it in writing before you need it:
+coverage by trade (workmanship warranty duration is a business decision, commonly 1-2 years on
+workmanship with manufacturer warranties on materials/equipment running longer and separately
+[EST]), a stated callback response window (e.g., respond within 24-48 hours, resolve or schedule
+resolution within a set number of days [EST]), and a scheduled first-year walkthrough — a
+proactive check-in that catches minor settling/shrinkage issues (nail pops, small drywall cracks,
+a door that needs a small adjustment) before they become a complaint call, and doubles as a
+built-in reason to be back in the house with a referral or Day 32 maintenance-membership pitch
+ready to go.
+
+**The close-out packet — what actually gets handed to the client at the end.** Three documents,
+every time: an **unconditional lien release**, using California's statutory release forms (Civil
+Code §§8132-8138, already flagged in Day 2) so subcontractors and suppliers can't later lien a
+paid-off client's property; a **warranty letter** stating the coverage and duration in writing,
+not just spoken; and the **review ask** — timed to the moment the client is happiest (final
+walkthrough passed, punch list clear), using the same neighborhood-credibility and relationship
+mindset from Day 24 and `sales-training/12-upsell-the-client.md` ("the client is essentially
+married to you during construction") — a five-star review and a referral name are the actual last
+two line items on every job, not an afterthought after the invoice is paid.
+
+### Watch / Read
+- `sales-training/11-open-a-job.md` — full source for the kickoff/scheduling section, including
+  the "spiking the job" flag above
+- `sales-training/12-upsell-the-client.md` — the relationship framing behind the warranty
+  walkthrough and review ask
+- Re-read Day 2 (job-flow stages, lien-waiver statute), Day 17 (85% paint-match / wood-damage
+  clauses), and Day 25 (contract mechanics, 3-day cancellation right) — this day assembles pieces
+  from all three into one operating system
+
+### Field Exercise
+Draft a one-page change-order template with three fields: scope added, price (at your normal
+margin, not a favor rate), and effect on completion date — then write one unforeseen-conditions
+clause of your own, modeled on the paint-match/wood-damage pattern, for a trade this course hasn't
+already covered one for (e.g., "up to X linear feet of unforeseen dry rot is included; beyond that,
+change order"). Separately, role-play a punch-list walk on a room you have access to: list five
+plausible items and sort each into incomplete / defective / client-requested-change.
+
+### Self-Quiz
+1. What two things must be true before work on a change order can legally/practically proceed?
+2. What is an unforeseen-conditions clause, and name two examples already used elsewhere in this
+   course?
+3. Why does scheduling 2-3 subcontractors to bid, not one, matter operationally?
+4. Sort these punch-list findings into their correct bucket: a missing cabinet pull, a tile color
+   the client now wants changed, and a crooked outlet cover.
+5. Name the three documents in a proper close-out packet.
 
 ---
 
@@ -2162,7 +3126,7 @@ deposit? If the honest answer is no anywhere, go back to that day's lesson and t
 5. A header transfers load around an opening into the studs beside it; an undersized header shows up later as sag or sticking doors.
 
 **Day 6**
-1. 3 layers maximum before a tear-off is required.
+1. 2 layers maximum under California code (CRC R908.3) before a tear-off is required — the Manual's older "3 layers" figure is a history note, not current practice; a third layer fails re-roof inspection.
 2. 40 lb fiberglass base sheet → first hot-mop layer rolled flat → second torch-down hot-mop layer at ½" → fiberglass cap sheets (plus new flashing at penetrations).
 3. Tile is significantly heavier than shingle, and the roof structure must be verified/engineered to carry that added weight.
 4. At penetrations (vents, chimneys, skylights) and valley/wall flashing — because that's where the roofing material's continuous seal is interrupted.
@@ -2199,7 +3163,7 @@ deposit? If the honest answer is no anywhere, go back to that day's lesson and t
 **Day 11**
 1. Oversizing causes short-cycling, poor dehumidification, and faster wear; correct sizing uses a Manual J load calculation (not just square footage alone).
 2. Furnace/coil installed inside → copper refrigerant line run to condenser location → GFI circuit prepped at furnace → concrete pad poured outside → condenser set on pad → electrical breaker/disconnect installed at condenser → lines connected.
-3. R-6 rated flex duct; sealed with mastic/foil tape plus a silicone bead for extra seal.
+3. R-6 rated flex duct per the Manual; sealed with mastic/foil tape plus a silicone bead for extra seal — but confirm current Title 24 climate-zone minimums, since most LA-area work (climate zones 8, 9, 10, 16) now requires R-8, not R-6.
 4. The duct wrap/insulation must be tested for asbestos before demo, since pre-1990s duct systems commonly contain it; removal must go to certified abatement if positive.
 5. A HERS rater is an independent third party who field-verifies items like duct leakage, refrigerant charge, and airflow before a permit can final.
 
@@ -2213,7 +3177,7 @@ deposit? If the honest answer is no anywhere, go back to that day's lesson and t
 **Day 13**
 1. A sample must be removed and sent to a lab for asbestos testing.
 2. 1978; EPA Lead-Safe Certification (RRP rule).
-3. Minimum 3 days; it starves the contained space of oxygen so mold can't continue spreading while maintaining negative pressure to contain spores.
+3. Minimum 3 days; the HEPA-filtered negative-air machine keeps the containment under negative pressure and continuously scrubs airborne spores so none escape into the rest of the house — mold growth itself is stopped by removing the moisture and contaminated material, not by oxygen starvation.
 4. Bathroom walls, kitchen walls (sink area), water heaters, and laundry rooms (also A/C & furnace areas).
 5. Test/confirm before you disturb — never assume, never let untrained crew disturb a suspect material without testing and appropriate control measures first.
 
@@ -2221,7 +3185,7 @@ deposit? If the honest answer is no anywhere, go back to that day's lesson and t
 1. Re-finish, re-facing, full remodel; custom cabinets take up to 3 weeks, semi-custom up to 5 days.
 2. Every 3 feet along the counter.
 3. Check for hidden plumbing or a load-bearing beam inside the soffit before demolishing it.
-4. Red board (fire-rated), 25-minute rating — code-driven fire separation near cooking equipment.
+4. Red board (Type X, 5/8" fire-rated) per the Manual's kitchen spec — but the real code trigger for fire-rated gypsum is a required separation (garage-to-house, furnace room, occupancy separation), not proximity to a range; it's a Manual habit, not a range-clearance code rule.
 5. Because slab is template-measured after cabinets are physically set (for exact as-built dimensions), then fabricated off-site, adding lead time after cabinet install.
 
 **Day 15**
@@ -2253,7 +3217,7 @@ deposit? If the honest answer is no anywhere, go back to that day's lesson and t
 5. Because water intrusion at a poorly flashed header slowly rots the framing behind the door over months/years before it becomes visibly obvious.
 
 **Day 19**
-1. Every 5 feet (standalone countertop installation scope) and every 3 feet (full kitchen remodel electrical scope) — always check the specific job's scope rather than assuming one number.
+1. NEC 210.52(C) caps it at 4 feet (48 inches) maximum — no point on the counter more than 24 inches from a receptacle. The Manual's 3-foot spacing on a full kitchen remodel is a safe default inside that rule; the older "every 5 feet" figure for a standalone countertop job is out of code and should not be used.
 2. Because the fabricator needs exact as-built dimensions from the installed cabinets, not architectural drawings that may be slightly off.
 3. Chicken wire lifted ½" off the surface to reinforce the concrete bed under tile — a slab sits on solid plywood and doesn't need this reinforcement.
 4. ¾" plywood, treated with mold-treatment sealer.
@@ -2295,8 +3259,54 @@ deposit? If the honest answer is no anywhere, go back to that day's lesson and t
 5. Any two, e.g.: "$20K higher than other bids" → sell dedicated specialist crews + years in business (04.06-kitchen); "let me ask my neighbor" on a shared wall → get their contact info and book both parties together fast (04.04-walls-fences).
 
 **Day 25**
-1. $1,000 or 10% of the contract price, whichever is LESS; this maps to California Business & Professions Code §7159, the state's Home Improvement Contract statute.
+1. $1,000 or 10% of the contract price, whichever is LESS; this maps to California Business & Professions Code §7159.5, the down-payment and progress-payment limit (§7159 is the companion statute governing the contract's required content and disclosures).
 2. "Upon job completion" — kept small (e.g., ~4-5% on a $450,000 job) because clients frequently find reasons to withhold or delay a large final payment.
 3. Ask "Has anybody helped you make the decision?" — if no, have them sign the standard line and hand-write a second line: "I am the only decision maker."
-4. Any three: the 85% paint-match clause (never promise 100%), the wood-damage contingency (base price covers only 2-3 pieces of wood), the >3.5ft engineering liability shield ("Owner will provide engineer plan and city permit plus call city inspector").
+4. Any three: the 85% paint-match clause (never promise 100%), the wood-damage contingency (base price covers only 2-3 pieces of wood), the engineering liability shield ("Owner will provide engineer plan and city permit plus call city inspector").
 5. Whether there's a soffit hiding plumbing or a load-bearing beam — must be checked before pricing/promising an "open concept" result.
+6. A Home Improvement Salesperson (HIS), per B&P §7152 — required for anyone who solicits, negotiates, or executes home improvement contracts for the company, at any dollar amount. The carve-outs are an officer/member/general partner listed on the license, or someone who purely books appointments.
+
+**Day 28**
+1. Bearing capacity, expansive-soil risk, and groundwater/slope conditions; the engineer designs footing depth and type to what the soil supports, so the report drives the design.
+2. Legal property lines and benchmark elevation for finish-floor height; skipping it risks a foundation encroaching a setback or easement.
+3. AQMD Rule 1403 requires a survey of disturbed material regardless of age — age only predicts likelihood, it doesn't waive the requirement.
+4. Cut removes soil to grade, fill adds/compacts soil to grade, and compaction testing confirms the fill hit the specified density before foundation work proceeds.
+5. When the soils report finds weak near-surface bearing or the lot is sloped, requiring the foundation to reach competent soil/bedrock via deep piers.
+6. Final structural, MEP, building, and often zoning sign-off — a full occupancy determination, not just a scope-specific final inspection.
+
+**Day 29**
+1. The load path from roof to foundation must be continuous; if the upper wall doesn't line up with support below, load lands on framing never designed to carry it — showing up later as sag or failure.
+2. Max riser 7-3/4"; min tread depth 10"; min width 36"; min headroom 80"; guard above 30" with 4-inch sphere spacing; handrail height 34"-38" at 4+ risers.
+3. A hold-down is a steel connector resisting a shear wall overturning under lateral force; two-story buildings need it because seismic force must transfer between two stacked diaphragms/shear walls, a path a single-story retrofit doesn't have.
+4. The existing foundation and first-floor framing must be evaluated and, if inadequate, reinforced to carry the new load.
+5. SB721 allows an architect, engineer, or qualified contractor; SB326 requires a licensed structural engineer or architect — a contractor cannot sign a valid SB326 inspection.
+6. January 1, 2026 for both; then every 6 years for SB721 and every 9 years for SB326.
+
+**Day 30**
+1. Ignition-resistant materials/assemblies (roofing, vents, siding, glazing, eaves) for construction in/near a VHFHSZ; triggered by the parcel's location on the fire hazard map, not project type.
+2. Defensible-space zones (roughly Zone 1: 0-30 ft, Zone 2: 30-100 ft) govern vegetation/fuel management; Zone 0 (0-5 ft) is a stricter ember-resistant perimeter created by AB 3074 (2020).
+3. Construction waste diversion, low-VOC materials, and water-efficient fixtures; CalGreen is a separate mandatory green-building code (Title 24 Part 11) layered on top of, not instead of, the energy standard.
+4. A Certificate of Appropriateness from the HPOZ board.
+5. A Coastal Development Permit (CDP), issued by the California Coastal Commission or a delegated local authority.
+6. Zoning/hazard overlays are governed by separate codes and maps; the building department won't permit a zoning-violating design, but the permit itself doesn't verify overlay compliance — that has to be checked independently.
+
+**Day 31**
+1. Whole-structure treatment is a separate licensed process (Structural Pest Control Board) from your building permit work, and it needs to fully clear before framing crews reopen the treated area — doing them concurrently risks re-contaminating repaired wood or working in an unsafe treated space.
+2. Directing discharge onto a neighboring property — design the trench to route to the street, a dry well, or an approved easement instead.
+3. Because unbraced masonry chimneys are a well-documented, real earthquake hazard on their own, independent of any other visible damage — it's a legitimate lead, not just an add-on to a bigger job.
+4. Mitigation is the emergency stabilization (extraction, drying, moisture-mapping) that must start within hours per most policies' "duty to mitigate" clause; rebuild is the reconstruction that only starts once the space is confirmed dry/clean. They're billed and scheduled as effectively two separate engagements even under one contractor.
+5. It produces a ZIP/county-indexed, line-item estimate in the same format the insurer's own adjuster uses, making the scope far harder to dispute or lowball than a generic bid.
+
+**Day 32**
+1. Every item on it (gutters, roof, drainage, stucco/weep screed) is cheap to fix before the first storm and expensive to fix after water has already gotten behind the envelope.
+2. HVAC service, pest/termite inspection, and sewer line maintenance are the clearest analogs (water heater flush and caulk/seal checks also qualify).
+3. The Contract Separatist Rule — bundling a real repair into the membership fee undersells the work and creates the same "I thought this was included" confusion a bundled upsell contract creates elsewhere.
+4. The Multiplier Rule — target at least 2x-2.5x the size of the original sale, never a smaller follow-on.
+5. A homeowner who already pays a landscaper or pool service monthly recognizes and accepts that pricing pattern instantly; "insurance" or "warranty" framing invites a different, harder set of objections about what's actually covered.
+
+**Day 33**
+1. The scope/price/schedule-impact must be written down as its own document, and the client must sign it, before the changed or added work proceeds.
+2. A clause in the original contract that pre-authorizes a change order once a stated threshold is crossed — e.g., the 85% paint-match clause (Day 17) and the "up to two to three pieces of wood" wood-damage contingency (Day 17/25).
+3. Because one of the three will almost always no-show, and it also lets you walk away immediately from a bid that comes in over budget without losing schedule time waiting on a second bid.
+4. Missing cabinet pull = incomplete; tile color change = client-requested change (change order); crooked outlet cover = defective/incorrect (contractor's cost to fix).
+5. An unconditional lien release (California statutory form, Civil Code §§8132-8138), a written warranty letter, and the review ask.

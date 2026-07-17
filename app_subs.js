@@ -25,6 +25,7 @@
   };
 
   var profileState = { id: null, tab: "overview" };
+  var compareState = { active: false, ids: [] };   // list-view "Compare" mode (max 4 selected)
 
   // Working-roster tiers shown as chips; "hidden" is a separate muted chip appended after.
   var QUALITY_TIERS = [
@@ -33,6 +34,10 @@
     { key: "credible", label: "Credible" },
     { key: "unverified", label: "Unvetted" }
   ];
+  // Sourcing methods that count as "Ori's own uploads" for the My uploads ⭐ chip —
+  // his own records should never vanish on him regardless of contact strength.
+  var MINE_SOURCING = ["ori-upload", "quick-add", "manual", "csv", "contact-import", "widget"];
+  function isMine(s) { return !!s.trusted || MINE_SOURCING.indexOf(s.sourcingMethod || "") !== -1; }
   var STAGE_CLS = { preferred: "green", vetted: "green", pricing_received: "plum", responded: "plum", contacted: "amber", queued: "amber", rejected: "red" };
   var DOC_KEYS = ["coi", "w9", "agreement", "workersCompCert"];
   var DOC_LABELS = { coi: "COI (additional insured)", w9: "W-9", agreement: "Signed sub agreement", workersCompCert: "Workers comp cert" };
@@ -169,17 +174,21 @@
 
   function listFiltered() {
     var q = state.q.toLowerCase().trim();
+    var mineActive = state.tier === "mine";
     var rows = roster.filter(function (s) {
       // Working roster (any quality tier, including "all") never shows the hidden pile;
-      // the dedicated "Hidden" chip shows ONLY the hidden pile.
+      // the dedicated "Hidden" chip shows ONLY the hidden pile. "My uploads" is its own
+      // pile too — it includes hidden records of Ori's own so nothing vanishes on him.
       if (state.tier === "hidden") {
         if (!isHidden(s)) return false;
+      } else if (mineActive) {
+        if (!isMine(s)) return false;
       } else {
         if (isHidden(s)) return false;
         if (state.tier !== "all" && (s.legitTier || "unverified") !== state.tier) return false;
       }
       if (state.trade && s.serviceCategory !== state.trade) return false;
-      if (state.strongOnly && contactStrength(s) !== "strong") return false;
+      if (state.strongOnly && !mineActive && contactStrength(s) !== "strong") return false;
       if (state.pricingOnly && !hasPricingSignal(s)) return false;
       if (q) {
         var hay = [s.companyName, s.ownerName, s.contactName, s.phone, s.email, s.serviceCategory,
@@ -232,13 +241,29 @@
         '<span style="' + MUTED + '">Loading roster health…</span>' +
       "</div>" +
       '<div class="card" id="subsQuickAdd" style="margin-bottom:0.9rem">' +
-        "<h2>Quick-add a sub</h2>" +
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap">' +
+          "<h2>Quick-add a sub</h2>" +
+          '<button type="button" class="btn" id="uploadToggle">⬆ Upload my subs</button>' +
+        "</div>" +
         '<div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.5rem">' +
           '<input id="qaText" type="text" placeholder="Type it how you’d text it: ‘Mike Torres plumbing 818-555-0199 does repipes, from WhatsApp’" style="' + FIELD + ';flex:1;min-width:280px" />' +
           '<button type="button" class="btn primary" id="qaSubmit">Add sub</button>' +
         "</div>" +
         '<div id="qaStatus" style="' + MUTED + ';margin-top:0.4rem"></div>' +
         '<div id="qaDraft"></div>' +
+        '<div id="uploadPanel" style="display:none;margin-top:0.7rem;padding-top:0.65rem;border-top:1px solid #e3e8ef">' +
+          '<label style="display:block"><span style="' + LBL + '">Paste CSV or one sub per line: Company, Trade, Owner, Phone, Email, Website, License#</span>' +
+            '<textarea id="upText" style="' + FIELD + ';min-height:100px;resize:vertical;font-family:monospace;font-size:0.78rem" placeholder="Ace Plumbing, Plumbing, Mike Torres, 818-555-0199, mike@aceplumbing.com, aceplumbing.com, 123456"></textarea>' +
+          "</label>" +
+          '<div style="display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center;margin-top:0.5rem">' +
+            '<input id="upFile" type="file" accept=".csv" />' +
+            '<label style="display:flex;align-items:center;gap:0.35rem;font-size:0.83rem">' +
+              '<input id="upTrusted" type="checkbox" /> ⭐ mark all as my trusted contacts' +
+            "</label>" +
+            '<button type="button" class="btn primary" id="upSubmit">Upload</button>' +
+          "</div>" +
+          '<div id="upStatus" style="' + MUTED + ';margin-top:0.5rem"></div>' +
+        "</div>" +
       "</div>" +
       '<div class="card">' +
         '<div style="display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center">' +
@@ -253,14 +278,17 @@
             var active = state.tier === t.key && !(t.key === "" && state.strongOnly);
             return '<button type="button" class="chip' + (active ? " active" : "") + '" data-tier="' + t.key + '">' + esc(t.label) + "</button>";
           }).join("") +
+          '<button type="button" class="chip' + (state.tier === "mine" ? " active" : "") + '" data-tier="mine" title="Only records you personally added or marked trusted — never hidden on you, ignores the Strong contacts filter">My uploads ⭐</button>' +
           '<button type="button" class="chip' + (state.strongOnly ? " active" : "") + '" data-toggle="strong" title="Named owner + email on file" style="margin-left:0.6rem">Strong contacts</button>' +
           '<button type="button" class="chip' + (state.pricingOnly ? " active" : "") + '" data-toggle="pricing" title="Price tier, minimum job size, labor rates or unit prices known">Has pricing signal</button>' +
+          '<button type="button" class="chip' + (compareState.active ? " active" : "") + '" data-toggle="compare" title="Select up to 4 subs to compare side by side" style="margin-left:0.6rem">⚖ Compare</button>' +
           '<button type="button" class="chip" id="subsHiddenChip" data-tier="hidden" title="Auto-hidden: red-flagged, dead site, or not actually a sub" style="margin-left:0.6rem;color:#687587"></button>' +
         "</div>" +
         '<div id="subsHiddenNote" style="' + MUTED + ';font-size:0.78rem;margin-top:0.45rem"></div>' +
       "</div>" +
       '<div class="card" style="margin-top:0.9rem">' +
         '<div id="subsCount" style="' + MUTED + ';margin-bottom:0.5rem"></div>' +
+        '<div id="compareBar" style="display:none;position:sticky;top:0;z-index:2;background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;padding:0.5rem 0.7rem;margin-bottom:0.6rem;font-size:0.85rem"></div>' +
         '<div style="overflow-x:auto">' +
           '<table class="table"><thead><tr id="subsHead"></tr></thead><tbody id="subsRows"></tbody></table>' +
         "</div>" +
@@ -290,6 +318,10 @@
       } else if (chip.dataset.toggle === "pricing") {
         state.pricingOnly = !state.pricingOnly;
         chip.classList.toggle("active", state.pricingOnly);
+      } else if (chip.dataset.toggle === "compare") {
+        compareState.active = !compareState.active;
+        if (!compareState.active) compareState.ids = [];
+        chip.classList.toggle("active", compareState.active);
       }
       renderTable(container);
     });
@@ -303,12 +335,32 @@
     });
     container.querySelector("#subsRows").addEventListener("click", function (e) {
       var tr = e.target.closest("tr[data-id]");
-      if (tr) APP.navigate("#/subs/" + tr.dataset.id);
+      if (!tr) return;
+      if (compareState.active) {
+        var checkbox = e.target.closest(".cmpChk");
+        var wantSelected = checkbox ? checkbox.checked : compareState.ids.indexOf(tr.dataset.id) === -1;
+        toggleCompareSelect(tr.dataset.id, wantSelected);
+        renderTable(container);
+        return;
+      }
+      APP.navigate("#/subs/" + tr.dataset.id);
     });
 
     wireQuickAdd(container);
+    wireUpload(container);
     renderTable(container);
     renderRosterHealth(container);
+  }
+
+  function toggleCompareSelect(id, wantSelected) {
+    var idx = compareState.ids.indexOf(id);
+    if (wantSelected) {
+      if (idx !== -1) return;
+      if (compareState.ids.length >= 4) { APP.toast("You can compare up to 4 subs — deselect one first."); return; }
+      compareState.ids.push(id);
+    } else if (idx !== -1) {
+      compareState.ids.splice(idx, 1);
+    }
   }
 
   // ── AI quick-add ──
@@ -411,11 +463,118 @@
     }
   }
 
+  // ── "Upload my subs" panel: paste rows or pick a .csv, bulk-POST as ori-upload ──
+  function wireUpload(container) {
+    var toggleBtn = container.querySelector("#uploadToggle");
+    var panel = container.querySelector("#uploadPanel");
+    var textEl = container.querySelector("#upText");
+    var fileEl = container.querySelector("#upFile");
+    var trustedEl = container.querySelector("#upTrusted");
+    var submitBtn = container.querySelector("#upSubmit");
+    var status = container.querySelector("#upStatus");
+
+    toggleBtn.addEventListener("click", function () {
+      var open = panel.style.display === "none";
+      panel.style.display = open ? "" : "none";
+      toggleBtn.textContent = open ? "Hide upload" : "⬆ Upload my subs";
+    });
+
+    var UPLOAD_HEADER_MAP = {
+      company: "companyName", name: "companyName",
+      trade: "serviceCategory", category: "serviceCategory", servicecategory: "serviceCategory",
+      owner: "ownerName", ownername: "ownerName", contact: "ownerName",
+      phone: "phone",
+      email: "email",
+      website: "website", site: "website", url: "website",
+      license: "licenseNumber", "license#": "licenseNumber", licensenumber: "licenseNumber"
+    };
+    var UPLOAD_DEFAULT_ORDER = ["companyName", "serviceCategory", "ownerName", "phone", "email", "website", "licenseNumber"];
+
+    function parseUploadText(raw) {
+      var lines = String(raw || "").split(/\r?\n/).map(function (l) { return l.trim(); }).filter(function (l) { return l.length; });
+      if (!lines.length) return { records: [], errors: [] };
+      var fieldMap = UPLOAD_DEFAULT_ORDER;
+      if (lines[0].toLowerCase().indexOf("company") !== -1) {
+        fieldMap = lines[0].split(",").map(function (h) { return UPLOAD_HEADER_MAP[h.trim().toLowerCase()] || null; });
+        lines = lines.slice(1);
+      }
+      var records = [];
+      var errors = [];
+      lines.forEach(function (line, idx) {
+        var cells = line.split(",").map(function (c) { return c.trim(); });
+        var rec = {};
+        for (var i = 0; i < cells.length && i < fieldMap.length; i++) {
+          if (fieldMap[i]) rec[fieldMap[i]] = cells[i];
+        }
+        if (!rec.companyName) { errors.push("Line " + (idx + 1) + ": no company name — skipped"); return; }
+        records.push(rec);
+      });
+      return { records: records, errors: errors };
+    }
+
+    function runUpload(raw) {
+      var parsed = parseUploadText(raw);
+      if (!parsed.records.length) {
+        status.textContent = parsed.errors.length ? parsed.errors.join("; ") : "Nothing to upload — paste some rows or choose a CSV file.";
+        submitBtn.disabled = false;
+        return;
+      }
+      var trusted = trustedEl.checked;
+      var records = parsed.records.map(function (r) {
+        return {
+          companyName: r.companyName || "",
+          serviceCategory: r.serviceCategory || "",
+          ownerName: r.ownerName || "",
+          phone: r.phone || "",
+          email: r.email || "",
+          website: r.website || "",
+          licenseNumber: r.licenseNumber || "",
+          trusted: trusted,
+          sourcingMethod: "ori-upload",
+          sourceConfidence: "high"
+        };
+      });
+      APP.fetchJSON(API + "/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ records: records })
+      }).then(function (result) {
+        var savedCount = (result && result.savedCount) || 0;
+        var msg = "Uploaded " + savedCount + " sub" + (savedCount === 1 ? "" : "s") + ".";
+        if (parsed.errors.length) msg += " " + parsed.errors.length + " line" + (parsed.errors.length === 1 ? "" : "s") + " skipped (" + parsed.errors.join("; ") + ").";
+        status.textContent = msg;
+        textEl.value = "";
+        fileEl.value = "";
+        return fetchRoster(true);
+      }).then(function () {
+        renderTable(container);
+        renderRosterHealth(container);
+      }).catch(function (err) {
+        status.textContent = "Upload failed: " + (err.message || "unknown error");
+      }).then(function () { submitBtn.disabled = false; });
+    }
+
+    submitBtn.addEventListener("click", function () {
+      var file = fileEl.files && fileEl.files[0];
+      submitBtn.disabled = true;
+      status.textContent = "Uploading…";
+      if (file) {
+        var reader = new FileReader();
+        reader.onload = function (e) { runUpload(String((e.target && e.target.result) || "")); };
+        reader.onerror = function () { status.textContent = "Couldn't read that file."; submitBtn.disabled = false; };
+        reader.readAsText(file);
+      } else {
+        runUpload(textEl.value);
+      }
+    });
+  }
+
   function renderRosterHealth(container) {
     var box = container.querySelector("#subsHealth");
     if (!box) return;
     var activeCount = roster.filter(function (s) { return !isHidden(s); }).length;
     var hiddenCount = roster.length - activeCount;
+    var mineCount = roster.filter(isMine).length;
     fetchVetsweep().catch(function () { return null; }).then(function (sweep) {
       if (!container.contains(box)) return; // view navigated away before this resolved
       var sweepBit = sweep && sweep.enabled
@@ -424,7 +583,9 @@
       box.innerHTML =
         '<div class="card" style="display:flex;flex-wrap:wrap;align-items:center;gap:0.4rem">' +
           '<span style="font-size:0.85rem">' +
-            "<b>" + activeCount + "</b> active roster · <b>" + hiddenCount + "</b> hidden (junk/flagged) · " + esc(sweepBit) +
+            "<b>" + activeCount + "</b> active roster · <b>" + hiddenCount + "</b> hidden (junk/flagged)" +
+            (mineCount > 0 ? " · <b>" + mineCount + "</b> my uploads" : "") +
+            " · " + esc(sweepBit) +
           "</span>" +
         "</div>";
     }).catch(function () {
@@ -444,8 +605,10 @@
     var hiddenTotal = roster.length - visibleTotal;
     count.textContent = state.tier === "hidden"
       ? rows.length + " hidden"
-      : rows.length + " of " + visibleTotal + " shown" +
-        (state.strongOnly ? " — strong contacts only (named owner + email); turn off the Strong contacts chip to see everyone" : "");
+      : state.tier === "mine"
+        ? rows.length + " of your uploads (includes hidden ones — they never disappear on you)"
+        : rows.length + " of " + visibleTotal + " shown" +
+          (state.strongOnly ? " — strong contacts only (named owner + email); turn off the Strong contacts chip to see everyone" : "");
 
     var hiddenChip = container.querySelector("#subsHiddenChip");
     if (hiddenChip) {
@@ -459,11 +622,32 @@
         : "";
     }
 
-    head.innerHTML = LIST_COLS.map(function (c) {
+    head.innerHTML = (compareState.active ? '<th style="width:26px"></th>' : "") + LIST_COLS.map(function (c) {
       var arrow = state.sortKey === c.key ? (state.sortDir < 0 ? " ▾" : " ▴") : "";
       var tip = c.title ? c.title : "Sort by " + c.label;
       return '<th data-key="' + c.key + '" style="cursor:pointer" title="' + esc(tip) + '">' + esc(c.label) + arrow + "</th>";
     }).join("");
+
+    var compareBar = container.querySelector("#compareBar");
+    if (compareBar) {
+      if (compareState.active && compareState.ids.length) {
+        compareBar.style.display = "";
+        compareBar.innerHTML =
+          "<b>" + compareState.ids.length + " of 4 selected</b>" +
+          '<button type="button" class="btn primary" id="compareGo" style="margin-left:0.6rem">Compare</button>' +
+          '<button type="button" class="btn" id="compareClear" style="margin-left:0.4rem">Clear</button>';
+        compareBar.querySelector("#compareGo").addEventListener("click", function () {
+          APP.navigate("#/subs/" + encodeURIComponent("compare:" + compareState.ids.join(",")));
+        });
+        compareBar.querySelector("#compareClear").addEventListener("click", function () {
+          compareState.ids = [];
+          renderTable(container);
+        });
+      } else {
+        compareBar.style.display = "none";
+        compareBar.innerHTML = "";
+      }
+    }
 
     if (!rows.length) {
       body.innerHTML = "";
@@ -476,10 +660,18 @@
     body.innerHTML = rows.map(function (s) {
       var dim = (!s.trusted && contactStrength(s) !== "strong") ? "opacity:0.55;" : "";
       var trustedBar = s.trusted ? "border-left:3px solid #b7791f;" : "";
+      var checkboxCell = "";
+      if (compareState.active) {
+        var checked = compareState.ids.indexOf(s.id) !== -1;
+        var disabled = !checked && compareState.ids.length >= 4;
+        checkboxCell = '<td style="width:26px"><input type="checkbox" class="cmpChk"' + (checked ? " checked" : "") + (disabled ? " disabled" : "") + " /></td>";
+      }
       return '<tr data-id="' + esc(s.id) + '" data-href="#/subs/' + esc(s.id) + '" style="cursor:pointer;' + dim + trustedBar + '">' +
+        checkboxCell +
         "<td><b" + (s.trusted ? ' style="color:#101828"' : "") + ">" + esc(s.companyName) + "</b>" +
           (s.trusted ? ' <span class="pill amber" title="Your personal contact (WhatsApp/phone)">⭐ my contact</span>' : "") +
           weakPill(s) +
+          (s.hiddenAuto ? ' <span class="pill" style="color:#687587" title="Nightly sweep flagged this — still one of your uploads">auto-flagged</span>' : "") +
           (s.serviceArea ? '<br /><span style="' + MUTED + ';font-size:0.72rem">' + esc(s.serviceArea) + "</span>" : "") + "</td>" +
         "<td>" + esc(s.serviceCategory || "") + "</td>" +
         "<td>" + legitCell(s) + "</td>" +
@@ -548,7 +740,8 @@
             '<div style="margin-top:0.5rem">' +
               '<button type="button" class="btn' + (sub.trusted ? " primary" : "") + '" id="trustedToggle" title="Your personal WhatsApp/phone contacts pin to the top of the roster everywhere">' +
                 (sub.trusted ? "★ Trusted" : "☆ Mark trusted") +
-              "</button>" +
+              "</button> " +
+              '<button type="button" class="btn" id="compareSimilarBtn" title="Compare against other ' + esc(sub.serviceCategory || "") + ' subs">Compare similar</button>' +
             "</div>" +
           "</div>" +
           '<div style="text-align:right">' + scores + "</div>" +
@@ -574,6 +767,18 @@
       }).catch(function (err) {
         APP.toast("Couldn't update: " + err.message);
         trustedBtn.disabled = false;
+      });
+    });
+
+    var compareSimilarBtn = container.querySelector("#compareSimilarBtn");
+    compareSimilarBtn.addEventListener("click", function () {
+      fetchRoster().then(function (rows) {
+        var similar = rows.filter(function (s) { return s.id !== sub.id && s.serviceCategory === sub.serviceCategory && !isHidden(s); })
+          .sort(function (a, b) { return (b.legitScore || 0) - (a.legitScore || 0); })
+          .slice(0, 3)
+          .map(function (s) { return s.id; });
+        if (!similar.length) { APP.toast("No other " + (sub.serviceCategory || "subs") + " subs to compare yet."); return; }
+        APP.navigate("#/subs/" + encodeURIComponent("compare:" + [sub.id].concat(similar).join(",")));
       });
     });
 
@@ -984,13 +1189,113 @@
     renderTab();
   }
 
+  // ══════════════════════ COMPARE VIEW ══════════════════════
+  // Route is encoded as a single #/subs/:id param — "compare:<id1>,<id2>,..." —
+  // since the shell router (app.html parseHash) only ever captures one path segment.
+  var COMPARE_ROWS = [
+    { label: "Trust score", numeric: true, sortVal: function (s) { return Number(s.legitScore || 0); }, value: function (s) { return legitCell(s); } },
+    { label: "Record score", numeric: true, sortVal: function (s) { return Number(s.completenessScore || 0); }, value: function (s) { return APP.scoreBadge(s.completenessScore); } },
+    { label: "Overall", numeric: true, sortVal: function (s) { return overall(s); }, value: function (s) { return APP.scoreBadge(overall(s)); } },
+    { label: "Tier", value: function (s) { return APP.tierPill(s.legitTier || "unverified"); } },
+    { label: "License", value: function (s) { return licenseCell(s) + (s.licenseStatus && s.licenseStatus !== "unchecked" ? ' <span style="' + MUTED + '">(' + esc(s.licenseStatus) + ")</span>" : ""); } },
+    { label: "Reviews", numeric: true, sortVal: function (s) { return Number(s.reviewRating || 0); }, value: function (s) { return reviewsCell(s); } },
+    { label: "Contact", value: function (s) {
+        var bits = [];
+        if (s.ownerName) bits.push(esc(s.ownerName));
+        if (s.email) bits.push('<a href="mailto:' + esc(s.email) + '">' + esc(s.email) + "</a>");
+        if (s.phone) bits.push('<a href="tel:' + esc(s.phone) + '">' + esc(s.phone) + "</a>");
+        var strength = contactStrength(s);
+        var pill = strength === "strong" ? '<span class="pill green">strong</span>' : strength === "weak" ? '<span class="pill amber">weak</span>' : '<span class="pill red">none</span>';
+        return (bits.length ? bits.join("<br/>") : '<span style="' + MUTED + '">no contact on file</span>') + "<br/>" + pill;
+      } },
+    { label: "Docs", numeric: true, sortVal: function (s) { return docsSummary(s).received; }, value: function (s) { return docsPill(s); } },
+    { label: "Price tier", value: function (s) { return esc(s.priceTier === "unknown" ? "-" : (s.priceTier || "-")); } },
+    { label: "Minimum job size", value: function (s) { return esc(s.minimumJobSize || "-"); } },
+    { label: "Outreach stage", value: function (s) { return stagePill(s.outreachStage); } },
+    { label: "Red flags", value: function (s) {
+        var flags = s.redFlags || [];
+        return flags.length ? flags.map(function (f) { return '<span class="pill red" style="margin-right:0.25rem">' + esc(f) + "</span>"; }).join("") : '<span style="' + MUTED + '">none</span>';
+      } },
+    { label: "Years in business", value: function (s) { return esc(s.yearsInBusiness || "-"); } },
+    { label: "Service area", value: function (s) { return esc(s.serviceArea || "-"); } },
+    { label: "Vetting notes", value: function (s) {
+        var notes = s.vettingNotes || "";
+        if (!notes) return '<span style="' + MUTED + '">-</span>';
+        var trimmed = notes.length > 140 ? notes.slice(0, 140) + "…" : notes;
+        return '<span title="' + esc(notes) + '">' + esc(trimmed) + "</span>";
+      } }
+  ];
+
+  function renderCompare(container, ids) {
+    container.innerHTML = '<div class="card"><span style="' + MUTED + '">Loading comparison…</span></div>';
+    fetchRoster().then(function (rows) {
+      var found = ids.map(function (id) { return rows.find(function (s) { return s.id === id; }); }).filter(Boolean);
+      if (found.length === ids.length) return found;
+      // Maybe one was added/renamed since the roster was cached — refetch once.
+      return fetchRoster(true).then(function (fresh) {
+        return ids.map(function (id) { return fresh.find(function (s) { return s.id === id; }); }).filter(Boolean);
+      });
+    }).then(function (subs) {
+      buildCompare(container, subs);
+    }).catch(function (err) {
+      container.innerHTML = errorCard(err.message || "Failed to load comparison.");
+      var retry = container.querySelector('[data-act="retry"]');
+      if (retry) retry.addEventListener("click", function () { renderCompare(container, ids); });
+    });
+  }
+
+  function buildCompare(container, subs) {
+    if (!subs.length) {
+      container.innerHTML = '<div style="margin-bottom:0.6rem"><a href="#/subs" style="' + MUTED + ';font-weight:700;text-decoration:none">← Back to subs</a></div>' +
+        '<div class="card"><div class="empty">None of these subs could be found — they may have been deleted.</div></div>';
+      return;
+    }
+    var theadCols = subs.map(function (s) {
+      return '<th style="min-width:200px">' + esc(s.companyName) +
+        (s.trusted ? ' <span title="Your trusted contact">⭐</span>' : "") +
+        '<br /><span style="' + MUTED + ';font-weight:400">' + esc(s.serviceCategory || "") + "</span></th>";
+    }).join("");
+
+    var bodyRows = COMPARE_ROWS.map(function (r) {
+      var bestSet = null;
+      if (r.numeric) {
+        var vals = subs.map(r.sortVal);
+        var max = Math.max.apply(null, vals);
+        if (max > 0) {
+          bestSet = {};
+          vals.forEach(function (v, i) { if (v === max) bestSet[i] = true; });
+        }
+      }
+      var cells = subs.map(function (s, i) {
+        var hl = bestSet && bestSet[i] ? "background:#f0fdf4;" : "";
+        return '<td style="' + hl + 'min-width:200px">' + r.value(s) + "</td>";
+      }).join("");
+      return '<tr><td style="font-weight:700;white-space:nowrap;color:#101828;font-size:0.8rem">' + esc(r.label) + "</td>" + cells + "</tr>";
+    }).join("");
+
+    container.innerHTML =
+      '<div style="margin-bottom:0.6rem"><a href="#/subs" style="' + MUTED + ';font-weight:700;text-decoration:none">← Back to subs</a></div>' +
+      '<div class="card">' +
+        "<h1>Compare subs</h1>" +
+        '<div style="overflow-x:auto;margin-top:0.6rem">' +
+          '<table class="table"><thead><tr><th style="min-width:140px"></th>' + theadCols + "</tr></thead><tbody>" + bodyRows + "</tbody></table>" +
+        "</div>" +
+      "</div>";
+  }
+
   // ── register with the shell ──
   APP.registerView("subs", {
     title: "Subs",
     render: function (container, params) {
       params = params || {};
-      if (params.id) renderProfile(container, params.id);
-      else renderList(container);
+      if (params.id && String(params.id).indexOf("compare:") === 0) {
+        var ids = String(params.id).slice("compare:".length).split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+        renderCompare(container, ids);
+      } else if (params.id) {
+        renderProfile(container, params.id);
+      } else {
+        renderList(container);
+      }
     }
   });
 })();

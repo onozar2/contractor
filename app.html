@@ -259,6 +259,8 @@
       <a href="#/knowledge" data-view="knowledge">Knowledge</a>
       <a href="#/design" data-view="design">🎨 Design</a>
       <a href="#/bids" data-view="bids">📄 Bids</a>
+      <a href="#/curriculum" data-view="curriculum">📚 Curriculum</a>
+      <a href="#/photos" data-view="photos">📷 Photos</a>
     </nav>
     <div class="sidefoot">
       <a href="/index.html">Public site</a>
@@ -576,6 +578,34 @@
           "</div>"
         ));
 
+        /* Next steps — pinned action-plan checklist (JOON_ACTION_PLAN.md § 0).
+           Loads independently and hides itself on error so a missing plan
+           file / down API never breaks the rest of the dashboard. */
+        var planCardEl = el('<div class="card"><h2>📋 Next steps</h2><div class="loading">Loading…</div></div>');
+        container.appendChild(planCardEl);
+        fetchJSON("/api/plan").then(function (plan) {
+          var steps = (plan && plan.steps) || [];
+          var doneCount = steps.filter(function (s) { return s.done; }).length;
+          var unchecked = steps.filter(function (s) { return !s.done; }).slice(0, 4);
+          var rows = unchecked.map(function (s) {
+            var m = String(s.text || "").match(/^\*\*([^*]+)\*\*\s*[—-]?\s*(.*)$/);
+            var owner = m ? m[1] : "";
+            var rest = (m ? m[2] : s.text || "").replace(/\s*\(§[^)]*\)\s*$/, "");
+            var short = rest.length > 90 ? rest.slice(0, 90).replace(/\s+\S*$/, "") + "…" : rest;
+            return '<div style="display:flex;gap:0.5rem;align-items:flex-start;padding:0.28rem 0">' +
+              (owner ? '<span class="pill" style="flex:0 0 auto">' + esc(owner) + "</span>" : "") +
+              '<span style="font-size:0.85rem">' + esc(short) + "</span>" +
+            "</div>";
+          }).join("");
+          planCardEl.innerHTML =
+            '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">' +
+              "<h2>📋 Next steps</h2>" +
+              '<span class="muted" style="font-size:0.8rem">' + doneCount + " of " + steps.length + " done</span>" +
+            "</div>" +
+            (rows || '<div class="allclear">All caught up — nothing outstanding</div>') +
+            '<div style="margin-top:0.5rem"><a href="#/plan" style="font-weight:700;text-decoration:none">Open the plan →</a></div>';
+        }).catch(function () { planCardEl.remove(); });
+
         /* Needs attention — one compact card, count-lines only, no name lists */
         var lines = [
           countLine((a.expiringDocs || []).length, "docs/licenses expiring or overdue", "#/subs", "amber"),
@@ -672,7 +702,9 @@
   <script src="app_billing.js"></script>
   <script src="app_permits.js"></script>
   <script src="app_design3d.js"></script>
+  <script src="app_learn.js"></script>
   <script src="app_bids.js"></script>
+  <script src="app_plan.js"></script>
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));

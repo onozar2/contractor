@@ -315,7 +315,7 @@ crmApp.get("/curriculum.html", (_req, res) => res.sendFile(path.join(__dirname, 
 crmApp.get("/app.html", (_req, res) => res.sendFile(path.join(__dirname, "app.html")));
 // PWA service worker must be served from the root scope (not /assets) to control /app.html.
 crmApp.get("/sw.js", (_req, res) => res.sendFile(path.join(__dirname, "sw.js")));
-for (const moduleFile of ["app_subs.js", "app_projects.js", "app_pipeline.js", "app_knowledge.js", "app_suppliers.js", "app_gantt.js", "app_takeoff.js", "app_billing.js", "app_permits.js", "app_design3d.js", "app_bids.js"]) {
+for (const moduleFile of ["app_subs.js", "app_projects.js", "app_pipeline.js", "app_knowledge.js", "app_suppliers.js", "app_gantt.js", "app_takeoff.js", "app_billing.js", "app_permits.js", "app_design3d.js", "app_bids.js", "app_learn.js", "app_plan.js"]) {
   crmApp.get(`/${moduleFile}`, (_req, res) => res.sendFile(path.join(__dirname, moduleFile)));
 }
 crmApp.use("/api/knowledge", require("./knowledge")(collection));
@@ -2786,6 +2786,82 @@ app.get("/api/pricing-intel", async (_req, res) => {
   }
 });
 
+// ── Action plan pin (JOON_ACTION_PLAN.md § 0) ──
+// Ori wants the "Next steps — do these now" checklist pinned in the app so he
+// doesn't lose track of it. The markdown file on disk is the source of truth
+// for the text; check/uncheck state lives in Mongo (settings/"planSteps") so
+// editing the .md never wipes progress. Each stored check carries a hash of
+// the step text at check-time — if the plan is later edited/reordered so the
+// text at that index no longer matches, the stale check is dropped (treated
+// unchecked) instead of silently applying to the wrong item.
+const PLAN_FILE = path.join(__dirname, "JOON_ACTION_PLAN.md");
+
+function hashPlanStepText(text) {
+  return crypto.createHash("sha256").update(cleanString(text)).digest("hex").slice(0, 16);
+}
+
+// Parses the `- [ ]` / `- [x]` lines out of "## 0. Next steps ..." until the
+// next heading (any level) closes the section.
+function parseActionPlanSteps(markdown) {
+  const lines = String(markdown || "").replace(/\r/g, "").split("\n");
+  const startIdx = lines.findIndex((line) => /^##\s*0\./.test(line.trim()));
+  if (startIdx === -1) return [];
+  const steps = [];
+  for (let idx = startIdx + 1; idx < lines.length; idx++) {
+    const trimmed = lines[idx].trim();
+    if (/^#{1,6}\s/.test(trimmed)) break; // next section heading closes section 0
+    const match = trimmed.match(/^-\s*\[([ xX])\]\s*(.+)$/);
+    if (match) steps.push({ i: steps.length, text: cleanString(match[2]), rawDone: /x/i.test(match[1]) });
+  }
+  return steps;
+}
+
+async function getPlanCheckedMap() {
+  const coll = await collection("settings");
+  if (!coll) return {};
+  const doc = await coll.findOne({ _id: "planSteps" });
+  return (doc && doc.checked) || {};
+}
+
+app.get("/api/plan", async (_req, res) => {
+  try {
+    const markdown = fs.readFileSync(PLAN_FILE, "utf8");
+    const parsed = parseActionPlanSteps(markdown);
+    const checkedMap = await getPlanCheckedMap();
+    const steps = parsed.map((step) => {
+      const hash = hashPlanStepText(step.text);
+      const saved = checkedMap[String(step.i)];
+      const done = saved && saved.hash === hash ? Boolean(saved.done) : step.rawDone;
+      return { i: step.i, text: step.text, done };
+    });
+    res.json({ markdown, steps });
+  } catch (error) {
+    res.status(502).json({ error: error.message });
+  }
+});
+
+app.post("/api/plan/steps", async (req, res) => {
+  try {
+    const i = Number(req.body && req.body.i);
+    if (!Number.isFinite(i) || i < 0) return res.status(400).json({ error: "i is required" });
+    const done = Boolean(req.body && req.body.done);
+    const markdown = fs.readFileSync(PLAN_FILE, "utf8");
+    const step = parseActionPlanSteps(markdown)[i];
+    if (!step) return res.status(404).json({ error: `Step ${i} not found in the current plan.` });
+    const coll = await collection("settings");
+    if (!coll) return res.status(503).json({ error: "MongoDB is not configured." });
+    const hash = hashPlanStepText(step.text);
+    await coll.updateOne(
+      { _id: "planSteps" },
+      { $set: { [`checked.${i}`]: { done, hash }, updatedAt: new Date().toISOString() } },
+      { upsert: true }
+    );
+    res.json({ i, done, text: step.text });
+  } catch (error) {
+    res.status(502).json({ error: error.message });
+  }
+});
+
 // ── AI quick-add: free text → record draft ──
 // Ori types "Mike's plumbing, guy named Mike Torres 818-555-0199, does repipes
 // in the Valley, from WhatsApp" and gets a filled record back to confirm.
@@ -3031,11 +3107,20 @@ async function vetsweepTick(force = false) {
     const coll = await collection();
     let totalApplied = 0;
     for (let run = 0; run < Number(state.runsPerCycle || state.runsPerNight || 1); run += 1) {
-      const batch = await coll.find({
-        vettingStatus: { $ne: "deep_vetted" },
-        contactStrength: "strong",
-        hidden: { $ne: true }
-      }).sort({ fitScore: -1 }).limit(Number(state.perRun || 8)).toArray();
+      const perRun = Number(state.perRun || 8);
+      const baseFilter = { vettingStatus: { $ne: "deep_vetted" }, hidden: { $ne: true } };
+      // Ori's own uploads jump the queue even with a weak/no contact on file — they're
+      // the ones he actually cares about seeing vetted. Fill any leftover slots with
+      // the usual strong-contact candidates.
+      let batch = await coll.find({ ...baseFilter, sourcingMethod: "ori-upload" }).sort({ fitScore: -1 }).limit(perRun).toArray();
+      if (batch.length < perRun) {
+        const topUp = await coll.find({
+          ...baseFilter,
+          contactStrength: "strong",
+          _id: { $nin: batch.map((row) => row._id) }
+        }).sort({ fitScore: -1 }).limit(perRun - batch.length).toArray();
+        batch = batch.concat(topUp);
+      }
       if (!batch.length) break;
       const slim = batch.map((row) => ({
         id: row._id.toString(), companyName: row.companyName, serviceCategory: row.serviceCategory,
@@ -3078,7 +3163,11 @@ app.get("/api/vetsweep", async (_req, res) => {
   try {
     const state = await getVetsweepState();
     const coll = await collection();
-    const remaining = coll ? await coll.countDocuments({ vettingStatus: { $ne: "deep_vetted" }, contactStrength: "strong", hidden: { $ne: true } }) : 0;
+    const remaining = coll ? await coll.countDocuments({
+      vettingStatus: { $ne: "deep_vetted" },
+      hidden: { $ne: true },
+      $or: [{ contactStrength: "strong" }, { sourcingMethod: "ori-upload" }]
+    }) : 0;
     const perDay = Math.round(Number(state.perRun || 10) * Number(state.runsPerCycle || 1) * (24 / Number(state.intervalHours || 2)));
     res.json({ ...state, _id: undefined, remaining, perNight: perDay, perDay, daysToClear: perDay ? Math.ceil(remaining / perDay) : null, nightsToClear: perDay ? Math.ceil(remaining / perDay) : null });
   } catch (error) {

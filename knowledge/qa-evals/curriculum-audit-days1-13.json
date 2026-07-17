@@ -1,0 +1,102 @@
+{
+  "auditedAt": "2026-07-16",
+  "range": "days 1-13",
+  "verdict": "Strong, well-sequenced, and honestly hedged; a handful of code-value claims (roof layers, duct R-value, kitchen GFI spacing) are out of date or non-compliant and one hazmat mechanism is factually wrong.",
+  "scores": {
+    "accuracy": 8,
+    "comprehensiveness": 8,
+    "bestPractices": 9
+  },
+  "findings": [
+    {
+      "day": 6,
+      "severity": "high",
+      "type": "accuracy",
+      "claim": "the Manual caps overlay at a maximum of 3 shingle layers before a full tear-off is required",
+      "problem": "California code (CRC R908.3 / CBC 1511.3) allows a maximum of TWO layers of asphalt shingles. An overlay is permitted only when a single existing layer is present; a roof that already has two layers must be torn off to the deck. Installing a 3rd layer is a code violation that fails re-roof inspection and voids most shingle warranties. This is a company-manual figure that is illegal as written, so it must be corrected regardless of 'the company way.'",
+      "fix": "Replace with: 'California code (CRC R908.3) allows a maximum of two layers of asphalt shingles. You may overlay only if the roof currently has a single layer; once two layers exist, a full tear-off to the deck is mandatory before re-roofing. Treat the Manual's older 3-layer note as superseded by code.'",
+      "source": "https://codes.iccsafe.org/content/CARC2022P1/chapter-9-roof-assemblies ; CRC R908.3 / CBC 1511.3 (two-layer max)"
+    },
+    {
+      "day": 10,
+      "severity": "medium",
+      "type": "accuracy",
+      "claim": "the Manual specifies GFI outlets every 5 feet along a kitchen countertop and every 3 feet of counter run",
+      "problem": "The sentence is internally contradictory (5 ft vs 3 ft) and the 5-ft figure violates the NEC. NEC 210.52(C) requires kitchen counter receptacles placed so that no point along the counter wall line is more than 24 inches from a receptacle -- i.e., a maximum of ~4 ft (48 in) spacing, and all must be GFCI-protected. 'Every 5 feet' would fail inspection. Day 14 states the correct-ish '3 feet,' so Day 10 should be aligned to the code rule, not the 5-ft figure.",
+      "fix": "Replace with: 'Kitchen counter receptacles must be placed so no point along the counter is more than 24 inches from an outlet (effectively no more than ~4 ft apart), and all counter-serving receptacles must be GFCI-protected (NEC 210.52(C)). The Manual's habit of setting one roughly every 3 feet stays safely inside that rule.'",
+      "source": "NEC 210.52(C)(1) 24-inch reach rule; standard SoCal residential electrical inspection practice"
+    },
+    {
+      "day": 11,
+      "severity": "medium",
+      "type": "accuracy",
+      "claim": "flexible duct (the Manual specifies R-6 rated flex duct)",
+      "problem": "R-6 is below current Title 24 (2022) duct-insulation minimums for most of the LA area. Title 24 requires R-8 for ducts in unconditioned space (attics/crawl) in climate zones 1, 2, 4, and 8-16 -- which covers most of the LA basin and valleys (zones 8, 9, 10) and the mountains (16). Only coastal/mild zones (3, 5, 6, 7) still allow R-6. Speccing R-6 in most LA jobs would fail HERS/Title 24 verification.",
+      "fix": "Add after the R-6 note: 'Caution: R-6 only meets Title 24 in mild coastal zones (3/5/6/7). Most LA-area work (climate zones 8, 9, 10, and mountain zone 16) requires R-8 duct insulation in unconditioned attics/crawl space under the 2022 Energy Code -- confirm the property's climate zone and spec R-8 where required.'",
+      "source": "https://codes.iccsafe.org/s/CAEC2022P1 Sec 120.4 / Sec 150.0; 2022 Title 24 duct R-6 vs R-8 by climate zone"
+    },
+    {
+      "day": 13,
+      "severity": "medium",
+      "type": "accuracy",
+      "claim": "install a negative-air machine that exhausts to the outside for a minimum of 3 days (this starves the contained space of oxygen so the mold can't continue spreading...)",
+      "problem": "The stated mechanism is wrong. A negative-air machine does NOT deprive the space of oxygen -- it draws air through a HEPA filter and exhausts outside, creating negative pressure so airborne spores are captured and cannot escape the containment into the rest of the house. Mold growth is controlled by removing moisture and contaminated material, not by oxygen starvation (mold does not suffocate in a HEPA-scrubbed room). A trainee repeating the 'starves oxygen' explanation to a homeowner sounds unqualified.",
+      "fix": "Replace the parenthetical with: '(the HEPA-filtered negative-air machine keeps the sealed containment under negative pressure and continuously scrubs airborne spores, so nothing escapes into the rest of the house while the demo and treatment proceed -- the mold is stopped by removing the moisture and the contaminated material, not by any lack of oxygen).'",
+      "source": "IICRC S520 mold remediation principles; negative pressure + HEPA filtration containment"
+    },
+    {
+      "day": 13,
+      "severity": "medium",
+      "type": "gap",
+      "claim": "remove a sample of the ceiling and send it to a laboratory for testing before any demo begins",
+      "problem": "Missing the binding SoCal-specific regulatory layer: SCAQMD Rule 1403. Beyond lab testing, the survey/notification is driven by ACTIVITY, not just building age -- an asbestos survey by a certified consultant is required before any demolition or renovation, and the South Coast AQMD must be notified (electronically, with fee) at least 10 working days before work starts; a copy of the notification is required before the city will issue a demolition permit. The only residential carve-out is renovation of a single-unit dwelling disturbing less than 100 sq ft of intact material. A GC who skips the 1403 notice is exposed to fines even when no asbestos is present.",
+      "fix": "Add a paragraph: 'SoCal-specific: South Coast AQMD Rule 1403 governs this. A certified-consultant asbestos survey is required before demolition/renovation, and AQMD must be notified electronically (with fee) at least 10 working days before work begins; a copy of that notice is required before the city issues a demo permit. The one residential exemption is a single-unit dwelling disturbing under 100 sq ft of intact material. The trigger is the activity and area, not just whether the house predates 1990.'",
+      "source": "https://www.aqmd.gov/docs/default-source/compliance/Asbestos-Demolition-/1403-frequently-asked-questions.pdf ; SCAQMD Rule 1403"
+    },
+    {
+      "day": 4,
+      "severity": "medium",
+      "type": "gap",
+      "claim": "standard whole-house bolting/cripple-wall retrofit on an average 1,500 sq ft SFR: roughly $3,500-$8,000",
+      "problem": "Two high-value items a homeowner will ask about are missing: (1) the California Earthquake Brace + Bolt (EBB) grant program, which pays up to ~$3,000 (income-qualified supplemental grants higher) toward exactly this retrofit -- a major closing tool and trust signal; and (2) that most of these retrofits can be permitted and built under a jurisdiction's pre-approved prescriptive plan set (the CEBC Appendix A / LADBS 'Standard Plan A' dwelling retrofit) WITHOUT paying for a stamped engineer, which directly affects the price and the Day 3 'when you need an engineer' logic.",
+      "fix": "Add: 'Sales/scope notes: (1) Point homeowners to the Earthquake Brace + Bolt (EBB) program -- an income-eligible state grant of up to ~$3,000 toward a code-compliant bolting/cripple-wall retrofit; it is a strong closing tool. (2) A standard cripple-wall/bolting retrofit usually qualifies for a jurisdiction's prescriptive pre-approved plan set (CEBC Appendix A / LADBS Standard Plan), so no stamped engineer is needed -- unlike the wall-removal/addition work in Days 1 and 3.'",
+      "source": "Earthquake Brace + Bolt (EBB) program (California Residential Mitigation Program); CEBC Appendix A prescriptive dwelling retrofit / LADBS standard plans"
+    },
+    {
+      "day": 8,
+      "severity": "medium",
+      "type": "practice",
+      "claim": "Re-stucco (existing house) adds sandblasting or hydro-blasting the old stucco off first",
+      "problem": "On any pre-1978 home, sandblasting or dry power-blasting exterior coatings is exactly the kind of uncontained, high-dust method EPA RRP prohibits, and it broadcasts lead-contaminated dust across the site and neighboring yards. Day 13 covers lead in the abstract but Day 8's stucco-removal process never cross-references it, so a trainee could scope a lead-dust violation into a re-stucco bid. Exterior work disturbing more than 20 sq ft in a pre-1978 home triggers RRP.",
+      "fix": "Add to the re-stucco paragraph: 'Before blasting old coatings off a pre-1978 home, apply Day 13: exterior disturbance over 20 sq ft triggers EPA RRP. Open/dry sandblasting of leaded coatings is a prohibited RRP practice -- use lead-safe methods (wet methods, HEPA-shrouded tools, ground containment) and an EPA Lead-Safe Certified crew, and price that containment into the bid.'",
+      "source": "40 CFR Part 745 (EPA RRP) prohibited practices and exterior 20 sq ft trigger"
+    },
+    {
+      "day": 11,
+      "severity": "low",
+      "type": "gap",
+      "claim": "run copper refrigerant line ('plumbing') from the coil location out to the condenser",
+      "problem": "The install description is accurate but omits a 2025-2026 reality a SoCal HVAC seller must know: as of Jan 1 2025 new residential AC/heat-pump equipment uses A2L (mildly flammable) refrigerants -- R-454B or R-32 -- because R-410A is being phased down. This changes equipment availability, line-set/leak-detection requirements, and pricing on any new-system sale. A trainee quoting a 'new system' in 2026 should know they are selling A2L equipment, not R-410A.",
+      "fix": "Add a sentence: 'Note (2025+): new residential AC/heat-pump systems now ship with A2L refrigerants (R-454B or R-32) as R-410A is phased down. This affects equipment cost/availability and adds refrigerant-leak-detection requirements on new installs -- factor it into any new-system quote.'",
+      "source": "EPA AIM Act HFC phasedown; 2025 transition to A2L refrigerants (R-454B/R-32) in residential HVAC"
+    },
+    {
+      "day": 2,
+      "severity": "low",
+      "type": "accuracy",
+      "claim": "unconditional lien waiver (the Manual explicitly calls this out for the garage conversion job -- CSLB has a standard form)",
+      "problem": "The statutory lien-waiver and release forms are set by California Civil Code sections 8132-8138 (four forms: conditional/unconditional x progress/final), not by CSLB. Using a non-statutory waiver form can be invalid. Minor, but the attribution to CSLB is wrong and a trainee should know where the real forms live.",
+      "fix": "Change to: 'unconditional lien waiver (the Manual calls this out for the garage conversion job -- use the statutory release forms in California Civil Code 8132-8138; a non-conforming waiver may not be enforceable).'",
+      "source": "California Civil Code sections 8132-8138 (statutory waiver and release forms)"
+    },
+    {
+      "day": 5,
+      "severity": "low",
+      "type": "accuracy",
+      "claim": "code limits how much you can notch or bore a stud -- generally no more than roughly a third of its width without a protective plate",
+      "problem": "Slightly imprecise and conflates notching with boring. Per CRC R602.6: bored holes may be up to 40% of stud width (60% if the stud is doubled and no more than two successive doubled studs are bored), while notches in a bearing-wall stud are limited to 25% of width (40% for non-bearing). A steel nail/protective plate (min 16 ga) is required whenever the edge of the hole or notch is within 1-1/4 inch of the stud edge. 'Roughly a third' understates the bore limit and overstates the notch limit.",
+      "fix": "Change to: 'Per CRC R602.6, bored holes can be up to 40% of stud width (60% in doubled studs); notches in a bearing-wall stud are limited to 25% of width. Any time the hole or notch comes within 1-1/4 inch of the stud edge, a 16-gauge steel nail plate is required to protect the wiring/pipe.'",
+      "source": "CRC R602.6 stud notching and boring limits; nail-plate 1-1/4 inch rule"
+    }
+  ]
+}

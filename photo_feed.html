@@ -118,21 +118,21 @@
   </style>
 </head>
 <body>
+  <script>
+    // One front door (Ori, 2026-07-16): this page lives INSIDE JOON Command at
+    // app.html#/photos. Embedded (?embed=1 in the app's iframe) it hides its
+    // own topbar; opened standalone it redirects into the app.
+    (function () {
+      var embedded = /[?&]embed=1/.test(location.search);
+      if (embedded) document.documentElement.setAttribute("data-embed", "1");
+      else if (window.self === window.top) location.replace("/app.html#/photos");
+    })();
+  </script>
+  <style>html[data-embed="1"] .topbar { display: none; }</style>
   <div class="topbar">
     <strong>JOON · Photo Feed</strong>
     <div>
       <a href="app.html" style="color:#93c5fd;font-weight:900">⌘ App</a>
-      <a href="subcontractor_finder.html">Finder</a>
-      <a href="subs_database.html">Database</a>
-      <a href="audit.html">Audit</a>
-      <a href="research_chat.html">Research</a>
-      <a href="lead_generation.html">Leads</a>
-      <a href="estimator.html">Estimator</a>
-      <a href="actuals.html">Actuals</a>
-      <a href="bid_lab.html">Bid Lab</a>
-      <a href="suppliers.html">Suppliers</a>
-      <a href="services_board.html">Readiness</a>
-      <a href="photo_feed.html" class="active">Photos</a>
     </div>
   </div>
 
