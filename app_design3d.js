@@ -76,7 +76,7 @@
       mode: "redecorate",     // "redecorate" | "remodel" — preservation clause
       styleSel: "",           // currently selected style chip name
       quality: "fast",        // "fast" (flash, ~8s) | "max" (pro model, ~15s)
-      variations: 1,          // 1 | 2 | 4
+      variations: 3,          // 1 | 3 — default 3 (renders 3 options in parallel)
       genAfterUrl: null,      // selected /uploads path when an API render succeeds
       variationUrls: [],      // all rendered variations (in-app path)
       attachFile: null,       // the Gemini render the user attaches back
@@ -91,6 +91,11 @@
 
   function slugify(v) {
     return String(v || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
+  }
+
+  function money(n) {
+    var v = Math.round(Number(n) || 0);
+    return "$" + v.toLocaleString("en-US");
   }
 
   // Client-side fallback prompt (mode-aware) if the /design-brief endpoint is down.
@@ -166,7 +171,10 @@
     "#dzDrop .t1{font-weight:900;font-size:1.05rem;color:#1d2634}" +
     "#dzDrop .t2{font-size:0.82rem;color:var(--muted);max-width:22rem}" +
     "#dzPhoto img.hero{width:100%;height:auto;display:block;object-fit:contain;max-height:64vh;background:#0d1117}" +
-    "#dzReplace{position:absolute;top:0.6rem;right:0.6rem;z-index:2}" +
+    "#dzReplace{position:absolute;top:0.6rem;right:0.6rem;z-index:2;display:flex;gap:0.4rem}" +
+    "#dzReplace .btn{padding:0 0.5rem;font-size:1rem;line-height:1}" +
+    // Hero photo-source buttons (📷 Take photo / 🖼️ Camera roll) under the copy
+    ".dz-photo-btns{display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;margin-top:0.7rem}" +
     // Chat
     "#dzChat{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;background:var(--paper,#fff);overflow:hidden;min-height:340px}" +
     "#dzChatHead{padding:0.7rem 0.9rem;border-bottom:1px solid var(--line);font-weight:900;font-size:0.9rem;color:#1d2634;display:flex;align-items:center;gap:0.4rem}" +
@@ -182,10 +190,15 @@
     "#dzInputRow{display:flex;gap:0.5rem;padding:0.7rem;border-top:1px solid var(--line)}" +
     "#dzInput{flex:1;min-width:0;min-height:40px;max-height:120px;resize:none;border:1px solid #d8dee8;border-radius:10px;padding:0.55rem 0.7rem;font:inherit;background:#f5f7fa;line-height:1.4}" +
     "#dzSend{align-self:flex-end}" +
-    // Render prompt panel
+    // Render prompt panel (collapsible — collapsed by default, persisted)
     "#dzPromptCard{margin-top:1.1rem}" +
-    "#dzPromptCard .dz-lbl{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:0.5rem;margin-bottom:0.4rem}" +
-    "#dzPrompt{width:100%;min-height:84px;resize:vertical;border:1px solid #e2e7ee;border-radius:10px;padding:0.6rem 0.75rem;font:inherit;font-size:0.86rem;line-height:1.5;color:#3c4658;background:#f8fafc}" +
+    ".dz-prompt-toggle{display:flex;align-items:center;gap:0.5rem;width:100%;cursor:pointer;user-select:none;-webkit-user-select:none}" +
+    ".dz-prompt-toggle .pt-chev{flex:0 0 auto;color:var(--muted);font-size:0.7rem;width:0.8rem;text-align:center}" +
+    ".dz-prompt-toggle .pt-k{flex:0 0 auto;font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);white-space:nowrap}" +
+    ".dz-prompt-toggle .pt-note{flex:0 0 auto;font-size:0.7rem;font-weight:600;color:var(--muted)}" +
+    ".dz-prompt-toggle .pt-prev{flex:1;min-width:0;font-size:0.78rem;color:#8a93a3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}" +
+    ".dz-prompt-toggle .pt-copy{flex:0 0 auto;margin-left:auto;padding:0.15rem 0.5rem;font-size:0.72rem}" +
+    "#dzPrompt{width:100%;margin-top:0.5rem;min-height:84px;resize:vertical;border:1px solid #e2e7ee;border-radius:10px;padding:0.6rem 0.75rem;font:inherit;font-size:0.86rem;line-height:1.5;color:#3c4658;background:#f8fafc}" +
     // Action bar (sticky)
     "#dzBar{position:sticky;bottom:0;z-index:5;display:flex;flex-wrap:wrap;gap:0.55rem;align-items:center;margin-top:0.9rem;padding:0.7rem;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,0.92);backdrop-filter:blur(6px);box-shadow:0 -6px 20px rgba(16,24,40,0.06)}" +
     "#dzBar .grow{flex:1;min-width:0}" +
@@ -194,11 +207,15 @@
     "#dzResult{margin-top:1.1rem}" +
     ".dz-calm{background:#f4f8ff;border:1px solid #cfe0fb;border-radius:10px;padding:0.7rem 0.85rem;color:#2b4a7a;font-size:0.86rem;line-height:1.5}" +
     ".dz-coach{margin-top:0.5rem;font-size:0.74rem;color:var(--muted);line-height:1.45}" +
-    ".dz-vgrid{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.6rem}" +
-    ".dz-vthumb{position:relative;width:82px;height:60px;border-radius:8px;overflow:hidden;border:2px solid transparent;cursor:pointer;background:#f0f2f5;padding:0}" +
-    ".dz-vthumb img{width:100%;height:100%;object-fit:cover;display:block}" +
-    ".dz-vthumb.sel{border-color:var(--blue)}" +
-    ".dz-vthumb .vt-badge{position:absolute;top:2px;left:2px;z-index:2;font-size:0.44rem;font-weight:800;line-height:1.15;color:#fff;background:rgba(17,24,39,0.85);padding:0.07rem 0.26rem;border-radius:4px;pointer-events:none}" +
+    // Option cards (3-up grid under the hero slider; 1 col ≤700px)
+    ".dz-opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0.6rem;margin-top:0.7rem}" +
+    ".dz-opt{display:flex;flex-direction:column;border:2px solid transparent;border-radius:10px;overflow:hidden;cursor:pointer;background:#f0f2f5;padding:0;text-align:left}" +
+    ".dz-opt .opt-img{display:block;width:100%;aspect-ratio:4/3;background:#e6eaf0}" +
+    ".dz-opt .opt-img img{width:100%;height:100%;object-fit:cover;display:block}" +
+    ".dz-opt .opt-lab{display:block;font-size:0.72rem;font-weight:800;color:#586074;padding:0.32rem 0.5rem;background:#eef1f6;text-align:center}" +
+    ".dz-opt.sel{border-color:var(--blue)}" +
+    ".dz-opt.sel .opt-lab{background:var(--blue);color:#fff}" +
+    "@media (max-width:700px){.dz-opts{grid-template-columns:1fr}}" +
     "#dzAttachZone{border:2px dashed #c7d0dc;border-radius:10px;padding:1.1rem;text-align:center;cursor:pointer;color:var(--muted);font-size:0.85rem;background:#f8fafc;display:block}" +
     "#dzAttachZone.drag{border-color:var(--blue);background:#eef4fe}" +
     // Before/after comparison slider
@@ -210,6 +227,22 @@
     ".dz-cmp .cmp-ai-badge{position:absolute;top:0.5rem;left:0.5rem;z-index:4;max-width:70%;font-size:0.64rem;font-weight:800;line-height:1.28;color:#fff;background:rgba(17,24,39,0.85);padding:0.22rem 0.55rem;border-radius:8px;pointer-events:none;box-shadow:0 1px 4px rgba(16,24,40,0.4)}" +
     ".dz-cmp .cmp-handle{position:absolute;top:0;bottom:0;width:2px;background:rgba(255,255,255,0.9);transform:translateX(-1px);z-index:2;pointer-events:none;box-shadow:0 0 0 1px rgba(16,24,40,0.25)}" +
     ".dz-cmp .cmp-grip{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;background:#fff;color:#2563eb;display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:900;box-shadow:0 2px 8px rgba(16,24,40,0.35)}" +
+    // Materials & rough costs (BETA)
+    "#dzMaterials{margin-top:1.1rem}" +
+    ".dz-mat-head{display:flex;align-items:center;gap:0.55rem;flex-wrap:wrap;margin-bottom:0.6rem}" +
+    ".dz-mat-btn{margin-left:auto;font-size:0.8rem}" +
+    ".dz-mat-btn:disabled{opacity:0.5;cursor:default}" +
+    ".dz-mat-rows{display:flex;flex-direction:column;gap:0.1rem;margin-top:0.2rem}" +
+    ".dz-mat-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:0.25rem 0.8rem;padding:0.55rem 0;border-bottom:1px solid var(--line)}" +
+    ".dz-mat-row:last-child{border-bottom:0}" +
+    ".dz-mat-name{flex:1 1 58%;min-width:11rem}" +
+    ".dz-mat-name b{font-weight:800;font-size:0.9rem;color:#1d2634}" +
+    ".dz-mat-spec{display:block;font-size:0.72rem;color:var(--muted);margin-top:0.12rem;line-height:1.35}" +
+    ".dz-mat-unit{flex:0 0 auto;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted)}" +
+    ".dz-mat-cost{flex:0 0 auto;font-size:0.88rem;font-weight:800;color:#1d2634;white-space:nowrap}" +
+    ".dz-mat-tag{flex:0 0 auto;margin-left:auto}" +
+    ".dz-mat-note{margin-top:0.7rem;font-size:0.72rem;color:var(--muted);line-height:1.5}" +
+    "@media (max-width:700px){.dz-mat-row{gap:0.2rem 0.6rem}.dz-mat-name{flex:1 1 100%;min-width:0}.dz-mat-tag{margin-left:0}}" +
     // History
     "#dzHistory{margin-top:1.3rem}" +
     ".dz-hstrip{display:flex;gap:0.7rem;overflow-x:auto;padding-bottom:0.4rem}" +
@@ -249,9 +282,8 @@
           '</div>' +
           '<div class="dz-ctrl"><span class="k">Variations</span>' +
             '<div class="dz-seg" id="dzVary">' +
-              '<button type="button" data-n="1" class="on">1</button>' +
-              '<button type="button" data-n="2">2</button>' +
-              '<button type="button" data-n="4">4</button>' +
+              '<button type="button" data-n="1">1</button>' +
+              '<button type="button" data-n="3" class="on">3</button>' +
             '</div>' +
           '</div>' +
           '<div class="dz-ctrl"><span class="k">Quality</span>' +
@@ -263,13 +295,21 @@
         '</div>' +
         '<div id="dzTop">' +
           '<div id="dzPhoto">' +
-            '<div id="dzReplace" style="display:none"><button class="btn" id="dzReplaceBtn" type="button">↻ New photo</button></div>' +
-            '<label id="dzDrop" for="dzFile">' +
+            '<div id="dzReplace" style="display:none">' +
+              '<button class="btn" id="dzReplaceRoll" type="button" title="Choose a different photo from your camera roll">🖼️</button>' +
+              '<button class="btn" id="dzReplaceCam" type="button" title="Take a new photo">📷</button>' +
+            '</div>' +
+            '<div id="dzDrop" role="button" tabindex="0">' +
               '<span class="big">📷</span>' +
-              '<span class="t1">Take or drop a photo of the room</span>' +
-              '<span class="t2">Tap to open the camera on your phone, or drop / paste a photo here. This exact room gets redesigned — nothing moves.</span>' +
-            '</label>' +
-            '<input type="file" id="dzFile" accept="image/*" capture="environment" style="display:none" />' +
+              '<span class="t1">Take or choose a photo of the room</span>' +
+              '<span class="t2">Take a new photo or pick an existing one from your camera roll — or drop / paste a photo here. This exact room gets redesigned — nothing moves.</span>' +
+              '<div class="dz-photo-btns">' +
+                '<button class="btn" id="dzPickCam" type="button">📷 Take photo</button>' +
+                '<button class="btn" id="dzPickRoll" type="button">🖼️ Camera roll</button>' +
+              '</div>' +
+            '</div>' +
+            '<input type="file" id="dzFileCam" accept="image/*" capture="environment" style="display:none" />' +
+            '<input type="file" id="dzFileRoll" accept="image/*" style="display:none" />' +
           '</div>' +
           '<div id="dzChat">' +
             '<div id="dzChatHead">💬 Tell me the look you want</div>' +
@@ -281,9 +321,14 @@
           '</div>' +
         '</div>' +
         '<div class="card" id="dzPromptCard">' +
-          '<div class="dz-lbl"><span>Render instruction <span style="font-weight:600;text-transform:none;letter-spacing:0">(editable — updates as you chat)</span></span>' +
-            '<button class="btn" id="dzCopyPrompt" type="button" style="padding:0.15rem 0.5rem;font-size:0.72rem">Copy</button></div>' +
-          '<textarea id="dzPrompt" placeholder="Your render instruction composes here once you add a photo and tell me what you want. You can also type it by hand."></textarea>' +
+          '<div class="dz-prompt-toggle" id="dzPromptToggle" role="button" tabindex="0" aria-expanded="false" aria-controls="dzPrompt">' +
+            '<span class="pt-chev" id="dzPromptChev">▸</span>' +
+            '<span class="pt-k">Render instruction</span>' +
+            '<span class="pt-note" id="dzPromptNote" style="display:none">(editable — updates as you chat)</span>' +
+            '<span class="pt-prev" id="dzPromptPreview"></span>' +
+            '<button class="btn pt-copy" id="dzCopyPrompt" type="button" style="display:none">Copy</button>' +
+          '</div>' +
+          '<textarea id="dzPrompt" style="display:none" placeholder="Your render instruction composes here once you add a photo and tell me what you want. You can also type it by hand."></textarea>' +
         '</div>' +
         '<div id="dzBar">' +
           '<button class="btn primary" id="dzGen" type="button">✨ Generate here</button>' +
@@ -292,6 +337,14 @@
           '<span class="note">Structure-preserving — same photoreal engine as the build-stage renders.</span>' +
         '</div>' +
         '<div id="dzResult"></div>' +
+        '<div class="card" id="dzMaterials">' +
+          '<div class="dz-mat-head">' +
+            '<h2 style="margin:0;font-size:1.05rem">🧱 Materials &amp; rough costs</h2>' +
+            '<span class="pill amber">BETA</span>' +
+            '<button class="btn dz-mat-btn" id="dzMatBtn" type="button">Estimate materials</button>' +
+          '</div>' +
+          '<div id="dzMatBody" class="dz-mat-body"><div class="muted" style="font-size:0.82rem">Generate a design first — then I\'ll read the brief and rough out the materials (beta).</div></div>' +
+        '</div>' +
         '<div id="dzHistory"></div>' +
       '</div>';
 
@@ -301,6 +354,7 @@
     wireChat();
     wirePrompt();
     wireActions();
+    wireMaterials();
     seedChat();
     loadProjects();
     loadStyleLibrary();
@@ -487,14 +541,34 @@
   /* ============================ PHOTO IN ============================ */
 
   function wirePhoto() {
-    var fileInput = document.getElementById("dzFile");
+    var camInput = document.getElementById("dzFileCam");   // camera (capture=environment)
+    var rollInput = document.getElementById("dzFileRoll"); // camera roll / file picker
     var drop = document.getElementById("dzDrop");
-    fileInput.addEventListener("change", function () {
-      if (fileInput.files && fileInput.files[0]) usePhoto(fileInput.files[0]);
+    // Both hidden inputs funnel through usePhoto; clear value first so re-picking
+    // the same file still fires change.
+    function openCam() { camInput.value = ""; camInput.click(); }
+    function openRoll() { rollInput.value = ""; rollInput.click(); }
+    camInput.addEventListener("change", function () {
+      if (camInput.files && camInput.files[0]) usePhoto(camInput.files[0]);
     });
-    document.getElementById("dzReplaceBtn").addEventListener("click", function () {
-      fileInput.value = ""; fileInput.click();
+    rollInput.addEventListener("change", function () {
+      if (rollInput.files && rollInput.files[0]) usePhoto(rollInput.files[0]);
     });
+    // Clicking the general hero area opens the ROLL picker (the more common
+    // intent — most people already have the photo). The two explicit buttons
+    // stopPropagation so they don't also fire this area click.
+    drop.addEventListener("click", openRoll);
+    drop.addEventListener("keydown", function (e) {
+      // Only act when the hero itself is focused — Enter/Space on the inner
+      // Take-photo button must keep its native activation (keyboard camera path).
+      if (e.target !== drop) return;
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openRoll(); }
+    });
+    document.getElementById("dzPickCam").addEventListener("click", function (e) { e.stopPropagation(); openCam(); });
+    document.getElementById("dzPickRoll").addEventListener("click", function (e) { e.stopPropagation(); openRoll(); });
+    // Corner replace buttons (shown once a photo is loaded) — same two paths.
+    document.getElementById("dzReplaceRoll").addEventListener("click", openRoll);
+    document.getElementById("dzReplaceCam").addEventListener("click", openCam);
     ["dragenter", "dragover"].forEach(function (ev) {
       drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("drag"); });
     });
@@ -506,8 +580,14 @@
       if (f && /^image\//.test(f.type)) usePhoto(f);
     });
     // Paste anywhere while the view is active; self-detaches once we leave.
-    st._onPaste = function (e) {
-      if (!document.getElementById("dz")) { document.removeEventListener("paste", st._onPaste); return; }
+    // The handler removes ITSELF by closure (not st._onPaste — st is reassigned
+    // on every render, so the old reference would remove the NEW handler and
+    // stack stale listeners: duplicate usePhoto per revisit).
+    var onPaste = function (e) {
+      if (!document.getElementById("dz") || st._onPaste !== onPaste) {
+        document.removeEventListener("paste", onPaste);
+        return;
+      }
       var items = (e.clipboardData && e.clipboardData.items) || [];
       for (var i = 0; i < items.length; i++) {
         if (items[i].type && items[i].type.indexOf("image") === 0) {
@@ -516,7 +596,8 @@
         }
       }
     };
-    document.addEventListener("paste", st._onPaste);
+    st._onPaste = onPaste;
+    document.addEventListener("paste", onPaste);
   }
 
   function usePhoto(file) {
@@ -528,7 +609,7 @@
     if (existing) existing.remove();
     var drop = document.getElementById("dzDrop");
     if (drop) drop.style.display = "none";
-    document.getElementById("dzReplace").style.display = "block";
+    document.getElementById("dzReplace").style.display = "flex";
     var img = document.createElement("img");
     img.className = "hero"; img.alt = "Room photo"; img.src = st.photoUrl;
     host.appendChild(img);
@@ -629,6 +710,38 @@
     st.renderPrompt = text;
     var box = document.getElementById("dzPrompt");
     if (box) box.value = text;
+    updatePromptPreview();
+    syncMatBtn();
+  }
+
+  // ── Collapsible render-instruction panel ──
+  // Collapsed by default; the open/closed choice persists in localStorage.
+  function isPromptOpen() {
+    try { return localStorage.getItem("dzPromptOpen") === "1"; } catch (e) { return false; }
+  }
+  function applyPromptOpen(open) {
+    var box = document.getElementById("dzPrompt");
+    var chev = document.getElementById("dzPromptChev");
+    var note = document.getElementById("dzPromptNote");
+    var prev = document.getElementById("dzPromptPreview");
+    var copy = document.getElementById("dzCopyPrompt");
+    var toggle = document.getElementById("dzPromptToggle");
+    if (box) box.style.display = open ? "" : "none";
+    if (chev) chev.textContent = open ? "▾" : "▸";
+    if (note) note.style.display = open ? "" : "none";
+    if (prev) prev.style.display = open ? "none" : "";
+    if (copy) copy.style.display = open ? "" : "none";
+    if (toggle) toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    try { localStorage.setItem("dzPromptOpen", open ? "1" : "0"); } catch (e) {}
+  }
+  // One-line muted preview of the current instruction (collapsed row). textContent
+  // is safe (no HTML injection) and CSS truncates with an ellipsis.
+  function updatePromptPreview() {
+    var prev = document.getElementById("dzPromptPreview");
+    if (!prev) return;
+    var box = document.getElementById("dzPrompt");
+    var text = (box && box.value) || st.renderPrompt || "";
+    prev.textContent = text || "Not composed yet — add a photo and tell me the look.";
   }
   function currentPrompt() {
     var box = document.getElementById("dzPrompt");
@@ -643,10 +756,21 @@
 
   function wirePrompt() {
     var box = document.getElementById("dzPrompt");
-    box.addEventListener("input", function () { st.renderPrompt = box.value; });
-    document.getElementById("dzCopyPrompt").addEventListener("click", function () {
+    box.addEventListener("input", function () { st.renderPrompt = box.value; updatePromptPreview(); syncMatBtn(); });
+    document.getElementById("dzCopyPrompt").addEventListener("click", function (e) {
+      e.stopPropagation();   // don't let Copy collapse the panel
       copyText(currentPrompt(), "Render instruction copied");
     });
+    var toggle = document.getElementById("dzPromptToggle");
+    toggle.addEventListener("click", function (e) {
+      if (e.target.closest("#dzCopyPrompt")) return;   // Copy handles itself
+      applyPromptOpen(!isPromptOpen());
+    });
+    toggle.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); applyPromptOpen(!isPromptOpen()); }
+    });
+    applyPromptOpen(isPromptOpen());   // restore persisted state (default closed)
+    updatePromptPreview();
   }
 
   function copyText(text, okMsg) {
@@ -679,8 +803,8 @@
     st.genAfterUrl = null;
     result.innerHTML =
       '<div class="card"><div class="muted" style="display:flex;align-items:center;gap:0.5rem">' +
-        '<span class="dz-typing" style="padding:0.3rem 0.5rem"><i></i><i></i><i></i></span> Rendering your redesign' +
-        (want > 1 ? " (" + want + " variations, in parallel)" : "") +
+        '<span class="dz-typing" style="padding:0.3rem 0.5rem"><i></i><i></i><i></i></span> ' +
+        (want > 1 ? "Rendering " + want + " options" : "Rendering your redesign") +
         "… usually " + (st.quality === "max" ? "15–25" : "8–15") + " seconds.</div></div>";
 
     // ONE call — the server renders all variations in parallel on Gemini and
@@ -711,33 +835,42 @@
     var result = document.getElementById("dzResult");
     var badge = backend === "gemini" ? "Gemini" : "";
     var aiBadge = aiBadgeText(st.mode);
-    var thumbs = "";
+    // 3-up labeled option cards under the hero slider. Labeled by ACTUAL count
+    // (the server may return fewer than requested via Promise.allSettled), so
+    // A/B/C track what came back — no empty cards. One variation → no grid.
+    var opts = "";
     if (st.variationUrls.length > 1) {
-      thumbs = '<div class="dz-vgrid">' + st.variationUrls.map(function (u, i) {
-        return '<button type="button" class="dz-vthumb' + (i === 0 ? " sel" : "") + '" data-u="' + APP.esc(u) + '">' +
-          '<span class="vt-badge">' + APP.esc(aiBadge) + '</span>' +
-          '<img src="' + APP.esc(u) + '" alt="Variation ' + (i + 1) + '" /></button>';
+      opts = '<div class="dz-opts">' + st.variationUrls.map(function (u, i) {
+        var letter = String.fromCharCode(65 + i);
+        return '<button type="button" class="dz-opt' + (u === st.genAfterUrl ? " sel" : "") + '" data-u="' + APP.esc(u) + '">' +
+          '<span class="opt-img"><img src="' + APP.esc(u) + '" alt="Option ' + letter + '" loading="lazy" /></span>' +
+          '<span class="opt-lab">Option ' + letter + '</span>' +
+        '</button>';
       }).join("") + '</div>';
     }
     result.innerHTML =
       '<div class="card">' +
         '<h2>Your redesign' + (badge ? ' <span class="muted" style="font-weight:600;font-size:0.7rem">via ' + badge + '</span>' : "") + '</h2>' +
         '<div id="dzCmpHost">' + cmpHtml(st.photoUrl, st.genAfterUrl, aiBadge) + '</div>' +
-        thumbs +
+        opts +
         '<div class="dz-coach">Check: window positions, door placement, furniture scale — regenerate if anything moved. Images are AI concept visualizations — always present them as concepts, not photos.</div>' +
       '</div>';
     wireCmp(document.getElementById("dzCmpHost"));
-    var grid = result.querySelector(".dz-vgrid");
+    var grid = result.querySelector(".dz-opts");
     if (grid) grid.addEventListener("click", function (e) {
-      var t = e.target.closest(".dz-vthumb");
+      var t = e.target.closest(".dz-opt");
       if (!t) return;
       st.genAfterUrl = t.getAttribute("data-u");
-      Array.prototype.forEach.call(grid.querySelectorAll(".dz-vthumb"), function (x) { x.classList.toggle("sel", x === t); });
+      Array.prototype.forEach.call(grid.querySelectorAll(".dz-opt"), function (x) { x.classList.toggle("sel", x === t); });
       var host = document.getElementById("dzCmpHost");
       host.innerHTML = cmpHtml(st.photoUrl, st.genAfterUrl, aiBadge);
       wireCmp(host);
+      var note = document.getElementById("dzSaveNote");
+      if (note) note.textContent = savedOptionLabel();
     });
     renderSaveCard();
+    // Auto-rough the materials from the just-composed design (beta).
+    estimateMaterials();
   }
 
   function renderBridge(r) {
@@ -752,6 +885,82 @@
       '</div>';
     document.getElementById("dzCalmGem").addEventListener("click", openGemini);
     renderSaveCard();
+  }
+
+  /* ============================ MATERIALS & ROUGH COSTS (BETA) ============================ */
+
+  // The "Estimate materials" button is enabled once a real render instruction
+  // exists (composed from chat, or typed by hand) — not the empty-state fallback.
+  function syncMatBtn() {
+    var btn = document.getElementById("dzMatBtn");
+    if (!btn) return;
+    var box = document.getElementById("dzPrompt");
+    var has = !!((box && box.value.trim()) || (st.renderPrompt && st.renderPrompt.trim()));
+    btn.disabled = !has;
+  }
+
+  function wireMaterials() {
+    var btn = document.getElementById("dzMatBtn");
+    if (btn) btn.addEventListener("click", estimateMaterials);
+    syncMatBtn();
+  }
+
+  // POST the current render instruction + chat to /design-materials. Called on the
+  // button and automatically at the end of a successful in-app generate. Re-runs
+  // (refreshes) each time it's invoked.
+  function estimateMaterials() {
+    var body = document.getElementById("dzMatBody");
+    if (!body) return;
+    body.innerHTML =
+      '<div class="muted" style="display:flex;align-items:center;gap:0.5rem;font-size:0.82rem">' +
+        '<span class="dz-typing" style="padding:0.3rem 0.5rem"><i></i><i></i><i></i></span> ' +
+        'Reading the design + pricing… ~5-10s</div>';
+    APP.fetchJSON("/api/knowledge/design-materials", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ renderPrompt: currentPrompt(), messages: st.messages })
+    }).then(function (r) {
+      renderMaterials(r || {});
+    }).catch(function (e) {
+      body.innerHTML = '<div class="muted" style="font-size:0.82rem">Couldn\'t estimate materials right now (' + APP.esc(e.message) + '). Try again.</div>';
+    });
+  }
+
+  function renderMaterials(r) {
+    var body = document.getElementById("dzMatBody");
+    if (!body) return;
+    if (r.configured === false) {
+      body.innerHTML = '<div class="muted" style="font-size:0.82rem">' + APP.esc(r.message || "Materials estimate isn't configured yet.") + '</div>';
+      return;
+    }
+    var items = Array.isArray(r.items) ? r.items : [];
+    if (!items.length) {
+      var reason = r.error ? " (" + APP.esc(r.error) + ")" : "";
+      body.innerHTML = '<div class="muted" style="font-size:0.82rem">Couldn\'t read materials from this design yet' + reason + '. Add a bit more detail to the design and try again.</div>';
+      return;
+    }
+    var rows = items.map(function (it) {
+      var lo = Number(it.low) || 0, hi = Number(it.high) || 0;
+      var range = (lo && hi) ? (money(lo) + "–" + money(hi))
+        : (lo ? "from " + money(lo) : (hi ? "up to " + money(hi) : "—"));
+      var isBook = String(it.source || "") === "price book";
+      var tag = isBook
+        ? '<span class="pill green" title="Grounded in our price book\'s blended range">price book</span>'
+        : '<span class="pill" title="Concept-level model estimate — no price-book match">rough</span>';
+      return '<div class="dz-mat-row">' +
+          '<div class="dz-mat-name"><b>' + APP.esc(it.name || "") + '</b>' +
+            (it.spec ? '<span class="dz-mat-spec">' + APP.esc(it.spec) + '</span>' : "") +
+          '</div>' +
+          '<div class="dz-mat-unit">' + APP.esc(it.unit || "") + '</div>' +
+          '<div class="dz-mat-cost">' + range + '</div>' +
+          '<div class="dz-mat-tag">' + tag + '</div>' +
+        '</div>';
+    }).join("");
+    var disclaimer = r.disclaimer ? APP.esc(r.disclaimer) + " " : "";
+    body.innerHTML =
+      '<div class="dz-mat-rows">' + rows + '</div>' +
+      '<div class="dz-mat-note">' + disclaimer +
+        'Rough ranges per unit — quantities depend on the room; use Bid Lab for a real number.</div>';
   }
 
   /* ============================ BEFORE / AFTER SLIDER ============================ */
@@ -819,6 +1028,17 @@
     st.projectName = opt ? opt.textContent.replace(" (default)", "") : "Design Studio";
   }
 
+  // Which generated option is being saved as the "after" — names the selected
+  // Option letter when there are multiple; plain wording for a single render.
+  function savedOptionLabel() {
+    if (st.variationUrls.length > 1) {
+      var idx = st.variationUrls.indexOf(st.genAfterUrl);
+      if (idx < 0) idx = 0;
+      return 'Using Option ' + String.fromCharCode(65 + idx) + ' as the "after".';
+    }
+    return 'Using the render generated above as the "after".';
+  }
+
   function renderSaveCard() {
     var result = document.getElementById("dzResult");
     var haveGen = !!st.genAfterUrl;
@@ -833,7 +1053,7 @@
         '<select id="dzProj">' + projectOptionsHtml() + "</select>" +
       '</div>' +
       (haveGen
-        ? '<div class="muted" style="font-size:0.82rem;margin-bottom:0.6rem">Using the render generated above as the "after".</div>'
+        ? '<div class="muted" id="dzSaveNote" style="font-size:0.82rem;margin-bottom:0.6rem">' + APP.esc(savedOptionLabel()) + '</div>'
         : '<label id="dzAttachZone" for="dzAttachFile">Attach the render — drop the image Gemini made, or tap to choose it.</label>' +
           '<input type="file" id="dzAttachFile" accept="image/*" style="display:none" />' +
           '<div id="dzAttachPrev" style="margin-top:0.6rem"></div>') +

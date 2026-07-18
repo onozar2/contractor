@@ -249,6 +249,42 @@ function buildPricingBlock(data, question, extraTerms = "") {
   return { block: lines.join("\n"), matched: true, strong };
 }
 
+// Fuzzy-match a model-proposed material item (name + spec) against the live
+// price-book items by simple lowercase term overlap on description/service/trade
+// (same idea as buildPricingBlock's scoreText). Returns the best-scoring book
+// item, or null when nothing meaningfully overlaps. Used by /design-materials to
+// GROUND the model's rough numbers in the app's own blended ranges.
+function matchBookItems(bookItems, name, spec) {
+  if (!Array.isArray(bookItems) || !bookItems.length) return [];
+  const terms = new Set(tokenize(`${name || ""} ${spec || ""}`));
+  if (!terms.size) return [];
+  const scored = [];
+  for (const item of bookItems) {
+    const toks = tokenize(`${item.description || ""} ${item.service || ""} ${item.trade || ""}`);
+    const tokSet = new Set(toks);
+    let s = 0;
+    for (const term of terms) {
+      if (tokSet.has(term)) s += 2;
+      else if (toks.some((t) => t.startsWith(term) || term.startsWith(t))) s += 1;
+    }
+    // Floor of 4 = at least two exact token hits. One shared token ("wood",
+    // "sink") green-labeled unrelated rows in review — never ground on it.
+    if (s >= 4) scored.push({ item, score: s });
+  }
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, 3);
+}
+// Book units vary ("ea", "sq ft"); normalize before comparing to the model's
+// sqft|each|lf|allowance so a unit mismatch can veto a lexical match.
+function normalizeUnit(u) {
+  const t = String(u || "").toLowerCase().replace(/[^a-z]/g, "");
+  if (t === "ea" || t === "each") return "each";
+  if (t === "sqft" || t === "sf" || t === "sqfoot" || t === "squarefoot") return "sqft";
+  if (t === "lf" || t === "linft" || t === "linearfoot") return "lf";
+  if (t === "allowance" || t === "ls" || t === "lumpsum") return "allowance";
+  return t; // "job" stays distinct: for discrete-item rows it behaves like "each"
+}
+
 // Decide + build the pricing block for a prompt: fetch once, gate on price-intent
 // OR a strong item match, so non-pricing prompts stay lean.
 async function pricingContextFor(question, extraTerms = "") {
@@ -275,6 +311,17 @@ function extractDollars(text) {
   }
   return out;
 }
+// Deterministic fact lint (2026-07-17 Fable-critic finding): the model
+// occasionally invents CSLB class numbers (e.g. "C-18" for elevators — the
+// real class is C-11). Any C-## claim not on the current CSLB classification
+// list gets replaced with an explicit confirm-first placeholder. Semantic
+// misassignment of a REAL class stays prompt-governed (FACT DISCIPLINE rule).
+const CSLB_CLASS_NUMS = new Set([2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 20, 21, 22, 23, 27, 28, 29, 31, 32, 33, 34, 35, 36, 38, 39, 42, 43, 45, 46, 47, 49, 50, 51, 53, 54, 55, 57, 60, 61]);
+function lintCslbClasses(answer) {
+  return String(answer || "").replace(/\bC-?(\d{1,2})\b(?!\d)/g, (match, num) =>
+    CSLB_CLASS_NUMS.has(parseInt(num, 10)) ? match : "C-?? (confirm the exact CSLB class)");
+}
+
 function enforcePricingLabels(answer, pricingBlock) {
   const text = String(answer || "");
   if (!/\((?:price book|our jobs)/i.test(text)) return text;
@@ -397,11 +444,15 @@ module.exports = (collection) => {
       const prompt = [
         "You are the construction-knowledge assistant for We The People Construction, a Los Angeles general contractor. The user is the owner, on a jobsite, deciding what to do next.",
         "SOURCES, in order of authority: (1) the company NOTES below - their own scope-of-work docs and sales decks - cite as [1], [2]; (2) " + (useWeb ? "live web search for current Southern California code/permit/practice facts - mark those statements (web)" : "nothing else - notes only") + ". Web facts must never silently contradict the notes - flag any conflict.",
-        "ANSWER STYLE: write like a seasoned GC briefing the owner - flowing short paragraphs, not choppy one-line fragments; use a numbered list ONLY for a real step-by-step sequence and never use markdown tables. When the job touches structure, always cover in order: engineer/plans if needed -> permit (name the SoCal authority, e.g. LADBS) -> temporary support/shoring or safety prep -> the work itself -> inspections -> patch/finish. Include rough SoCal costs when you know them, and say what is commonly missed. COMPLIANCE COVERAGE is a standing part of EVERY briefing about physical work - even a cost-only or single-trade question: every answer MUST include a short 'Permits & inspections:' line (or section) naming the permit authority (e.g. LADBS) and the specific inspections the job will hit (rough/final at minimum) - an answer without it is incomplete; and if the work will cut into, open, remove or patch ANY existing finish (drywall, plaster, stucco, roofing, flooring) - including when that is only implied, e.g. for access, shoring or patch-back - the answer MUST also include a 'Hazmat:' line immediately after the 'Permits & inspections:' line stating the asbestos/lead survey gate (survey before demo, required regardless of building age) - omitting it when finishes get opened is an incomplete answer.",
-        "IF THE QUESTION COMPARES OPTIONS (e.g. pavers vs concrete): give one '## <Option>' section per option. Inside each section: what it is in a sentence, then the actual installation process as a short numbered sequence (demo/excavation, base prep, the install, finish/cure), then its installed SoCal price on its own line ALWAYS labeled with the option's name (e.g. 'Concrete: roughly $X-$Y per sqft installed'), then 'Pros:' and 'Cons:' as short bullets. Finish with a '## Verdict' section - 2-4 plain sentences on which one to pick and when. Never mix two options' prices in the same sentence.",
+        "ANSWER STYLE: write like a seasoned GC briefing the owner - flowing short paragraphs, not choppy one-line fragments; use a numbered list ONLY for a real step-by-step sequence and never use markdown tables. When the job touches structure, always cover in order: engineer/plans if needed -> permit (name the SoCal authority, e.g. LADBS) -> temporary support/shoring or safety prep -> the work itself -> inspections -> patch/finish. Include rough SoCal costs when you know them, and say what is commonly missed. COMPLIANCE COVERAGE is a standing part of EVERY briefing about physical work - even a cost-only or single-trade question: every answer MUST include a line that STARTS with the exact label 'Permits & inspections:' naming the permit authority (e.g. LADBS) and the specific inspections the job will hit (rough/final at minimum) - the label must appear verbatim, not folded into other prose or renamed - an answer without it is incomplete; and if the work will cut into, open, remove or patch ANY existing finish (drywall, plaster, stucco, roofing, flooring) - including when that is only implied, e.g. for access, shoring or patch-back - the answer MUST also include a line that STARTS with the exact label 'Hazmat:' immediately after the 'Permits & inspections:' line stating BOTH gates precisely and separately: asbestos survey before any demolition or opening of finishes REGARDLESS of building age (AQMD Rule 1403), and lead-safe EPA RRP practices ONLY when the home is pre-1978 - never claim the lead rule applies regardless of age - omitting the line when finishes get opened is an incomplete answer.",
+        "CITATIONS: wherever a claim, cost, or spec came from the NOTES, put that note's [n] marker inline at the end of the sentence it supports. Every answer that received NOTES below MUST contain at least two inline [n] markers - an answer with zero [n] markers is incomplete.",
+        "LEAD VISITS: when the question is about going to see, meeting, quoting for, or walking a LEAD's job, the answer MUST include a line or short section that STARTS with the exact label 'At the walkthrough, check:' listing the concrete site-specific things to look at, measure, or photograph for THAT job type (equipment locations, capacities, access, damage signs), and should also cover what to ask the homeowner where relevant.",
+        "APP CONTEXT you may reference when advising how to help a client decide or visualize: the JOON app's Design tool turns a customer's room or house photo into photoreal AI concept renders (always presented to clients as concepts, never as photographs).",
+        "IF THE QUESTION COMPARES OPTIONS (e.g. pavers vs concrete): give one '## <Option>' section per option. Inside each section: what it is in a sentence, then the actual installation process as a short numbered sequence (demo/excavation, base prep, the install, finish/cure), then its installed SoCal price on its own line ALWAYS labeled with the option's name (e.g. 'Concrete: roughly $X-$Y per sqft installed'), then 'Pros:' and 'Cons:' as short bullets. Finish with a '## Verdict' section - 2-4 plain sentences on which one to pick and when. Never mix two options' prices in the same sentence. Comparison answers about physical work still carry the compliance lines: after the Verdict, the 'Permits & inspections:' line and - when the work implies tearing out or opening existing finishes (old flooring tear-out is a classic asbestos-mastic hit) - the 'Hazmat:' line.",
+        "FACT DISCIPLINE: never assert a jurisdiction, permitting agency, CSLB license class letter, or legal requirement unless it appears in the NOTES or you are certain of it. LA neighborhoods such as Sherman Oaks, Highland Park, Mount Washington, Van Nuys, Encino, Eagle Rock and North Hollywood are all CITY of Los Angeles (LADBS), not county - only hedge to county for genuinely unincorporated areas. Write a CSLB class letter (C-10, C-36...) only when the notes state it or it is a core trade you are sure of; otherwise name the trade in words ('a licensed elevator contractor') and say 'confirm the exact license class'. When jurisdiction, class, or a legal trigger is uncertain, say 'confirm before quoting' - a wrong authority fact in front of a client is worse than a hedge.",
         "SPEED: run at most 2 web searches before writing - do not keep browsing.",
         "Quote costs/specs from the notes exactly as written. If neither notes nor web settle something, say so plainly.",
-        "HARD RULES: never state a permit-fee dollar amount or a code section number as fact unless it appears verbatim in the NOTES below - say \"verify current fee schedule with <authority>\" instead. Whenever the job involves demolition or opening walls/ceilings/floors, carry forward the asbestos/lead hazmat gate (survey required regardless of building age). Never invent an inspection type that isn't in the notes or well-established SoCal practice.",
+        "HARD RULES: never state a permit-fee dollar amount or a code section number as fact unless it appears verbatim in the NOTES below - say \"verify current fee schedule with <authority>\" instead. Whenever the job involves demolition or opening walls/ceilings/floors, carry forward both hazmat gates stated separately (asbestos survey regardless of age per AQMD Rule 1403; lead-safe RRP only when pre-1978). Never invent an inspection type that isn't in the notes or well-established SoCal practice.",
         ...(pricingBlock ? [PRICING_INSTRUCTION] : []),
         ...(pricingBlock ? ["", pricingBlock] : []),
         "", "NOTES:", context || "(no matching notes - answer from web research and say the notes have no coverage on this)", "", `QUESTION: ${question}`, "", "ANSWER:"
@@ -416,7 +467,7 @@ module.exports = (collection) => {
           chunks.map((chunk, index) => `[${index + 1}] ${chunk.title}\n${chunk.text}`).join("\n\n");
       }
       res.json({
-        answer: enforcePricingLabels(answer, pricingBlock), engine,
+        answer: lintCslbClasses(enforcePricingLabels(answer, pricingBlock)), engine,
         sources: chunks.map((chunk, index) => ({ ref: index + 1, title: chunk.title, source: chunk.source, driveUrl: chunk.driveUrl })),
         images
       });
@@ -431,8 +482,40 @@ module.exports = (collection) => {
   // errors. ?quality=max prepends the Pro model (~15s, highest fidelity).
   const GEMINI_IMAGE_MODELS = ["gemini-3.1-flash-image", "gemini-2.5-flash-image", "gemini-3.1-flash-lite-image"];
   const GEMINI_IMAGE_MODEL_MAX = "gemini-3-pro-image-preview";
+  // Text ladder for the /design-brief fast path (JSON mode) — same billed key.
+  // (The requested gemini-3.1-flash / gemini-2.5-flash ids 404 for this account's
+  // key, so we use flash-lite first — it composes the full 5-axis brief in ~2-6s
+  // vs ~18-21s for the heavier flash — with the current-flash alias as fallback.
+  // Both verified against this key with responseMimeType:application/json.)
+  const GEMINI_TEXT_MODELS = ["gemini-3.1-flash-lite", "gemini-flash-latest"];
   function imageModelLadder(quality) {
     return String(quality) === "max" ? [GEMINI_IMAGE_MODEL_MAX, ...GEMINI_IMAGE_MODELS] : GEMINI_IMAGE_MODELS;
+  }
+
+  // Single text->image generation over the GEMINI_IMAGE_MODELS ladder (90s
+  // timeout). Mirrors geminiEditOnce's error-handling; returns {model, buf} or
+  // throws once every model in the ladder has failed. Used by /illustrate to
+  // fan out several composed prompts in parallel.
+  async function geminiIllustrateOnce(key, prompt) {
+    let lastError = "";
+    for (const model of GEMINI_IMAGE_MODELS) {
+      try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+          signal: AbortSignal.timeout(90000)
+        });
+        const data = await response.json();
+        if (!response.ok) { lastError = (data.error && data.error.message) || `HTTP ${response.status}`; continue; }
+        const part = (((data.candidates || [])[0] || {}).content || {}).parts?.find((p) => p.inlineData && p.inlineData.data);
+        if (!part) { lastError = "model returned no image"; continue; }
+        return { model, buf: Buffer.from(part.inlineData.data, "base64") };
+      } catch (error) {
+        lastError = error.message;
+      }
+    }
+    throw new Error(lastError || "no image model available");
   }
 
   // The style library, served to the Design view (chips + prompt blocks).
@@ -441,39 +524,126 @@ module.exports = (collection) => {
     if (!lib) return res.status(404).json({ error: "design-styles.json not found" });
     res.json(lib);
   });
+  // Two-stage illustrate: (1) a fast text COMPOSE pass reads the answer and
+  // designs 2 grounded image briefs (a labeled cutaway diagram + a photoreal
+  // jobsite shot of the critical stage), then (2) both briefs render IN PARALLEL
+  // over the image ladder. Falls back to today's single thin-wrapped prompt if
+  // the composer is missing/unparseable, so the feature never breaks.
   router.post("/illustrate", async (req, res) => {
     try {
-      const promptText = String(req.body.prompt || "").trim();
+      const promptText = String(req.body.prompt || "").trim().slice(0, 2800);
       if (!promptText) return res.status(400).json({ error: "prompt is required" });
       const key = process.env.GEMINI_API_KEY;
       if (!key) {
         return res.json({ configured: false, message: "Add GEMINI_API_KEY to contractor/.env (free key at aistudio.google.com/apikey), restart, and diagrams will generate here." });
       }
-      let lastError = "";
-      for (const model of GEMINI_IMAGE_MODELS) {
+      // The client sends "<question> — <answer>"; the leading segment is the
+      // question, used as the fallback caption.
+      const questionText = (promptText.split(" — ")[0] || promptText).trim().slice(0, 140);
+
+      // COMPOSE STAGE — design 2 answer-grounded image briefs (fast JSON text).
+      // Lesson (2026-07-17 lead review): many text labels inside one Gemini
+      // image render as gibberish ("Manufarcturing roof") with duplicated
+      // numbers. Fix: the DIAGRAM carries bare numbered circle markers ONLY;
+      // the words live in a "legend" array rendered as real HTML under the
+      // image (always spelled correctly). The JOBSITE keeps ≤2-3 short
+      // ALL-CAPS labels — proven to render cleanly.
+      const composerPrompt = [
+        "You compose image-generation briefs for a contractor's field app. Read the QUESTION and ANSWER below, then design EXACTLY TWO images that make this specific job easier to execute on a jobsite.",
+        "Return ONLY a single minified JSON object, no markdown fences, no text before or after it:",
+        '{"images":[{"kind":"diagram","caption":"...","legend":["...","..."],"prompt":"..."},{"kind":"jobsite","caption":"...","prompt":"..."}]}',
+        "",
+        'IMAGE 1 — kind "diagram": a clean instructional cutaway or step diagram of the SPECIFIC subject in the answer, engineering vector line-drawing style on a white background. Also return "legend": 5 to 7 SHORT phrases naming the real parts or steps taken FROM THE ANSWER using the answer\'s own nouns, in the order they should be marked on the drawing (for a beam job: ["Temporary shoring wall","Existing sagging beam","New engineered beam","Post-to-footing connection","Inspection point"]). The diagram\'s "prompt" must describe the scene and where each legend element sits, but MUST NOT ask for any words, text or labels inside the image — numbered markers are added automatically afterward. No brand names, no logos.',
+        'IMAGE 2 — kind "jobsite": a photorealistic construction-site view of the single most CRITICAL stage described in the answer (for example, temporary shoring carrying the roof load while the old beam is out). Show realistic tools, materials and workers wearing correct PPE. At most 2 to 3 SHORT ALL-CAPS annotation labels (e.g. TEMPORARY SHORING). No "legend" for this one.',
+        'For BOTH: "prompt" is the literal instruction sent to an image model — write it as a vivid, self-contained scene description of THIS specific job, never generic. Each "prompt" must be 110 words or fewer.',
+        '"caption" is one plain sentence (shown under the image) naming exactly what the image shows.',
+        "",
+        "QUESTION + ANSWER:",
+        promptText,
+        "",
+        "JSON:"
+      ].join("\n");
+
+      // Up to 2 composer attempts — the pm2 process sees occasional transient
+      // DNS/network blips (see vetsweep ENOTFOUND in its logs), and one retry
+      // of the cheap text call keeps a blip from degrading to the vague
+      // single-image fallback. Failures are logged, not swallowed.
+      let composed = null;
+      let composerFail = "";
+      for (let attempt = 0; attempt < 2 && !composed; attempt++) {
         try {
-          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: `Clean instructional construction diagram, labeled, for a contractor briefing: ${promptText}` }] }]
-            }),
-            signal: AbortSignal.timeout(90000)
-          });
-          const data = await response.json();
-          if (!response.ok) { lastError = (data.error && data.error.message) || `HTTP ${response.status}`; continue; }
-          const part = (((data.candidates || [])[0] || {}).content || {}).parts?.find((p) => p.inlineData && p.inlineData.data);
-          if (!part) { lastError = "model returned no image"; continue; }
-          const dir = path.join(__dirname, "uploads", "knowledge-gen");
-          fs.mkdirSync(dir, { recursive: true });
-          const fileName = `gen-${Date.now().toString(36)}.png`;
-          fs.writeFileSync(path.join(dir, fileName), Buffer.from(part.inlineData.data, "base64"));
-          return res.json({ configured: true, model, imageUrl: `/uploads/knowledge-gen/${fileName}` });
+          const raw = await geminiTextOnce(key, GEMINI_TEXT_MODELS, composerPrompt);
+          const parsed = extractJson(raw);
+          if (!(parsed && Array.isArray(parsed.images))) {
+            composerFail = `composer JSON unparseable: ${String(raw).slice(0, 120)}`;
+            continue;
+          }
+          const items = parsed.images
+            .map((im) => ({
+              kind: String((im && im.kind) || "diagram").trim() || "diagram",
+              caption: String((im && im.caption) || "").trim(),
+              legend: Array.isArray(im && im.legend)
+                ? im.legend.map((l) => String(l || "").trim()).filter(Boolean).slice(0, 7)
+                : [],
+              prompt: String((im && im.prompt) || "").trim()
+            }))
+            .filter((im) => im.prompt)
+            .slice(0, 2);
+          if (!items.length) { composerFail = "composer returned no usable images"; continue; }
+          // Build the numbered-marker instruction SERVER-SIDE from the legend so
+          // the numbering can never drift from the list shown under the image.
+          for (const im of items) {
+            if (im.kind === "diagram" && im.legend.length) {
+              const markers = im.legend.map((label, idx) => `${idx + 1} = ${label}`).join("; ");
+              im.prompt +=
+                ` Place small plain numbered circle markers (1 through ${im.legend.length}) on the drawing, one at each of these elements, in EXACTLY this order: ${markers}.` +
+                " The markers are bare digits inside plain thin circles — NO words, NO text labels, NO captions, NO letters anywhere in the image; each number appears exactly once." +
+                " Clean engineering vector line-drawing style, white background.";
+            } else {
+              im.legend = [];
+            }
+          }
+          composed = items;
         } catch (error) {
-          lastError = error.message;
+          composerFail = error.message;
         }
       }
-      res.status(502).json({ configured: true, error: `Image generation failed: ${lastError}` });
+
+      // FALLBACK — composer failed/unparseable: today's single thin-wrapped prompt.
+      if (!composed || !composed.length) {
+        console.warn(`[illustrate] composer fallback (${composerFail}) — using thin single-diagram prompt`);
+        composed = [{
+          kind: "diagram",
+          caption: questionText || "Instructional construction diagram",
+          legend: [],
+          prompt: `Clean instructional construction diagram, labeled, for a contractor briefing: ${promptText}`
+        }];
+      }
+
+      // GENERATE STAGE — render every composed brief in parallel; keep successes.
+      const dir = path.join(__dirname, "uploads", "knowledge-gen");
+      const stamp = Date.now().toString(36);
+      const settled = await Promise.allSettled(composed.map((im) => geminiIllustrateOnce(key, im.prompt)));
+      const images = [];
+      let usedModel = "";
+      let lastError = "";
+      settled.forEach((s, i) => {
+        if (s.status === "fulfilled") {
+          fs.mkdirSync(dir, { recursive: true });
+          const fileName = `gen-${stamp}-${i}.png`;
+          fs.writeFileSync(path.join(dir, fileName), s.value.buf);
+          usedModel = usedModel || s.value.model;
+          const img = { imageUrl: `/uploads/knowledge-gen/${fileName}`, kind: composed[i].kind, caption: composed[i].caption };
+          if (composed[i].legend && composed[i].legend.length) img.legend = composed[i].legend;
+          images.push(img);
+        } else {
+          lastError = (s.reason && s.reason.message) || String(s.reason);
+        }
+      });
+      if (!images.length) {
+        return res.status(502).json({ configured: true, error: `Image generation failed: ${lastError}` });
+      }
+      res.json({ configured: true, model: usedModel, imageUrl: images[0].imageUrl, images });
     } catch (error) {
       res.status(502).json({ error: error.message });
     }
@@ -514,6 +684,36 @@ module.exports = (collection) => {
     throw new Error(lastError || "no image model available");
   }
 
+  // Fast text path for /design-brief — direct Gemini generateContent in JSON
+  // mode (same billed key as the image edits). Mirrors geminiEditOnce's ladder +
+  // error-handling style; returns the raw model text (a JSON string) for the
+  // caller to run through extractJson. Throws if every model in the ladder fails.
+  async function geminiTextOnce(key, models, prompt) {
+    let lastError = "";
+    for (const model of models) {
+      try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { responseMimeType: "application/json", temperature: 0.4 }
+          }),
+          signal: AbortSignal.timeout(25000)
+        });
+        const data = await response.json();
+        if (!response.ok) { lastError = (data.error && data.error.message) || `HTTP ${response.status}`; continue; }
+        const parts = (((data.candidates || [])[0] || {}).content || {}).parts || [];
+        const text = parts.map((p) => p.text || "").join("").trim();
+        if (!text) { lastError = "model returned no text"; continue; }
+        return text;
+      } catch (error) {
+        lastError = error.message;
+      }
+    }
+    throw new Error(lastError || "no text model available");
+  }
+
   router.post("/redesign", express.raw({ type: "image/*", limit: "15mb" }), async (req, res) => {
     try {
       if (!req.body || !req.body.length) return res.status(400).json({ error: "send the room photo as the request body (image/*)" });
@@ -526,7 +726,7 @@ module.exports = (collection) => {
       // (via /design-brief) and passes it here as ?prompt=. The legacy
       // room/style formula resolves the style through the library first so a
       // bare style name still renders with its real signature elements.
-      const custom = String(req.query.prompt || "").trim().slice(0, 2000);
+      const custom = String(req.query.prompt || "").trim().slice(0, 3200);
       let redesignPrompt = custom;
       if (!redesignPrompt) {
         const styleQ = String(req.query.style || "modern light").trim().slice(0, 120);
@@ -599,7 +799,7 @@ module.exports = (collection) => {
         `First, use your Read tool to look at the image file at: ${filePath}`,
         "Describe what construction element/condition is shown, then answer the question as a practical ordered plan for a Los Angeles GC: engineer/plans if structural -> permit (name the SoCal authority) -> shoring/safety prep -> the work -> inspections -> patch/finish. Write in flowing short paragraphs (numbered lists only for real step sequences); never use markdown tables.",
         "THEN add a section titled 'QUOTING QUANTITIES (rough)': estimate the measurable quantities a GC needs at quoting stage from what's visible - e.g. linear feet of base/upper cabinets and countertop, sqft of backsplash (LF of counter x 1.5ft is the rule of thumb), sqft of flooring/tile, count of fixtures/appliances/windows. Scale off reference objects (door ~80\" tall, counter 36\" AFF, outlet ~12\" AFF, standard appliances) and STATE your assumptions. Rough is fine - these feed a quote with margin, not a cut list.",
-        "HARD RULES: never state a permit-fee dollar amount or a code section number as fact unless it appears verbatim in the NOTES below - say \"verify current fee schedule with <authority>\" instead. If the photo shows or the question involves demolition or opening walls/ceilings/floors, always include the asbestos/lead hazmat gate (survey required regardless of building age). Never invent an inspection type that isn't in the notes or well-established SoCal practice.",
+        "HARD RULES: never state a permit-fee dollar amount or a code section number as fact unless it appears verbatim in the NOTES below - say \"verify current fee schedule with <authority>\" instead. If the photo shows or the question involves demolition or opening walls/ceilings/floors, always include both hazmat gates stated separately (asbestos survey regardless of age per AQMD Rule 1403; lead-safe RRP only when pre-1978). Never invent an inspection type that isn't in the notes or well-established SoCal practice.",
         "Use the company NOTES below as the primary reference where relevant (cite [1], [2]); supplement with web search for current SoCal code/permit facts and mark those statements (web).",
         ...(pricingBlock ? [PRICING_INSTRUCTION] : []),
         ...(pricingBlock ? ["", pricingBlock] : []),
@@ -645,7 +845,7 @@ module.exports = (collection) => {
   // image model zoomed in, cropped the street context, and invented a projecting
   // arched entry volume. Naming the framing elements (street, sidewalk, driveway,
   // fence, neighbors) and banning new building volumes fixed it exactly.
-  const PRESERVE_EXTERIOR = "STRUCTURE-PRESERVING edit of a house exterior: this is the SAME photograph re-finished — keep the EXACT camera position, distance and framing including the street, sidewalk, driveway, fences and neighboring context visible in the photo (do NOT zoom in, crop, or move closer); keep the house footprint, massing and rooflines EXACTLY as they are — do NOT add, enlarge or project any entry, tower, porch or addition volume; the front door and every window stay in their exact positions and sizes; change ONLY surface finishes, colors, trim profiles, light fixtures, hardscape surfaces and planting";
+  const PRESERVE_EXTERIOR = "STRUCTURE-PRESERVING edit of a house exterior: this is the SAME photograph re-finished — keep the EXACT camera position, distance and framing including the street, sidewalk, driveway, fences and neighboring context visible in the photo (do NOT zoom in, crop, or move closer); keep the house footprint, massing and rooflines EXACTLY as they are — do NOT add, enlarge or project any entry, tower, porch or addition volume; the front door and every window stay in their exact positions and sizes; change ONLY surface finishes, colors, trim profiles, light fixtures, hardscape surfaces and planting; when the landscaping or planting is changed, the new planting must read FULLER and more layered than the existing yard, never sparser; do NOT add house numbers, signage or lettering of any kind; do NOT add fences, gates or enclosures that are not in the photo; at most one wall light per side of the entry";
   const PRESERVE_REMODEL = "REMODEL edit: keep the exact camera angle and the room's true footprint — do NOT widen the room, raise the ceiling, or move, resize, or re-trim any window or exterior door, and keep the exact view through the glass; the new layout must fit the existing footprint with realistic 36-42 inch walkway clearances (if an island cannot fit, use a peninsula or skip it), counters with seating need proper overhang for knee space; within those limits you MAY reconfigure cabinetry, layout, built-ins and fixtures. Replaced fixtures REPLACE the old ones — never both. Plumbing fixtures keep their existing mounting type (floor-mounted stays floor-mounted, wall-hung stays wall-hung) unless the customer explicitly asked to change it, and frosted or privacy glass stays frosted — never invent a new view through any glass";
   function preserveClause(mode) {
     return String(mode) === "remodel" ? PRESERVE_REMODEL : PRESERVE_REDECORATE;
@@ -715,6 +915,7 @@ module.exports = (collection) => {
         "You CANNOT see the photo. Infer the room type ONLY from the customer's own words (\"cabinets and counters\" implies kitchen; \"vanity and shower\" implies bathroom). If their words don't identify the room, use the neutral word \"space\" in renderPrompt and let your one clarifying question ask which room it is — never guess (the photo may be an exterior, a yard, or any room).",
         "This session's MODE is \"" + mode + "\". The camera/structure clause you MUST copy VERBATIM into renderPrompt is: \"" + preserve + "\".",
         isExterior ? "EXTERIOR RULE: when picking style elements, use ONLY surface-level cues (stucco/siding finish, trim, colors, fixtures, hardscape surfaces, planting) — NEVER cues that change building massing (arched entry surrounds, towers, porticos, added porches) unless the customer explicitly asked for that construction." : "",
+        isExterior ? "LANDSCAPE AXIS: if the customer's changes touch landscaping, planting, or the yard, renderPrompt MUST also include a landscape-design sentence built on this pattern (adapt plant choices to the customer's words): 'The landscaping is a designed, layered planting composition with dense living plant coverage, never gravel or bare soil as the primary groundcover: low groundcover at the bed edges, drought-tolerant shrubs and grasses massed in drifts of three to five behind them, taller background planting or a small accent tree, one sculptural focal specimen per bed, existing mature trees kept in place, rich dark-brown mulch beds with crisp defined edges, and gravel or decomposed granite only as narrow path or edge accents.'" : "",
         styleCard,
         "Compose renderPrompt on FIVE explicit axes, woven into ONE flowing instruction (not a bulleted list):",
         "  (a) STYLE — name the style the customer implies, and cite 2-3 signature elements of that named style" + (styleCard ? " taken from the STYLE LIBRARY CARD above" : " (e.g. Japandi -> low-profile wood furniture, muted earth tones, paper-shade lighting; Modern Farmhouse -> shaker cabinetry, apron sink, black-metal accents)") + ".",
@@ -735,11 +936,26 @@ module.exports = (collection) => {
         "JSON:"
       ].join("\n");
 
+      // FAST PATH: try billed Gemini text first (JSON mode, ~few seconds, no
+      // process spawn). On any failure — missing key, HTTP error, timeout,
+      // unparseable — fall back to the local claude CLI (haiku, shorter 45s
+      // timeout), then the deterministic composeRenderPrompt below.
       let raw = "";
-      try {
-        raw = await runClaudeCli(collection, prompt, 90000, "claude-haiku-4-5-20251001", "design-brief");
-      } catch (_e) { raw = ""; }
-      const parsed = extractJson(raw);
+      let engine = "gemini-flash";
+      const geminiKey = process.env.GEMINI_API_KEY;
+      if (geminiKey) {
+        try {
+          raw = await geminiTextOnce(geminiKey, GEMINI_TEXT_MODELS, prompt);
+        } catch (_e) { raw = ""; }
+      }
+      let parsed = extractJson(raw);
+      if (!(parsed && parsed.renderPrompt)) {
+        engine = "claude-haiku";
+        try {
+          raw = await runClaudeCli(collection, prompt, 45000, "claude-haiku-4-5-20251001", "design-brief");
+        } catch (_e) { raw = ""; }
+        parsed = extractJson(raw);
+      }
       if (parsed && parsed.renderPrompt) {
         const brief = parsed.brief && typeof parsed.brief === "object" ? parsed.brief : {};
         return res.json({
@@ -758,8 +974,8 @@ module.exports = (collection) => {
             ? composeRenderPrompt(mode, String(brief.room || "").trim() || "space",
                 Array.isArray(brief.changes) && brief.changes.length ? brief.changes : userTexts.slice(0, -1),
                 Array.isArray(brief.keep) ? brief.keep : [])
-            : String(parsed.renderPrompt).trim()).slice(0, 2000),
-          engine: "claude-haiku"
+            : String(parsed.renderPrompt).trim()).slice(0, 3200),
+          engine
         });
       }
       // Fallback: compose from the raw customer messages with the mode-correct clause.
@@ -772,6 +988,133 @@ module.exports = (collection) => {
       });
     } catch (error) {
       res.status(502).json({ error: error.message });
+    }
+  });
+
+  // Materials & rough costs (BETA) — reads the composed design brief and rough-
+  // prices the materials it implies. Text-only Gemini COMPOSE (same billed key +
+  // ladder as /design-brief, JSON mode) extracts 5-10 material line items with
+  // concept-level SoCal INSTALLED cost ranges; each is then GROUNDED against the
+  // live price book (fuzzy name/spec overlap → the app's own blended range).
+  // Beta + graceful: any compose failure returns items:[] at HTTP 200; no
+  // claude-CLI fallback (unlike /design-brief).
+  router.post("/design-materials", async (req, res) => {
+    try {
+      const renderPrompt = String(req.body.renderPrompt || "").trim().slice(0, 2500);
+      if (!renderPrompt) return res.status(400).json({ error: "renderPrompt is required" });
+      const key = process.env.GEMINI_API_KEY;
+      if (!key) {
+        return res.json({ configured: false, message: "Add GEMINI_API_KEY to contractor/.env (free key at aistudio.google.com/apikey) and restart to estimate materials." });
+      }
+      const messages = Array.isArray(req.body.messages) ? req.body.messages : [];
+      const describedChanges = messages
+        .filter((m) => m && String(m.role) === "user")
+        .map((m) => String((m && m.text) || "").trim())
+        .filter(Boolean)
+        .join("; ")
+        .slice(0, 1200);
+
+      const prompt = [
+        "You are a construction estimator's assistant inside a Los Angeles remodeling contractor's design tool. You are given the DESIGN BRIEF for a photo-based redesign (a render instruction plus the customer's own words). Read it and extract the MATERIAL line items the design implies — the finishes, fixtures, surfaces, and plants a crew would actually buy and install to realize this look.",
+        "ONLY list materials the brief explicitly names or directly implies. If the brief names no concrete materials, styles, or elements (e.g. it just says to redesign or refresh the space), return {\"items\":[]} — never invent a default palette.",
+        "Return UP TO 10 items — fewer is correct when the brief names few materials, zero when it names none. Skip pure labor, demo and haul-off; focus on the materials/finishes/fixtures/plants that are visible in the finished design.",
+        "For each item give a concept-level ROUGH installed cost range for SoCal, PER UNIT — materials plus typical install labor. Numbers only: no dollar signs, no commas, no ranges-in-a-string.",
+        "roughLow and roughHigh are the per-unit installed range, NOT a project total — quantities are unknown here.",
+        "Choose the single most natural unit per item from exactly: sqft, each, lf, allowance.",
+        "Return ONLY a single minified JSON object, no markdown fences, no text before or after it:",
+        '{"items":[{"name":"...","spec":"one-line spec hint","unit":"sqft|each|lf|allowance","roughLow":N,"roughHigh":N}]}',
+        "",
+        "DESIGN BRIEF (render instruction):",
+        renderPrompt,
+        describedChanges ? "\nCUSTOMER'S OWN WORDS: " + describedChanges : "",
+        "",
+        "JSON:"
+      ].join("\n");
+
+      let raw = "";
+      try {
+        raw = await geminiTextOnce(key, GEMINI_TEXT_MODELS, prompt);
+      } catch (e) {
+        return res.json({ configured: true, items: [], error: String((e && e.message) || "compose failed").slice(0, 140) });
+      }
+      const parsed = extractJson(raw);
+      const rawItems = parsed && Array.isArray(parsed.items) ? parsed.items : null;
+      if (!rawItems) {
+        return res.json({ configured: true, items: [], error: "couldn't read materials from the design brief" });
+      }
+
+      // GROUND each item against the live price book. A match takes the app's own
+      // blended low/high (fallback benchmark, then raw low/high) and source
+      // "price book"; the model's numbers are kept only as the fallback for
+      // unmatched items, which stay source "rough estimate".
+      const pricing = await fetchPricingIntel();
+      const bookItems = pricing && Array.isArray(pricing.items) ? pricing.items : [];
+
+      const items = rawItems.slice(0, 10).map((it) => {
+        const name = String((it && it.name) || "").trim();
+        const spec = String((it && it.spec) || "").trim();
+        const unitRaw = String((it && it.unit) || "").trim().toLowerCase();
+        const unit = ["sqft", "each", "lf", "allowance"].indexOf(unitRaw) >= 0 ? unitRaw : "each";
+        let low = Math.round(Number(it && it.roughLow));
+        let high = Math.round(Number(it && it.roughHigh));
+        if (!isFinite(low) || low < 0) low = 0;
+        if (!isFinite(high) || high < 0) high = 0;
+        if (low && high && low > high) { const t = low; low = high; high = t; }
+        let source = "rough estimate";
+
+        // Walk the ranked candidates and take the FIRST one that survives every
+        // gate. Rules hardened over two review rounds:
+        //   - score cliff: never fall through to a candidate far weaker than the
+        //     top one (a vetoed score-8 row must not hand grounding to a
+        //     score-4 stranger — that minted a $150 "frameless glass" green).
+        //   - allowance items never get the green pill: an allowance is by
+        //     definition not a book line item.
+        //   - rows whose description says "excluded" can't price a materials
+        //     item (the "fixtures excluded" labor row kept sneaking back).
+        //   - unit veto with job≈each: discrete-item book rows priced per job
+        //     behave like per-each; sqft/lf mismatches stay vetoed.
+        const roughMid = (low + high) / 2;
+        const modelUnit = normalizeUnit(unit);
+        const cands = modelUnit === "allowance" ? [] : matchBookItems(bookItems, name, spec);
+        const topScore = cands.length ? cands[0].score : 0;
+        for (const cand of cands) {
+          if (cand.score < Math.max(4, topScore * 0.6)) break;
+          const match = cand.item;
+          if (/exclud/i.test(String(match.description || ""))) continue;
+          const bl = match.blended || {};
+          const bm = match.benchmark || {};
+          const mlo = bl.low != null ? bl.low : (bm.lowUSD != null ? bm.lowUSD : match.low);
+          const mhi = bl.high != null ? bl.high : (bm.highUSD != null ? bm.highUSD : match.high);
+          if (!(Number(mlo) > 0 || Number(mhi) > 0)) continue;
+          const bookUnit = normalizeUnit(match.unit);
+          const unitOk = !bookUnit || !modelUnit || bookUnit === modelUnit ||
+            (bookUnit === "job" && modelUnit === "each");
+          if (!unitOk) continue;
+          // No model numbers to sanity-check against -> demand a stronger
+          // lexical match (>= 3 exact tokens) instead of accepting unchecked.
+          if (!roughMid && cand.score < 6) continue;
+          // Price sanity: the book midpoint must be within ~3.5x of the model's
+          // own rough midpoint — a wild disagreement means a wrong row, and a
+          // confidently-wrong "price book" label is worse than an honest rough.
+          const bookMid = ((Number(mlo) || 0) + (Number(mhi) || 0)) / 2;
+          const agree = !roughMid || !bookMid ||
+            (bookMid / roughMid <= 3.5 && roughMid / bookMid <= 3.5);
+          if (!agree) continue;
+          low = Math.round(Number(mlo) || 0);
+          high = Math.round(Number(mhi) || 0);
+          source = "price book";
+          break;
+        }
+        return { name, spec, unit, low, high, source };
+      }).filter((it) => it.name);
+
+      return res.json({
+        configured: true,
+        items,
+        disclaimer: "Beta — concept-level ranges read from the design brief, not a measured quote. Quantities not included."
+      });
+    } catch (error) {
+      return res.json({ configured: true, items: [], error: String((error && error.message) || "error").slice(0, 140) });
     }
   });
 

@@ -97,6 +97,10 @@ publicApp.use("/assets", express.static(path.join(__dirname, "assets")));
 
 // ── Public instant-estimate widget (BathMath-style, lead-gated) ──
 publicApp.use(express.json({ limit: "200kb" }));
+publicApp.use((err, _req, res, next) => {
+  if (err && err.type === "entity.parse.failed") return res.status(400).json({ error: "invalid JSON body" });
+  next(err);
+});
 // Client-facing change-order approval + photo galleries + sub quote forms (token-gated)
 publicApp.use("/co", require("./changeorders").publicRouter(collection));
 publicApp.use("/gallery", require("./photofeed").publicRouter(collection));
@@ -187,6 +191,12 @@ publicApp.post("/api/estimate-lead", async (req, res) => {
 });
 
 crmApp.use(express.json({ limit: "1mb" }));
+// Malformed JSON bodies must keep the API's JSON contract (the default handler
+// leaks an HTML stack trace with server paths). Non-parse errors pass through.
+crmApp.use((err, _req, res, next) => {
+  if (err && err.type === "entity.parse.failed") return res.status(400).json({ error: "invalid JSON body" });
+  next(err);
+});
 
 // ── CRM auth gate (Feature 3, 2026-07-13) ──
 // Before :4373 ever goes on a public domain, CRM pages + APIs need a login;
