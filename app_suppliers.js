@@ -8,6 +8,22 @@
   var API = "/api/suppliers";
   var esc = APP.esc;
 
+  // Phone-only layout guards (≤700px) — desktop stays pixel-identical. The shell
+  // (app.html) already card-ifies list tables and full-widths the drawer; these
+  // rules only drop this module's inline min-widths so the flex search / quick-add
+  // inputs shrink to the card instead of forcing a horizontal scroll on the
+  // narrowest phones. Injected once into <head>.
+  (function injectSupMobileCSS() {
+    if (document.getElementById("supMobileCSS")) return;
+    var style = document.createElement("style");
+    style.id = "supMobileCSS";
+    style.textContent =
+      "@media (max-width:700px){" +
+        "#supQuickText,#supSearch{min-width:0 !important}" +
+      "}";
+    document.head.appendChild(style);
+  })();
+
   // Mirrors suppliers.js CATEGORIES/ACCOUNT_TYPES/ACCOUNT_STATUSES (server has no public
   // /api/suppliers/meta route, so the enums are duplicated here — keep in sync with suppliers.js).
   var CATEGORIES = [

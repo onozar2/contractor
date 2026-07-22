@@ -7,6 +7,26 @@
   var API = "/api/subcontractors";
   var esc = APP.esc;
 
+  // Phone-only layout guards (≤700px) — desktop unchanged. The shell (app.html)
+  // already card-ifies list tables; these rules fix profile-view hazards the shell
+  // can't reach: inline min-widths on the toolbar inputs, the two non-collapsing
+  // grids (job-score inputs + compliance doc rows, whose type=date won't shrink),
+  // and the <pre> draft output that must break long URLs instead of forcing a
+  // page-wide horizontal scroll. Injected once into <head>.
+  (function injectSubsMobileCSS() {
+    if (document.getElementById("subsMobileCSS")) return;
+    var style = document.createElement("style");
+    style.id = "subsMobileCSS";
+    style.textContent =
+      "@media (max-width:700px){" +
+        "#subsSearch,#qaText{min-width:0 !important}" +
+        "#subTabPanel pre{overflow-wrap:anywhere;word-break:break-word}" +
+        ".subjob-scores{grid-template-columns:repeat(2,minmax(0,1fr)) !important}" +
+        ".subdoc-row{grid-template-columns:1fr !important}" +
+      "}";
+    document.head.appendChild(style);
+  })();
+
   // ── module caches ──
   var roster = null;          // full roster, kept in memory after first fetch
   var rosterPromise = null;
@@ -961,7 +981,7 @@
           '<div class="card"><h2>Compliance packet ' + docsPill(sub) + "</h2>" +
             DOC_KEYS.map(function (key) {
               var item = (sub.docChecklist || {})[key] || { status: "missing", expiresAt: "" };
-              return '<div style="display:grid;grid-template-columns:1.4fr 1fr ' + (DOC_EXPIRY[key] ? "1fr" : "") + ';gap:0.5rem;align-items:center;margin-top:0.55rem">' +
+              return '<div class="subdoc-row" style="display:grid;grid-template-columns:1.4fr 1fr ' + (DOC_EXPIRY[key] ? "1fr" : "") + ';gap:0.5rem;align-items:center;margin-top:0.55rem">' +
                 '<b style="font-size:0.83rem">' + esc(DOC_LABELS[key]) + "</b>" +
                 '<select id="doc_' + key + '" style="' + FIELD + '">' +
                   ["missing", "requested", "received", "exempt"].map(function (st) {
@@ -1054,7 +1074,7 @@
           '<div class="card"><h2>Activity log</h2><div id="histActivities" style="margin-top:0.5rem;' + MUTED + '">Loading activities…</div></div>' +
           '<div class="card"><h2>Jobs</h2><div id="histJobs" style="margin-top:0.5rem;' + MUTED + '">Loading jobs…</div></div>' +
           '<div class="card"><h2>Log a job (drives the score)</h2>' +
-            '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;margin-top:0.5rem">' +
+            '<div class="subjob-scores" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;margin-top:0.5rem">' +
               numField("jQ", "Quality /10") + numField("jT", "On time /10") + numField("jP", "Price fair /10") + numField("jC", "Comms /10") +
             "</div>" +
             '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.5rem;margin-top:0.55rem">' +
