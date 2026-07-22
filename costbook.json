@@ -1833,6 +1833,28 @@
       }
     },
     {
+      "id": "ext-chain-link-fence-inst",
+      "service": "Outdoor Living",
+      "trade": "Fencing & Gates",
+      "description": "Chain link fence (galvanized, 4-6 ft), installed [EXT]",
+      "unit": "lf",
+      "low": 15,
+      "high": 40,
+      "benchmark": {
+        "lowUSD": 15,
+        "highUSD": 40,
+        "sources": [
+          "https://homeguide.com/costs/chain-link-fence-cost",
+          "https://www.homeadvisor.com/cost/fencing/install-a-chain-link-fence/",
+          "https://www.angi.com/articles/how-much-does-chain-link-fence-cost.htm"
+        ],
+        "confidence": "medium",
+        "notes": "Added 2026-07-20 (materials review loop 2: chain-link asks were wrong-row grounding to the wrought-iron $60-100/LF row). National $10-$30/LF installed adjusted for LA labor; height, gauge, and privacy slats set the range.",
+        "region": "SoCal",
+        "asOf": "2026-07-20"
+      }
+    },
+    {
       "id": "ext-whole-house-copper-repipe-2-bath-house-t",
       "service": "Plumbing",
       "trade": "Plumbing",

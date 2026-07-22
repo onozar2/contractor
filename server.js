@@ -5,6 +5,13 @@ const { MongoClient, ObjectId } = require("mongodb");
 require("dotenv").config();
 
 const publicApp = express();
+
+// One malformed request must never take the whole app down: Express 4 doesn't
+// catch async-handler rejections, and Node's default is process exit. Log and
+// keep serving (added after review loop 1 reproduced a crash-by-POST).
+process.on("unhandledRejection", (reason) => {
+  console.error("[unhandledRejection]", reason && reason.stack ? reason.stack : reason);
+});
 const crmApp = express();
 const app = crmApp;
 // Gzip everything (crmApp is mounted into publicApp, so one middleware covers
@@ -325,7 +332,7 @@ crmApp.get("/curriculum.html", (_req, res) => res.sendFile(path.join(__dirname, 
 crmApp.get("/app.html", (_req, res) => res.sendFile(path.join(__dirname, "app.html")));
 // PWA service worker must be served from the root scope (not /assets) to control /app.html.
 crmApp.get("/sw.js", (_req, res) => res.sendFile(path.join(__dirname, "sw.js")));
-for (const moduleFile of ["app_subs.js", "app_projects.js", "app_pipeline.js", "app_knowledge.js", "app_suppliers.js", "app_gantt.js", "app_takeoff.js", "app_billing.js", "app_permits.js", "app_design3d.js", "app_bids.js", "app_learn.js", "app_plan.js"]) {
+for (const moduleFile of ["app_subs.js", "app_projects.js", "app_pipeline.js", "app_knowledge.js", "app_suppliers.js", "app_gantt.js", "app_takeoff.js", "app_billing.js", "app_permits.js", "app_design3d.js", "app_bids.js", "app_learn.js", "app_plan.js", "app_sow.js"]) {
   crmApp.get(`/${moduleFile}`, (_req, res) => res.sendFile(path.join(__dirname, moduleFile)));
 }
 crmApp.use("/api/knowledge", require("./knowledge")(collection));
@@ -337,6 +344,8 @@ crmApp.use("/api/suppliers", require("./suppliers")(collection));
 crmApp.use("/api/changeorders", require("./changeorders")(collection));
 crmApp.use("/api/photofeed", require("./photofeed")(collection));
 crmApp.use("/api/rfq", require("./rfq")(collection));
+crmApp.use("/api/design", require("./designreview")(collection));
+crmApp.use("/api/sow", require("./sow")(collection));
 crmApp.use("/assets", express.static(path.join(__dirname, "assets")));
 
 function getClient() {

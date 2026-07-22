@@ -75,32 +75,115 @@ function matchStyle(text) {
   const lib = loadStyles();
   if (!lib || !Array.isArray(lib.styles)) return null;
   const t = ` ${String(text || "").toLowerCase().replace(/[^a-z0-9]+/g, " ")} `;
+  // Latest mention wins (mirrors matchArchetype, 2026-07-20): when a running
+  // conversation names two styles, the most recent one is the operative pick;
+  // exact-position ties fall to the longer (more specific) needle.
   let best = null;
   for (const s of lib.styles) {
     const names = [s.name, ...(s.aliases || [])].filter(Boolean);
     for (const n of names) {
       const needle = ` ${String(n).toLowerCase().replace(/[^a-z0-9]+/g, " ")} `;
-      if (t.includes(needle) && (!best || needle.length > best.needleLen)) {
-        best = { style: s, needleLen: needle.length };
+      const pos = t.lastIndexOf(needle);
+      if (pos < 0) continue;
+      const end = pos + needle.length;   // end-ranked like matchArchetype: nested substrings never beat their containing phrase
+      if (!best || end > best.end || (end === best.end && needle.length > best.needleLen)) {
+        best = { style: s, end, needleLen: needle.length };
       }
     }
   }
   return best ? best.style : null;
 }
 
+// Property-archetype library — the LA housing-stock training layer shared by the
+// render engine (/design-brief PROPERTY CARD) and the Q&A corpus (ingested as
+// knowledgeChunks by tmp/ingest-archetypes.mjs). Same mtime-cache shape as
+// loadStyles above. Authored at knowledge/property-archetypes.json.
+const ARCHETYPES_PATH = path.join(__dirname, "knowledge", "property-archetypes.json");
+let _archetypesCache = { mtimeMs: 0, data: null };
+function loadArchetypes() {
+  try {
+    const stat = fs.statSync(ARCHETYPES_PATH);
+    if (!_archetypesCache.data || stat.mtimeMs !== _archetypesCache.mtimeMs) {
+      _archetypesCache = { mtimeMs: stat.mtimeMs, data: JSON.parse(fs.readFileSync(ARCHETYPES_PATH, "utf8")) };
+    }
+    return _archetypesCache.data;
+  } catch (_e) {
+    return null;
+  }
+}
+// Match an archetype by name/alias appearing in the customer's own words (the UI
+// posts turns like "Home: Nice home · Post-war Ranch", so names/aliases surface
+// in user text). Longest-needle-wins, exactly like matchStyle.
+function matchArchetype(text) {
+  const lib = loadArchetypes();
+  if (!lib || !Array.isArray(lib.archetypes)) return null;
+  const t = ` ${String(text || "").toLowerCase().replace(/[^a-z0-9]+/g, " ")} `;
+  // LATEST mention wins (review finding: a re-picked or corrected home must
+  // beat an earlier one in the running conversation). Ranked by match END
+  // (not start) so a longer phrase beats a shorter needle nested inside it —
+  // "porter ranch" (tract-home neighborhood) must not lose to its own "ranch"
+  // substring; end ties fall to the longer (more specific) needle.
+  let best = null;
+  for (const a of lib.archetypes) {
+    const names = [a.name, ...(a.aliases || [])].filter(Boolean);
+    for (const n of names) {
+      const needle = ` ${String(n).toLowerCase().replace(/[^a-z0-9]+/g, " ")} `;
+      const pos = t.lastIndexOf(needle);
+      if (pos < 0) continue;
+      const end = pos + needle.length;
+      if (!best || end > best.end || (end === best.end && needle.length > best.needleLen)) {
+        best = { archetype: a, end, needleLen: needle.length };
+      }
+    }
+  }
+  return best ? best.archetype : null;
+}
+// Lexical home-tier read from the customer's words. LATEST mention wins across
+// the three tiers (review finding: "everyday" said after "luxury" must win —
+// declaration order only breaks exact-position ties, luxury first).
+function matchHomeTier(text) {
+  const t = String(text || "");
+  const tiers = [
+    ["luxury", /\b(luxur|high.?end|estate|mansion|ultra|top of the line|no expense)\b/gi],
+    ["everyday", /\b(everyday|normal|regular|modest|budget|affordable|starter|rental|entry.?level|basic|simple)\b/gi],
+    ["nice", /\b(nice|upscale|upper.?middle|well.?kept|quality|upgraded)\b/gi]
+  ];
+  let best = "";
+  let bestPos = -1;
+  for (const [tier, re] of tiers) {
+    let m;
+    let last = -1;
+    while ((m = re.exec(t))) last = m.index;
+    if (last > bestPos) { bestPos = last; best = tier; }
+  }
+  return best;
+}
+
 // collection is passed explicitly (same pattern as retrieve() below) since this
 // function lives outside the module.exports(collection) closure.
-function runClaudeCli(collection, prompt, timeoutMs = 150000, model = "claude-haiku-4-5-20251001", feature = "unknown") {
+function runClaudeCli(collection, prompt, timeoutMs = 150000, model = "claude-haiku-4-5-20251001", feature = "unknown", maxTurns = 0, maxOutputTokens = 0) {
   return new Promise((resolve, reject) => {
     const started = Date.now();
     // --strict-mcp-config with no --mcp-config: skip loading every user/project
     // MCP server at CLI startup (they're irrelevant here and cost real seconds).
     // --output-format json: gives us usage/cost/duration for the token tracker
     // (Feature 1) - parsed by tokenlog.js, with a plain-text fallback below.
-    const child = spawn("claude", ["-p", "--model", model, "--output-format", "json", "--strict-mcp-config"], {
+    // maxTurns (opt-in per caller): caps agentic tool turns — unbounded web
+    // browsing was the 100s+ latency tail on /ask. 0 = no cap (default,
+    // preserves every other caller's behavior).
+    const args = ["-p", "--model", model, "--output-format", "json", "--strict-mcp-config"];
+    if (maxTurns > 0) args.push("--max-turns", String(maxTurns));
+    // maxOutputTokens (opt-in): review found a 111s single-turn blowup — ~9K
+    // output tokens (runaway thinking) for a 3.3K-char answer — that maxTurns
+    // can't touch. The env cap bounds thinking+answer per API call; keep it
+    // >= ~4x a normal long answer so legitimate output never clips (and >=
+    // 2000 — the CLI derives a thinking budget from it with a 1024 floor).
+    const child = spawn("claude", args, {
       shell: true,
       windowsHide: true,
-      env: { ...process.env }
+      env: maxOutputTokens > 0
+        ? { ...process.env, CLAUDE_CODE_MAX_OUTPUT_TOKENS: String(maxOutputTokens) }
+        : { ...process.env }
     });
     let out = "";
     let err = "";
@@ -282,6 +365,9 @@ function normalizeUnit(u) {
   if (t === "sqft" || t === "sf" || t === "sqfoot" || t === "squarefoot") return "sqft";
   if (t === "lf" || t === "linft" || t === "linearfoot") return "lf";
   if (t === "allowance" || t === "ls" || t === "lumpsum") return "allowance";
+  if (t === "opening" || t === "openings") return "each"; // windows/doors book rows priced per opening
+  if (t === "squarefeet" || t === "sqfeet") return "sqft"; // long-form spellings
+  if (t === "linearfeet" || t === "linfeet" || t === "linearft") return "lf";
   return t; // "job" stays distinct: for discrete-item rows it behaves like "each"
 }
 
@@ -332,6 +418,130 @@ function enforcePricingLabels(answer, pricingBlock) {
     const nums = [...extractDollars(before + " " + label)];
     return nums.some((n) => blockNums.has(n)) ? full : before + "(our notes)";
   });
+}
+
+// Shared GROUNDING walk for /design-materials — applied IDENTICALLY to items
+// composed from the design brief (text) and items read from a rendered image
+// (vision). Takes the model's rough line items + the live price-book rows and
+// returns the grounded items (each candidate must survive the hardened gates:
+// score cliff, allowance veto, /exclud/i veto, unit veto, 3.5x price sanity).
+function groundMaterialItems(rawItems, bookItems) {
+  return rawItems.slice(0, 10).map((it) => {
+    const name = String((it && it.name) || "").trim();
+    const spec = String((it && it.spec) || "").trim();
+    let unitRaw = String((it && it.unit) || "").trim().toLowerCase();
+    // Shape-repair: flash-lite sometimes emits the unit as a JSON KEY instead
+    // of a value ({"name":"Stucco","sqft":8,"roughLow":12}) — recover it from
+    // the stray key before deciding the item is unusable.
+    if (!unitRaw && it && typeof it === "object") {
+      for (const k of Object.keys(it)) {
+        const norm = normalizeUnit(k);
+        if (["sqft", "each", "lf", "allowance"].indexOf(norm) >= 0) { unitRaw = k; break; }
+      }
+    }
+    // An item whose unit STILL can't be mapped to the contract set is
+    // unreliable — DROP it rather than coerce to "each" (coercion minted
+    // "stucco — each — up to $15" rows from per-sqft numbers in review).
+    const unitNorm = normalizeUnit(unitRaw);
+    const unit = ["sqft", "each", "lf", "allowance"].indexOf(unitNorm) >= 0 ? unitNorm : "";
+    if (!unit) return null;
+    let low = Math.round(Number(it && it.roughLow));
+    let high = Math.round(Number(it && it.roughHigh));
+    if (!isFinite(low) || low < 0) low = 0;
+    if (!isFinite(high) || high < 0) high = 0;
+    if (low && high && low > high) { const t = low; low = high; high = t; }
+    let source = "rough estimate";
+
+    // Walk the ranked candidates and take the FIRST one that survives every
+    // gate. Rules hardened over two review rounds:
+    //   - score cliff: never fall through to a candidate far weaker than the
+    //     top one (a vetoed score-8 row must not hand grounding to a
+    //     score-4 stranger — that minted a $150 "frameless glass" green).
+    //   - allowance items never get the green pill: an allowance is by
+    //     definition not a book line item.
+    //   - rows whose description says "excluded" can't price a materials
+    //     item (the "fixtures excluded" labor row kept sneaking back).
+    //   - unit veto with job≈each: discrete-item book rows priced per job
+    //     behave like per-each; sqft/lf mismatches stay vetoed.
+    const roughMid = (low + high) / 2;
+    const modelUnit = normalizeUnit(unit);
+    const cands = modelUnit === "allowance" ? [] : matchBookItems(bookItems, name, spec);
+    const topScore = cands.length ? cands[0].score : 0;
+    for (const cand of cands) {
+      if (cand.score < Math.max(4, topScore * 0.6)) break;
+      const match = cand.item;
+      if (/exclud/i.test(String(match.description || ""))) continue;
+      const bl = match.blended || {};
+      const bm = match.benchmark || {};
+      const mlo = bl.low != null ? bl.low : (bm.lowUSD != null ? bm.lowUSD : match.low);
+      const mhi = bl.high != null ? bl.high : (bm.highUSD != null ? bm.highUSD : match.high);
+      if (!(Number(mlo) > 0 || Number(mhi) > 0)) continue;
+      const bookUnit = normalizeUnit(match.unit);
+      const unitOk = !bookUnit || !modelUnit || bookUnit === modelUnit ||
+        (bookUnit === "job" && modelUnit === "each");
+      if (!unitOk) continue;
+      // No model numbers to sanity-check against -> demand a stronger
+      // lexical match (>= 3 exact tokens) instead of accepting unchecked.
+      if (!roughMid && cand.score < 6) continue;
+      // Price sanity: the book midpoint must be within ~3.5x of the model's
+      // own rough midpoint — a wild disagreement means a wrong row, and a
+      // confidently-wrong "price book" label is worse than an honest rough.
+      const bookMid = ((Number(mlo) || 0) + (Number(mhi) || 0)) / 2;
+      const agree = !roughMid || !bookMid ||
+        (bookMid / roughMid <= 3.5 && roughMid / bookMid <= 3.5);
+      if (!agree) continue;
+      low = Math.round(Number(mlo) || 0);
+      high = Math.round(Number(mhi) || 0);
+      source = "price book";
+      break;
+    }
+    return { name, spec, unit, low, high, source };
+  }).filter((it) => it && it.name);
+}
+
+// Structured-output schema for /design-materials (both vision + brief paths) —
+// flash-lite otherwise sometimes emits the unit as a JSON KEY ({"sqft":8}),
+// which nulled whole reads in review. The enum pins unit to the contract set;
+// groundMaterialItems' shape-repair remains as the belt to this suspender.
+const MATERIALS_SCHEMA = {
+  type: "OBJECT",
+  properties: {
+    items: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: {
+          name: { type: "STRING" },
+          spec: { type: "STRING" },
+          unit: { type: "STRING", enum: ["sqft", "each", "lf", "allowance"] },
+          roughLow: { type: "NUMBER" },
+          roughHigh: { type: "NUMBER" }
+        },
+        required: ["name", "unit", "roughLow", "roughHigh"]
+      }
+    }
+  },
+  required: ["items"]
+};
+
+// In-memory LRU-ish cache for /design-materials vision reads — keyed by the
+// picked image + a slice of the render brief. Caps at 40 entries (oldest
+// evicted first). Only successful non-empty grounded results are cached.
+const MATERIALS_CACHE = new Map();
+const MATERIALS_CACHE_CAP = 40;
+function materialsCacheGet(key) {
+  if (!MATERIALS_CACHE.has(key)) return null;
+  const val = MATERIALS_CACHE.get(key);
+  MATERIALS_CACHE.delete(key);
+  MATERIALS_CACHE.set(key, val); // re-insert = mark most-recently-used
+  return val;
+}
+function materialsCacheSet(key, val) {
+  if (MATERIALS_CACHE.has(key)) MATERIALS_CACHE.delete(key);
+  MATERIALS_CACHE.set(key, val);
+  while (MATERIALS_CACHE.size > MATERIALS_CACHE_CAP) {
+    MATERIALS_CACHE.delete(MATERIALS_CACHE.keys().next().value);
+  }
 }
 
 const PRICING_INSTRUCTION = "PRICING: a PRICING DATA block is included below — it is the PRIMARY, authoritative source for ANY dollar figure (price, cost, quote, charge, rate). Quote its numbers first. LABELING RULE: the labels '(price book)' and '(our jobs)' may ONLY be attached to figures that literally appear in the PRICING DATA block — '(price book)' for its benchmark/blended ranges, '(our jobs)' for its observed medians and trade rates. A figure taken from a NOTES chunk must be labeled '(our notes)'; a figure from the web must be labeled '(web)'; if unsure of a figure's source, use no label. Only fall back to notes or web for a $ figure the block does NOT contain — and say so plainly (e.g. 'not in our price book yet'). Never let a web price silently override the block.";
@@ -450,7 +660,7 @@ module.exports = (collection) => {
         "APP CONTEXT you may reference when advising how to help a client decide or visualize: the JOON app's Design tool turns a customer's room or house photo into photoreal AI concept renders (always presented to clients as concepts, never as photographs).",
         "IF THE QUESTION COMPARES OPTIONS (e.g. pavers vs concrete): give one '## <Option>' section per option. Inside each section: what it is in a sentence, then the actual installation process as a short numbered sequence (demo/excavation, base prep, the install, finish/cure), then its installed SoCal price on its own line ALWAYS labeled with the option's name (e.g. 'Concrete: roughly $X-$Y per sqft installed'), then 'Pros:' and 'Cons:' as short bullets. Finish with a '## Verdict' section - 2-4 plain sentences on which one to pick and when. Never mix two options' prices in the same sentence. Comparison answers about physical work still carry the compliance lines: after the Verdict, the 'Permits & inspections:' line and - when the work implies tearing out or opening existing finishes (old flooring tear-out is a classic asbestos-mastic hit) - the 'Hazmat:' line.",
         "FACT DISCIPLINE: never assert a jurisdiction, permitting agency, CSLB license class letter, or legal requirement unless it appears in the NOTES or you are certain of it. LA neighborhoods such as Sherman Oaks, Highland Park, Mount Washington, Van Nuys, Encino, Eagle Rock and North Hollywood are all CITY of Los Angeles (LADBS), not county - only hedge to county for genuinely unincorporated areas. Write a CSLB class letter (C-10, C-36...) only when the notes state it or it is a core trade you are sure of; otherwise name the trade in words ('a licensed elevator contractor') and say 'confirm the exact license class'. When jurisdiction, class, or a legal trigger is uncertain, say 'confirm before quoting' - a wrong authority fact in front of a client is worse than a hedge.",
-        "SPEED: run at most 2 web searches before writing - do not keep browsing.",
+        "SPEED: search the web ONLY when the NOTES leave a real gap on something current (fee schedules, product availability, code-cycle changes) - at most 2 searches, never more browsing after them. When the notes cover the substance of the question, write from the notes alone and skip the web entirely - a fast complete answer from the notes beats a slow one with a redundant (web) garnish.",
         "Quote costs/specs from the notes exactly as written. If neither notes nor web settle something, say so plainly.",
         "HARD RULES: never state a permit-fee dollar amount or a code section number as fact unless it appears verbatim in the NOTES below - say \"verify current fee schedule with <authority>\" instead. Whenever the job involves demolition or opening walls/ceilings/floors, carry forward both hazmat gates stated separately (asbestos survey regardless of age per AQMD Rule 1403; lead-safe RRP only when pre-1978). Never invent an inspection type that isn't in the notes or well-established SoCal practice.",
         ...(pricingBlock ? [PRICING_INSTRUCTION] : []),
@@ -460,7 +670,7 @@ module.exports = (collection) => {
       let answer = "";
       let engine = "claude-haiku";
       try {
-        answer = await runClaudeCli(collection, prompt, undefined, undefined, "knowledge-ask");
+        answer = await runClaudeCli(collection, prompt, undefined, undefined, "knowledge-ask", 8, 6000);
       } catch {
         engine = "context-only";
         answer = "Claude CLI unavailable - here are the matching notes verbatim:\n\n" +
@@ -523,6 +733,24 @@ module.exports = (collection) => {
     const lib = loadStyles();
     if (!lib) return res.status(404).json({ error: "design-styles.json not found" });
     res.json(lib);
+  });
+  // Lean archetype payload for the 🏠 Home picker — tiers + one card per
+  // archetype (no tierNotes/renderClauses; those stay server-side for the brief).
+  router.get("/archetypes", (_req, res) => {
+    const lib = loadArchetypes();
+    if (!lib) return res.status(404).json({ error: "property-archetypes.json not found" });
+    res.json({
+      tiers: Array.isArray(lib.tiers) ? lib.tiers : [],
+      archetypes: (Array.isArray(lib.archetypes) ? lib.archetypes : []).map((a) => ({
+        id: a.id,
+        name: a.name,
+        stories: a.stories,
+        eras: a.eras,
+        tiersPresent: Array.isArray(a.tiersPresent) ? a.tiersPresent : [],
+        neighborhoods: Array.isArray(a.neighborhoods) ? a.neighborhoods.slice(0, 3) : [],
+        summary: Array.isArray(a.signature) && a.signature.length ? a.signature[0] : ""
+      }))
+    });
   });
   // Two-stage illustrate: (1) a fast text COMPOSE pass reads the answer and
   // designs 2 grounded image briefs (a labeled cutaway diagram + a photoreal
@@ -688,16 +916,18 @@ module.exports = (collection) => {
   // mode (same billed key as the image edits). Mirrors geminiEditOnce's ladder +
   // error-handling style; returns the raw model text (a JSON string) for the
   // caller to run through extractJson. Throws if every model in the ladder fails.
-  async function geminiTextOnce(key, models, prompt) {
+  async function geminiTextOnce(key, models, prompt, schema) {
     let lastError = "";
     for (const model of models) {
       try {
+        const generationConfig = { responseMimeType: "application/json", temperature: 0.4 };
+        if (schema) generationConfig.responseSchema = schema;   // opt-in structured output (design-materials)
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { responseMimeType: "application/json", temperature: 0.4 }
+            generationConfig
           }),
           signal: AbortSignal.timeout(25000)
         });
@@ -712,6 +942,41 @@ module.exports = (collection) => {
       }
     }
     throw new Error(lastError || "no text model available");
+  }
+
+  // Vision JSON path — like geminiTextOnce but the model looks at an image.
+  // Uses the TEXT model ladder (GEMINI_TEXT_MODELS are multimodal), NOT the
+  // image-edit ladder. parts = image inlineData + the instruction; JSON mode,
+  // low temperature for a stable materials read. Returns the raw JSON string.
+  async function geminiVisionJsonOnce(key, models, prompt, mime, imageB64, schema) {
+    let lastError = "";
+    for (const model of models) {
+      try {
+        const generationConfig = { responseMimeType: "application/json", temperature: 0.2 };
+        if (schema) generationConfig.responseSchema = schema;   // enforce the items shape (unit enum etc.)
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [
+              { inlineData: { mimeType: mime, data: imageB64 } },
+              { text: prompt }
+            ] }],
+            generationConfig
+          }),
+          signal: AbortSignal.timeout(30000)
+        });
+        const data = await response.json();
+        if (!response.ok) { lastError = (data.error && data.error.message) || `HTTP ${response.status}`; continue; }
+        const parts = (((data.candidates || [])[0] || {}).content || {}).parts || [];
+        const text = parts.map((p) => p.text || "").join("").trim();
+        if (!text) { lastError = "model returned no text"; continue; }
+        return text;
+      } catch (error) {
+        lastError = error.message;
+      }
+    }
+    throw new Error(lastError || "no vision model available");
   }
 
   router.post("/redesign", express.raw({ type: "image/*", limit: "15mb" }), async (req, res) => {
@@ -847,8 +1112,13 @@ module.exports = (collection) => {
   // fence, neighbors) and banning new building volumes fixed it exactly.
   const PRESERVE_EXTERIOR = "STRUCTURE-PRESERVING edit of a house exterior: this is the SAME photograph re-finished — keep the EXACT camera position, distance and framing including the street, sidewalk, driveway, fences and neighboring context visible in the photo (do NOT zoom in, crop, or move closer); keep the house footprint, massing and rooflines EXACTLY as they are — do NOT add, enlarge or project any entry, tower, porch or addition volume; the front door and every window stay in their exact positions and sizes; change ONLY surface finishes, colors, trim profiles, light fixtures, hardscape surfaces and planting; when the landscaping or planting is changed, the new planting must read FULLER and more layered than the existing yard, never sparser; do NOT add house numbers, signage or lettering of any kind; do NOT add fences, gates or enclosures that are not in the photo; at most one wall light per side of the entry";
   const PRESERVE_REMODEL = "REMODEL edit: keep the exact camera angle and the room's true footprint — do NOT widen the room, raise the ceiling, or move, resize, or re-trim any window or exterior door, and keep the exact view through the glass; the new layout must fit the existing footprint with realistic 36-42 inch walkway clearances (if an island cannot fit, use a peninsula or skip it), counters with seating need proper overhang for knee space; within those limits you MAY reconfigure cabinetry, layout, built-ins and fixtures. Replaced fixtures REPLACE the old ones — never both. Plumbing fixtures keep their existing mounting type (floor-mounted stays floor-mounted, wall-hung stays wall-hung) unless the customer explicitly asked to change it, and frosted or privacy glass stays frosted — never invent a new view through any glass";
+  // Virtual staging — added 2026-07-20 (interr.io named-mode pattern): furnish
+  // and decorate only; every existing surface and finish is untouchable.
+  const PRESERVE_STAGING = "VIRTUAL STAGING edit: keep the exact camera angle, room envelope, walls, windows, doors, flooring, ceiling, paint colors and every built-in finish EXACTLY as photographed — this is the same room, only furnished; ADD tasteful furniture, area rugs, art, mirrors, plants, lamps and decor appropriate to the room's function and scale; do NOT change, repaint, or refinish any existing surface, fixture, cabinet or window treatment; furniture must sit at realistic scale with correct perspective and grounded shadows";
   function preserveClause(mode) {
-    return String(mode) === "remodel" ? PRESERVE_REMODEL : PRESERVE_REDECORATE;
+    if (String(mode) === "remodel") return PRESERVE_REMODEL;
+    if (String(mode) === "staging") return PRESERVE_STAGING;
+    return PRESERVE_REDECORATE;
   }
   function composeRenderPrompt(mode, room, changes, keep) {
     const changeText = (Array.isArray(changes) && changes.length) ? changes.join(", ") : "the requested finishes and styling";
@@ -870,7 +1140,8 @@ module.exports = (collection) => {
     try {
       const messages = Array.isArray(req.body.messages) ? req.body.messages : [];
       if (!messages.length) return res.status(400).json({ error: "messages is required" });
-      const mode = String(req.body.mode || "redecorate").toLowerCase() === "remodel" ? "remodel" : "redecorate";
+      const modeRaw = String(req.body.mode || "redecorate").toLowerCase();
+      const mode = ["remodel", "staging"].includes(modeRaw) ? modeRaw : "redecorate";
       const userTexts = messages
         .filter((m) => m && String(m.role) !== "assistant")
         .map((m) => String((m && m.text) || "").trim())
@@ -908,6 +1179,40 @@ module.exports = (collection) => {
         `  avoid (never render these): ${(matched.avoid || []).join("; ")}`,
         `  prompt block to build from: ${(isExterior ? matched.exteriorPrompt : matched.interiorPrompt) || matched.interiorPrompt || ""}`
       ].join("\n") : "";
+      // Property-archetype grounding: the same LA housing-stock library that powers
+      // the Q&A corpus grounds the render brief. The UI posts turns like
+      // "Home: Nice home · Post-war Ranch", so the archetype name/aliases and the
+      // tier word both appear in the customer's text — matching is purely lexical
+      // (no model call, no added latency).
+      const arch = matchArchetype(userTexts.join(" "));
+      const homeTier = matchHomeTier(userTexts.join(" "));
+      const propertyCard = arch ? (() => {
+        const tp = Array.isArray(arch.tiersPresent) ? arch.tiersPresent : [];
+        const tierKey = (homeTier && tp.includes(homeTier)) ? homeTier : (tp.includes("nice") ? "nice" : (tp[0] || ""));
+        const tn = (arch.tierNotes || {})[tierKey] || {};
+        const tierLabel = (() => {
+          const lib = loadArchetypes();
+          const found = lib && Array.isArray(lib.tiers) ? lib.tiers.find((t) => t.key === tierKey) : null;
+          return (found && found.label) || tierKey || "";
+        })();
+        const nbhd = (arch.neighborhoods || []).slice(0, 3).join(", ");
+        const clause = (isExterior ? arch.renderClauses.exterior : arch.renderClauses.interior) || arch.renderClauses.interior || "";
+        return [
+          `PROPERTY CARD for "${arch.name}" (${arch.stories} story, ${arch.eras}, typical of ${nbhd}) — ground the design in THIS real LA housing type:`,
+          `  signature: ${(arch.signature || []).slice(0, 4).join("; ")}`,
+          `  interior character: ${(arch.interiorCharacter || []).slice(0, 3).join("; ")}`,
+          `  tier: ${tierLabel}; typical finishes: ${(tn.typicalFinishes || []).slice(0, 5).join("; ")}; guidance: ${tn.renderGuidance || ""}`,
+          `PROPERTY RULES: renderPrompt MUST respect this housing type — include this clause sense: "${clause}". NEVER: ${(arch.avoid || []).join("; ")}. Materials and scale must read ${tierLabel}-appropriate — do not render above or below this tier unless the customer explicitly asks.` +
+          (tierKey === "everyday" ? " EVERYDAY-TIER MATERIALS RULE: name materials ONLY from the typical-finishes list above or equally attainable equivalents — no quartzite, marble, book-matched slabs, brass, or designer-brand fixtures unless the customer explicitly asked for them." : "")
+        ].join("\n");
+      })() : "";
+      // Tier awareness even with no archetype match.
+      const tierLine = (!arch && homeTier) ? (() => {
+        const lib = loadArchetypes();
+        const found = lib && Array.isArray(lib.tiers) ? lib.tiers.find((t) => t.key === homeTier) : null;
+        const label = (found && found.label) || homeTier;
+        return `HOME TIER: the customer indicated a ${label} home — materials, fixtures and staging must read ${label}-appropriate.`;
+      })() : "";
       const prompt = [
         "You are the design-brief assistant inside a Los Angeles remodeling contractor's photo-redesign tool. The customer has uploaded a PHOTO of a real room and is telling you in plain speech what they want. You maintain a running structured design brief across the whole conversation and compose ONE image-edit instruction that a photorealistic, STRUCTURE-PRESERVING image model will run on their photo.",
         "READ THE ENTIRE CONVERSATION and merge every request into one coherent brief. Later messages refine or override earlier ones.",
@@ -917,6 +1222,8 @@ module.exports = (collection) => {
         isExterior ? "EXTERIOR RULE: when picking style elements, use ONLY surface-level cues (stucco/siding finish, trim, colors, fixtures, hardscape surfaces, planting) — NEVER cues that change building massing (arched entry surrounds, towers, porticos, added porches) unless the customer explicitly asked for that construction." : "",
         isExterior ? "LANDSCAPE AXIS: if the customer's changes touch landscaping, planting, or the yard, renderPrompt MUST also include a landscape-design sentence built on this pattern (adapt plant choices to the customer's words): 'The landscaping is a designed, layered planting composition with dense living plant coverage, never gravel or bare soil as the primary groundcover: low groundcover at the bed edges, drought-tolerant shrubs and grasses massed in drifts of three to five behind them, taller background planting or a small accent tree, one sculptural focal specimen per bed, existing mature trees kept in place, rich dark-brown mulch beds with crisp defined edges, and gravel or decomposed granite only as narrow path or edge accents.'" : "",
         styleCard,
+        propertyCard,
+        tierLine,
         "Compose renderPrompt on FIVE explicit axes, woven into ONE flowing instruction (not a bulleted list):",
         "  (a) STYLE — name the style the customer implies, and cite 2-3 signature elements of that named style" + (styleCard ? " taken from the STYLE LIBRARY CARD above" : " (e.g. Japandi -> low-profile wood furniture, muted earth tones, paper-shade lighting; Modern Farmhouse -> shaker cabinetry, apron sink, black-metal accents)") + ".",
         "  (b) LIGHTING — natural light quality, fixtures, and time-of-day warmth (e.g. bright airy daylight; warm layered evening glow).",
@@ -991,13 +1298,15 @@ module.exports = (collection) => {
     }
   });
 
-  // Materials & rough costs (BETA) — reads the composed design brief and rough-
-  // prices the materials it implies. Text-only Gemini COMPOSE (same billed key +
-  // ladder as /design-brief, JSON mode) extracts 5-10 material line items with
-  // concept-level SoCal INSTALLED cost ranges; each is then GROUNDED against the
-  // live price book (fuzzy name/spec overlap → the app's own blended range).
-  // Beta + graceful: any compose failure returns items:[] at HTTP 200; no
-  // claude-CLI fallback (unlike /design-brief).
+  // Materials & rough costs (BETA) — rough-prices the materials a design implies.
+  // TWO sources, same output contract:
+  //   basis:"image" — client passed imageUrl (the /uploads render the customer
+  //     picked): Gemini VISION reads the materials VISIBLE in that actual render
+  //     (per-option A/B/C). Cached per image+brief so re-picking is instant/free.
+  //   basis:"brief" — no imageUrl (or invalid/missing/traversal path): text-only
+  //     COMPOSE off the render brief, EXACTLY the legacy behavior.
+  // Both run the same JSON model ladder, then the SAME grounding walk against the
+  // live price book. Beta + graceful: any failure returns items:[] at HTTP 200.
   router.post("/design-materials", async (req, res) => {
     try {
       const renderPrompt = String(req.body.renderPrompt || "").trim().slice(0, 2500);
@@ -1014,7 +1323,43 @@ module.exports = (collection) => {
         .join("; ")
         .slice(0, 1200);
 
-      const prompt = [
+      // PER-IMAGE mode: if the client passes the /uploads path of the option the
+      // customer picked, read the materials from what was ACTUALLY RENDERED in
+      // that image (vision) instead of parsing the text brief. Invalid / missing
+      // / oversized / traversal-attempt paths silently fall back to text-only —
+      // never error (mirror photofeed.js's /:token/photo/* guard).
+      let imageB64 = "";
+      let imageMime = "";
+      const imageUrlRaw = String(req.body.imageUrl || "").trim();
+      if (imageUrlRaw && imageUrlRaw.startsWith("/uploads/")) {
+        try {
+          const rel = decodeURIComponent(imageUrlRaw.replace(/^\//, "")); // "uploads/..."
+          const uploadsDir = path.join(__dirname, "uploads");
+          const filePath = path.normalize(path.join(__dirname, rel));
+          if (filePath.startsWith(uploadsDir + path.sep) &&
+              fs.existsSync(filePath) && fs.statSync(filePath).isFile() &&
+              fs.statSync(filePath).size <= 15 * 1024 * 1024) {
+            imageB64 = fs.readFileSync(filePath).toString("base64");
+            imageMime = /\.png$/i.test(filePath) ? "image/png" : "image/jpeg";
+          }
+        } catch (_e) {
+          imageB64 = ""; // any hiccup -> text-only fallback
+        }
+      }
+      const basis = imageB64 ? "image" : "brief";
+
+      // Cache key: image path + render brief + the customer's own words (all
+      // three feed the compose, so all three must key the cache). Serve a
+      // grounded, non-empty prior result instantly (no Gemini call, free).
+      const cacheKey = basis === "image"
+        ? imageUrlRaw + "|" + renderPrompt.slice(0, 200) + "|" + describedChanges.slice(0, 120)
+        : "";
+      if (cacheKey) {
+        const hit = materialsCacheGet(cacheKey);
+        if (hit) return res.json(hit);
+      }
+
+      const briefPrompt = [
         "You are a construction estimator's assistant inside a Los Angeles remodeling contractor's design tool. You are given the DESIGN BRIEF for a photo-based redesign (a render instruction plus the customer's own words). Read it and extract the MATERIAL line items the design implies — the finishes, fixtures, surfaces, and plants a crew would actually buy and install to realize this look.",
         "ONLY list materials the brief explicitly names or directly implies. If the brief names no concrete materials, styles, or elements (e.g. it just says to redesign or refresh the space), return {\"items\":[]} — never invent a default palette.",
         "Return UP TO 10 items — fewer is correct when the brief names few materials, zero when it names none. Skip pure labor, demo and haul-off; focus on the materials/finishes/fixtures/plants that are visible in the finished design.",
@@ -1031,88 +1376,57 @@ module.exports = (collection) => {
         "JSON:"
       ].join("\n");
 
+      const visionPrompt = [
+        "You are a construction estimator's assistant inside a Los Angeles remodeling contractor's design tool. You are LOOKING AT the FINAL RENDERED design image the customer picked. List UP TO 10 MATERIAL line items VISIBLE IN THIS IMAGE that a crew would buy and install to realize this look — the finishes, fixtures, surfaces and plants: cabinet fronts, countertop material, backsplash, flooring, lighting fixtures, paint, hardware, tile, plumbing fixtures, and so on.",
+        "The IMAGE is the source of truth. The render instruction below is context for naming the styles/materials — but if the image clearly shows a material the brief did not name, INCLUDE it; if the brief names something not visible in THIS particular image, SKIP it.",
+        "Skip pure labor, demo and haul-off. If the image is NOT a room or space render (e.g. it's a logo, a person, a document, an abstract graphic), return {\"items\":[]}.",
+        "For each item give a concept-level ROUGH installed cost range for SoCal, PER UNIT — materials plus typical install labor. Numbers only: no dollar signs, no commas, no ranges-in-a-string.",
+        "roughLow and roughHigh are the per-unit installed range, NOT a project total — quantities are unknown here.",
+        "Choose the single most natural unit per item from exactly: sqft, each, lf, allowance.",
+        "Return ONLY a single minified JSON object, no markdown fences, no text before or after it:",
+        '{"items":[{"name":"...","spec":"one-line spec hint","unit":"sqft|each|lf|allowance","roughLow":N,"roughHigh":N}]}',
+        "",
+        "RENDER INSTRUCTION (style context only — the image is the source of truth):",
+        renderPrompt,
+        describedChanges ? "\nCUSTOMER'S OWN WORDS: " + describedChanges : "",
+        "",
+        "JSON:"
+      ].join("\n");
+
       let raw = "";
       try {
-        raw = await geminiTextOnce(key, GEMINI_TEXT_MODELS, prompt);
+        raw = basis === "image"
+          ? await geminiVisionJsonOnce(key, GEMINI_TEXT_MODELS, visionPrompt, imageMime, imageB64, MATERIALS_SCHEMA)
+          : await geminiTextOnce(key, GEMINI_TEXT_MODELS, briefPrompt, MATERIALS_SCHEMA);
       } catch (e) {
-        return res.json({ configured: true, items: [], error: String((e && e.message) || "compose failed").slice(0, 140) });
+        return res.json({ configured: true, basis, items: [], error: String((e && e.message) || "compose failed").slice(0, 140) });
       }
       const parsed = extractJson(raw);
       const rawItems = parsed && Array.isArray(parsed.items) ? parsed.items : null;
       if (!rawItems) {
-        return res.json({ configured: true, items: [], error: "couldn't read materials from the design brief" });
+        return res.json({ configured: true, basis, items: [], error: basis === "image" ? "couldn't read materials from the rendered image" : "couldn't read materials from the design brief" });
       }
 
-      // GROUND each item against the live price book. A match takes the app's own
+      // GROUND each item against the live price book — the SAME hardened walk for
+      // brief-sourced and image-sourced items. A match takes the app's own
       // blended low/high (fallback benchmark, then raw low/high) and source
-      // "price book"; the model's numbers are kept only as the fallback for
-      // unmatched items, which stay source "rough estimate".
+      // "price book"; the model's numbers stay the fallback for unmatched items.
       const pricing = await fetchPricingIntel();
       const bookItems = pricing && Array.isArray(pricing.items) ? pricing.items : [];
+      const items = groundMaterialItems(rawItems, bookItems);
 
-      const items = rawItems.slice(0, 10).map((it) => {
-        const name = String((it && it.name) || "").trim();
-        const spec = String((it && it.spec) || "").trim();
-        const unitRaw = String((it && it.unit) || "").trim().toLowerCase();
-        const unit = ["sqft", "each", "lf", "allowance"].indexOf(unitRaw) >= 0 ? unitRaw : "each";
-        let low = Math.round(Number(it && it.roughLow));
-        let high = Math.round(Number(it && it.roughHigh));
-        if (!isFinite(low) || low < 0) low = 0;
-        if (!isFinite(high) || high < 0) high = 0;
-        if (low && high && low > high) { const t = low; low = high; high = t; }
-        let source = "rough estimate";
-
-        // Walk the ranked candidates and take the FIRST one that survives every
-        // gate. Rules hardened over two review rounds:
-        //   - score cliff: never fall through to a candidate far weaker than the
-        //     top one (a vetoed score-8 row must not hand grounding to a
-        //     score-4 stranger — that minted a $150 "frameless glass" green).
-        //   - allowance items never get the green pill: an allowance is by
-        //     definition not a book line item.
-        //   - rows whose description says "excluded" can't price a materials
-        //     item (the "fixtures excluded" labor row kept sneaking back).
-        //   - unit veto with job≈each: discrete-item book rows priced per job
-        //     behave like per-each; sqft/lf mismatches stay vetoed.
-        const roughMid = (low + high) / 2;
-        const modelUnit = normalizeUnit(unit);
-        const cands = modelUnit === "allowance" ? [] : matchBookItems(bookItems, name, spec);
-        const topScore = cands.length ? cands[0].score : 0;
-        for (const cand of cands) {
-          if (cand.score < Math.max(4, topScore * 0.6)) break;
-          const match = cand.item;
-          if (/exclud/i.test(String(match.description || ""))) continue;
-          const bl = match.blended || {};
-          const bm = match.benchmark || {};
-          const mlo = bl.low != null ? bl.low : (bm.lowUSD != null ? bm.lowUSD : match.low);
-          const mhi = bl.high != null ? bl.high : (bm.highUSD != null ? bm.highUSD : match.high);
-          if (!(Number(mlo) > 0 || Number(mhi) > 0)) continue;
-          const bookUnit = normalizeUnit(match.unit);
-          const unitOk = !bookUnit || !modelUnit || bookUnit === modelUnit ||
-            (bookUnit === "job" && modelUnit === "each");
-          if (!unitOk) continue;
-          // No model numbers to sanity-check against -> demand a stronger
-          // lexical match (>= 3 exact tokens) instead of accepting unchecked.
-          if (!roughMid && cand.score < 6) continue;
-          // Price sanity: the book midpoint must be within ~3.5x of the model's
-          // own rough midpoint — a wild disagreement means a wrong row, and a
-          // confidently-wrong "price book" label is worse than an honest rough.
-          const bookMid = ((Number(mlo) || 0) + (Number(mhi) || 0)) / 2;
-          const agree = !roughMid || !bookMid ||
-            (bookMid / roughMid <= 3.5 && roughMid / bookMid <= 3.5);
-          if (!agree) continue;
-          low = Math.round(Number(mlo) || 0);
-          high = Math.round(Number(mhi) || 0);
-          source = "price book";
-          break;
-        }
-        return { name, spec, unit, low, high, source };
-      }).filter((it) => it.name);
-
-      return res.json({
+      const payload = {
         configured: true,
+        basis,
         items,
-        disclaimer: "Beta — concept-level ranges read from the design brief, not a measured quote. Quantities not included."
-      });
+        disclaimer: basis === "image"
+          ? "Beta — concept-level ranges read from the rendered image, not a measured quote. Quantities not included."
+          : "Beta — concept-level ranges read from the design brief, not a measured quote. Quantities not included."
+      };
+      // Cache only successful, non-empty image reads (price book rarely changes
+      // mid-session, so caching after grounding is fine).
+      if (cacheKey && items.length) materialsCacheSet(cacheKey, payload);
+      return res.json(payload);
     } catch (error) {
       return res.json({ configured: true, items: [], error: String((error && error.message) || "error").slice(0, 140) });
     }

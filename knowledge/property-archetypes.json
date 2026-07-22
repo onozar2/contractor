@@ -1,0 +1,2374 @@
+{
+  "version": 1,
+  "updatedAt": "2026-07-20",
+  "tiers": [
+    {
+      "key": "everyday",
+      "label": "Everyday home",
+      "desc": "Practical, attainable finishes — the way most LA homes actually get remodeled."
+    },
+    {
+      "key": "nice",
+      "label": "Nice home",
+      "desc": "Quality materials and considered design for well-kept homes in desirable neighborhoods."
+    },
+    {
+      "key": "luxury",
+      "label": "Luxury home",
+      "desc": "Estate-grade materials, scale, and detailing."
+    }
+  ],
+  "archetypes": [
+    {
+      "id": "craftsman-bungalow",
+      "name": "Craftsman / California Bungalow",
+      "aliases": [
+        "California bungalow",
+        "Craftsman bungalow",
+        "Arts & Crafts bungalow",
+        "Airplane bungalow",
+        "American Foursquare Craftsman",
+        "1920s bungalow",
+        "front porch house",
+        "bungalow court house",
+        "old LA bungalow",
+        "Pasadena bungalow",
+        "craftsman",
+        "bungalow"
+      ],
+      "stories": "1-2",
+      "eras": "1900-1935",
+      "sizeSqft": [
+        850,
+        3200
+      ],
+      "neighborhoods": [
+        "Highland Park",
+        "Bungalow Heaven / Pasadena",
+        "Garfield Heights / Pasadena",
+        "South Pasadena",
+        "Boyle Heights",
+        "East LA",
+        "Historic West Adams",
+        "El Sereno",
+        "Lincoln Heights",
+        "Angelino Heights",
+        "Long Beach (Rose Park, Bluff Heights, Wrigley)",
+        "Magnolia Park / Toluca Lake-adjacent (Burbank)"
+      ],
+      "tiersPresent": [
+        "everyday",
+        "nice",
+        "luxury"
+      ],
+      "signature": [
+        "Low-pitched gabled roof with wide overhanging eaves, exposed rafter tails, and knee braces",
+        "Deep full-width front porch on tapered/battered wood columns set on brick, clinker-brick, or river-rock piers",
+        "Wood shingle or horizontal lap siding, often mixed for texture between stories",
+        "Multi-pane-over-single-pane double-hung windows (6-over-1, 4-over-1), sometimes grouped in threes",
+        "Brick or fieldstone porch piers and chimney",
+        "One-and-a-half-story profile with dormer; occasional airplane-bungalow third-story 'cockpit' massing",
+        "Small front yard set close to the sidewalk, narrow driveway to a detached rear garage (often ADU-converted)"
+      ],
+      "interiorCharacter": [
+        "Box-beam, boxed-beam, or coffered ceilings in living and dining rooms with picture-rail molding",
+        "Built-in bookcases, window seats, and a dining-room built-in hutch/buffet",
+        "Batchelder or similar art-tile fireplace surround, often with an inglenook",
+        "Quartersawn oak or Douglas fir trim, refinished doors and hardware",
+        "Wide cased opening between living and dining rooms; open living-to-dining sequence with minimal hallways",
+        "Narrow galley kitchen tucked behind the dining room",
+        "Leaded or art-glass panels in built-in cabinet doors; original oak or fir floors"
+      ],
+      "tierNotes": {
+        "everyday": {
+          "typicalFinishes": [
+            "Shaker or simple flat-panel cabinets echoing the original built-ins",
+            "butcher block or entry quartz counters",
+            "refinished original wood floors or matching LVP",
+            "period-style subway tile in the bath",
+            "original wood windows sometimes swapped for vinyl, painted (not stripped) original wood trim"
+          ],
+          "renderGuidance": "Honor the porch, exposed rafter tails, and built-ins as the identity of the house. Show real wear (worn floors, older appliances) but keep the box beams, built-ins, and window casings intact — this is a cared-for fixer, not a gutted shell. A sensible remodel updates the kitchen and bath modestly while keeping the narrow galley footprint and original room proportions.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              28000,
+              85000
+            ],
+            "bath": [
+              15000,
+              45000
+            ],
+            "exteriorRefresh": [
+              8000,
+              40000
+            ]
+          }
+        },
+        "nice": {
+          "typicalFinishes": [
+            "Custom or semi-custom cabinetry matching original millwork (shaker/beadboard, glass-front)",
+            "quartz, soapstone, or natural stone counters",
+            "restored quarter-sawn oak or fir flooring and refinished built-ins",
+            "zellige, handmade, or reglazed Batchelder-style tile accents",
+            "restored wood windows with period hardware",
+            "vintage-look fixtures (schoolhouse pendants, glass doorknobs) with modern plumbing"
+          ],
+          "renderGuidance": "Render a lovingly, sympathetically restored Craftsman — original woodwork, built-ins, inglenook, and porch detailing preserved and refinished, with a tasteful period-appropriate kitchen/bath update. Do not enlarge the kitchen beyond its original galley width or gut-modernize into a flat contemporary interior; it should read historic-and-cared-for.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              50000,
+              150000
+            ],
+            "bath": [
+              25000,
+              80000
+            ],
+            "exteriorRefresh": [
+              15000,
+              90000
+            ]
+          }
+        },
+        "luxury": {
+          "typicalFinishes": [
+            "Greene & Greene-inspired custom joinery",
+            "restored or hand-replicated Batchelder tile",
+            "museum-grade quartersawn oak restoration",
+            "designer landscape framing the porch"
+          ],
+          "renderGuidance": "Treat as a preservation showpiece: highlight hand-craft joinery and art tile as the star of the room; new elements (lighting, rugs, art) should recede, not compete.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              150000,
+              350000
+            ],
+            "bath": [
+              80000,
+              180000
+            ],
+            "exteriorRefresh": [
+              90000,
+              250000
+            ]
+          }
+        }
+      },
+      "renderClauses": {
+        "interior": "Preserve box-beam/coffered ceilings, built-in bookcases and inglenook, wood window casings, the dining-to-living cased opening, and any Batchelder tile fireplace; keep the kitchen a narrow galley behind the dining room rather than an open great room; change only paint, rugs, and furnishings — never strip original woodwork to white or add glossy modern finishes.",
+        "exterior": "Keep the low-pitched gable roof, exposed rafter tails, tapered porch columns on brick/river-rock piers, and multi-pane wood windows intact; refresh paint, porch, and landscaping only."
+      },
+      "avoid": [
+        "Stripping or painting over quartersawn oak/fir trim white",
+        "Replacing multi-pane wood windows with plain vinyl sliders",
+        "Removing or enclosing the front porch or its tapered columns",
+        "Adding a second story or a flat modern roofline/parapet",
+        "Widening the kitchen into an open-concept great room or ripping out box beams and inglenooks",
+        "Swapping Batchelder tile for generic subway tile"
+      ],
+      "sources": [
+        {
+          "title": "The Craftsman Homes of Pasadena | PBS SoCal",
+          "url": "https://www.pbssocal.org/home-garden/the-craftsman-homes-of-pasadena",
+          "kind": "article"
+        },
+        {
+          "title": "Bungalow Heaven, Pasadena, California — Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Bungalow_Heaven,_Pasadena,_California",
+          "kind": "article"
+        },
+        {
+          "title": "Bungalow Heaven Home Tour | Bungalow Heaven Neighborhood Association",
+          "url": "https://www.bungalowheaven.org/events/bungalow-heaven-home-tour/",
+          "kind": "article"
+        },
+        {
+          "title": "A Brief History Of The Iconic Bungalows Of L.A. — LAist",
+          "url": "https://laist.com/news/entertainment/bungalow-history",
+          "kind": "article"
+        },
+        {
+          "title": "California bungalow — Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/California_bungalow",
+          "kind": "article"
+        },
+        {
+          "title": "HOUSE TOUR | A Los Angeles Craftsman Home Filled with Light & Charm | 4K",
+          "url": "https://www.youtube.com/watch?v=zvQeirDGxE0",
+          "kind": "youtube"
+        },
+        {
+          "title": "Tour the Back to the Future House — Inside the Craftsman Gamble House",
+          "url": "https://www.youtube.com/watch?v=ySATUw9slWA",
+          "kind": "youtube"
+        },
+        {
+          "title": "House Tour: A 1947 California Craftsman Restored | Apartment Therapy",
+          "url": "https://www.apartmenttherapy.com/house-tour-a-1947-california-craftsman-restored-237381",
+          "kind": "article"
+        },
+        {
+          "title": "CHRISTMAS HOUSE TOUR | A 1920s Highland Park Home Transformed for the Holidays",
+          "url": "https://www.youtube.com/watch?v=cWcXTu3fwrM",
+          "kind": "youtube"
+        },
+        {
+          "title": "Los Angeles Architecture 101: The Craftsman Home | The HartBeat",
+          "url": "https://blog.johnhartrealestate.com/2022/09/los-angeles-architecture-101-craftsman-home/",
+          "kind": "article"
+        }
+      ]
+    },
+    {
+      "id": "spanish-colonial-revival",
+      "name": "Spanish Colonial Revival",
+      "aliases": [
+        "Spanish Revival",
+        "Spanish bungalow",
+        "Spanish style house",
+        "stucco Spanish house",
+        "red tile roof house",
+        "Mediterranean Revival",
+        "Spanish Colonial",
+        "Mission Revival",
+        "1920s Spanish home",
+        "Andalusian/Monterey-adjacent Revival",
+        "spanish house",
+        "spanish home",
+        "hacienda"
+      ],
+      "stories": "1-2",
+      "eras": "1915-1940",
+      "sizeSqft": [
+        900,
+        7500
+      ],
+      "neighborhoods": [
+        "Highland Park",
+        "El Sereno",
+        "West Adams",
+        "Boyle Heights",
+        "Mid-City",
+        "Miracle Mile",
+        "Hancock Park",
+        "Windsor Square",
+        "Los Feliz",
+        "Eagle Rock",
+        "Beverlywood",
+        "Glendale (Rossmoyne / Verdugo Woodlands)",
+        "Silver Lake",
+        "Van Nuys"
+      ],
+      "tiersPresent": [
+        "everyday",
+        "nice",
+        "luxury"
+      ],
+      "signature": [
+        "White or cream smooth-troweled stucco walls",
+        "Low-pitched clay barrel-tile roof (red-orange, variegated), sometimes just tile accents at the entry on modest examples",
+        "Arched doorways, windows, and covered entries as the decorative focal point",
+        "Wrought-iron window grilles, railings, and light fixtures",
+        "Asymmetrical facade massing, sometimes with a small tower or turret",
+        "Courtyard, patio, or loggia; cast-stone or decorative-tile entry surround"
+      ],
+      "interiorCharacter": [
+        "Arched interior doorways and niches",
+        "Coved or vaulted plaster ceilings",
+        "Decorative painted or Malibu/Talavera tile at stairs, kitchens, baths, and fountains",
+        "Exposed wood beam ceilings (stained, not painted) in living/dining rooms",
+        "Curved plaster staircase in two-story examples; wrought-iron stair railings and pendant fixtures",
+        "Saltillo terracotta or cement-tile flooring; deep-set windows with plaster reveals"
+      ],
+      "tierNotes": {
+        "everyday": {
+          "typicalFinishes": [
+            "Shaker or refaced cabinets in white or warm wood tone",
+            "quartz or butcher-block counters",
+            "Spanish/Saltillo-look LVP or refinished original wood floors",
+            "simple white subway or small-hex bath tile",
+            "original stucco with visible patch repairs, flat concrete 'S' tile substituted for true clay barrel tile on past reroofs"
+          ],
+          "renderGuidance": "Keep the arch, any coved ceiling, and the modest stucco-box massing even on a worn example; a believable everyday remodel modernizes the kitchen and bath but does not add a courtyard, fountain, hand-painted tile, or a second arch that wasn't in the source photo.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              28000,
+              90000
+            ],
+            "bath": [
+              16000,
+              45000
+            ],
+            "exteriorRefresh": [
+              10000,
+              50000
+            ]
+          }
+        },
+        "nice": {
+          "typicalFinishes": [
+            "Custom cabinetry with a period-appropriate profile",
+            "natural stone, quartz, or soapstone counters with a tiled backsplash nod to the era",
+            "restored or reproduced Malibu/Catalina tile accents at fireplace and kitchen",
+            "refinished exposed wood beams and restored arches/plaster reveals",
+            "restored ironwork and wood doors",
+            "restored clay barrel-tile roof, warm neutral or off-white walls, terracotta or wood floors"
+          ],
+          "renderGuidance": "Render an authentic period Spanish home tastefully updated, not a stripped-down modern remodel: new cabinetry and counters modernize while arches, beams, and tile accents stay as the room's structure. Stay within the home's one-story-or-modest footprint — a richer restoration can add authentic detailing (tile risers, iron sconces) but this is a family home, not a hacienda.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              48000,
+              160000
+            ],
+            "bath": [
+              28000,
+              85000
+            ],
+            "exteriorRefresh": [
+              20000,
+              120000
+            ]
+          }
+        },
+        "luxury": {
+          "typicalFinishes": [
+            "Hand-painted or reproduction imported tile from Mexico/Spain",
+            "custom wrought-iron ornamentation by period-specialist fabricators",
+            "carved wood doors",
+            "restored curved plaster staircases and coffered/stenciled ceilings",
+            "designer courtyard with fountain and mature specimen landscaping"
+          ],
+          "renderGuidance": "Render as a Wallace Neff-caliber estate: generous room proportions, a formal courtyard axis, and artisan tile/ironwork as focal details — never generic granite-and-recessed-can finishes. Use only when the brief calls for an estate-level Spanish Revival showpiece.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              150000,
+              400000
+            ],
+            "bath": [
+              65000,
+              200000
+            ],
+            "exteriorRefresh": [
+              90000,
+              350000
+            ]
+          }
+        }
+      },
+      "renderClauses": {
+        "interior": "Preserve arched openings, coved/vaulted plaster ceilings, exposed wood beams, and decorative Malibu/Talavera tile; keep wrought-iron fixtures and Saltillo/cement-tile floors and normal proportions rather than swapping in generic gray LVP or an open great room.",
+        "exterior": "Keep the barrel clay-tile roof, white/cream stucco massing, arched windows and doors, and wrought-iron details; never flatten the roof pitch, square off the arches, or add a full clay-tile roof where the source shows only tile accents."
+      },
+      "avoid": [
+        "Flattening the barrel-tile roof into a flat or composition-shingle roof",
+        "Squaring off arched doorways/windows into rectangular openings",
+        "Painting stucco a saturated non-period color such as black or bright blue",
+        "Stripping decorative tile and wrought iron for a minimalist look",
+        "Adding a courtyard, fountain, or second story not present, or turning a modest starter home into a hacienda-scale estate",
+        "Replacing coved plaster ceilings with flat drywall and rows of recessed cans"
+      ],
+      "sources": [
+        {
+          "title": "Hancock Park HPOZ | Los Angeles City Planning",
+          "url": "https://planning.lacity.gov/preservation-design/overlays/hancock-park",
+          "kind": "article"
+        },
+        {
+          "title": "What Is a Spanish-Style Home? History & Examples in Los Angeles",
+          "url": "https://www.lahomes.com/blog/where-to-find-spanish-homes-los-angeles/",
+          "kind": "article"
+        },
+        {
+          "title": "LOS ANGELES HOUSE TOUR | A Designer's Bright & Airy Spanish Revival Home",
+          "url": "https://www.youtube.com/watch?v=hv1-S7slHgo",
+          "kind": "youtube"
+        },
+        {
+          "title": "Inside LA's Most Stunning $7,000,000 Spanish Revival Estate (Eagle Rock)",
+          "url": "https://www.youtube.com/watch?v=Fhhv8ePdBHE",
+          "kind": "listing"
+        },
+        {
+          "title": "HOUSE TOUR | Interior Designer Transforms Spanish Revival Home in Los Angeles",
+          "url": "https://www.youtube.com/watch?v=ecC2OI_ie8I",
+          "kind": "youtube"
+        },
+        {
+          "title": "Houzz Tour: Honoring the Soul of a 1920s Spanish-Style Home",
+          "url": "https://www.houzz.com/magazine/houzz-tour-honoring-the-soul-of-a-1920s-spanish-style-home-stsetivw-vs~163472913",
+          "kind": "article"
+        },
+        {
+          "title": "Dream House Tour: Beautiful Spanish Revival Home in Los Angeles",
+          "url": "https://onekindesign.com/2019/07/31/spanish-revival-home-los-angeles/",
+          "kind": "article"
+        },
+        {
+          "title": "LA Home Styles: Modern, Mid-Century & Spanish",
+          "url": "https://justintye.com/blog/modern-mid-century-or-spanish-los-angeles-home-styles-explained",
+          "kind": "article"
+        }
+      ]
+    },
+    {
+      "id": "mid-century-modern",
+      "name": "Mid-Century Modern (Post-and-Beam / Eichler-adjacent)",
+      "aliases": [
+        "MCM",
+        "post-and-beam modern",
+        "Eichler-style",
+        "Case Study modern",
+        "California Modern",
+        "mid-mod remodel",
+        "case-study-adjacent home",
+        "mid century modern",
+        "eichler",
+        "mid century",
+        "midcentury",
+        "post and beam"
+      ],
+      "stories": "1-2",
+      "eras": "1949-1968",
+      "sizeSqft": [
+        1300,
+        3200
+      ],
+      "neighborhoods": [
+        "Crestwood Hills",
+        "Balboa Highlands / Granada Hills",
+        "Silver Lake",
+        "Rustic Canyon",
+        "Studio City (Fryman Canyon)",
+        "Sherman Oaks hills",
+        "Encino hills",
+        "Beverlywood-adjacent flats"
+      ],
+      "tiersPresent": [
+        "everyday",
+        "nice",
+        "luxury"
+      ],
+      "signature": [
+        "Post-and-beam construction with exposed structural beams read on the exterior facade",
+        "Low-slope or flat roof expressing the structural rhythm, with deep overhangs",
+        "Clerestory windows at the roofline",
+        "Floor-to-ceiling glass walls and sliding glass doors opening to a rear patio",
+        "Atrium or interior courtyard (Eichler atrium models)",
+        "Breeze-block or screen-block privacy walls; board-formed concrete, brick, or vertical wood facade"
+      ],
+      "interiorCharacter": [
+        "Exposed post-and-beam / tongue-and-groove wood-decking ceilings, often stained rather than painted",
+        "Open living/dining anchored by a linear brick or stone fireplace",
+        "Radiant-heated concrete slab, terrazzo, polished concrete, or wide-plank walnut/oak floors",
+        "Open kitchen-to-family-room plan with minimal interior walls",
+        "Flush-panel built-in cabinetry, minimal applied trim",
+        "Walls of glass blur indoor/outdoor; mahogany or painted-plywood accent walls"
+      ],
+      "tierNotes": {
+        "everyday": {
+          "typicalFinishes": [
+            "Original single-pane aluminum sliders",
+            "dated original kitchen (laminate counters, harvest-gold or avocado appliances)",
+            "unrestored radiant slab",
+            "worn but intact post-and-beam structure"
+          ],
+          "renderGuidance": "Show the original bones (beams, glass walls, atrium) unrestored and a bit dated — do not modernize the roofline or add ornament that erases the period character.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              40000,
+              80000
+            ],
+            "bath": [
+              20000,
+              40000
+            ],
+            "exteriorRefresh": [
+              15000,
+              40000
+            ]
+          }
+        },
+        "nice": {
+          "typicalFinishes": [
+            "Walnut-stained or white-oak flat-panel cabinetry",
+            "quartz or honed stone counters in warm tones",
+            "restored or reproduction breeze-block screens",
+            "dual-pane glass in slim period-profile frames",
+            "refinished tongue-and-groove ceilings and original hardwood",
+            "period-appropriate brass or matte-black fixtures, globe/sputnik lighting"
+          ],
+          "renderGuidance": "Warm mid-century, not showroom-modern: stained wood tones, textured stone, and era-correct fixtures rather than glossy white minimalism. New glazing and kitchen finishes read as an upgrade, but the post-and-beam rhythm, clerestories, and atrium stay the visual anchor. Keep the palette warm (walnut, brick, olive/mustard) over cold gray.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              70000,
+              160000
+            ],
+            "bath": [
+              30000,
+              90000
+            ],
+            "exteriorRefresh": [
+              20000,
+              100000
+            ]
+          }
+        },
+        "luxury": {
+          "typicalFinishes": [
+            "Book-matched wood paneling and custom walnut millwork",
+            "restored original steel-frame windows or structural glazing replacing sliders",
+            "polished concrete or terrazzo floors",
+            "integrated smart-home lighting hidden in period-correct fixtures",
+            "designer pool aligned to the post-and-beam grid",
+            "architect-grade landscaping (Marmol Radziner / Woods+Dangaran caliber)"
+          ],
+          "renderGuidance": "Treat as an A. Quincy Jones / Marmol Radziner-caliber restoration: material honesty and structural rhythm are the luxury, not applied ornament. Every choice reads intentional and expensive but true to the period — never a glass box. Suitable only for a hillside architectural-showpiece brief.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              140000,
+              350000
+            ],
+            "bath": [
+              60000,
+              200000
+            ],
+            "exteriorRefresh": [
+              80000,
+              300000
+            ]
+          }
+        }
+      },
+      "renderClauses": {
+        "interior": "Keep exposed post-and-beam structure, tongue-and-groove ceilings, and full-height glass to the yard/atrium visible; use warm wood tones (walnut/oak), a linear stone or brick fireplace, and period-correct lighting; furnish with authentic mid-century pieces mixed with comfortable modern seating, not ornate traditional furniture or sterile staging.",
+        "exterior": "Preserve the low horizontal volume, low/flat roofline, deep overhangs, post-and-beam rhythm, clerestory windows, and glass walls; add textural landscaping (agave, olive, gravel); do not add pitched roofs, shutters, or traditional trim."
+      },
+      "avoid": [
+        "Adding a pitched shingle roof, dormers, or a second story that breaks the low horizontal roofline",
+        "Boxing in the post-and-beam structure with drywall",
+        "Replacing glass walls with smaller punched windows",
+        "Tuscan/Spanish detailing, crown molding, chandeliers, or wrought iron mixed into an MCM shell",
+        "Enclosing the atrium/courtyard",
+        "All-white glossy minimalism (that reads contemporary, not mid-century)"
+      ],
+      "sources": [
+        {
+          "title": "Balboa Highlands — LA Conservancy",
+          "url": "https://www.laconservancy.org/learn/historic-places/balboa-highlands/",
+          "kind": "article"
+        },
+        {
+          "title": "The Eichlers of Balboa Highlands - Granada Hills | Eichler Network",
+          "url": "https://www.eichlernetwork.com/article/eichlers-balboa-highlands-granada-hills",
+          "kind": "article"
+        },
+        {
+          "title": "Architect Restores a Mid-Century Modern House In The Hills of Los Angeles (House Tour)",
+          "url": "https://www.youtube.com/watch?v=ybgsSKk7d7k",
+          "kind": "youtube"
+        },
+        {
+          "title": "19 Laudable Midcentury Modern Renovations in Los Angeles",
+          "url": "https://www.dwell.com/article/renovated-midcentury-modern-homes-los-angeles-183d94dc",
+          "kind": "article"
+        },
+        {
+          "title": "This mid century gem's clever remodel maximizes outdoor space (Studio City)",
+          "url": "https://www.homesandgardens.com/house-design/mid-century-studio-city-remodel-maximizes-views-of-the-outdoor-space",
+          "kind": "article"
+        },
+        {
+          "title": "Why Crestwood Hills Is a Haven for Mid-Century Modern Enthusiasts | O'Connor Estates",
+          "url": "https://oconnorestates.com/blog/why-crestwood-hills-is-a-haven-for-mid-century-modern-enthusiasts",
+          "kind": "article"
+        },
+        {
+          "title": "Case Study House #10 — LA Conservancy",
+          "url": "https://www.laconservancy.org/learn/historic-places/case-study-house-10/",
+          "kind": "article"
+        }
+      ]
+    },
+    {
+      "id": "postwar-ranch",
+      "name": "Post-war California Ranch",
+      "aliases": [
+        "ranch house",
+        "ranch style",
+        "1950s house",
+        "rambler",
+        "California ranch",
+        "updated 1950s ranch",
+        "ranch flip",
+        "single-story Valley ranch",
+        "ranch",
+        "1950s ranch"
+      ],
+      "stories": 1,
+      "eras": "1947-1965",
+      "sizeSqft": [
+        1000,
+        2400
+      ],
+      "neighborhoods": [
+        "Reseda",
+        "Van Nuys",
+        "Panorama City",
+        "North Hills",
+        "Northridge",
+        "Canoga Park",
+        "Lakewood",
+        "Downey",
+        "Hawthorne",
+        "Sherman Oaks (south of Ventura)",
+        "Valley Village",
+        "Toluca Lake",
+        "Encino flats",
+        "West Torrance",
+        "Mar Vista"
+      ],
+      "tiersPresent": [
+        "everyday",
+        "nice"
+      ],
+      "signature": [
+        "Low-pitch gable or hip roof with modest-to-wide eave overhang and horizontal massing (wider-than-tall street face)",
+        "Attached 1-2 car garage flush with or forward of the facade, concrete driveway apron",
+        "Frame-and-stucco or board-and-batten / brick-and-stucco exterior mix on a small rectangular lot",
+        "Picture window (sometimes flanked by shutters or a decorative screen-block wall) facing the street",
+        "Simple covered entry stoop rather than a full porch",
+        "Private backyard patio slab, often with a covered aluminum or wood patio cover"
+      ],
+      "interiorCharacter": [
+        "7.5-9 ft ceilings; compact entry opening directly into the living room",
+        "Galley or U-shaped kitchen with a pass-through to a small dining area (often expanded into a former nook or service porch)",
+        "Hall-and-bedroom-wing layout, 2-3 modest bedrooms off one hallway",
+        "Original oak strip or slab flooring, frequently carpeted over by later owners",
+        "Sliding glass or French door to a modest back patio",
+        "Opened-up living/dining/kitchen and primary-suite additions common in remodeled examples"
+      ],
+      "tierNotes": {
+        "everyday": {
+          "typicalFinishes": [
+            "Stock or semi-custom shaker cabinets in white or gray",
+            "laminate or entry-level quartz countertop",
+            "LVP flooring through the main living areas",
+            "standard subway-tile tub surround",
+            "builder-grade stainless appliances"
+          ],
+          "renderGuidance": "Style the interior as a tidy, sensible refresh of a real ranch: keep the modest room sizes and 8-ft ceilings, use approachable finishes (white shaker, LVP, entry quartz) rather than designer materials, and leave the original footprint and window placements alone.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              30000,
+              55000
+            ],
+            "bath": [
+              15000,
+              28000
+            ],
+            "exteriorRefresh": [
+              8000,
+              20000
+            ]
+          }
+        },
+        "nice": {
+          "typicalFinishes": [
+            "Painted or two-tone wood shaker cabinets",
+            "quartz or quartzite counters",
+            "wide-plank white-oak or oak-look engineered flooring",
+            "subway or handmade-look zellige backsplash",
+            "framed glass shower enclosure",
+            "matte-black or brushed-brass fixtures, recessed LED plus a statement island pendant",
+            "resurfaced patio, drought-tolerant front yard"
+          ],
+          "renderGuidance": "A step up but still a single-story ranch that reads lived-in and family-owned after a smart, tasteful remodel — quality mid-range materials, warm and a little imperfect, never a staged estate. Keep the modest square footage and 8-9 ft ceilings (no vaulting unless the room is a known vaulted addition), simple massing, and no great-room-scale islands or anything reading above ~$2M.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              55000,
+              115000
+            ],
+            "bath": [
+              28000,
+              50000
+            ],
+            "exteriorRefresh": [
+              18000,
+              42000
+            ]
+          }
+        }
+      },
+      "renderClauses": {
+        "interior": "Respect the original 8-9 ft ceiling height and the compact hall-and-bedroom-wing layout; render a galley or modest U-shaped kitchen with real furniture and a lived-in feel (not an open-concept great room or showroom staging) unless the source photo already shows a wall removed.",
+        "exterior": "Keep the low-slung one-story horizontal massing, wide eaves, and existing roofline; show upgrades as refreshed stucco/board-and-batten paint, a new garage door, a refreshed front door, and simple drought-tolerant or lawn-plus-hedge landscaping rather than any change to the building's shape or height."
+      },
+      "avoid": [
+        "adding a second story that breaks the ranch's horizontal silhouette",
+        "vaulting or raising ceilings",
+        "widening the house footprint",
+        "turning the picture window into floor-to-ceiling glass or a glass-walled great room",
+        "rendering a 10-ft kitchen island in a galley-width kitchen",
+        "marble waterfall islands, brass-everything, resort pools, grand double-door entries or two-story foyers (reads luxury, not this tier)"
+      ],
+      "sources": [
+        {
+          "title": "LOS ANGELES HOUSE TOUR | A 1950s Ranch Home Gets a Stunning Makeover",
+          "url": "https://www.youtube.com/watch?v=GjdnJud6XXI",
+          "kind": "youtube"
+        },
+        {
+          "title": "Tour a 1950s ranch home renovated for a family of three",
+          "url": "https://www.youtube.com/watch?v=c8m0GSEri1Q",
+          "kind": "youtube"
+        },
+        {
+          "title": "The Art of Restoring a 1950s Los Angeles Home | House Tour",
+          "url": "https://www.youtube.com/watch?v=4E_Yu40UB0w",
+          "kind": "youtube"
+        },
+        {
+          "title": "The Lakewood Plan: Homeownership, Taxes, and Diversity in Postwar Suburbia",
+          "url": "https://www.pbssocal.org/history-society/the-lakewood-plan-homeownership-taxes-and-diversity-in-postwar-suburbia",
+          "kind": "article"
+        },
+        {
+          "title": "Sherman Oaks Real Estate in 2026: Why Buyers Are Competing Hard for a Shrinking Inventory",
+          "url": "https://www.toddjonesrealtor.com/blog/2026/4/8/sherman-oaks-real-estate-in-2026-why-buyers-are-competing-hard-for-a-shrinking-inventory",
+          "kind": "article"
+        },
+        {
+          "title": "2026 Los Angeles Kitchen Remodel Costs and Tips",
+          "url": "https://www.greatbuildz.com/blog/kitchen-remodel-costs-and-tips/",
+          "kind": "article"
+        },
+        {
+          "title": "Bathroom Remodel Cost Los Angeles (2026 Pricing Guide)",
+          "url": "https://www.myheartconstruction.com/blog/bathroom-remodel-cost-los-angeles-2026",
+          "kind": "article"
+        }
+      ]
+    },
+    {
+      "id": "tudor-period-revival",
+      "name": "Tudor / Storybook & Period-Revival Traditional",
+      "aliases": [
+        "Tudor Revival",
+        "Storybook style",
+        "Minimal Traditional",
+        "English Revival cottage",
+        "War Years cottage",
+        "1940s cottage",
+        "FHA cottage",
+        "hip roof house",
+        "Colonial Revival",
+        "1930s Mediterranean traditional",
+        "Bixby Knolls traditional",
+        "storybook Tudor",
+        "tudor",
+        "storybook",
+        "cottage"
+      ],
+      "stories": "1-2",
+      "eras": "1922-1952",
+      "sizeSqft": [
+        800,
+        3800
+      ],
+      "neighborhoods": [
+        "Leimert Park",
+        "Windsor Hills",
+        "Windsor Square",
+        "Miracle Mile",
+        "Carthay Circle",
+        "Jefferson Park",
+        "Long Beach (Bixby Knolls, Bixby Highlands)",
+        "Glendale (Adams Hill)",
+        "South Pasadena",
+        "Inglewood",
+        "North Hollywood",
+        "Whittier"
+      ],
+      "tiersPresent": [
+        "everyday",
+        "nice",
+        "luxury"
+      ],
+      "signature": [
+        "Steeply pitched cross-gable roofs (Tudor); storybook examples add a rolled 'catslide' eave; Colonial examples a symmetrical hip roof; Minimal Traditional a simplified low-eave hip/gable",
+        "Decorative half-timbering on upper gables; brick or clinker-brick veneer with a prominent chimney (or, on Minimal Traditional, plain stucco/lap siding with little ornament)",
+        "Tall narrow windows, often diamond-pane leaded glass grouped in threes; multi-pane divided-light windows with shutters on Colonial examples",
+        "Round-arched or paneled wood entry door recessed under a small hood or portico",
+        "Detached garage set back from the main house"
+      ],
+      "interiorCharacter": [
+        "Formal entry hall separating living and dining rooms in larger examples; Minimal Traditional keeps small efficient rooms",
+        "Brick fireplace with an arched firebox and a tile or carved-wood mantel as the living-room focal point",
+        "Exposed (often decorative) half-timber beams; leaded or diamond-pane windows",
+        "Curved walnut or oak staircase with turned newel post in two-story examples",
+        "Coved or simple crown molding, taller baseboards than a ranch; plaster walls, wood-plank or herringbone floors",
+        "Built-in china cabinet between the dining room and a modernized rear kitchen"
+      ],
+      "tierNotes": {
+        "everyday": {
+          "typicalFinishes": [
+            "Original modest Minimal Traditional cottages or small Tudors with dated kitchens",
+            "stock shaker or refaced cabinets",
+            "laminate or butcher-block counters",
+            "sheet vinyl or LVP flooring",
+            "single-pane windows and worn original flooring"
+          ],
+          "renderGuidance": "Keep the small, efficient room scale of a working-class 1940s cottage honest — a real remodel is fresh paint, budget or refaced cabinets, and simple flooring. Don't inflate it into an open-concept great room or add a porch/portico that wasn't original.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              22000,
+              70000
+            ],
+            "bath": [
+              13000,
+              38000
+            ],
+            "exteriorRefresh": [
+              6000,
+              35000
+            ]
+          }
+        },
+        "nice": {
+          "typicalFinishes": [
+            "Refinished original oak or walnut flooring; restored leaded/diamond-pane glass",
+            "restored or reproduced coved molding and picture rails",
+            "kitchen updated with shaker or inset cabinetry, quartz or marble-look counters, keeping brick/arch motifs",
+            "restored original wood windows or matching divided-light replacements",
+            "period-appropriate brass or oil-rubbed-bronze hardware and lighting"
+          ],
+          "renderGuidance": "Render a well-kept period traditional with its formal bones — entry hall, fireplace mantel, staircase, brick, and leaded windows — preserved, with kitchen and baths tastefully modernized. It should read as a solid family home in an established neighborhood, warm and formal-but-lived-in, not museum-restored or over-scaled into a great room.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              65000,
+              130000
+            ],
+            "bath": [
+              28000,
+              75000
+            ],
+            "exteriorRefresh": [
+              18000,
+              80000
+            ]
+          }
+        },
+        "luxury": {
+          "typicalFinishes": [
+            "Custom millwork and restored half-timbering",
+            "imported or replica leaded glass",
+            "formal Windsor Square-caliber Tudor estate finishes"
+          ],
+          "renderGuidance": "Render as a formal Windsor Square-style estate: generous, symmetrical rooms with restored half-timber and leaded glass as centerpiece details.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              130000,
+              300000
+            ],
+            "bath": [
+              75000,
+              180000
+            ],
+            "exteriorRefresh": [
+              80000,
+              220000
+            ]
+          }
+        }
+      },
+      "renderClauses": {
+        "interior": "Preserve brick fireplaces with arched fireboxes, leaded/diamond-pane windows, exposed half-timber beams, the formal entry hall and any turned-newel staircase, and coved/crown molding; keep rooms modestly scaled for Minimal Traditional and storybook examples rather than inflating them into open-concept great rooms.",
+        "exterior": "Keep the steep cross-gable or catslide roofline, half-timbering, and brick veneer (Tudor/Storybook) — or the simple low-ornament hip/gable massing (Minimal Traditional) — and the round-arched entry intact; do not flatten the roof, strip half-timber detailing, or add Spanish stucco-and-tile details onto a Tudor frame."
+      },
+      "avoid": [
+        "Removing half-timbering or brick veneer for a smooth modern facade",
+        "Replacing diamond-pane leaded windows with plain large panes",
+        "Flattening a steep catslide/cross-gable roof or removing the chimney",
+        "Over-scaling a Minimal Traditional cottage into a McMansion great room",
+        "Stripping the round-arched entry door for a flush modern door",
+        "Adding a porch/portico or picture windows that weren't original"
+      ],
+      "sources": [
+        {
+          "title": "LOS ANGELES CITYWIDE HISTORIC CONTEXT STATEMENT — Period Revival 1919-1950 | LA City Planning",
+          "url": "https://planning.lacity.gov/odocument/5997064e-8a5b-4bd4-a26d-c6009582e847/PeriodRevival_1919-1950.pdf",
+          "kind": "article"
+        },
+        {
+          "title": "Minimal Traditional (1935-1950), City of Whittier Historic Preservation",
+          "url": "https://www.cityofwhittier.org/government/community-development/planning-services/historic-preservation/common-residential-architectural-styles-in-whittier-to-1950/minimal-traditional-1935-1950",
+          "kind": "article"
+        },
+        {
+          "title": "Minimal Traditional — Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Minimal_Traditional",
+          "kind": "article"
+        },
+        {
+          "title": "Minimal Traditional | Fullerton Heritage",
+          "url": "https://www.fullertonheritage.org/Gallery/minimal-traditional.php",
+          "kind": "article"
+        },
+        {
+          "title": "Step Inside This MAGICAL Fairytale Tudor Cottage (1928 Storybook Tudor)",
+          "url": "https://www.youtube.com/watch?v=5BWCKiJmpxI",
+          "kind": "youtube"
+        },
+        {
+          "title": "Exploring Tudor-Style Homes in Los Angeles: Architecture, History & Neighborhoods",
+          "url": "https://www.lahomes.com/blog/where-to-find-tudor-homes-los-angeles/",
+          "kind": "article"
+        },
+        {
+          "title": "Bixby Knolls: Long Beach's Hidden Gem | Neighborhood Tour",
+          "url": "https://www.youtube.com/watch?v=lQlkXg0vWlE",
+          "kind": "youtube"
+        },
+        {
+          "title": "Discover Historic Bixby Knolls in Long Beach Today",
+          "url": "https://lovelylongbeachhomes.com/discover-historic-bixby-knolls-homes-long-beach/",
+          "kind": "article"
+        }
+      ]
+    },
+    {
+      "id": "modest-stucco-box",
+      "name": "Modest Stucco Box",
+      "aliases": [
+        "stucco box",
+        "plain box house",
+        "no-style house",
+        "60s stucco house",
+        "boxy tract house",
+        "cracker box house"
+      ],
+      "stories": 1,
+      "eras": "1955-1975",
+      "sizeSqft": [
+        900,
+        1600
+      ],
+      "neighborhoods": [
+        "South LA",
+        "Van Nuys",
+        "North Hollywood",
+        "Panorama City",
+        "Hawthorne",
+        "Gardena",
+        "Compton-adjacent"
+      ],
+      "tiersPresent": [
+        "everyday"
+      ],
+      "signature": [
+        "Flat or very low-pitch roof with minimal or no eave overhang",
+        "Plain rectangular stucco box massing, almost no ornament",
+        "Small aluminum-frame windows, often slider style",
+        "Attached single-car garage taking up much of the street facade",
+        "Narrow concrete walkway to a flush, unadorned front door",
+        "Chain-link or block-wall side-yard fencing; small flat concrete stoop instead of a porch"
+      ],
+      "interiorCharacter": [
+        "7.5-8 ft ceilings",
+        "Very simple rectangular room layout with minimal hallway",
+        "Small original kitchen, often galley or one-wall",
+        "Combined living/dining space in smaller examples",
+        "1 bath, 2-3 bedrooms; original slab floors under vinyl tile, sheet vinyl, or worn carpet",
+        "Small single-pane aluminum windows letting in less light than earlier styles"
+      ],
+      "tierNotes": {
+        "everyday": {
+          "typicalFinishes": [
+            "Stock shaker cabinets or cabinet refacing",
+            "laminate or entry-level quartz counters",
+            "LVP or sheet vinyl flooring",
+            "fiberglass shower-tub insert or basic tile surround",
+            "vinyl replacement windows"
+          ],
+          "renderGuidance": "This is the plainest, most budget-driven housing type in the set — render finishes as clean and functional, not stylish; the goal is 'a family fixed it up on a real budget,' with builder-grade materials and no architectural flourishes added.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              25000,
+              42000
+            ],
+            "bath": [
+              14000,
+              26000
+            ],
+            "exteriorRefresh": [
+              7000,
+              18000
+            ]
+          }
+        }
+      },
+      "renderClauses": {
+        "interior": "Keep ceilings at a plain 7.5-8 ft and rooms boxy and small; do not introduce vaulted ceilings, exposed beams, or a large island that wouldn't fit the original one-wall or galley kitchen.",
+        "exterior": "Keep the flat/low-pitch roof and unadorned box massing exactly as photographed; treat upgrades only as paint, a new garage door, window replacement, and landscaping."
+      },
+      "avoid": [
+        "adding decorative roof pitch, gables, or eaves that weren't there",
+        "vaulting ceilings",
+        "adding a porch",
+        "rendering designer/luxury finishes out of step with a budget stucco box",
+        "changing the window style from slider/aluminum to large picture windows"
+      ],
+      "sources": [
+        {
+          "title": "Tract Housing in California, 1945-1973 (LA City Planning historic context report)",
+          "url": "https://planning.lacity.gov/odocument/7b3709a9-42d8-44ad-ac78-0bcf7fd70312/TractHousinginCalifornia_1945-1973.pdf",
+          "kind": "article"
+        },
+        {
+          "title": "The Art of Restoring a 1950s Los Angeles Home | House Tour",
+          "url": "https://www.youtube.com/watch?v=4E_Yu40UB0w",
+          "kind": "youtube"
+        },
+        {
+          "title": "Why 1940s Los Angeles Houses Are Built to Last",
+          "url": "https://erickimphotography.com/why-1940s-los-angeles-houses-are-built-to-last/",
+          "kind": "article"
+        }
+      ]
+    },
+    {
+      "id": "suburban-tract-two-story",
+      "name": "Suburban Tract Two-Story",
+      "aliases": [
+        "tract home",
+        "80s suburban house",
+        "cookie cutter house",
+        "master planned community home",
+        "tract traditional",
+        "Porter Ranch two-story",
+        "Stevenson Ranch traditional",
+        "builder Mediterranean",
+        "Santa Clarita house",
+        "Palmdale house",
+        "tract house",
+        "porter ranch",
+        "stevenson ranch",
+        "porter ranch house",
+        "stevenson ranch house"
+      ],
+      "stories": 2,
+      "eras": "1968-2005",
+      "sizeSqft": [
+        1400,
+        3200
+      ],
+      "neighborhoods": [
+        "Santa Clarita",
+        "Valencia",
+        "Newhall",
+        "Saugus",
+        "Palmdale",
+        "Canyon Country",
+        "Porter Ranch",
+        "Stevenson Ranch",
+        "Chatsworth (newer tract pockets)"
+      ],
+      "tiersPresent": [
+        "everyday",
+        "nice"
+      ],
+      "signature": [
+        "Two-story massing with a repeated floor plan shared by neighboring houses",
+        "Attached 2-3 car garage (sometimes side-loaded/tandem) as the dominant street-facing element",
+        "Stucco field (warm tan/beige) with brick or wood-look trim accents",
+        "Mediterranean-influenced concrete-tile or composition-shingle roof, often a prominent front-facing gable",
+        "Two-story entry portico with sidelight windows flanking the front door",
+        "Modest HOA-consistent front yard; backyard sized for a pool/patio"
+      ],
+      "interiorCharacter": [
+        "8-ft ceilings on both floors with a two-story entry foyer, sometimes a curved or straight staircase visible from the front door",
+        "Formal living/dining rooms flanking the entry (often with arched doorway openings), family room open to the kitchen at the rear",
+        "Kitchen with an eat-in nook plus peninsula or a raised-bar island (era-dependent)",
+        "Primary suite upstairs with the other bedrooms; loft/bonus room overlooking the entry in 90s-2000s plans",
+        "Builder-grade oak trim and six-panel doors; original wall-to-wall carpet upstairs",
+        "Interior laundry/mud area off the garage"
+      ],
+      "tierNotes": {
+        "everyday": {
+          "typicalFinishes": [
+            "Stock or semi-custom shaker cabinets",
+            "laminate or entry quartz counters",
+            "LVP downstairs, refreshed carpet upstairs",
+            "standard tub-shower combo with tile surround",
+            "stock stainless appliances"
+          ],
+          "renderGuidance": "Render as a typical suburban production-builder home refreshed on a normal budget: keep the two-story tract footprint and repeated-plan proportions, and use everyday materials rather than custom builder finishes.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              32000,
+              58000
+            ],
+            "bath": [
+              16000,
+              30000
+            ],
+            "exteriorRefresh": [
+              10000,
+              28000
+            ]
+          }
+        },
+        "nice": {
+          "typicalFinishes": [
+            "Painted or transitional semi-custom cabinets",
+            "quartz counters with a modest waterfall or eased edge",
+            "engineered hardwood or tile on the main floor",
+            "framed glass shower with tile to ceiling",
+            "refreshed staircase (iron balusters), updated primary bath with freestanding tub or larger shower",
+            "repainted stucco, new garage doors, updated front door and lighting"
+          ],
+          "renderGuidance": "A nicer finish-out of the same production floor plan — better materials and a cleaner palette — but the two-story massing, roofline, two-story foyer, and formal/casual room split stay identical to the original tract plan. Family-lived-in scale, not a custom estate; avoid infinity pools or resort landscaping.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              58000,
+              125000
+            ],
+            "bath": [
+              30000,
+              55000
+            ],
+            "exteriorRefresh": [
+              22000,
+              50000
+            ]
+          }
+        }
+      },
+      "renderClauses": {
+        "interior": "Keep the builder floor plan intact — two-story entry foyer, formal front rooms with arched openings, family room/kitchen toward the back, bedrooms upstairs — and use an eat-in nook plus peninsula or a modest island (not a great-room gut) unless the source photo already shows one.",
+        "exterior": "Preserve the two-story tract massing, garage-forward facade, prominent front gable, and concrete-tile or shingle roofline shared with neighboring houses; render upgrades as fresh stucco paint, garage door, entry door, and tidy refreshed landscaping only."
+      },
+      "avoid": [
+        "converting to single story, an open-concept great room, or adding a third story",
+        "changing the roof material or pitch, or flat modern rooflines",
+        "removing the two-story entry volume",
+        "making the house look custom/architect-designed rather than production-built",
+        "ultra-luxury resort backyards (swim-up bars, glass-edge pools) at this price point"
+      ],
+      "sources": [
+        {
+          "title": "Explore the Rich History of Valencia in Santa Clarita Valley",
+          "url": "https://valencia.com/valencia-history",
+          "kind": "article"
+        },
+        {
+          "title": "Dawn of a new century: How Santa Clarita got here",
+          "url": "https://scvhistory.com/scvhistory/sgprogress0401.htm",
+          "kind": "article"
+        },
+        {
+          "title": "Tour Santa Clarita Valley: Explore One of the Most Desirable Suburbs Near Los Angeles",
+          "url": "https://www.youtube.com/watch?v=-HYQdlXAhMQ",
+          "kind": "youtube"
+        },
+        {
+          "title": "Stevenson Ranch Homes for Sale | Stevenson Ranch, CA Real Estate",
+          "url": "https://www.rubyhome.com/stevenson-ranch-ca/",
+          "kind": "article"
+        },
+        {
+          "title": "New Home Community in Porter Ranch by Toll Brothers",
+          "url": "https://liveatporterranch.com/whats-happening",
+          "kind": "article"
+        },
+        {
+          "title": "Single and One Story Homes in Porter Ranch, Los Angeles, CA For Sale | Redfin",
+          "url": "https://www.redfin.com/neighborhood/2179/CA/Los-Angeles/Porter-Ranch/single-story",
+          "kind": "listing"
+        }
+      ]
+    },
+    {
+      "id": "hillside-stilt-home",
+      "name": "Hillside / Stilt Home",
+      "aliases": [
+        "Stilt house",
+        "Pole house",
+        "View home",
+        "Cantilevered hillside house",
+        "hillside home",
+        "view-lot home",
+        "stilt",
+        "hillside house"
+      ],
+      "stories": "1-2",
+      "eras": "1955-1965 (peak spec-built stilt era); custom hillside builds continuing to present",
+      "sizeSqft": [
+        1200,
+        6000
+      ],
+      "neighborhoods": [
+        "Hollywood Hills",
+        "Laurel Canyon",
+        "Mount Washington",
+        "Silver Lake",
+        "Los Feliz",
+        "Beachwood Canyon",
+        "Echo Park"
+      ],
+      "tiersPresent": [
+        "everyday",
+        "nice",
+        "luxury"
+      ],
+      "signature": [
+        "Cantilevered decks projecting past the building line toward the view",
+        "Exposed steel or wood stilt/pole supports, often braced with diagonal cable or rod X-bracing",
+        "View-oriented glass wall on the downhill elevation",
+        "Minimal street presence — often only a garage/entry door visible from the road",
+        "Floating/cantilevered massing that steps down the slope"
+      ],
+      "interiorCharacter": [
+        "Open living rooms cantilevered toward the view with floor-to-ceiling glass",
+        "Exposed structural steel beams and columns integrated into the room",
+        "Narrow floor plates dictated by the buildable envelope",
+        "Split-level interior stairs following the hillside grade",
+        "Low-profile or glass guardrails preserving sightlines"
+      ],
+      "tierNotes": {
+        "everyday": {
+          "typicalFinishes": [
+            "Original 1958-65 spec-built stilt construction",
+            "small floor plates",
+            "dated finishes",
+            "may or may not have had a post-Northridge structural retrofit"
+          ],
+          "renderGuidance": "Note the structural constraint explicitly: this is a small, view-driven box on exposed supports, not a house that can be freely enlarged.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              45000,
+              90000
+            ],
+            "bath": [
+              20000,
+              45000
+            ],
+            "exteriorRefresh": [
+              20000,
+              60000
+            ]
+          }
+        },
+        "nice": {
+          "typicalFinishes": [
+            "Retrofitted steel moment-frame bracing",
+            "updated glass walls and decking",
+            "engineered wood decking",
+            "modern glass or cable railings"
+          ],
+          "renderGuidance": "A tasteful update keeps the deck footprint and stilt/brace geometry identical; only surface materials change.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              90000,
+              160000
+            ],
+            "bath": [
+              45000,
+              90000
+            ],
+            "exteriorRefresh": [
+              60000,
+              180000
+            ]
+          }
+        },
+        "luxury": {
+          "typicalFinishes": [
+            "Architect-grade cantilevered decks",
+            "structural glass walls",
+            "infinity-edge pool or deck elements",
+            "exposed high-end steel construction"
+          ],
+          "renderGuidance": "Reference Lautner/Koenig-era design language (e.g., Garcia House, Stahl House): the structure itself — visible steel, glass, and the drop into the canyon — is the luxury statement.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              160000,
+              400000
+            ],
+            "bath": [
+              90000,
+              220000
+            ],
+            "exteriorRefresh": [
+              150000,
+              500000
+            ]
+          }
+        }
+      },
+      "renderClauses": {
+        "interior": "Respect the narrow, view-oriented floor plate and exposed structural beams/columns; do not widen rooms or remove load-bearing posts/braces visible in the source photo — hillside structures cannot be freely reconfigured.",
+        "exterior": "Keep cantilevered decks, stilt/pole supports, and any visible diagonal cable/rod bracing intact and structurally plausible; do not fill in the space below the house or add ground-level additions that ignore the slope."
+      },
+      "avoid": [
+        "Removing or 'hiding' visible stilts/diagonal bracing — they are load-bearing",
+        "Widening a cantilevered room footprint beyond the existing deck edge",
+        "Adding a full basement or ground-level garage under the house on a steep slope where none exists",
+        "Flattening or regrading the hillside in the render",
+        "Ignoring the view orientation — furniture and glazing should face the canyon/city, not the street",
+        "Adding heavy stone veneer that implies structural load the cantilever wasn't designed to carry"
+      ],
+      "sources": [
+        {
+          "title": "Stilt Homes in Los Angeles: Modern Marvels with Iconic Hillside Views",
+          "url": "https://www.lahomes.com/blog/where-to-find-stilt-homes-los-angeles/",
+          "kind": "article"
+        },
+        {
+          "title": "Stilt Home Foundation Repair Los Angeles | Alpha Structural, Inc",
+          "url": "https://www.alphastructural.com/foundation-repair/stilt-home-foundation-repair/",
+          "kind": "article"
+        },
+        {
+          "title": "Side-by-Side: Two Mid-Century Hillside Homes in LA With Completely Different Energy | House Tour",
+          "url": "https://www.youtube.com/watch?v=RFY1nwzdI98",
+          "kind": "youtube"
+        },
+        {
+          "title": "The Art of the Slope: Hillside Homes in Los Angeles | Saban Global",
+          "url": "https://sabanglobal.com/hillside-home-architecture-los-angeles/",
+          "kind": "article"
+        }
+      ]
+    },
+    {
+      "id": "small-lot-infill-townhome",
+      "name": "Contemporary Small-Lot Infill / SB9-Era Townhome",
+      "aliases": [
+        "Small-lot subdivision home",
+        "Small Lot Ordinance home",
+        "SB9 duplex",
+        "Infill townhome",
+        "modern townhome",
+        "builder-modern townhouse",
+        "townhouse",
+        "sb9"
+      ],
+      "stories": 2,
+      "eras": "2005-present (LA Small Lot Ordinance); 2021-present (SB9 lot-split duplexes)",
+      "sizeSqft": [
+        1000,
+        2400
+      ],
+      "neighborhoods": [
+        "Highland Park",
+        "Cypress Park",
+        "Atwater Village",
+        "Palms",
+        "Mid-City",
+        "Echo Park"
+      ],
+      "tiersPresent": [
+        "everyday",
+        "nice"
+      ],
+      "signature": [
+        "Zero or minimal setback from the property line",
+        "Vertical massing stacked 2-3 stories on a narrow lot",
+        "Flat or shed roofline, simple rectilinear volumes",
+        "Stucco, fiber-cement panel, or mixed concrete/glass/wood cladding",
+        "Small or no private yard; shared driveway or motor court serving a cluster of units",
+        "Rooftop deck in lieu of a yard"
+      ],
+      "interiorCharacter": [
+        "Open-plan living typically stacked on the upper floor for light and view",
+        "Bedrooms on a lower level, following the vertical stack",
+        "Large sliding glass to a small deck, patio, or Juliet balcony",
+        "Minimal applied trim; flat-panel cabinetry",
+        "Engineered wood or vinyl plank flooring for durability/cost"
+      ],
+      "tierNotes": {
+        "everyday": {
+          "typicalFinishes": [
+            "Builder-grade quartz or laminate counters",
+            "vinyl plank flooring",
+            "stock flat-panel cabinets",
+            "minimal trim, track lighting"
+          ],
+          "renderGuidance": "Keep it honest builder-modern spec finish — clean but not designer; don't add custom millwork this tier wouldn't have.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              35000,
+              65000
+            ],
+            "bath": [
+              15000,
+              35000
+            ],
+            "exteriorRefresh": [
+              10000,
+              30000
+            ]
+          }
+        },
+        "nice": {
+          "typicalFinishes": [
+            "Upgraded quartz and engineered wood flooring",
+            "semi-custom cabinetry",
+            "glass deck railings",
+            "designer lighting on the rooftop deck"
+          ],
+          "renderGuidance": "A modest upgrade in materials only — the compact stacked floor plan and small-lot massing stay fixed.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              65000,
+              120000
+            ],
+            "bath": [
+              35000,
+              70000
+            ],
+            "exteriorRefresh": [
+              30000,
+              70000
+            ]
+          }
+        }
+      },
+      "renderClauses": {
+        "interior": "Keep the compact, vertically-stacked floor plan and large sliding glass to the small deck/patio; use clean flat-panel cabinetry and minimal trim consistent with a builder-modern spec finish, not ornate traditional details.",
+        "exterior": "Preserve the zero/minimal-setback massing, flat or shed roofline, and simple stucco/panel cladding; do not add wide setbacks, pitched roofs, or a full yard that doesn't exist on the lot."
+      },
+      "avoid": [
+        "Adding a large front or side yard where the lot has none",
+        "Turning a flat/shed roof into a pitched traditional roof",
+        "Adding ornate period trim (Craftsman/Spanish details) that doesn't match the builder-modern shell",
+        "Widening room footprints beyond the small-lot floor plate",
+        "Ignoring the shared driveway/motor-court context of the cluster development"
+      ],
+      "sources": [
+        {
+          "title": "Starter home concepts seek to alleviate Los Angeles housing crisis — Dezeen",
+          "url": "https://www.dezeen.com/2025/06/02/small-lots-big-impact-los-angeles-housing-crisis-competition/",
+          "kind": "article"
+        },
+        {
+          "title": "Small Lot Subdivision Los Angeles Architects | Modative",
+          "url": "https://www.modative.com/small-lot-subdivision-los-angeles-architects-national-modern-homes",
+          "kind": "article"
+        },
+        {
+          "title": "Small Lot Design Standards: Guide for Los Angeles Subdivisions | JDJ Consulting",
+          "url": "https://jdj-consulting.com/small-lot-design-guidelines-an-illustrated-guide-for-los-angeles/",
+          "kind": "article"
+        },
+        {
+          "title": "Inside a Hidden House in Los Angeles Designed as a Private World (House Tour)",
+          "url": "https://www.youtube.com/watch?v=EuuymmWPlFo",
+          "kind": "youtube"
+        }
+      ]
+    },
+    {
+      "id": "valley-westside-condo-townhome",
+      "name": "Valley / Westside Condo & Townhome Interior",
+      "aliases": [
+        "Garden-style condo",
+        "1970s/80s condo complex unit",
+        "Townhome-style condo",
+        "Westside townhome interior",
+        "Valley condo unit",
+        "condo",
+        "condominium",
+        "apartment"
+      ],
+      "stories": "1-2",
+      "eras": "1965-1990",
+      "sizeSqft": [
+        650,
+        1800
+      ],
+      "neighborhoods": [
+        "Sherman Oaks",
+        "Encino",
+        "Woodland Hills",
+        "Van Nuys",
+        "Marina del Rey",
+        "Palms",
+        "West LA",
+        "Culver City"
+      ],
+      "tiersPresent": [
+        "everyday",
+        "nice"
+      ],
+      "signature": [
+        "Low-rise 2-3 story stucco building, usually with a shared pool or courtyard",
+        "Carport or subterranean shared parking",
+        "Small private balcony or patio slider per unit",
+        "Uniform HOA-governed facade, windows, and railings across the building"
+      ],
+      "interiorCharacter": [
+        "Popcorn (acoustic) ceilings, common through the late 1980s",
+        "Oak or builder-grade laminate cabinetry, often with brass hardware",
+        "Mirrored wardrobe/closet doors",
+        "Narrow galley kitchens",
+        "Carpet throughout, driven by shared-wall/floor acoustic requirements",
+        "Single sliding door to a small balcony or patio as the only 'outdoor' space"
+      ],
+      "tierNotes": {
+        "everyday": {
+          "typicalFinishes": [
+            "Original popcorn ceilings",
+            "oak cabinets",
+            "brass hardware and fixtures",
+            "wall-to-wall carpet",
+            "single-pane sliders"
+          ],
+          "renderGuidance": "Keep the unit's modest, boxy proportions and shared-wall context visible; this is a rental-adjacent unit, not a house — don't add windows or a yard that can't exist.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              25000,
+              50000
+            ],
+            "bath": [
+              12000,
+              28000
+            ],
+            "exteriorRefresh": [
+              5000,
+              15000
+            ]
+          }
+        },
+        "nice": {
+          "typicalFinishes": [
+            "Popcorn ceiling removed/skim-coated",
+            "quartz counters",
+            "HOA-approved LVP or engineered wood (for sound rating)",
+            "matte-black or brushed-nickel hardware replacing brass",
+            "refreshed slider/balcony"
+          ],
+          "renderGuidance": "A cosmetic-only upgrade within the existing envelope — walls, window openings, and balcony placement stay exactly where they are.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              50000,
+              90000
+            ],
+            "bath": [
+              28000,
+              55000
+            ],
+            "exteriorRefresh": [
+              10000,
+              25000
+            ]
+          }
+        }
+      },
+      "renderClauses": {
+        "interior": "Work within the existing modest room proportions and shared-wall layout; keep balcony/slider placement and any load-bearing walls between units — condo layouts can't be freely opened up like a single-family house.",
+        "exterior": "Any exterior render must respect the shared building envelope and HOA-uniform facade — don't redesign the whole building's exterior to suit a single unit's remodel."
+      },
+      "avoid": [
+        "Removing walls that are shared with neighboring units",
+        "Redesigning the whole building's facade or balcony style for one unit's remodel",
+        "Ignoring typical HOA constraints (uniform windows, paint, balcony rails)",
+        "Adding a fireplace, extra windows, or a footprint expansion that isn't physically possible in a mid-building unit",
+        "Assuming a full yard exists when the unit only has a small patio or balcony"
+      ],
+      "sources": [
+        {
+          "title": "An 80s-Style Condo Gets a Modern Makeover — Mountain Living",
+          "url": "https://www.mountainliving.com/an-80s-style-condo-gets-a-modern-makeover/",
+          "kind": "article"
+        },
+        {
+          "title": "When you've lost your taste for popcorn ceilings — Tucson.com",
+          "url": "https://tucson.com/lifestyles/home-and-garden/home/when-youve-lost-your-taste-for-popcorn-ceilings/article_f3629988-f617-538e-a76e-d6a36c1d12aa.html",
+          "kind": "article"
+        },
+        {
+          "title": "Amazing Condo Makeover! Unbelievable Transformation Tour - Before and After Renovation",
+          "url": "https://www.youtube.com/watch?v=b-oWQiDfXEo",
+          "kind": "youtube"
+        },
+        {
+          "title": "Tour a Stunning Los Angeles Condo's Bold Renovation | HGTV",
+          "url": "https://www.hgtv.com/decorating/home-tours/tour-a-bold-los-angeles-condo-makeover-pictures",
+          "kind": "article"
+        }
+      ]
+    },
+    {
+      "id": "adu-garage-conversion",
+      "name": "ADU / Garage Conversion",
+      "aliases": [
+        "ADU",
+        "Accessory Dwelling Unit",
+        "Garage conversion",
+        "Junior ADU",
+        "Above-garage ADU",
+        "backyard unit",
+        "granny flat",
+        "casita",
+        "guest house"
+      ],
+      "stories": "1-2",
+      "eras": "2017-present (post California ADU-law reform)",
+      "sizeSqft": [
+        400,
+        1200
+      ],
+      "neighborhoods": [
+        "Citywide — Van Nuys, North Hollywood, Reseda (Valley)",
+        "Highland Park, El Sereno (Eastside)",
+        "Mar Vista, Palms (Westside)",
+        "South LA"
+      ],
+      "tiersPresent": [
+        "everyday",
+        "nice",
+        "luxury"
+      ],
+      "signature": [
+        "Detached single-story box, or a converted attached garage footprint",
+        "Above-garage option adds a full second story over existing parking",
+        "Roofline and siding typically matched or simplified from the main house",
+        "Small footprint, often built to minimal rear/side setback",
+        "Small entry deck or patio in lieu of a formal entrance"
+      ],
+      "interiorCharacter": [
+        "Open-plan studio or one-bedroom layout",
+        "Compact galley or single-wall kitchen",
+        "Stacked or closet washer/dryer",
+        "Visible wall-mounted mini-split HVAC unit (no central ducting)",
+        "9-10 ft ceilings when new-construction (vs. lower in a raw garage conversion)",
+        "Pocket doors and built-in storage to conserve floor area"
+      ],
+      "tierNotes": {
+        "everyday": {
+          "typicalFinishes": [
+            "Basic garage-slab conversion",
+            "vinyl plank flooring",
+            "stock cabinets",
+            "minimal window openings",
+            "single mini-split"
+          ],
+          "renderGuidance": "Keep the footprint honestly garage-sized; finishes are basic and builder-grade, not designer.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              15000,
+              35000
+            ],
+            "bath": [
+              10000,
+              25000
+            ],
+            "exteriorRefresh": [
+              8000,
+              25000
+            ]
+          }
+        },
+        "nice": {
+          "typicalFinishes": [
+            "New dual-pane windows",
+            "quartz counters",
+            "tiled shower",
+            "engineered wood flooring",
+            "properly sized mini-split"
+          ],
+          "renderGuidance": "A well-finished detached or above-garage unit — still compact, but with intentional material choices.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              35000,
+              60000
+            ],
+            "bath": [
+              25000,
+              45000
+            ],
+            "exteriorRefresh": [
+              20000,
+              45000
+            ]
+          }
+        },
+        "luxury": {
+          "typicalFinishes": [
+            "Architect-designed detached ADU",
+            "full-height glass",
+            "radiant floors",
+            "high-end integrated appliances"
+          ],
+          "renderGuidance": "Treat as a mini architectural statement in the backyard — high design intent within a strictly small footprint.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              60000,
+              120000
+            ],
+            "bath": [
+              45000,
+              90000
+            ],
+            "exteriorRefresh": [
+              40000,
+              90000
+            ]
+          }
+        }
+      },
+      "renderClauses": {
+        "interior": "Respect the small compact footprint — keep the open-plan studio/1-bed layout, stacked laundry, and mini-split wall unit; don't render rooms larger than a garage-footprint ADU could hold.",
+        "exterior": "Match or simplify the main house's roofline and siding on the ADU shell; keep the small footprint and setback realistic for a backyard structure, not a full second house."
+      },
+      "avoid": [
+        "Rendering an ADU with a footprint larger than a converted garage or small backyard structure can hold",
+        "Adding a full basement or a second full-size garage under the ADU",
+        "Ignoring the mini-split/wall-unit HVAC common to ADUs by implying central ducted systems that don't exist",
+        "Making the ADU exterior wildly mismatched in style from the main house without a stated design reason",
+        "Adding grand entries/porticos disproportionate to a small backyard unit"
+      ],
+      "sources": [
+        {
+          "title": "Garage Conversion ADU Guide: Costs, Plans & Process in LA (2026) | CALI ADU",
+          "url": "https://cali-adu.com/blog/adu-garage-conversion/",
+          "kind": "article"
+        },
+        {
+          "title": "Above Garage ADU in Los Angeles: A Flexible Space Designed for Work, Guests & Entertaining",
+          "url": "https://www.neobuildersadu.com/post/above-garage-adu-in-los-angeles-a-flexible-space",
+          "kind": "article"
+        },
+        {
+          "title": "Los Angeles ADU tour. Before and after. 750 sq ft. $350K.",
+          "url": "https://www.youtube.com/watch?v=Ze2hYwBrwGM",
+          "kind": "youtube"
+        },
+        {
+          "title": "Los Angeles Above Garage ADU Tour | 500 Sq Ft of Smart Design",
+          "url": "https://www.youtube.com/watch?v=XZGJHHBfiRw",
+          "kind": "youtube"
+        }
+      ]
+    },
+    {
+      "id": "beverly-hills-bel-air-classic-estate",
+      "name": "Beverly Hills / Bel Air / Holmby Hills Classic Estate",
+      "aliases": [
+        "Platinum Triangle estate",
+        "Old Bel Air mansion",
+        "Beverly Hills flats estate",
+        "Mediterranean/French/Georgian estate"
+      ],
+      "stories": 2,
+      "eras": "1920s-1940s Golden Age revival; 1980s-2000s spec-built revival; gut-renovated legacy estate",
+      "sizeSqft": [
+        6000,
+        20000
+      ],
+      "neighborhoods": [
+        "Beverly Hills Flats",
+        "Holmby Hills",
+        "Bel Air (Old Bel Air + Lower Bel Air)",
+        "Trousdale Estates (traditional side)"
+      ],
+      "tiersPresent": [
+        "luxury"
+      ],
+      "signature": [
+        "Gated motor court with fountain and formal porte-cochere",
+        "Symmetrical facade in Mediterranean, French Normandy, Georgian Colonial, or Tudor idiom",
+        "Clay tile, slate, or copper roofing",
+        "Formal foyer with sweeping curved staircase",
+        "Walled/hedged grounds with mature specimen trees",
+        "Guest house or staff quarters, tennis court, motor-court garage row (4-8 cars)",
+        "Resort-style rear grounds: pool, pool house, cabana, formal gardens"
+      ],
+      "interiorCharacter": [
+        "12-16 ft formal ceilings on the main level, coffered or hand-plastered",
+        "Grand entry foyer with statement staircase and chandelier",
+        "Separate formal living room, formal dining room, and family/great room",
+        "Library/study with built-in millwork paneling",
+        "Wine cellar or wine room, home theater, gym, spa",
+        "Primary suite as a private wing with dual closets and sitting room",
+        "Service areas: butler's pantry, catering kitchen, staff hallway"
+      ],
+      "tierNotes": {
+        "luxury": {
+          "typicalFinishes": [
+            "Book-matched marble or onyx slab on fireplace walls and primary baths",
+            "hand-scraped or rift-sawn white oak wide-plank flooring, herringbone in formal rooms",
+            "custom fluted or paneled millwork, plaster crown detail",
+            "La Cantina or Fleetwood pocket doors bridging to loggias/terraces",
+            "panel-ready Sub-Zero/Wolf/Miele suites, dual islands, scullery kitchen",
+            "designer plumbing (Waterworks, Kallista, THG) and custom brass/bronze hardware",
+            "limestone or reclaimed antique stone exterior cladding, wrought-iron detailing"
+          ],
+          "renderGuidance": "Render with formal symmetry intact and generous ceiling height read through window proportions; keep stone/marble book-matching visible and continuous across slabs; grounds should read manicured and mature, not new-build landscaping; preserve grandeur — avoid flattening the estate into a generic McMansion.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              180000,
+              450000
+            ],
+            "bath": [
+              90000,
+              250000
+            ],
+            "exteriorRefresh": [
+              150000,
+              500000
+            ]
+          }
+        }
+      },
+      "renderClauses": {
+        "interior": "Maintain formal proportions and ceiling height; preserve existing architectural millwork, coffered ceilings, and staircase geometry; apply book-matched natural stone and rift-sawn white oak consistent with an Old Bel Air / Beverly Hills flats estate; do not introduce builder-grade finishes or shrink room scale.",
+        "exterior": "Preserve the gated, walled estate silhouette, roofline material (clay tile/slate/copper), and symmetrical facade; render mature hedging and specimen trees, not new sod; keep motor court and porte-cochere proportions intact."
+      },
+      "avoid": [
+        "Shrinking 12+ ft ceilings to standard 9 ft in renders",
+        "Rendering builder-grade stock cabinetry or laminate counters into an estate kitchen",
+        "Stripping the formal symmetry of a Georgian/French facade into an asymmetrical modern box",
+        "Replacing mature landscaping with sparse new-build sod"
+      ],
+      "sources": [
+        {
+          "title": "Touring a $64,000,000 Mansion in Beverly Hills",
+          "url": "https://www.youtube.com/watch?v=e7pXh73C09o",
+          "kind": "youtube"
+        },
+        {
+          "title": "Historic 1918 Huntington-adjacent Georgian Colonial estate context (Myron Hunt, Colonial Revival)",
+          "url": "https://www.einpresswire.com/article/823529124/historic-1918-huntington-family-estate-lists-in-san-marino-for-18-million",
+          "kind": "article"
+        },
+        {
+          "title": "Enes Yilmazer $68M Bel Air Mansion Tour",
+          "url": "https://www.youtube.com/watch?v=ovPk2I2hKB8",
+          "kind": "youtube"
+        },
+        {
+          "title": "Enes Yilmazer YouTube channel (Bel Air/Beverly Hills estate tours)",
+          "url": "https://www.youtube.com/c/EnesYilmazer/videos",
+          "kind": "youtube"
+        }
+      ]
+    },
+    {
+      "id": "hidden-hills-calabasas-modern-farmhouse",
+      "name": "Hidden Hills / Calabasas Modern Farmhouse",
+      "aliases": [
+        "new-build modern farmhouse",
+        "gated equestrian farmhouse estate",
+        "SFV modern farmhouse spec",
+        "Calabasas modern farmhouse estate"
+      ],
+      "stories": 2,
+      "eras": "2015-2026 new construction spec-built",
+      "sizeSqft": [
+        6000,
+        20000
+      ],
+      "neighborhoods": [
+        "Hidden Hills (gated, equestrian)",
+        "Calabasas (The Oaks, The Estates)",
+        "Westlake Village adjacent"
+      ],
+      "tiersPresent": [
+        "luxury"
+      ],
+      "signature": [
+        "Board-and-batten and white/black vertical siding with black-framed windows",
+        "Gabled roofline, standing-seam metal roof accents, exposed wood beam entries",
+        "Oversized black steel-and-glass pivot front door",
+        "Circular gravel or paver motor court behind gates, often with a barn-style garage or detached guest barn",
+        "Resort backyard: pool/spa, outdoor kitchen, bocce/sport court, sometimes a bowling alley or indoor-outdoor pool sanctuary",
+        "Equestrian or flat usable lot (Hidden Hills) vs. view-lot in the Calabasas hills"
+      ],
+      "interiorCharacter": [
+        "10-14 ft ceilings with exposed wood beams in the great room",
+        "Great-room concept: kitchen-dining-family room under one volume, disappearing glass walls to the yard",
+        "Shiplap or venetian-plaster accent walls",
+        "Oversized kitchen island (waterfall or furniture-style leg), scullery/prep kitchen behind the main kitchen",
+        "Wide-plank white oak flooring throughout",
+        "Black steel-frame interior doors and windows as a recurring motif",
+        "Primary suite wing with freestanding tub, walk-through shower, dual closets"
+      ],
+      "tierNotes": {
+        "luxury": {
+          "typicalFinishes": [
+            "Book-matched quartzite or marble waterfall islands",
+            "white oak wide-plank floors (rift-sawn, wire-brushed, or European oak)",
+            "La Cantina/Fleetwood multi-slide glass walls opening the great room to the yard",
+            "panel-ready Sub-Zero/Wolf/Thermador suites, hidden scullery",
+            "black steel windows/doors and matte-black plumbing fixtures",
+            "shiplap, venetian plaster, or limewash accent walls",
+            "wide driveway pavers, board-formed concrete or limestone exterior accents"
+          ],
+          "renderGuidance": "Render the great-room volume with visible wood beams and black steel glazing intact; keep the farmhouse-modern material palette (white/black exterior, warm wood, black steel) consistent between interior and exterior shots; grounds should read resort-new (crisp hedging, new hardscape) rather than legacy-estate mature, since this is new construction.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              150000,
+              400000
+            ],
+            "bath": [
+              75000,
+              200000
+            ],
+            "exteriorRefresh": [
+              100000,
+              350000
+            ]
+          }
+        }
+      },
+      "renderClauses": {
+        "interior": "Preserve the great-room volume, exposed beam ceiling, and black steel window/door grid; keep white oak flooring and waterfall-island proportions; maintain the farmhouse-modern palette of white/black/warm wood rather than drifting into pure minimalism or ornate traditional detailing.",
+        "exterior": "Keep board-and-batten or vertical siding, black window frames, gabled massing, and the pivot door as the anchor feature; preserve gated motor-court scale and resort backyard layout (pool, outdoor kitchen); do not convert the massing into a flat-roof contemporary box."
+      },
+      "avoid": [
+        "Converting the gabled farmhouse roofline into a flat modern roof",
+        "Replacing black steel windows/doors with white vinyl",
+        "Shrinking the great-room ceiling or removing the exposed beams",
+        "Rendering this as a legacy/old-money estate — it should read new-build crisp"
+      ],
+      "sources": [
+        {
+          "title": "$39,995,000 Modern Farmhouse in Hidden Hills 20,000 Sq Ft NEW Build with Indoor Pool & Spa Sanctuary",
+          "url": "https://www.youtube.com/watch?v=wqp3nEX00BY",
+          "kind": "youtube"
+        },
+        {
+          "title": "Inside a $40,000,000 Modern Farmhouse Mansion in Hidden Hills (Full Tour)",
+          "url": "https://www.youtube.com/watch?v=fk6XrDUlrzQ",
+          "kind": "youtube"
+        },
+        {
+          "title": "Inside a $40M Los Angeles Modern Farmhouse With a Bowling Alley!",
+          "url": "https://www.youtube.com/watch?v=BCIMtyq6NJ0",
+          "kind": "youtube"
+        },
+        {
+          "title": "Tour an Airy Farmhouse-Style Estate in Hidden Hills, California | Open House TV",
+          "url": "https://www.youtube.com/watch?v=itOpc-kgg8c",
+          "kind": "youtube"
+        }
+      ]
+    },
+    {
+      "id": "hollywood-hills-sunset-strip-contemporary",
+      "name": "Hollywood Hills / Bird Streets / Sunset Strip Contemporary Hillside",
+      "aliases": [
+        "Bird Streets spec mansion",
+        "glass box hillside home",
+        "organic modern hillside estate",
+        "view-lot contemporary"
+      ],
+      "stories": 2,
+      "eras": "2010s-2026 architectural spec builds; midcentury remodels (Kappe/Lautner lineage)",
+      "sizeSqft": [
+        4000,
+        16000
+      ],
+      "neighborhoods": [
+        "Bird Streets",
+        "Sunset Strip hillside",
+        "Hollywood Hills (Doheny/Nichols Canyon)",
+        "Trousdale Estates (modern side)"
+      ],
+      "tiersPresent": [
+        "luxury"
+      ],
+      "signature": [
+        "Cantilevered massing hugging a steep hillside lot with city/canyon/ocean views",
+        "Floor-to-ceiling glass curtain walls, often a two-story great room",
+        "Flat or low-slope roofline, board-formed concrete or Turkish travertine cladding",
+        "Linear infinity-edge pool cantilevered toward the view",
+        "Motor court behind a discreet gate at the end of a private street",
+        "Central atrium or courtyard with a mature specimen tree (jacaranda, olive)"
+      ],
+      "interiorCharacter": [
+        "Double-height great room combining living, kitchen, and dining under glass",
+        "Disappearing glass walls/pocket doors erasing the indoor-outdoor line",
+        "Monastic natural-material palette: stone slab walls, rift-sawn white oak, blackened steel",
+        "Primary suite as a private pavilion with its own terrace and soaking tub",
+        "Home theater, wine cellar, gym/spa, and often a second full kitchen on a lower entertaining level",
+        "Linear fireplace and minimal-frame glazing throughout"
+      ],
+      "tierNotes": {
+        "luxury": {
+          "typicalFinishes": [
+            "Fire-resilient Turkish travertine or limestone slab wall cladding",
+            "rift-sawn white oak flooring and cabinetry",
+            "minimal-frame or frameless glass walls (Fleetwood/Panoramah-level systems)",
+            "book-matched stone kitchen islands, panel-ready appliance suites, hidden scullery",
+            "linear/ribbon infinity pools with glass tile or dark plaster finish",
+            "integrated smart-home and wellness systems (air purification, circadian lighting)",
+            "board-formed concrete or plaster exterior with steel accents"
+          ],
+          "renderGuidance": "Render glass walls as genuinely transparent with real view content behind them (city grid, canyon, or ocean per the specific hillside); keep ceiling height doubled in the great room; maintain the monastic stone-and-wood palette without adding ornamentation; grounds should feel engineered/architectural, not landscaped in a traditional sense.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              175000,
+              450000
+            ],
+            "bath": [
+              90000,
+              225000
+            ],
+            "exteriorRefresh": [
+              150000,
+              500000
+            ]
+          }
+        }
+      },
+      "renderClauses": {
+        "interior": "Preserve the double-height great room and floor-to-ceiling glazing; keep the natural stone-and-wood material palette (travertine/limestone, white oak, blackened steel) rather than introducing color or heavy ornamentation; maintain minimal sightlines and disappearing glass walls.",
+        "exterior": "Preserve the cantilevered hillside massing, flat/low-slope roofline, and view-facing glass wall; keep the linear infinity pool and its cantilever toward the view; do not add pitched roofs, shutters, or traditional detailing."
+      },
+      "avoid": [
+        "Adding pitched roofs or traditional ornament to a contemporary glass box",
+        "Rendering opaque or reflective 'fake' glass — the view must read through",
+        "Shrinking the double-height great room to a standard ceiling",
+        "Cluttering the minimal material palette with patterned finishes"
+      ],
+      "sources": [
+        {
+          "title": "Inside A $63 Million Architectural Gem In LA's Famed Bird Streets (Nightingale, Woods and Dangaran)",
+          "url": "https://www.forbes.com/sites/emmareynolds/2025/03/28/inside-a-63-million-architectural-gem-in-las-famed-bird-streets/",
+          "kind": "article"
+        },
+        {
+          "title": "Hollywood Hills Home Tour | California Contemporary",
+          "url": "https://www.youtube.com/watch?v=0xQFiYiQss8",
+          "kind": "youtube"
+        },
+        {
+          "title": "Touring a $48,000,000 LA Hillside Mansion with the BEST VIEWS OF LOS ANGELES",
+          "url": "https://www.youtube.com/watch?v=Am3ILPqlcL8",
+          "kind": "youtube"
+        },
+        {
+          "title": "Touring a $23,995,000 Hillside Mansion with Views of Los Angeles",
+          "url": "https://www.youtube.com/watch?v=kuUkgxRlNV0",
+          "kind": "youtube"
+        }
+      ]
+    },
+    {
+      "id": "encino-tarzana-gated-new-build",
+      "name": "Encino / Tarzana South-of-the-Boulevard Gated New Build",
+      "aliases": [
+        "South of Ventura estate",
+        "SFV modern Mediterranean spec",
+        "Valley gated transitional estate",
+        "Encino gated new build"
+      ],
+      "stories": 2,
+      "eras": "2015-2026 new construction spec-built",
+      "sizeSqft": [
+        6000,
+        15000
+      ],
+      "neighborhoods": [
+        "Encino (south of Ventura Blvd, hillside)",
+        "Tarzana (south of the boulevard, hillside/golf-adjacent)",
+        "Sherman Oaks (south of Ventura, gated pockets)"
+      ],
+      "tiersPresent": [
+        "luxury"
+      ],
+      "signature": [
+        "Gated, hedge-walled frontage with a paver motor court and porte-cochere",
+        "Transitional-Mediterranean or modern-farmhouse-hybrid massing — smooth stucco/stone mix with large black or bronze windows",
+        "Resort backyard: infinity-edge or negative-edge pool, swim-up bar or pool house, sport court, sometimes a putting green",
+        "Flat, generously sized lot (Valley advantage vs. hillside lots elsewhere) allowing single-level living wings",
+        "Grand double-door entry, often glass-and-iron or an oversized wood pivot"
+      ],
+      "interiorCharacter": [
+        "10-13 ft ceilings, open-concept great room with disappearing glass walls to the yard",
+        "Large center-island kitchen plus a full scullery/catering kitchen",
+        "Home theater, wine room, gym, and often a full guest/in-law wing",
+        "Primary suite with dual walk-in closets, freestanding tub, walk-through shower",
+        "Wide-plank engineered or white oak flooring, linear fireplaces",
+        "Smart-home integration (lighting, shades, AV) as a default expectation"
+      ],
+      "tierNotes": {
+        "luxury": {
+          "typicalFinishes": [
+            "Large-format porcelain slab or natural stone kitchen islands with waterfall edges",
+            "European white oak wide-plank flooring",
+            "La Cantina/Fleetwood glass wall systems opening to the yard",
+            "panel-ready Sub-Zero/Wolf suites, oversized pantry/scullery",
+            "matte-black or brushed-bronze door and plumbing hardware",
+            "smooth stucco with stone or wood accent cladding at the entry",
+            "resort pool decking in large-format pavers or travertine"
+          ],
+          "renderGuidance": "Render the flat-lot resort-backyard scale accurately (pool + pool house + sport court all fitting comfortably); keep the transitional material mix (smooth stucco + stone/wood accent + large black windows) rather than pushing fully traditional or fully industrial-modern; interiors should read new and crisp, not legacy-estate patinaed.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              150000,
+              380000
+            ],
+            "bath": [
+              75000,
+              190000
+            ],
+            "exteriorRefresh": [
+              120000,
+              350000
+            ]
+          }
+        }
+      },
+      "renderClauses": {
+        "interior": "Preserve the open-concept great room scale and 10+ ft ceiling height; maintain the transitional material mix of stone/quartz islands, white oak flooring, and matte-black hardware; keep glass-wall disappearing systems to the backyard intact.",
+        "exterior": "Preserve the gated flat-lot motor court, smooth stucco/stone massing, and resort backyard proportions (pool, pool house, sport court); keep large-format black/bronze window framing; do not compress the flat-lot yard into a hillside-constrained footprint."
+      },
+      "avoid": [
+        "Shrinking the flat-lot resort backyard into a cramped hillside layout",
+        "Rendering builder-grade tract-home stucco detailing — this tier expects stone/wood accenting",
+        "Losing the large-format black window grid in exterior renders"
+      ],
+      "sources": [
+        {
+          "title": "Touring an IMPRESSIVE Luxury Mansion in Encino!",
+          "url": "https://www.youtube.com/watch?v=pEHvwry-T5I",
+          "kind": "youtube"
+        },
+        {
+          "title": "This Newly-Built Encino Home Went Viral for All the Right Reasons ($8.9M, 7bd/8ba, 9,081 sqft gated estate)",
+          "url": "https://www.fancypantshomes.com/luxury/gorgeous-newly-built-house-in-encino-los-angeles/",
+          "kind": "article"
+        },
+        {
+          "title": "Inside a $14,000,000 Hillside Modern Mansion with a Canyon Backyard (Tarzana)",
+          "url": "https://www.youtube.com/watch?v=Icc1rSoe9gA",
+          "kind": "youtube"
+        }
+      ]
+    },
+    {
+      "id": "manhattan-beach-coastal-modern",
+      "name": "Manhattan Beach Coastal Modern (Sand/Hill Section)",
+      "aliases": [
+        "Strand modern",
+        "beach walk-street contemporary",
+        "South Bay coastal contemporary",
+        "Manhattan Beach coastal modern"
+      ],
+      "stories": 3,
+      "eras": "2010s-2026 narrow-lot new construction and rebuilds",
+      "sizeSqft": [
+        3000,
+        8000
+      ],
+      "neighborhoods": [
+        "Manhattan Beach Sand Section (walk streets, The Strand)",
+        "Manhattan Beach Hill Section",
+        "El Porto / North Manhattan Beach"
+      ],
+      "tiersPresent": [
+        "nice",
+        "luxury"
+      ],
+      "signature": [
+        "Narrow urban-infill lot (typically 30x90) requiring vertical stacking across 3-4 levels",
+        "Vertical wood-and-metal-trimmed facade with large Fleetwood glass openings",
+        "Bookend balconies/decks capturing ocean-to-Catalina or Malibu-to-Palos-Verdes view corridors",
+        "Residential elevator connecting floors, floating open-riser staircase as a centerpiece",
+        "Roof deck as primary outdoor living space (small/no yard at grade)",
+        "Two-to-three car garage at street level, living floors stacked above"
+      ],
+      "interiorCharacter": [
+        "Great room on the top living floor for maximum ocean view (kitchen/dining/living combined)",
+        "Wide-plank French oak flooring throughout",
+        "Floating built-ins, back-lit cabinetry and mirrors",
+        "Kitchen island in stone (quartzite/quartz) with waterfall edge, butterfly-cut walnut cabinetry",
+        "Stacked-stone or marble fireplace as a vertical feature wall",
+        "Primary suite often on its own floor with a private deck"
+      ],
+      "tierNotes": {
+        "nice": {
+          "typicalFinishes": [
+            "Engineered white oak flooring, painted shaker cabinetry",
+            "quartz countertops, standard Fleetwood or comparable slider (not full-wall)",
+            "tile bath surrounds, standard plumbing fixture lines",
+            "composite deck at roof level, glass-panel railing"
+          ],
+          "renderGuidance": "Keep the vertical massing and stacked-floor logic; coastal-fresh but a simpler material palette; roof deck remains but with lighter-touch furnishing.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              70000,
+              150000
+            ],
+            "bath": [
+              35000,
+              80000
+            ],
+            "exteriorRefresh": [
+              40000,
+              120000
+            ]
+          }
+        },
+        "luxury": {
+          "typicalFinishes": [
+            "Wide-plank French oak flooring throughout all levels",
+            "butterfly-cut or espresso walnut cabinetry with back-lit elements",
+            "Cambria/quartzite waterfall kitchen island, stingray-textured stone in the primary bath",
+            "Dornbracht/Watermark/Kallista fixtures, custom pendant lighting",
+            "Fleetwood full-height glass walls and bookend view balconies",
+            "residential elevator, floating staircase, vertically stacked stone fireplace"
+          ],
+          "renderGuidance": "Render the vertical, view-stacked massing accurately — this is not a sprawling single-level estate; keep glass openings large and framed in dark metal; ocean/Catalina view content should be visible and specific to the Sand Section vantage; the roof deck should read as the primary entertaining space.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              150000,
+              350000
+            ],
+            "bath": [
+              80000,
+              180000
+            ],
+            "exteriorRefresh": [
+              100000,
+              280000
+            ]
+          }
+        }
+      },
+      "renderClauses": {
+        "interior": "Preserve the vertical stacked-floor layout and the top-floor great room oriented to the view; keep wide-plank French oak flooring and dark-framed glass openings; maintain a coastal-contemporary palette (warm wood + stone, not a white-washed beach-cottage cliche).",
+        "exterior": "Preserve the narrow-lot vertical massing, dark window framing, and roof-deck-as-yard configuration; keep bookend balconies oriented toward the view corridor; do not add a ground-level yard this lot type doesn't have."
+      },
+      "avoid": [
+        "Flattening the vertical multi-story massing into a sprawling single-story estate",
+        "Inventing a large ground-level backyard on a Sand Section walk-street lot",
+        "Defaulting to an all-white beach-cottage look — luxury tier here is warm wood + stone contemporary"
+      ],
+      "sources": [
+        {
+          "title": "Manhattan Beach Modern Home at 235 4th Street ($7,399,000, Fleetwood doors, French oak, walnut cabinetry)",
+          "url": "https://digs.net/manhattan-beach-modern-home/",
+          "kind": "article"
+        },
+        {
+          "title": "212 Manhattan Avenue — 2026 Modern California Coastal (Ararat Developers/Lane Design + Build/CMS Interior Design)",
+          "url": "https://www.oceanhomemag.com/home-design/a-refined-coastal-retreat-in-manhattan-beach-california/",
+          "kind": "article"
+        },
+        {
+          "title": "Touring a $32.5 Million Oceanfront California Modern Mansion",
+          "url": "https://www.youtube.com/watch?v=j3FaaXf_2iw",
+          "kind": "youtube"
+        },
+        {
+          "title": "Inside Kendrick Lamar's $9.7 Million Manhattan Beach Mansion",
+          "url": "https://www.youtube.com/watch?v=OgiHKK078LA",
+          "kind": "youtube"
+        }
+      ]
+    },
+    {
+      "id": "san-marino-la-canada-traditional-estate",
+      "name": "San Marino / La Cañada Traditional Estate",
+      "aliases": [
+        "Pasadena-adjacent legacy estate",
+        "Georgian/Spanish Colonial Revival estate",
+        "old-money traditional two-story",
+        "San Marino traditional estate"
+      ],
+      "stories": 2,
+      "eras": "1910s-1940s Golden Age Colonial/Spanish/Tudor revival; 1980s-2000s traditional spec estates",
+      "sizeSqft": [
+        4500,
+        12000
+      ],
+      "neighborhoods": [
+        "San Marino (Huntington/Lacy Park area)",
+        "La Cañada Flintridge",
+        "South Pasadena (adjacent estate pockets)"
+      ],
+      "tiersPresent": [
+        "luxury"
+      ],
+      "signature": [
+        "Georgian Colonial, Spanish Colonial Revival, or Tudor massing on 0.5-2+ acre flat lots",
+        "Formal symmetrical facade, brick or smooth stucco with clay tile or slate roofing",
+        "Motor court with circular drive, six-car garage or carriage house common on legacy estates",
+        "Mature specimen landscaping — oaks, camellias, formal boxwood gardens (Huntington-adjacent horticultural tradition)",
+        "Tennis court and/or pool as a separate, formally landscaped garden room rather than an integrated resort deck"
+      ],
+      "interiorCharacter": [
+        "Formal foyer and center-hall plan with symmetrical room flanking",
+        "10-12+ ft ceilings on the main level with plaster crown and picture-rail detail",
+        "Library/study with built-in bookcases and a fireplace",
+        "Formal dining room distinct from a separate breakfast room",
+        "Updated kitchens blend period-appropriate cabinetry with modern function (still separate from the great-room open-concept trend)",
+        "Primary suite as a distinct wing, often with a sitting room"
+      ],
+      "tierNotes": {
+        "luxury": {
+          "typicalFinishes": [
+            "Restored or replicated period millwork, plaster crown and ceiling medallions",
+            "book-matched marble in renovated baths paired with vintage-inspired tile",
+            "refinished or new white-oak/quarter-sawn-oak flooring, herringbone or basketweave in formal rooms",
+            "custom painted or stained wood cabinetry (not high-gloss modern slab) in updated kitchens",
+            "brass or aged-bronze period-appropriate hardware and lighting",
+            "clay tile or slate roof restoration, limestone or cast-stone exterior trim"
+          ],
+          "renderGuidance": "Renders must preserve period architectural authenticity — symmetry, roofline, millwork profiles — even when modernizing kitchen/bath function; updated spaces should read as sensitive renovations within a historic shell, not a contemporary insert; landscaping should read mature and formally structured (parterre gardens, allées), never new-build sod.",
+          "remodelBudgetBands": {
+            "kitchen": [
+              160000,
+              380000
+            ],
+            "bath": [
+              85000,
+              220000
+            ],
+            "exteriorRefresh": [
+              140000,
+              450000
+            ]
+          }
+        }
+      },
+      "renderClauses": {
+        "interior": "Preserve the period architectural detailing (plaster crown, picture rail, center-hall symmetry) and ceiling height; when updating kitchen/bath finishes, keep them sympathetic to the era (painted/stained wood cabinetry, period-appropriate hardware) rather than inserting a stark modern-minimalist kitchen.",
+        "exterior": "Preserve the symmetrical historic facade, roofline material (clay tile/slate), and mature formal landscaping; do not modernize the massing or strip period ornament; motor court and garage scale should remain estate-appropriate."
+      },
+      "avoid": [
+        "Inserting a stark contemporary slab-front kitchen into a Georgian/Spanish Colonial Revival shell",
+        "Stripping plaster crown molding or picture-rail detail in interior renders",
+        "Replacing mature formal gardens with sparse modern landscaping",
+        "Altering the symmetrical historic facade or roofline"
+      ],
+      "sources": [
+        {
+          "title": "Historic 1918 Huntington Family Estate Lists in San Marino for $18 Million (Myron Hunt, Georgian Colonial)",
+          "url": "https://www.einpresswire.com/article/823529124/historic-1918-huntington-family-estate-lists-in-san-marino-for-18-million",
+          "kind": "article"
+        },
+        {
+          "title": "Enchanting San Marino Estate is a Spanish Colonial Revival",
+          "url": "https://blog.bhhscalifornia.com/enchanting-san-marino-estate-is-a-spanish-colonial-revival/",
+          "kind": "article"
+        },
+        {
+          "title": "HOUSE TOUR | A Traditional Home with Classic Interiors in Pasadena, California",
+          "url": "https://www.youtube.com/watch?v=006YxTIjw3M",
+          "kind": "youtube"
+        },
+        {
+          "title": "A 1922 Pasadena Home Filled with English Style & Southern Soul | House Tour",
+          "url": "https://www.youtube.com/watch?v=QMvNNRDkipg",
+          "kind": "youtube"
+        }
+      ]
+    }
+  ]
+}
